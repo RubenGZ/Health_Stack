@@ -1,0 +1,2038 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>HealthStack Pro V2 — Arquitectura Técnica</title>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;500;700&family=Sora:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #0d1117; --bg2: #161b22; --bg3: #1c2128; --bg4: #21262d;
+  --border: #30363d; --border2: #444c56;
+  --blue: #58a6ff; --green: #3fb950; --amber: #d29922; --red: #f85149;
+  --purple: #bc8cff; --cyan: #76e3ea; --orange: #ffa657;
+  --text: #e6edf3; --text2: #8b949e; --text3: #6e7681;
+  --font-code: 'JetBrains Mono', monospace;
+  --font-body: 'Sora', sans-serif;
+}
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html { scroll-behavior: smooth; }
+body {
+  background: var(--bg); color: var(--text);
+  font-family: var(--font-body); font-size: 15px; line-height: 1.7;
+  overflow-x: hidden;
+}
+::-webkit-scrollbar { width: 6px; }
+::-webkit-scrollbar-track { background: var(--bg); }
+::-webkit-scrollbar-thumb { background: var(--border2); border-radius: 3px; }
+
+/* NAV */
+.nav {
+  position: fixed; top: 0; left: 0; bottom: 0; width: 260px;
+  background: var(--bg2); border-right: 1px solid var(--border);
+  overflow-y: auto; z-index: 100; padding: 20px 0;
+}
+.nav-logo {
+  padding: 0 20px 20px;
+  border-bottom: 1px solid var(--border);
+  margin-bottom: 16px;
+}
+.nav-logo-title {
+  font-size: 1rem; font-weight: 700; color: var(--text);
+  letter-spacing: -0.02em;
+}
+.nav-logo-sub {
+  font-family: var(--font-code); font-size: 0.65rem;
+  color: var(--blue); margin-top: 3px;
+}
+.nav-section { padding: 8px 20px 4px; }
+.nav-section-label {
+  font-family: var(--font-code); font-size: 0.62rem;
+  letter-spacing: 0.1em; text-transform: uppercase;
+  color: var(--text3); margin-bottom: 6px;
+}
+.nav-item {
+  display: flex; align-items: center; gap: 8px;
+  padding: 6px 10px; border-radius: 6px;
+  font-size: 0.82rem; color: var(--text2);
+  cursor: pointer; transition: all 0.15s;
+  text-decoration: none;
+}
+.nav-item:hover { background: var(--bg3); color: var(--text); }
+.nav-item.active { background: rgba(88,166,255,0.12); color: var(--blue); }
+.nav-badge {
+  font-family: var(--font-code); font-size: 0.58rem;
+  padding: 2px 6px; border-radius: 4px; margin-left: auto;
+  background: rgba(88,166,255,0.15); color: var(--blue);
+}
+.nav-badge.green { background: rgba(63,185,80,0.15); color: var(--green); }
+.nav-badge.amber { background: rgba(210,153,34,0.15); color: var(--amber); }
+.nav-badge.purple { background: rgba(188,140,255,0.15); color: var(--purple); }
+
+/* MAIN */
+.main { margin-left: 260px; padding: 40px 48px 80px; max-width: 1100px; }
+@media(max-width:900px) { .nav{display:none} .main{margin-left:0; padding:24px} }
+
+/* HERO HEADER */
+.doc-header {
+  border-bottom: 1px solid var(--border);
+  padding-bottom: 28px; margin-bottom: 40px;
+}
+.doc-tag {
+  display: inline-flex; align-items: center; gap: 6px;
+  font-family: var(--font-code); font-size: 0.7rem;
+  letter-spacing: 0.1em; text-transform: uppercase;
+  color: var(--blue); background: rgba(88,166,255,0.08);
+  border: 1px solid rgba(88,166,255,0.2);
+  padding: 4px 12px; border-radius: 50px; margin-bottom: 14px;
+}
+.doc-tag-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--blue); }
+.doc-title {
+  font-size: clamp(1.8rem, 4vw, 2.6rem);
+  font-weight: 700; letter-spacing: -0.03em; color: var(--text);
+  margin-bottom: 10px; line-height: 1.2;
+}
+.doc-title span { color: var(--blue); }
+.doc-meta {
+  display: flex; flex-wrap: wrap; gap: 16px;
+  font-family: var(--font-code); font-size: 0.72rem; color: var(--text3);
+  margin-top: 14px;
+}
+.doc-meta span { display: flex; align-items: center; gap: 5px; }
+
+/* SECTIONS */
+.section { margin-bottom: 56px; }
+.section-anchor { scroll-margin-top: 20px; }
+h2.section-title {
+  font-size: 1.35rem; font-weight: 600;
+  letter-spacing: -0.02em; color: var(--text);
+  display: flex; align-items: center; gap: 10px;
+  padding-bottom: 12px; border-bottom: 1px solid var(--border);
+  margin-bottom: 20px;
+}
+.section-num {
+  font-family: var(--font-code); font-size: 0.68rem;
+  color: var(--blue); background: rgba(88,166,255,0.1);
+  border: 1px solid rgba(88,166,255,0.2);
+  padding: 3px 8px; border-radius: 4px;
+}
+h3 {
+  font-size: 1rem; font-weight: 600; color: var(--text);
+  margin: 24px 0 10px; display: flex; align-items: center; gap: 8px;
+}
+h3 .h3-tag {
+  font-family: var(--font-code); font-size: 0.6rem;
+  letter-spacing: 0.08em; text-transform: uppercase;
+  padding: 2px 7px; border-radius: 4px;
+}
+p { color: var(--text2); margin-bottom: 12px; line-height: 1.75; }
+strong { color: var(--text); font-weight: 500; }
+
+/* CODE BLOCKS */
+.code-block {
+  background: var(--bg2); border: 1px solid var(--border);
+  border-radius: 10px; overflow: hidden; margin: 14px 0;
+}
+.code-header {
+  display: flex; justify-content: space-between; align-items: center;
+  padding: 10px 16px;
+  background: var(--bg3); border-bottom: 1px solid var(--border);
+}
+.code-lang {
+  font-family: var(--font-code); font-size: 0.68rem;
+  letter-spacing: 0.08em; text-transform: uppercase;
+  color: var(--blue);
+}
+.code-file {
+  font-family: var(--font-code); font-size: 0.7rem;
+  color: var(--text3);
+}
+.code-copy {
+  font-family: var(--font-code); font-size: 0.65rem;
+  color: var(--text3); background: none; border: none;
+  cursor: pointer; transition: color 0.2s;
+}
+.code-copy:hover { color: var(--text); }
+pre {
+  padding: 18px 20px; overflow-x: auto;
+  font-family: var(--font-code); font-size: 0.8rem;
+  line-height: 1.65; color: var(--text);
+  tab-size: 2;
+}
+/* Syntax highlight classes */
+.kw { color: #ff7b72; } /* keywords */
+.fn { color: #d2a8ff; } /* functions */
+.st { color: #a5d6ff; } /* strings */
+.cm { color: var(--text3); font-style: italic; } /* comments */
+.nu { color: #79c0ff; } /* numbers */
+.ty { color: #ffa657; } /* types */
+.de { color: var(--cyan); } /* decorator */
+.op { color: #ff7b72; } /* operators */
+.va { color: var(--text); } /* variables */
+.pr { color: var(--green); } /* property */
+
+/* ERD DIAGRAM */
+.erd-container {
+  background: var(--bg2); border: 1px solid var(--border);
+  border-radius: 12px; padding: 24px; overflow-x: auto;
+  margin: 16px 0;
+}
+.erd { display: flex; gap: 20px; flex-wrap: wrap; align-items: flex-start; }
+.erd-table {
+  background: var(--bg3); border: 1px solid var(--border2);
+  border-radius: 8px; overflow: hidden; min-width: 200px;
+  flex-shrink: 0;
+}
+.erd-table.identity { border-top: 3px solid var(--blue); }
+.erd-table.health { border-top: 3px solid var(--red); }
+.erd-table.link { border-top: 3px solid var(--purple); }
+.erd-table.content { border-top: 3px solid var(--green); }
+.erd-table-header {
+  padding: 10px 14px;
+  background: var(--bg4);
+  font-family: var(--font-code); font-size: 0.78rem; font-weight: 700;
+  display: flex; align-items: center; gap: 8px;
+}
+.erd-table-header .erd-icon { font-size: 0.9rem; }
+.erd-field {
+  padding: 6px 14px;
+  font-family: var(--font-code); font-size: 0.72rem;
+  display: flex; justify-content: space-between; align-items: center;
+  border-top: 1px solid var(--border);
+  gap: 12px;
+}
+.erd-field.pk { background: rgba(88,166,255,0.06); }
+.erd-field.fk { background: rgba(188,140,255,0.05); }
+.erd-field.encrypted { background: rgba(248,81,73,0.05); }
+.erd-field-name { color: var(--text); }
+.erd-field-name.pk-name { color: var(--blue); }
+.erd-field-name.fk-name { color: var(--purple); }
+.erd-field-type { color: var(--text3); font-size: 0.65rem; }
+.erd-field-badge {
+  font-size: 0.55rem; padding: 1px 5px; border-radius: 3px;
+  white-space: nowrap;
+}
+.badge-pk { background: rgba(88,166,255,0.2); color: var(--blue); }
+.badge-fk { background: rgba(188,140,255,0.2); color: var(--purple); }
+.badge-enc { background: rgba(248,81,73,0.2); color: var(--red); }
+.badge-idx { background: rgba(63,185,80,0.2); color: var(--green); }
+.badge-uni { background: rgba(210,153,34,0.2); color: var(--amber); }
+.erd-arrows {
+  display: flex; flex-direction: column; justify-content: center;
+  gap: 4px; padding: 0 8px; color: var(--text3);
+  font-family: var(--font-code); font-size: 0.65rem; align-items: center;
+}
+.erd-arrow-line {
+  width: 2px; height: 30px;
+  background: linear-gradient(to bottom, var(--purple), transparent);
+  margin: 0 auto;
+}
+
+/* CALLOUT BOXES */
+.callout {
+  border-radius: 8px; padding: 14px 16px; margin: 16px 0;
+  display: flex; gap: 12px; align-items: flex-start;
+}
+.callout.info { background: rgba(88,166,255,0.08); border: 1px solid rgba(88,166,255,0.2); }
+.callout.warning { background: rgba(210,153,34,0.08); border: 1px solid rgba(210,153,34,0.2); }
+.callout.danger { background: rgba(248,81,73,0.08); border: 1px solid rgba(248,81,73,0.2); }
+.callout.success { background: rgba(63,185,80,0.08); border: 1px solid rgba(63,185,80,0.2); }
+.callout-icon { font-size: 1rem; flex-shrink: 0; margin-top: 2px; }
+.callout-body { font-size: 0.87rem; color: var(--text2); line-height: 1.6; }
+.callout-body strong { color: var(--text); }
+.callout.info .callout-body strong { color: var(--blue); }
+.callout.warning .callout-body strong { color: var(--amber); }
+.callout.danger .callout-body strong { color: var(--red); }
+.callout.success .callout-body strong { color: var(--green); }
+
+/* API TABLE */
+.api-table { width: 100%; border-collapse: collapse; margin: 14px 0; }
+.api-table th {
+  font-family: var(--font-code); font-size: 0.68rem;
+  letter-spacing: 0.08em; text-transform: uppercase;
+  color: var(--text3); padding: 8px 12px;
+  background: var(--bg3); text-align: left;
+  border: 1px solid var(--border);
+}
+.api-table td {
+  padding: 9px 12px; border: 1px solid var(--border);
+  font-size: 0.82rem; color: var(--text2);
+  vertical-align: top;
+}
+.api-table td:first-child { font-family: var(--font-code); font-size: 0.75rem; }
+.method {
+  font-family: var(--font-code); font-size: 0.68rem; font-weight: 700;
+  padding: 2px 7px; border-radius: 4px;
+  display: inline-block;
+}
+.method.GET { background: rgba(63,185,80,0.2); color: var(--green); }
+.method.POST { background: rgba(88,166,255,0.2); color: var(--blue); }
+.method.PUT { background: rgba(210,153,34,0.2); color: var(--amber); }
+.method.DELETE { background: rgba(248,81,73,0.2); color: var(--red); }
+.method.PATCH { background: rgba(188,140,255,0.2); color: var(--purple); }
+.endpoint-path { color: var(--cyan); font-family: var(--font-code); font-size: 0.75rem; }
+.auth-badge {
+  font-family: var(--font-code); font-size: 0.62rem;
+  padding: 2px 6px; border-radius: 3px; white-space: nowrap;
+  background: rgba(188,140,255,0.12); color: var(--purple); border: 1px solid rgba(188,140,255,0.2);
+}
+
+/* FOLDER TREE */
+.tree {
+  font-family: var(--font-code); font-size: 0.78rem;
+  line-height: 1.8; color: var(--text2);
+}
+.tree .dir { color: var(--blue); }
+.tree .file { color: var(--text2); }
+.tree .file.ts { color: var(--cyan); }
+.tree .file.py { color: #4ec9b0; }
+.tree .file.prisma { color: var(--purple); }
+.tree .file.env { color: var(--amber); }
+.tree .file.docker { color: #0db7ed; }
+.tree .file.yaml { color: var(--orange); }
+.tree .comment { color: var(--text3); font-style: italic; }
+
+/* STEPS */
+.steps { display: flex; flex-direction: column; gap: 12px; margin: 16px 0; }
+.step {
+  display: flex; gap: 14px; align-items: flex-start;
+  background: var(--bg2); border: 1px solid var(--border);
+  border-radius: 10px; padding: 16px;
+}
+.step-num {
+  width: 28px; height: 28px; border-radius: 50%; flex-shrink: 0;
+  background: var(--blue); color: var(--bg);
+  display: flex; align-items: center; justify-content: center;
+  font-family: var(--font-code); font-size: 0.72rem; font-weight: 700;
+}
+.step-content h4 {
+  font-size: 0.9rem; font-weight: 600; color: var(--text); margin-bottom: 4px;
+}
+.step-content p { font-size: 0.83rem; margin: 0; }
+
+/* METRICS GRID */
+.metrics-grid {
+  display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 12px; margin: 14px 0;
+}
+.metric-card {
+  background: var(--bg2); border: 1px solid var(--border);
+  border-radius: 8px; padding: 14px 16px;
+}
+.metric-card-name {
+  font-family: var(--font-code); font-size: 0.68rem;
+  letter-spacing: 0.05em; color: var(--text3);
+  text-transform: uppercase; margin-bottom: 4px;
+}
+.metric-card-value {
+  font-family: var(--font-code); font-size: 0.82rem;
+  color: var(--cyan);
+}
+.metric-card-desc { font-size: 0.78rem; color: var(--text3); margin-top: 4px; }
+
+/* ARCH DIAGRAM */
+.arch-diagram {
+  background: var(--bg2); border: 1px solid var(--border);
+  border-radius: 12px; padding: 24px; margin: 16px 0;
+}
+.arch-row {
+  display: flex; gap: 12px; justify-content: center;
+  align-items: center; margin-bottom: 8px; flex-wrap: wrap;
+}
+.arch-box {
+  background: var(--bg3); border: 1px solid var(--border2);
+  border-radius: 8px; padding: 10px 16px; text-align: center;
+  font-family: var(--font-code); font-size: 0.72rem;
+  min-width: 100px;
+}
+.arch-box.client { border-color: var(--blue); color: var(--blue); }
+.arch-box.gateway { border-color: var(--green); color: var(--green); }
+.arch-box.service { border-color: var(--purple); color: var(--purple); }
+.arch-box.data { border-color: var(--amber); color: var(--amber); }
+.arch-box.infra { border-color: var(--cyan); color: var(--cyan); }
+.arch-box-label { font-size: 0.6rem; color: var(--text3); margin-top: 2px; }
+.arch-arrow { color: var(--text3); font-size: 0.9rem; }
+.arch-separator {
+  text-align: center; font-family: var(--font-code); font-size: 0.65rem;
+  color: var(--text3); padding: 4px 0; letter-spacing: 0.1em;
+}
+
+/* DIVIDER */
+.divider { height: 1px; background: var(--border); margin: 32px 0; }
+
+/* INLINE CODE */
+code {
+  font-family: var(--font-code); font-size: 0.78rem;
+  background: var(--bg3); border: 1px solid var(--border);
+  padding: 1px 5px; border-radius: 4px; color: var(--orange);
+}
+
+/* COMPLIANCE TABLE */
+.compliance-item {
+  display: flex; gap: 12px; padding: 10px 14px;
+  background: var(--bg2); border: 1px solid var(--border);
+  border-radius: 8px; margin-bottom: 8px; align-items: flex-start;
+}
+.compliance-status {
+  font-family: var(--font-code); font-size: 0.65rem;
+  padding: 3px 8px; border-radius: 4px; white-space: nowrap;
+  flex-shrink: 0;
+}
+.compliance-status.done { background: rgba(63,185,80,0.15); color: var(--green); }
+.compliance-status.arch { background: rgba(88,166,255,0.15); color: var(--blue); }
+.compliance-status.req { background: rgba(210,153,34,0.15); color: var(--amber); }
+.compliance-content h5 { font-size: 0.85rem; color: var(--text); margin-bottom: 3px; }
+.compliance-content p { font-size: 0.78rem; margin: 0; }
+
+/* FOOTER */
+.doc-footer {
+  margin-top: 60px; padding-top: 24px; border-top: 1px solid var(--border);
+  display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px;
+  font-family: var(--font-code); font-size: 0.68rem; color: var(--text3);
+}
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav class="nav">
+  <div class="nav-logo">
+    <div class="nav-logo-title">HealthStack Pro V2</div>
+    <div class="nav-logo-sub">Arquitectura Técnica — v1.0</div>
+  </div>
+
+  <div class="nav-section">
+    <div class="nav-section-label">Introducción</div>
+    <a class="nav-item active" href="#overview">Visión General</a>
+    <a class="nav-item" href="#stack">Stack Tecnológico</a>
+    <a class="nav-item" href="#folder">Estructura de Carpetas</a>
+  </div>
+
+  <div class="nav-section">
+    <div class="nav-section-label">Paso 1 — Base de Datos</div>
+    <a class="nav-item" href="#erd">ERD + Seudonimización<span class="nav-badge green">AEPD</span></a>
+    <a class="nav-item" href="#prisma">Esquema Prisma</a>
+    <a class="nav-item" href="#cross-ref">Llave de Cruce AES-256<span class="nav-badge">SEC</span></a>
+  </div>
+
+  <div class="nav-section">
+    <div class="nav-section-label">Paso 2 — Motor de Negocio</div>
+    <a class="nav-item" href="#strategy">Strategy Pattern<span class="nav-badge purple">DDD</span></a>
+    <a class="nav-item" href="#workout-engine">Motor de Entreno</a>
+  </div>
+
+  <div class="nav-section">
+    <div class="nav-section-label">Paso 3 — API & Seguridad</div>
+    <a class="nav-item" href="#api">Endpoints API</a>
+    <a class="nav-item" href="#security">Estrategia de Seguridad</a>
+    <a class="nav-item" href="#docker">Docker + Nginx</a>
+  </div>
+
+  <div class="nav-section">
+    <div class="nav-section-label">Observabilidad</div>
+    <a class="nav-item" href="#monitoring">Sentry + Prometheus</a>
+    <a class="nav-item" href="#rgpd">Checklist RGPD/AEPD<span class="nav-badge amber">LEY</span></a>
+  </div>
+</nav>
+
+<!-- MAIN -->
+<main class="main">
+
+<!-- HEADER -->
+<div class="doc-header" id="overview">
+  <div class="doc-tag"><div class="doc-tag-dot"></div>Documento de Arquitectura Senior — Confidencial</div>
+  <h1 class="doc-title">HealthStack Pro <span>V2</span><br>Especificación Técnica Completa</h1>
+  <p style="color:var(--text2); max-width:700px; font-size:0.92rem">
+    Plataforma de Nutrición y Entrenamiento Inteligente diseñada con cumplimiento estricto de la
+    normativa española <strong>RGPD/AEPD</strong>, arquitectura de capas, seudonimización de datos
+    biométricos y patron Strategy para el motor nutricional intercambiable.
+  </p>
+  <div class="doc-meta">
+    <span>📅 2025</span>
+    <span>🏗️ Next.js 14 + FastAPI</span>
+    <span>🗄️ PostgreSQL + Prisma ORM</span>
+    <span>🔐 AES-256-GCM + TLS 1.3</span>
+    <span>🇪🇺 Hetzner EU — RGPD Compliant</span>
+  </div>
+</div>
+
+<!-- ARCH OVERVIEW -->
+<div class="arch-diagram">
+  <div class="arch-separator">CAPA DE CLIENTE</div>
+  <div class="arch-row">
+    <div class="arch-box client">Next.js 14<div class="arch-box-label">App Router + TypeScript</div></div>
+    <div class="arch-box client">React Query<div class="arch-box-label">Estado del servidor</div></div>
+    <div class="arch-box client">Zustand<div class="arch-box-label">Estado global</div></div>
+  </div>
+  <div class="arch-row"><span class="arch-arrow">↓ HTTPS / TLS 1.3</span></div>
+  <div class="arch-separator">CAPA DE GATEWAY</div>
+  <div class="arch-row">
+    <div class="arch-box gateway">Nginx<div class="arch-box-label">Reverse Proxy + Rate Limit</div></div>
+    <div class="arch-box gateway">JWT Middleware<div class="arch-box-label">Auth + Roles</div></div>
+  </div>
+  <div class="arch-row"><span class="arch-arrow">↓ Red Docker interna</span></div>
+  <div class="arch-separator">CAPA DE SERVICIOS</div>
+  <div class="arch-row">
+    <div class="arch-box service">FastAPI<div class="arch-box-label">Servicio Principal</div></div>
+    <div class="arch-box service">NutritionService<div class="arch-box-label">Strategy Pattern</div></div>
+    <div class="arch-box service">CryptoService<div class="arch-box-label">Llave de Cruce AES-256</div></div>
+    <div class="arch-box service">WorkoutEngine<div class="arch-box-label">Algoritmo dinámico</div></div>
+  </div>
+  <div class="arch-row"><span class="arch-arrow">↓ SQLAlchemy / Prisma</span></div>
+  <div class="arch-separator">CAPA DE DATOS (Aislada por seudonimización)</div>
+  <div class="arch-row">
+    <div class="arch-box data">Users DB<div class="arch-box-label">Identidad (sin salud)</div></div>
+    <div class="arch-box data">Health DB<div class="arch-box-label">Biometría (sin identidad)</div></div>
+    <div class="arch-box data">Content DB<div class="arch-box-label">Recetas + Rutinas</div></div>
+  </div>
+  <div class="arch-row"><span class="arch-arrow">↓ Persistencia</span></div>
+  <div class="arch-separator">INFRAESTRUCTURA</div>
+  <div class="arch-row">
+    <div class="arch-box infra">PostgreSQL 16<div class="arch-box-label">Hetzner FSN1 (Fráncfort)</div></div>
+    <div class="arch-box infra">Redis 7<div class="arch-box-label">Caché + Rate Limit</div></div>
+    <div class="arch-box infra">Prometheus + Grafana<div class="arch-box-label">Métricas</div></div>
+    <div class="arch-box infra">Sentry<div class="arch-box-label">Error Tracking</div></div>
+  </div>
+</div>
+
+<!-- STACK -->
+<section class="section" id="stack">
+  <h2 class="section-title"><span class="section-num">§1</span> Stack Tecnológico</h2>
+
+  <div style="display:grid; grid-template-columns:repeat(auto-fill,minmax(300px,1fr)); gap:12px">
+    <div class="compliance-item">
+      <div class="compliance-status arch">Frontend</div>
+      <div class="compliance-content">
+        <h5>Next.js 14+ (App Router) — TypeScript</h5>
+        <p>Server Components por defecto. Tailwind CSS + Shadcn/ui. React Query para data fetching. Zustand para estado global. Zod para validación de formularios del lado cliente.</p>
+      </div>
+    </div>
+    <div class="compliance-item">
+      <div class="compliance-status arch">Backend</div>
+      <div class="compliance-content">
+        <h5>FastAPI (Python 3.12) — Arquitectura de Capas</h5>
+        <p>Routers → Services → Repositories → Models. SQLAlchemy 2.0 + Alembic para migraciones. Pydantic v2 para validación. Uvicorn + Gunicorn como servidor ASGI.</p>
+      </div>
+    </div>
+    <div class="compliance-item">
+      <div class="compliance-status arch">Base de datos</div>
+      <div class="compliance-content">
+        <h5>PostgreSQL 16 + Prisma ORM (también SQLAlchemy)</h5>
+        <p>Dos esquemas separados: <code>public</code> (identidad) y <code>health</code> (biometría). Row-Level Security (RLS) activado. Prisma para el frontend, SQLAlchemy para el backend Python.</p>
+      </div>
+    </div>
+    <div class="compliance-item">
+      <div class="compliance-status arch">Infra</div>
+      <div class="compliance-content">
+        <h5>Hetzner CX31 — Fráncfort (EU-Central)</h5>
+        <p>Docker Compose en producción. Nginx como reverse proxy. Certbot/Let's Encrypt para TLS 1.3. Backups diarios cifrados a Hetzner S3-compatible en Fráncfort.</p>
+      </div>
+    </div>
+    <div class="compliance-item">
+      <div class="compliance-status done">Seguridad</div>
+      <div class="compliance-content">
+        <h5>AES-256-GCM + RSA-OAEP + Argon2id</h5>
+        <p>Llave de cruce cifrada con AES-256-GCM. Contraseñas con Argon2id (no bcrypt). JWT RS256 (clave asimétrica). HSTS, CSP, X-Frame-Options en todas las respuestas.</p>
+      </div>
+    </div>
+    <div class="compliance-item">
+      <div class="compliance-status done">Observabilidad</div>
+      <div class="compliance-content">
+        <h5>Sentry + Prometheus + Grafana + Loki</h5>
+        <p>Sentry para error tracking (con data scrubbing de PII). Prometheus + Grafana para métricas de negocio y sistema. Loki para logs estructurados (sin datos de salud en logs).</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- FOLDER STRUCTURE -->
+<section class="section" id="folder">
+  <h2 class="section-title"><span class="section-num">§2</span> Estructura de Carpetas — Paso 1</h2>
+  <p>Monorepo con separación clara entre frontend y backend. La estructura refleja la arquitectura de capas.</p>
+
+  <div class="code-block">
+    <div class="code-header">
+      <span class="code-lang">Filesystem</span>
+      <span class="code-file">healthstack-pro/</span>
+    </div>
+    <pre class="tree">
+healthstack-pro/
+├── <span class="dir">apps/</span>
+│   ├── <span class="dir">web/</span>                         <span class="comment"># Next.js 14 Frontend</span>
+│   │   ├── <span class="dir">app/</span>
+│   │   │   ├── <span class="dir">(auth)/</span>              <span class="comment"># Rutas sin layout principal</span>
+│   │   │   │   ├── <span class="dir">login/</span>
+│   │   │   │   └── <span class="dir">register/</span>
+│   │   │   ├── <span class="dir">(dashboard)/</span>         <span class="comment"># Rutas protegidas</span>
+│   │   │   │   ├── <span class="dir">nutrition/</span>
+│   │   │   │   ├── <span class="dir">workouts/</span>
+│   │   │   │   ├── <span class="dir">biometrics/</span>
+│   │   │   │   └── <span class="dir">profile/</span>
+│   │   │   ├── <span class="dir">api/</span>                 <span class="comment"># Next.js API Routes (proxy al backend)</span>
+│   │   │   └── layout.tsx
+│   │   ├── <span class="dir">components/</span>
+│   │   │   ├── <span class="dir">ui/</span>                  <span class="comment"># Shadcn/ui components</span>
+│   │   │   ├── <span class="dir">nutrition/</span>
+│   │   │   ├── <span class="dir">workouts/</span>
+│   │   │   └── <span class="dir">charts/</span>
+│   │   ├── <span class="dir">lib/</span>
+│   │   │   ├── <span class="file ts">api-client.ts</span>        <span class="comment"># Axios wrapper tipado</span>
+│   │   │   ├── <span class="file ts">auth.ts</span>              <span class="comment"># NextAuth v5 config</span>
+│   │   │   └── <span class="file ts">validations.ts</span>       <span class="comment"># Zod schemas</span>
+│   │   └── <span class="file env">.env.local</span>
+│   │
+│   └── <span class="dir">api/</span>                         <span class="comment"># FastAPI Backend</span>
+│       ├── <span class="dir">app/</span>
+│       │   ├── <span class="file py">main.py</span>              <span class="comment"># FastAPI app factory</span>
+│       │   ├── <span class="dir">core/</span>
+│       │   │   ├── <span class="file py">config.py</span>        <span class="comment"># Settings (Pydantic BaseSettings)</span>
+│       │   │   ├── <span class="file py">security.py</span>      <span class="comment"># JWT, AES-256, Argon2id</span>
+│       │   │   └── <span class="file py">database.py</span>      <span class="comment"># SQLAlchemy engine + sessions</span>
+│       │   ├── <span class="dir">models/</span>              <span class="comment"># SQLAlchemy ORM models</span>
+│       │   │   ├── <span class="file py">identity.py</span>      <span class="comment"># Users, HealthLink</span>
+│       │   │   ├── <span class="file py">health.py</span>        <span class="comment"># BiometricData (schema health)</span>
+│       │   │   └── <span class="file py">content.py</span>       <span class="comment"># Recipes, Workouts, Ingredients</span>
+│       │   ├── <span class="dir">schemas/</span>             <span class="comment"># Pydantic request/response DTOs</span>
+│       │   ├── <span class="dir">repositories/</span>        <span class="comment"># Capa de acceso a datos</span>
+│       │   ├── <span class="dir">services/</span>            <span class="comment"># Lógica de negocio</span>
+│       │   │   ├── <span class="file py">nutrition/</span>
+│       │   │   │   ├── <span class="file py">base_strategy.py</span>
+│       │   │   │   ├── <span class="file py">keto_strategy.py</span>
+│       │   │   │   ├── <span class="file py">vegan_strategy.py</span>
+│       │   │   │   ├── <span class="file py">high_protein_strategy.py</span>
+│       │   │   │   └── <span class="file py">nutrition_calculator.py</span>
+│       │   │   ├── <span class="file py">workout_engine.py</span>
+│       │   │   └── <span class="file py">crypto_service.py</span>  <span class="comment"># AES-256-GCM llave de cruce</span>
+│       │   ├── <span class="dir">routers/</span>             <span class="comment"># FastAPI routers por dominio</span>
+│       │   └── <span class="dir">middleware/</span>          <span class="comment"># Auth, logging, rate-limit</span>
+│       ├── <span class="dir">migrations/</span>              <span class="comment"># Alembic migrations</span>
+│       ├── <span class="dir">tests/</span>
+│       └── <span class="file env">.env</span>
+│
+├── <span class="dir">packages/</span>
+│   ├── <span class="dir">database/</span>                    <span class="comment"># Prisma schema (compartido)</span>
+│   │   ├── <span class="file prisma">schema.prisma</span>
+│   │   └── <span class="file ts">index.ts</span>             <span class="comment"># Prisma Client export</span>
+│   └── <span class="dir">shared-types/</span>            <span class="comment"># DTOs compartidos front/back</span>
+│
+├── <span class="dir">infra/</span>
+│   ├── <span class="file docker">docker-compose.yml</span>
+│   ├── <span class="file docker">docker-compose.prod.yml</span>
+│   ├── <span class="dir">nginx/</span>
+│   │   └── nginx.conf
+│   └── <span class="dir">prometheus/</span>
+│       └── prometheus.yml
+│
+└── <span class="file yaml">turbo.json</span>                       <span class="comment"># Turborepo config</span></pre>
+  </div>
+</section>
+
+<!-- ERD -->
+<section class="section" id="erd">
+  <h2 class="section-title"><span class="section-num">§3</span> ERD — Aislamiento de Datos de Salud (AEPD)</h2>
+
+  <div class="callout danger">
+    <div class="callout-icon">⚖️</div>
+    <div class="callout-body">
+      <strong>Principio de Seudonimización (Art. 25 RGPD — Privacy by Design):</strong>
+      Los datos de salud (biometría, peso, historial) se almacenan en el esquema <code>health</code> de PostgreSQL
+      sin ningún campo que identifique directamente al usuario. El vínculo entre identidad y datos de salud
+      <strong>SOLO puede resolverlo el servicio backend con la clave maestra</strong> — nunca a través de SQL directo.
+    </div>
+  </div>
+
+  <div class="erd-container">
+    <div class="erd">
+      <!-- IDENTITY SCHEMA -->
+      <div>
+        <div style="font-family:var(--font-code);font-size:0.65rem;letter-spacing:0.1em;text-transform:uppercase;color:var(--blue);margin-bottom:8px">schema: public (Identidad)</div>
+        <div class="erd-table identity">
+          <div class="erd-table-header"><span class="erd-icon">👤</span> users</div>
+          <div class="erd-field pk"><span class="erd-field-name pk-name">id</span><span style="display:flex;gap:4px;align-items:center"><span class="erd-field-type">UUID</span><span class="erd-field-badge badge-pk">PK</span></span></div>
+          <div class="erd-field"><span class="erd-field-name">email</span><span style="display:flex;gap:4px;align-items:center"><span class="erd-field-type">VARCHAR(255)</span><span class="erd-field-badge badge-uni">UNIQUE</span></span></div>
+          <div class="erd-field"><span class="erd-field-name">password_hash</span><span class="erd-field-type">TEXT (Argon2id)</span></div>
+          <div class="erd-field"><span class="erd-field-name">display_name</span><span class="erd-field-type">VARCHAR(100)</span></div>
+          <div class="erd-field"><span class="erd-field-name">role</span><span class="erd-field-type">ENUM(user,admin)</span></div>
+          <div class="erd-field"><span class="erd-field-name">email_verified</span><span class="erd-field-type">BOOLEAN</span></div>
+          <div class="erd-field"><span class="erd-field-name">created_at</span><span class="erd-field-type">TIMESTAMPTZ</span></div>
+          <div class="erd-field"><span class="erd-field-name">last_login_at</span><span class="erd-field-type">TIMESTAMPTZ</span></div>
+          <div class="erd-field"><span class="erd-field-name">consent_gdpr</span><span class="erd-field-type">BOOLEAN (Art. 7 RGPD)</span></div>
+          <div class="erd-field"><span class="erd-field-name">consent_date</span><span class="erd-field-type">TIMESTAMPTZ</span></div>
+        </div>
+
+        <div style="margin-top:12px">
+          <div class="erd-table identity">
+            <div class="erd-table-header"><span class="erd-icon">📊</span> user_preferences</div>
+            <div class="erd-field pk"><span class="erd-field-name pk-name">id</span><span class="erd-field-type">UUID PK</span></div>
+            <div class="erd-field fk"><span class="erd-field-name fk-name">user_id</span><span style="display:flex;gap:4px;align-items:center"><span class="erd-field-type">UUID</span><span class="erd-field-badge badge-fk">FK→users</span></span></div>
+            <div class="erd-field"><span class="erd-field-name">diet_strategy</span><span class="erd-field-type">ENUM(keto,vegan,high_protein)</span></div>
+            <div class="erd-field"><span class="erd-field-name">activity_level</span><span class="erd-field-type">ENUM</span></div>
+            <div class="erd-field"><span class="erd-field-name">goal</span><span class="erd-field-type">ENUM(bulk,cut,maintain)</span></div>
+            <div class="erd-field"><span class="erd-field-name">locale</span><span class="erd-field-type">VARCHAR(5)</span></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- LINK TABLE -->
+      <div style="display:flex;flex-direction:column;align-items:center;justify-content:flex-start;padding-top:50px">
+        <div style="font-family:var(--font-code);font-size:0.65rem;color:var(--purple);text-align:center;margin-bottom:8px">LLAVE DE CRUCE</div>
+        <div class="erd-table link">
+          <div class="erd-table-header"><span class="erd-icon">🔐</span> health_link</div>
+          <div class="erd-field pk"><span class="erd-field-name pk-name">id</span><span class="erd-field-type">UUID PK</span></div>
+          <div class="erd-field fk"><span class="erd-field-name fk-name">user_id</span><span style="display:flex;gap:4px;align-items:center"><span class="erd-field-type">UUID</span><span class="erd-field-badge badge-fk">FK→users</span></span></div>
+          <div class="erd-field encrypted"><span class="erd-field-name">health_uuid_enc</span><span style="display:flex;gap:4px;align-items:center"><span class="erd-field-type">BYTEA</span><span class="erd-field-badge badge-enc">AES-256</span></span></div>
+          <div class="erd-field"><span class="erd-field-name">iv</span><span class="erd-field-type">BYTEA (nonce GCM)</span></div>
+          <div class="erd-field"><span class="erd-field-name">created_at</span><span class="erd-field-type">TIMESTAMPTZ</span></div>
+          <div class="erd-field"><span class="erd-field-name">rotated_at</span><span class="erd-field-type">TIMESTAMPTZ</span></div>
+        </div>
+        <div style="font-size:0.7rem;color:var(--text3);margin-top:8px;text-align:center;max-width:160px;font-family:var(--font-code)">Solo el CryptoService puede resolver esta relación</div>
+      </div>
+
+      <!-- HEALTH SCHEMA -->
+      <div>
+        <div style="font-family:var(--font-code);font-size:0.65rem;letter-spacing:0.1em;text-transform:uppercase;color:var(--red);margin-bottom:8px">schema: health (Sin identidad)</div>
+        <div class="erd-table health">
+          <div class="erd-table-header"><span class="erd-icon">❤️</span> biometric_data</div>
+          <div class="erd-field pk"><span class="erd-field-name pk-name">id</span><span class="erd-field-type">UUID PK</span></div>
+          <div class="erd-field fk"><span class="erd-field-name fk-name">health_subject_id</span><span style="display:flex;gap:4px;align-items:center"><span class="erd-field-type">UUID</span><span class="erd-field-badge badge-idx">IDX</span></span></div>
+          <div class="erd-field"><span class="erd-field-name">weight_kg</span><span class="erd-field-type">DECIMAL(5,2)</span></div>
+          <div class="erd-field"><span class="erd-field-name">height_cm</span><span class="erd-field-type">DECIMAL(5,1)</span></div>
+          <div class="erd-field"><span class="erd-field-name">body_fat_pct</span><span class="erd-field-type">DECIMAL(4,1)</span></div>
+          <div class="erd-field"><span class="erd-field-name">muscle_mass_kg</span><span class="erd-field-type">DECIMAL(5,2)</span></div>
+          <div class="erd-field"><span class="erd-field-name">waist_cm</span><span class="erd-field-type">DECIMAL(5,1)</span></div>
+          <div class="erd-field"><span class="erd-field-name">resting_hr</span><span class="erd-field-type">SMALLINT</span></div>
+          <div class="erd-field"><span class="erd-field-name">sleep_hours</span><span class="erd-field-type">DECIMAL(3,1)</span></div>
+          <div class="erd-field"><span class="erd-field-name">notes_encrypted</span><span style="display:flex;gap:4px;align-items:center"><span class="erd-field-type">TEXT</span><span class="erd-field-badge badge-enc">ENC</span></span></div>
+          <div class="erd-field"><span class="erd-field-name">recorded_at</span><span style="display:flex;gap:4px;align-items:center"><span class="erd-field-type">DATE</span><span class="erd-field-badge badge-idx">IDX</span></span></div>
+        </div>
+
+        <div style="margin-top:12px">
+          <div class="erd-table health">
+            <div class="erd-table-header"><span class="erd-icon">🏋️</span> workout_sessions</div>
+            <div class="erd-field pk"><span class="erd-field-name pk-name">id</span><span class="erd-field-type">UUID PK</span></div>
+            <div class="erd-field fk"><span class="erd-field-name fk-name">health_subject_id</span><span class="erd-field-type">UUID</span></div>
+            <div class="erd-field"><span class="erd-field-name">workout_id</span><span style="display:flex;gap:4px;align-items:center"><span class="erd-field-type">UUID</span><span class="erd-field-badge badge-fk">FK→workouts</span></span></div>
+            <div class="erd-field"><span class="erd-field-name">rpe_score</span><span class="erd-field-type">SMALLINT (1-10)</span></div>
+            <div class="erd-field"><span class="erd-field-name">fatigue_score</span><span class="erd-field-type">SMALLINT</span></div>
+            <div class="erd-field"><span class="erd-field-name">completed_at</span><span class="erd-field-type">TIMESTAMPTZ</span></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- CONTENT SCHEMA -->
+      <div>
+        <div style="font-family:var(--font-code);font-size:0.65rem;letter-spacing:0.1em;text-transform:uppercase;color:var(--green);margin-bottom:8px">schema: content (Sin datos salud)</div>
+        <div class="erd-table content">
+          <div class="erd-table-header"><span class="erd-icon">🧂</span> ingredients</div>
+          <div class="erd-field pk"><span class="erd-field-name pk-name">id</span><span class="erd-field-type">UUID PK</span></div>
+          <div class="erd-field"><span class="erd-field-name">name</span><span style="display:flex;gap:4px;align-items:center"><span class="erd-field-type">VARCHAR</span><span class="erd-field-badge badge-idx">FTS</span></span></div>
+          <div class="erd-field"><span class="erd-field-name">kcal_per_100g</span><span class="erd-field-type">DECIMAL(6,2)</span></div>
+          <div class="erd-field"><span class="erd-field-name">protein_g</span><span class="erd-field-type">DECIMAL(5,2)</span></div>
+          <div class="erd-field"><span class="erd-field-name">carbs_g</span><span class="erd-field-type">DECIMAL(5,2)</span></div>
+          <div class="erd-field"><span class="erd-field-name">fat_g</span><span class="erd-field-type">DECIMAL(5,2)</span></div>
+          <div class="erd-field"><span class="erd-field-name">fiber_g</span><span class="erd-field-type">DECIMAL(5,2)</span></div>
+          <div class="erd-field"><span class="erd-field-name">glycemic_index</span><span class="erd-field-type">SMALLINT</span></div>
+          <div class="erd-field fk"><span class="erd-field-name fk-name">created_by</span><span style="display:flex;gap:4px;align-items:center"><span class="erd-field-type">UUID nullable</span><span class="erd-field-badge badge-fk">FK→users</span></span></div>
+          <div class="erd-field"><span class="erd-field-name">is_custom</span><span class="erd-field-type">BOOLEAN</span></div>
+        </div>
+
+        <div style="margin-top:12px">
+          <div class="erd-table content">
+            <div class="erd-table-header"><span class="erd-icon">🍳</span> recipes</div>
+            <div class="erd-field pk"><span class="erd-field-name pk-name">id</span><span class="erd-field-type">UUID PK</span></div>
+            <div class="erd-field fk"><span class="erd-field-name fk-name">user_id</span><span style="display:flex;gap:4px;align-items:center"><span class="erd-field-type">UUID nullable</span><span class="erd-field-badge badge-fk">FK→users</span></span></div>
+            <div class="erd-field"><span class="erd-field-name">name</span><span class="erd-field-type">VARCHAR(200)</span></div>
+            <div class="erd-field"><span class="erd-field-name">diet_tags</span><span class="erd-field-type">TEXT[] (keto, vegan…)</span></div>
+            <div class="erd-field"><span class="erd-field-name">total_kcal</span><span class="erd-field-type">DECIMAL(7,2)</span></div>
+            <div class="erd-field"><span class="erd-field-name">is_public</span><span class="erd-field-type">BOOLEAN</span></div>
+          </div>
+        </div>
+
+        <div style="margin-top:12px">
+          <div class="erd-table content">
+            <div class="erd-table-header"><span class="erd-icon">🏋️</span> workouts</div>
+            <div class="erd-field pk"><span class="erd-field-name pk-name">id</span><span class="erd-field-type">UUID PK</span></div>
+            <div class="erd-field fk"><span class="erd-field-name fk-name">user_id</span><span style="display:flex;gap:4px;align-items:center"><span class="erd-field-type">UUID nullable</span><span class="erd-field-badge badge-fk">FK→users</span></span></div>
+            <div class="erd-field"><span class="erd-field-name">name</span><span class="erd-field-type">VARCHAR(200)</span></div>
+            <div class="erd-field"><span class="erd-field-name">periodization</span><span class="erd-field-type">ENUM(DUP,linear,block)</span></div>
+            <div class="erd-field"><span class="erd-field-name">weeks_duration</span><span class="erd-field-type">SMALLINT</span></div>
+            <div class="erd-field"><span class="erd-field-name">days_per_week</span><span class="erd-field-type">SMALLINT</span></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- PRISMA SCHEMA -->
+<section class="section" id="prisma">
+  <h2 class="section-title"><span class="section-num">§4</span> Esquema Prisma — packages/database/schema.prisma</h2>
+
+  <div class="code-block">
+    <div class="code-header">
+      <span class="code-lang">Prisma Schema</span>
+      <span class="code-file">packages/database/schema.prisma</span>
+    </div>
+    <pre>
+<span class="cm">// ============================================================
+// HEALTHSTACK PRO V2 — PRISMA SCHEMA
+// Seudonimización conforme AEPD (Art. 25 RGPD)
+// ============================================================</span>
+
+<span class="kw">generator</span> client {
+  provider        = <span class="st">"prisma-client-js"</span>
+  previewFeatures = [<span class="st">"multiSchema"</span>]
+}
+
+<span class="kw">datasource</span> db {
+  provider = <span class="st">"postgresql"</span>
+  url      = <span class="fn">env</span>(<span class="st">"DATABASE_URL"</span>)
+  schemas  = [<span class="st">"public"</span>, <span class="st">"health"</span>, <span class="st">"content"</span>]
+}
+
+<span class="cm">// ─────────────────────────────────────────────
+// SCHEMA: public — Identidad del usuario
+// NO contiene ningún dato de salud directamente
+// ─────────────────────────────────────────────</span>
+
+<span class="kw">model</span> <span class="ty">User</span> {
+  id            <span class="ty">String</span>           <span class="de">@id</span> <span class="de">@default</span>(<span class="fn">uuid</span>()) <span class="de">@db.Uuid</span>
+  email         <span class="ty">String</span>           <span class="de">@unique</span>
+  passwordHash  <span class="ty">String</span>           <span class="cm">// Argon2id — NUNCA bcrypt</span>
+  displayName   <span class="ty">String</span>?          <span class="de">@db.VarChar</span>(<span class="nu">100</span>)
+  role          <span class="ty">UserRole</span>         <span class="de">@default</span>(<span class="fn">USER</span>)
+  emailVerified <span class="ty">Boolean</span>          <span class="de">@default</span>(<span class="kw">false</span>)
+
+  <span class="cm">// Consentimiento explícito RGPD Art. 7</span>
+  consentGdpr   <span class="ty">Boolean</span>          <span class="de">@default</span>(<span class="kw">false</span>)
+  consentDate   <span class="ty">DateTime</span>?
+
+  createdAt     <span class="ty">DateTime</span>         <span class="de">@default</span>(<span class="fn">now</span>())
+  updatedAt     <span class="ty">DateTime</span>         <span class="de">@updatedAt</span>
+  lastLoginAt   <span class="ty">DateTime</span>?
+
+  <span class="cm">// Relaciones (sin datos de salud directos)</span>
+  preferences   <span class="ty">UserPreferences</span>?
+  healthLink    <span class="ty">HealthLink</span>?      <span class="cm">// Llave de cruce → health schema</span>
+  recipes       <span class="ty">Recipe</span>[]
+  workouts      <span class="ty">Workout</span>[]
+
+  <span class="de">@@schema</span>(<span class="st">"public"</span>)
+  <span class="de">@@index</span>([email])
+}
+
+<span class="kw">model</span> <span class="ty">UserPreferences</span> {
+  id             <span class="ty">String</span>        <span class="de">@id</span> <span class="de">@default</span>(<span class="fn">uuid</span>()) <span class="de">@db.Uuid</span>
+  userId         <span class="ty">String</span>        <span class="de">@unique</span> <span class="de">@db.Uuid</span>
+  user           <span class="ty">User</span>          <span class="de">@relation</span>(fields: [userId], references: [id], onDelete: <span class="fn">Cascade</span>)
+  dietStrategy   <span class="ty">DietStrategy</span>  <span class="de">@default</span>(<span class="fn">HIGH_PROTEIN</span>)
+  activityLevel  <span class="ty">ActivityLevel</span> <span class="de">@default</span>(<span class="fn">MODERATE</span>)
+  goal           <span class="ty">FitnessGoal</span>   <span class="de">@default</span>(<span class="fn">MAINTAIN</span>)
+  locale         <span class="ty">String</span>        <span class="de">@default</span>(<span class="st">"es-ES"</span>)
+  timezone       <span class="ty">String</span>        <span class="de">@default</span>(<span class="st">"Europe/Madrid"</span>)
+  updatedAt      <span class="ty">DateTime</span>      <span class="de">@updatedAt</span>
+
+  <span class="de">@@schema</span>(<span class="st">"public"</span>)
+}
+
+<span class="cm">// ─────────────────────────────────────────────
+// TABLA PIVOTE: Llave de Cruce Cifrada
+// health_uuid_enc = AES-256-GCM(health_subject_id)
+// Solo el CryptoService puede descifrarla
+// ─────────────────────────────────────────────</span>
+
+<span class="kw">model</span> <span class="ty">HealthLink</span> {
+  id              <span class="ty">String</span>   <span class="de">@id</span> <span class="de">@default</span>(<span class="fn">uuid</span>()) <span class="de">@db.Uuid</span>
+  userId          <span class="ty">String</span>   <span class="de">@unique</span> <span class="de">@db.Uuid</span>
+  user            <span class="ty">User</span>     <span class="de">@relation</span>(fields: [userId], references: [id], onDelete: <span class="fn">Cascade</span>)
+
+  <span class="cm">// El UUID del health_subject cifrado con AES-256-GCM</span>
+  <span class="cm">// Almacenado como hex string: iv:authTag:ciphertext</span>
+  healthUuidEnc   <span class="ty">String</span>   <span class="cm">// BYTEA en producción → @db.ByteA</span>
+
+  createdAt       <span class="ty">DateTime</span> <span class="de">@default</span>(<span class="fn">now</span>())
+  rotatedAt       <span class="ty">DateTime</span>?
+
+  <span class="de">@@schema</span>(<span class="st">"public"</span>)
+  <span class="de">@@index</span>([userId])
+}
+
+<span class="cm">// ─────────────────────────────────────────────
+// SCHEMA: health — Datos Biométricos
+// health_subject_id NO es el user.id
+// ─────────────────────────────────────────────</span>
+
+<span class="kw">model</span> <span class="ty">BiometricData</span> {
+  id               <span class="ty">String</span>   <span class="de">@id</span> <span class="de">@default</span>(<span class="fn">uuid</span>()) <span class="de">@db.Uuid</span>
+
+  <span class="cm">// UUID opaco — no se puede relacionar con users sin pasar por CryptoService</span>
+  healthSubjectId  <span class="ty">String</span>   <span class="de">@db.Uuid</span>
+
+  weightKg         <span class="ty">Decimal</span>? <span class="de">@db.Decimal</span>(<span class="nu">5</span>, <span class="nu">2</span>)
+  heightCm         <span class="ty">Decimal</span>? <span class="de">@db.Decimal</span>(<span class="nu">5</span>, <span class="nu">1</span>)
+  bodyFatPct       <span class="ty">Decimal</span>? <span class="de">@db.Decimal</span>(<span class="nu">4</span>, <span class="nu">1</span>)
+  muscleMassKg     <span class="ty">Decimal</span>? <span class="de">@db.Decimal</span>(<span class="nu">5</span>, <span class="nu">2</span>)
+  waistCm          <span class="ty">Decimal</span>? <span class="de">@db.Decimal</span>(<span class="nu">5</span>, <span class="nu">1</span>)
+  restingHr        <span class="ty">Int</span>?
+  sleepHours       <span class="ty">Decimal</span>? <span class="de">@db.Decimal</span>(<span class="nu">3</span>, <span class="nu">1</span>)
+
+  <span class="cm">// Las notas personales también se cifran (contienen PII indirecta)</span>
+  notesEncrypted   <span class="ty">String</span>?
+
+  recordedAt       <span class="ty">DateTime</span> <span class="de">@db.Date</span>
+  createdAt        <span class="ty">DateTime</span> <span class="de">@default</span>(<span class="fn">now</span>())
+
+  workoutSessions  <span class="ty">WorkoutSession</span>[]
+
+  <span class="de">@@schema</span>(<span class="st">"health"</span>)
+  <span class="de">@@index</span>([healthSubjectId])
+  <span class="de">@@index</span>([healthSubjectId, recordedAt])
+  <span class="de">@@unique</span>([healthSubjectId, recordedAt]) <span class="cm">// 1 entrada por sujeto por día</span>
+}
+
+<span class="kw">model</span> <span class="ty">WorkoutSession</span> {
+  id               <span class="ty">String</span>         <span class="de">@id</span> <span class="de">@default</span>(<span class="fn">uuid</span>()) <span class="de">@db.Uuid</span>
+  healthSubjectId  <span class="ty">String</span>         <span class="de">@db.Uuid</span>
+  biometricData    <span class="ty">BiometricData</span>  <span class="de">@relation</span>(fields: [biometricId], references: [id])
+  biometricId      <span class="ty">String</span>         <span class="de">@db.Uuid</span>
+  workoutId        <span class="ty">String</span>         <span class="de">@db.Uuid</span> <span class="cm">// Ref a content.workouts</span>
+  rpeScore         <span class="ty">Int</span>?           <span class="cm">// 1-10 RPE</span>
+  fatigueScore     <span class="ty">Int</span>?           <span class="cm">// 1-10 calculado por motor</span>
+  durationMin      <span class="ty">Int</span>?
+  completedAt      <span class="ty">DateTime</span>       <span class="de">@default</span>(<span class="fn">now</span>())
+
+  <span class="de">@@schema</span>(<span class="st">"health"</span>)
+  <span class="de">@@index</span>([healthSubjectId])
+}
+
+<span class="cm">// ─────────────────────────────────────────────
+// SCHEMA: content — Recetas, Ingredientes, Rutinas
+// ─────────────────────────────────────────────</span>
+
+<span class="kw">model</span> <span class="ty">Ingredient</span> {
+  id             <span class="ty">String</span>    <span class="de">@id</span> <span class="de">@default</span>(<span class="fn">uuid</span>()) <span class="de">@db.Uuid</span>
+  name           <span class="ty">String</span>    <span class="de">@db.VarChar</span>(<span class="nu">200</span>)
+  kcalPer100g    <span class="ty">Decimal</span>   <span class="de">@db.Decimal</span>(<span class="nu">6</span>, <span class="nu">2</span>)
+  proteinG       <span class="ty">Decimal</span>   <span class="de">@db.Decimal</span>(<span class="nu">5</span>, <span class="nu">2</span>)
+  carbsG         <span class="ty">Decimal</span>   <span class="de">@db.Decimal</span>(<span class="nu">5</span>, <span class="nu">2</span>)
+  fatG           <span class="ty">Decimal</span>   <span class="de">@db.Decimal</span>(<span class="nu">5</span>, <span class="nu">2</span>)
+  fiberG         <span class="ty">Decimal</span>?  <span class="de">@db.Decimal</span>(<span class="nu">5</span>, <span class="nu">2</span>)
+  glycemicIndex  <span class="ty">Int</span>?
+  isPublic       <span class="ty">Boolean</span>   <span class="de">@default</span>(<span class="kw">true</span>)
+  isCustom       <span class="ty">Boolean</span>   <span class="de">@default</span>(<span class="kw">false</span>)
+  createdByUserId <span class="ty">String</span>?  <span class="de">@db.Uuid</span>
+  createdAt      <span class="ty">DateTime</span>  <span class="de">@default</span>(<span class="fn">now</span>())
+  recipeItems    <span class="ty">RecipeItem</span>[]
+
+  <span class="de">@@schema</span>(<span class="st">"content"</span>)
+  <span class="de">@@index</span>([name])
+}
+
+<span class="kw">model</span> <span class="ty">Recipe</span> {
+  id          <span class="ty">String</span>      <span class="de">@id</span> <span class="de">@default</span>(<span class="fn">uuid</span>()) <span class="de">@db.Uuid</span>
+  userId      <span class="ty">String</span>?     <span class="de">@db.Uuid</span>
+  user        <span class="ty">User</span>?       <span class="de">@relation</span>(fields: [userId], references: [id])
+  name        <span class="ty">String</span>      <span class="de">@db.VarChar</span>(<span class="nu">200</span>)
+  description <span class="ty">String</span>?
+  dietTags    <span class="ty">String</span>[]    <span class="cm">// ["keto", "vegan", "high_protein"]</span>
+  totalKcal   <span class="ty">Decimal</span>?    <span class="de">@db.Decimal</span>(<span class="nu">7</span>, <span class="nu">2</span>)
+  isPublic    <span class="ty">Boolean</span>     <span class="de">@default</span>(<span class="kw">false</span>)
+  createdAt   <span class="ty">DateTime</span>    <span class="de">@default</span>(<span class="fn">now</span>())
+  items       <span class="ty">RecipeItem</span>[]
+
+  <span class="de">@@schema</span>(<span class="st">"content"</span>)
+}
+
+<span class="kw">model</span> <span class="ty">RecipeItem</span> {
+  id           <span class="ty">String</span>      <span class="de">@id</span> <span class="de">@default</span>(<span class="fn">uuid</span>()) <span class="de">@db.Uuid</span>
+  recipeId     <span class="ty">String</span>      <span class="de">@db.Uuid</span>
+  recipe       <span class="ty">Recipe</span>      <span class="de">@relation</span>(fields: [recipeId], references: [id], onDelete: <span class="fn">Cascade</span>)
+  ingredientId <span class="ty">String</span>      <span class="de">@db.Uuid</span>
+  ingredient   <span class="ty">Ingredient</span>  <span class="de">@relation</span>(fields: [ingredientId], references: [id])
+  quantityG    <span class="ty">Decimal</span>     <span class="de">@db.Decimal</span>(<span class="nu">7</span>, <span class="nu">2</span>)
+
+  <span class="de">@@schema</span>(<span class="st">"content"</span>)
+}
+
+<span class="kw">model</span> <span class="ty">Workout</span> {
+  id              <span class="ty">String</span>          <span class="de">@id</span> <span class="de">@default</span>(<span class="fn">uuid</span>()) <span class="de">@db.Uuid</span>
+  userId          <span class="ty">String</span>?         <span class="de">@db.Uuid</span>
+  user            <span class="ty">User</span>?           <span class="de">@relation</span>(fields: [userId], references: [id])
+  name            <span class="ty">String</span>          <span class="de">@db.VarChar</span>(<span class="nu">200</span>)
+  periodization   <span class="ty">Periodization</span>   <span class="de">@default</span>(<span class="fn">DUP</span>)
+  weeksDuration   <span class="ty">Int</span>
+  daysPerWeek     <span class="ty">Int</span>
+  exercises       <span class="ty">WorkoutExercise</span>[]
+  createdAt       <span class="ty">DateTime</span>        <span class="de">@default</span>(<span class="fn">now</span>())
+
+  <span class="de">@@schema</span>(<span class="st">"content"</span>)
+}
+
+<span class="kw">model</span> <span class="ty">WorkoutExercise</span> {
+  id          <span class="ty">String</span>    <span class="de">@id</span> <span class="de">@default</span>(<span class="fn">uuid</span>()) <span class="de">@db.Uuid</span>
+  workoutId   <span class="ty">String</span>    <span class="de">@db.Uuid</span>
+  workout     <span class="ty">Workout</span>   <span class="de">@relation</span>(fields: [workoutId], references: [id], onDelete: <span class="fn">Cascade</span>)
+  name        <span class="ty">String</span>
+  muscleGroup <span class="ty">String</span>
+  sets        <span class="ty">Int</span>
+  reps        <span class="ty">String</span>   <span class="cm">// "8-12" o "5x5"</span>
+  rir         <span class="ty">Int</span>?     <span class="cm">// Reps in Reserve</span>
+  order       <span class="ty">Int</span>
+
+  <span class="de">@@schema</span>(<span class="st">"content"</span>)
+}
+
+<span class="cm">// ─────────────────────────────────────────────
+// ENUMS
+// ─────────────────────────────────────────────</span>
+
+<span class="kw">enum</span> <span class="ty">UserRole</span>        { USER ADMIN              <span class="de">@@schema</span>(<span class="st">"public"</span>) }
+<span class="kw">enum</span> <span class="ty">DietStrategy</span>    { KETO VEGAN HIGH_PROTEIN MEDITERRANEAN  <span class="de">@@schema</span>(<span class="st">"public"</span>) }
+<span class="kw">enum</span> <span class="ty">ActivityLevel</span>   { SEDENTARY LIGHT MODERATE ACTIVE VERY_ACTIVE  <span class="de">@@schema</span>(<span class="st">"public"</span>) }
+<span class="kw">enum</span> <span class="ty">FitnessGoal</span>     { BULK CUT MAINTAIN RECOMPOSITION  <span class="de">@@schema</span>(<span class="st">"public"</span>) }
+<span class="kw">enum</span> <span class="ty">Periodization</span>   { DUP LINEAR BLOCK  <span class="de">@@schema</span>(<span class="st">"content"</span>) }</pre>
+  </div>
+</section>
+
+<!-- CROSS REFERENCE KEY -->
+<section class="section" id="cross-ref">
+  <h2 class="section-title"><span class="section-num">§5</span> Llave de Cruce — AES-256-GCM (Paso 3)</h2>
+
+  <p>El <code>CryptoService</code> es el único punto del sistema que puede vincular un <code>user_id</code> de la tabla de identidad con su <code>health_subject_id</code> en la base de datos de salud. Si alguien obtiene acceso a la tabla <code>BiometricData</code>, solo verá UUIDs opacos sin ninguna vinculación a nombres o emails.</p>
+
+  <div class="callout warning">
+    <div class="callout-icon">🔑</div>
+    <div class="callout-body">
+      <strong>Rotación de claves:</strong> La clave maestra AES-256 se almacena en variables de entorno <strong>nunca</strong> en la base de datos. Para rotación, se re-cifra el campo <code>healthUuidEnc</code> y se registra <code>rotatedAt</code>. Se recomienda usar <strong>HashiCorp Vault</strong> o <strong>AWS Secrets Manager</strong> para gestión avanzada de claves.
+    </div>
+  </div>
+
+  <div class="code-block">
+    <div class="code-header">
+      <span class="code-lang">Python</span>
+      <span class="code-file">apps/api/app/services/crypto_service.py</span>
+    </div>
+    <pre>
+<span class="kw">import</span> os, uuid, binascii
+<span class="kw">from</span> cryptography.hazmat.primitives.ciphers.aead <span class="kw">import</span> AESGCM
+<span class="kw">from</span> cryptography.exceptions <span class="kw">import</span> InvalidTag
+<span class="kw">from</span> dataclasses <span class="kw">import</span> dataclass
+<span class="kw">import</span> logging
+
+logger = logging.getLogger(<span class="st">"crypto_service"</span>)
+
+<span class="de">@dataclass</span>
+<span class="kw">class</span> <span class="ty">EncryptedPayload</span>:
+    <span class="cm">"""Payload cifrado: iv:auth_tag:ciphertext (hex separado por ':')"""</span>
+    iv: bytes
+    auth_tag: bytes
+    ciphertext: bytes
+
+    <span class="kw">def</span> <span class="fn">to_string</span>(self) -> str:
+        <span class="cm">"""Serializa para almacenar en DB como columna TEXT"""</span>
+        <span class="kw">return</span> <span class="st">":"</span>.join([
+            binascii.hexlify(self.iv).decode(),
+            binascii.hexlify(self.auth_tag).decode(),
+            binascii.hexlify(self.ciphertext).decode(),
+        ])
+
+    <span class="de">@classmethod</span>
+    <span class="kw">def</span> <span class="fn">from_string</span>(cls, payload: str) -> <span class="st">"EncryptedPayload"</span>:
+        parts = payload.split(<span class="st">":"</span>)
+        <span class="kw">if</span> len(parts) != <span class="nu">3</span>:
+            <span class="kw">raise</span> ValueError(<span class="st">"Formato de payload cifrado inválido"</span>)
+        <span class="kw">return</span> cls(
+            iv=binascii.unhexlify(parts[<span class="nu">0</span>]),
+            auth_tag=binascii.unhexlify(parts[<span class="nu">1</span>]),
+            ciphertext=binascii.unhexlify(parts[<span class="nu">2</span>]),
+        )
+
+
+<span class="kw">class</span> <span class="ty">CryptoService</span>:
+    <span class="cm">"""
+    Servicio único para cifrar/descifrar la llave de cruce.
+    PRINCIPIO: Si la tabla health.biometric_data es exfiltrada,
+    health_subject_id no puede vincularse a ningún usuario sin
+    pasar por este servicio con la clave maestra.
+    """</span>
+
+    <span class="cm"># Separación de contexto: evita que la misma clave se reutilice
+    # en otros contextos de cifrado del sistema</span>
+    _CONTEXT = <span class="st">b"healthstack.health_link.v1"</span>
+
+    <span class="kw">def</span> <span class="fn">__init__</span>(self):
+        raw_key = os.environ.get(<span class="st">"HEALTH_LINK_MASTER_KEY"</span>)
+        <span class="kw">if not</span> raw_key:
+            <span class="kw">raise</span> EnvironmentError(
+                <span class="st">"HEALTH_LINK_MASTER_KEY no está definida. "</span>
+                <span class="st">"Esta variable NUNCA debe estar en código fuente."</span>
+            )
+        key_bytes = binascii.unhexlify(raw_key)
+        <span class="kw">if</span> len(key_bytes) != <span class="nu">32</span>:  <span class="cm"># 256 bits</span>
+            <span class="kw">raise</span> ValueError(<span class="st">"La clave maestra debe ser exactamente 256 bits (32 bytes)"</span>)
+        self._aesgcm = AESGCM(key_bytes)
+
+    <span class="kw">def</span> <span class="fn">generate_health_subject_id</span>(self) -> str:
+        <span class="cm">"""Genera un UUID opaco para el sujeto de salud (no relacionado con user.id)"""</span>
+        <span class="kw">return</span> str(uuid.uuid4())
+
+    <span class="kw">def</span> <span class="fn">encrypt_health_link</span>(self, health_subject_id: str) -> str:
+        <span class="cm">"""
+        Cifra el health_subject_id para almacenar en health_link.health_uuid_enc
+        Usa AES-256-GCM con IV aleatorio de 96 bits (12 bytes)
+        """</span>
+        iv = os.urandom(<span class="nu">12</span>)  <span class="cm"># NIST recomendado: 96 bits para GCM</span>
+        plaintext = health_subject_id.encode(<span class="st">"utf-8"</span>)
+
+        <span class="cm"># El AAD (Additional Authenticated Data) vincula el cifrado al contexto</span>
+        <span class="cm"># Evita que un ciphertext de un registro sea reutilizado en otro</span>
+        ciphertext_with_tag = self._aesgcm.encrypt(iv, plaintext, self._CONTEXT)
+
+        <span class="cm"># GCM append el auth_tag (16 bytes) al final del ciphertext</span>
+        ciphertext = ciphertext_with_tag[:-<span class="nu">16</span>]
+        auth_tag   = ciphertext_with_tag[-<span class="nu">16</span>:]
+
+        payload = <span class="ty">EncryptedPayload</span>(iv=iv, auth_tag=auth_tag, ciphertext=ciphertext)
+        <span class="kw">return</span> payload.to_string()
+
+    <span class="kw">def</span> <span class="fn">decrypt_health_link</span>(self, encrypted_payload: str) -> str:
+        <span class="cm">"""
+        Descifra y devuelve el health_subject_id.
+        Lanza InvalidTag si el payload fue manipulado.
+        """</span>
+        <span class="kw">try</span>:
+            payload = EncryptedPayload.from_string(encrypted_payload)
+            ciphertext_with_tag = payload.ciphertext + payload.auth_tag
+            plaintext = self._aesgcm.decrypt(
+                payload.iv,
+                ciphertext_with_tag,
+                self._CONTEXT
+            )
+            <span class="kw">return</span> plaintext.decode(<span class="st">"utf-8"</span>)
+        <span class="kw">except</span> InvalidTag:
+            <span class="cm"># Log de seguridad SIN incluir el payload (evita fuga de datos cifrados)</span>
+            logger.error(<span class="st">"CryptoService: InvalidTag — posible manipulación de datos"</span>)
+            <span class="kw">raise</span> PermissionError(<span class="st">"No se pudo verificar la integridad del enlace de salud"</span>)
+
+    <span class="kw">def</span> <span class="fn">resolve_health_subject</span>(self, user_id: str, db_session) -> str:
+        <span class="cm">"""
+        API pública del servicio: dado un user_id,
+        devuelve el health_subject_id para consultar datos de salud.
+        
+        FLUJO:
+        1. Obtener health_link del usuario (tabla public.health_link)
+        2. Descifrar health_uuid_enc
+        3. Usar el UUID resultante para consultar health.biometric_data
+        """</span>
+        <span class="kw">from</span> app.repositories.identity <span class="kw">import</span> HealthLinkRepository
+        link = HealthLinkRepository.get_by_user_id(db_session, user_id)
+        <span class="kw">if not</span> link:
+            <span class="kw">raise</span> ValueError(f<span class="st">"No existe health_link para user_id={user_id}"</span>)
+        <span class="kw">return</span> self.decrypt_health_link(link.health_uuid_enc)
+
+    <span class="kw">def</span> <span class="fn">create_health_link</span>(self, user_id: str, db_session) -> str:
+        <span class="cm">"""
+        Crea el vínculo al registrarse el usuario.
+        Genera health_subject_id, lo cifra y persiste el enlace.
+        Devuelve el health_subject_id para crear el registro inicial en health schema.
+        """</span>
+        <span class="kw">from</span> app.repositories.identity <span class="kw">import</span> HealthLinkRepository
+        health_subject_id = self.generate_health_subject_id()
+        encrypted = self.encrypt_health_link(health_subject_id)
+        HealthLinkRepository.create(db_session, user_id=user_id, health_uuid_enc=encrypted)
+        <span class="kw">return</span> health_subject_id
+
+
+<span class="cm"># Instancia singleton — se inyecta vía FastAPI Depends()</span>
+crypto_service = CryptoService()</pre>
+  </div>
+
+  <div class="callout success">
+    <div class="callout-icon">✅</div>
+    <div class="callout-body">
+      <strong>Prueba de seguridad:</strong> Si un atacante obtiene acceso de lectura a la tabla <code>health.biometric_data</code>, solo verá UUIDs aleatorios en <code>health_subject_id</code>. Sin acceso a <code>public.health_link</code> Y a la variable <code>HEALTH_LINK_MASTER_KEY</code>, los datos biométricos son completamente anónimos. Esto satisface el Art. 89 RGPD sobre seudonimización.
+    </div>
+  </div>
+</section>
+
+<!-- STRATEGY PATTERN -->
+<section class="section" id="strategy">
+  <h2 class="section-title"><span class="section-num">§6</span> Strategy Pattern — Motor Nutricional (Paso 2)</h2>
+
+  <p>El <strong>Strategy Pattern</strong> permite intercambiar el algoritmo de cálculo nutricional sin modificar la clase contexto <code>NutritionCalculator</code>. Para añadir una nueva dieta (ej: <code>MediterraneanStrategy</code>), solo se crea una nueva clase que implemente <code>NutritionStrategy</code>.</p>
+
+  <div class="code-block">
+    <div class="code-header">
+      <span class="code-lang">Python</span>
+      <span class="code-file">apps/api/app/services/nutrition/base_strategy.py</span>
+    </div>
+    <pre>
+<span class="kw">from</span> abc <span class="kw">import</span> ABC, abstractmethod
+<span class="kw">from</span> dataclasses <span class="kw">import</span> dataclass
+<span class="kw">from</span> enum <span class="kw">import</span> Enum
+
+
+<span class="kw">class</span> <span class="ty">FitnessGoal</span>(Enum):
+    BULK        = <span class="st">"bulk"</span>
+    CUT         = <span class="st">"cut"</span>
+    MAINTAIN    = <span class="st">"maintain"</span>
+    RECOMPOSE   = <span class="st">"recompose"</span>
+
+
+<span class="de">@dataclass</span>
+<span class="kw">class</span> <span class="ty">UserBiometrics</span>:
+    weight_kg:      float
+    height_cm:      float
+    age:            int
+    sex:            str   <span class="cm"># "M" | "F"</span>
+    body_fat_pct:   float | None = None
+    activity_level: float = <span class="nu">1.55</span>   <span class="cm"># TDEE multiplier</span>
+    goal:           FitnessGoal = FitnessGoal.MAINTAIN
+
+
+<span class="de">@dataclass</span>
+<span class="kw">class</span> <span class="ty">MacroResult</span>:
+    strategy_name: str
+    tdee_kcal:     float
+    target_kcal:   float
+    protein_g:     float
+    carbs_g:       float
+    fat_g:         float
+    fiber_g:       float
+    notes:         list[str]
+
+    <span class="kw">def</span> <span class="fn">macro_split_pct</span>(self) -> dict:
+        total = self.target_kcal
+        <span class="kw">return</span> {
+            <span class="st">"protein"</span>: round((self.protein_g * <span class="nu">4</span>) / total * <span class="nu">100</span>, <span class="nu">1</span>),
+            <span class="st">"carbs"</span>:   round((self.carbs_g * <span class="nu">4</span>) / total * <span class="nu">100</span>, <span class="nu">1</span>),
+            <span class="st">"fat"</span>:     round((self.fat_g * <span class="nu">9</span>) / total * <span class="nu">100</span>, <span class="nu">1</span>),
+        }
+
+
+<span class="kw">class</span> <span class="ty">NutritionStrategy</span>(ABC):
+    <span class="cm">"""Interfaz base que TODA estrategia de dieta debe implementar."""</span>
+
+    <span class="de">@abstractmethod</span>
+    <span class="kw">def</span> <span class="fn">calculate</span>(self, bio: <span class="ty">UserBiometrics</span>) -> <span class="ty">MacroResult</span>:
+        <span class="kw">pass</span>
+
+    <span class="kw">def</span> <span class="fn">_calculate_tdee</span>(self, bio: <span class="ty">UserBiometrics</span>) -> float:
+        <span class="cm">"""Mifflin-St Jeor si no hay % grasa. Katch-McArdle si hay % grasa."""</span>
+        <span class="kw">if</span> bio.body_fat_pct:
+            <span class="cm"># Katch-McArdle: más preciso para atletas</span>
+            lean_mass = bio.weight_kg * (<span class="nu">1</span> - bio.body_fat_pct / <span class="nu">100</span>)
+            bmr = <span class="nu">370</span> + (<span class="nu">21.6</span> * lean_mass)
+        <span class="kw">elif</span> bio.sex == <span class="st">"M"</span>:
+            bmr = (<span class="nu">10</span> * bio.weight_kg) + (<span class="nu">6.25</span> * bio.height_cm) - (<span class="nu">5</span> * bio.age) + <span class="nu">5</span>
+        <span class="kw">else</span>:
+            bmr = (<span class="nu">10</span> * bio.weight_kg) + (<span class="nu">6.25</span> * bio.height_cm) - (<span class="nu">5</span> * bio.age) - <span class="nu">161</span>
+        <span class="kw">return</span> round(bmr * bio.activity_level, <span class="nu">0</span>)
+
+    <span class="kw">def</span> <span class="fn">_apply_goal_adjustment</span>(self, tdee: float, goal: <span class="ty">FitnessGoal</span>) -> float:
+        adjustments = {
+            FitnessGoal.BULK:       <span class="nu">+300</span>,
+            FitnessGoal.CUT:        <span class="nu">-400</span>,
+            FitnessGoal.MAINTAIN:      <span class="nu">0</span>,
+            FitnessGoal.RECOMPOSE:     <span class="nu">0</span>,
+        }
+        <span class="kw">return</span> tdee + adjustments[goal]</pre>
+  </div>
+
+  <div class="code-block">
+    <div class="code-header">
+      <span class="code-lang">Python</span>
+      <span class="code-file">apps/api/app/services/nutrition/keto_strategy.py</span>
+    </div>
+    <pre>
+<span class="kw">from</span> .base_strategy <span class="kw">import</span> NutritionStrategy, MacroResult, UserBiometrics, FitnessGoal
+
+
+<span class="kw">class</span> <span class="ty">KetoStrategy</span>(<span class="ty">NutritionStrategy</span>):
+    <span class="cm">"""
+    Dieta cetogénica: <20g de carbohidratos netos.
+    Macros: Grasa 70-75% | Proteína 20-25% | Carbos <5%
+    """</span>
+
+    STRATEGY_NAME = <span class="st">"keto"</span>
+    MAX_CARBS_G   = <span class="nu">20</span>
+
+    <span class="kw">def</span> <span class="fn">calculate</span>(self, bio: <span class="ty">UserBiometrics</span>) -> <span class="ty">MacroResult</span>:
+        tdee   = self._calculate_tdee(bio)
+        target = self._apply_goal_adjustment(tdee, bio.goal)
+        notes  = []
+
+        <span class="cm"># KETO: proteína moderada para evitar gluconeogénesis</span>
+        protein_g = round(bio.weight_kg * <span class="nu">1.8</span>, <span class="nu">1</span>)  <span class="cm"># 1.6-2.0 g/kg</span>
+        carbs_g   = self.MAX_CARBS_G
+        protein_kcal = protein_g * <span class="nu">4</span>
+        carbs_kcal   = carbs_g * <span class="nu">4</span>
+        fat_kcal     = target - protein_kcal - carbs_kcal
+        fat_g        = round(fat_kcal / <span class="nu">9</span>, <span class="nu">1</span>)
+
+        <span class="kw">if</span> fat_g < <span class="nu">50</span>:
+            notes.append(<span class="st">"⚠️ Grasas muy bajas. Considera reducir el déficit."</span>)
+        <span class="kw">if</span> bio.goal == FitnessGoal.BULK:
+            notes.append(<span class="st">"ℹ️ Volumen en keto requiere +500g de grasas saludables."</span>)
+
+        <span class="kw">return</span> <span class="ty">MacroResult</span>(
+            strategy_name=self.STRATEGY_NAME,
+            tdee_kcal=tdee,
+            target_kcal=target,
+            protein_g=protein_g,
+            carbs_g=carbs_g,
+            fat_g=fat_g,
+            fiber_g=<span class="nu">25.0</span>,  <span class="cm"># Mínimo recomendado OMS (difícil en keto)</span>
+            notes=notes,
+        )</pre>
+  </div>
+
+  <div class="code-block">
+    <div class="code-header">
+      <span class="code-lang">Python</span>
+      <span class="code-file">apps/api/app/services/nutrition/vegan_strategy.py</span>
+    </div>
+    <pre>
+<span class="kw">from</span> .base_strategy <span class="kw">import</span> NutritionStrategy, MacroResult, UserBiometrics
+
+
+<span class="kw">class</span> <span class="ty">VeganStrategy</span>(<span class="ty">NutritionStrategy</span>):
+    <span class="cm">"""
+    Dieta vegana optimizada para hipertrofia.
+    Proteína elevada (compensar menor biodisponibilidad vegetal).
+    Macros: Proteína 30% | Carbs 50% | Grasa 20%
+    """</span>
+
+    STRATEGY_NAME = <span class="st">"vegan"</span>
+
+    <span class="cm"># Ratio ajustado para proteína vegetal (menor PDCAAS/DIAAS que animal)</span>
+    PROTEIN_MULTIPLIER = <span class="nu">2.0</span>  <span class="cm"># vs 1.8 en omnívoro</span>
+
+    <span class="kw">def</span> <span class="fn">calculate</span>(self, bio: <span class="ty">UserBiometrics</span>) -> <span class="ty">MacroResult</span>:
+        tdee   = self._calculate_tdee(bio)
+        target = self._apply_goal_adjustment(tdee, bio.goal)
+
+        protein_g    = round(bio.weight_kg * self.PROTEIN_MULTIPLIER, <span class="nu">1</span>)
+        fat_g        = round((target * <span class="nu">0.22</span>) / <span class="nu">9</span>, <span class="nu">1</span>)
+        carbs_g      = round((target - protein_g * <span class="nu">4</span> - fat_g * <span class="nu">9</span>) / <span class="nu">4</span>, <span class="nu">1</span>)
+
+        notes = [
+            <span class="st">"🌱 Combina legumbres + cereales para proteína completa."</span>,
+            <span class="st">"🌱 Vitamina B12 y hierro no hemo: considera suplementación."</span>,
+            <span class="st">"🌱 Tofu/tempeh/edamame son las fuentes proteicas de mayor calidad."</span>,
+        ]
+        <span class="kw">if</span> bio.goal.value == <span class="st">"bulk"</span>:
+            notes.append(<span class="st">"🌱 Para volumen: añade aguacate, frutos secos y aceite de oliva."</span>)
+
+        <span class="kw">return</span> <span class="ty">MacroResult</span>(
+            strategy_name=self.STRATEGY_NAME,
+            tdee_kcal=tdee, target_kcal=target,
+            protein_g=protein_g, carbs_g=carbs_g, fat_g=fat_g,
+            fiber_g=<span class="nu">35.0</span>,  <span class="cm"># Veganos suelen superar fácilmente los 30g</span>
+            notes=notes,
+        )</pre>
+  </div>
+
+  <div class="code-block">
+    <div class="code-header">
+      <span class="code-lang">Python</span>
+      <span class="code-file">apps/api/app/services/nutrition/high_protein_strategy.py</span>
+    </div>
+    <pre>
+<span class="kw">from</span> .base_strategy <span class="kw">import</span> NutritionStrategy, MacroResult, UserBiometrics
+
+
+<span class="kw">class</span> <span class="ty">HighProteinStrategy</span>(<span class="ty">NutritionStrategy</span>):
+    <span class="cm">"""
+    Dieta alta en proteína optimizada para hipertrofia máxima.
+    Evidencia: Morton et al. 2018 - 2.2g/kg para síntesis proteica máxima.
+    Macros: Proteína 35-40% | Carbs 40-45% | Grasa 15-20%
+    """</span>
+
+    STRATEGY_NAME    = <span class="st">"high_protein"</span>
+    PROTEIN_PER_KG   = <span class="nu">2.2</span>   <span class="cm"># g/kg (respaldado por meta-análisis Morton 2018)</span>
+
+    <span class="kw">def</span> <span class="fn">calculate</span>(self, bio: <span class="ty">UserBiometrics</span>) -> <span class="ty">MacroResult</span>:
+        tdee   = self._calculate_tdee(bio)
+        target = self._apply_goal_adjustment(tdee, bio.goal)
+
+        protein_g = round(bio.weight_kg * self.PROTEIN_PER_KG, <span class="nu">1</span>)
+        <span class="cm"># Grasa mínima para función hormonal (testosterona): 20%</span>
+        fat_g     = round((target * <span class="nu">0.20</span>) / <span class="nu">9</span>, <span class="nu">1</span>)
+        carbs_g   = round((target - protein_g * <span class="nu">4</span> - fat_g * <span class="nu">9</span>) / <span class="nu">4</span>, <span class="nu">1</span>)
+
+        notes = [
+            <span class="st">f"Proteína: {protein_g}g/día = {self.PROTEIN_PER_KG}g/kg"</span>,
+            <span class="st">"Distribuye en 4-5 tomas de 30-40g para maximizar MPS (síntesis proteica)."</span>,
+        ]
+        <span class="kw">if</span> fat_g < <span class="nu">60</span>:
+            notes.append(<span class="st">"⚠️ Grasas por debajo de 60g. Puede afectar producción de testosterona."</span>)
+
+        <span class="kw">return</span> <span class="ty">MacroResult</span>(
+            strategy_name=self.STRATEGY_NAME,
+            tdee_kcal=tdee, target_kcal=target,
+            protein_g=protein_g, carbs_g=carbs_g, fat_g=fat_g,
+            fiber_g=<span class="nu">30.0</span>,
+            notes=notes,
+        )</pre>
+  </div>
+
+  <div class="code-block">
+    <div class="code-header">
+      <span class="code-lang">Python</span>
+      <span class="code-file">apps/api/app/services/nutrition/nutrition_calculator.py — Clase Contexto</span>
+    </div>
+    <pre>
+<span class="kw">from</span> .base_strategy <span class="kw">import</span> NutritionStrategy, UserBiometrics, MacroResult
+<span class="kw">from</span> .keto_strategy <span class="kw">import</span> KetoStrategy
+<span class="kw">from</span> .vegan_strategy <span class="kw">import</span> VeganStrategy
+<span class="kw">from</span> .high_protein_strategy <span class="kw">import</span> HighProteinStrategy
+
+
+<span class="cm"># Registro de estrategias — añadir nuevas dietas sin tocar NutritionCalculator</span>
+STRATEGY_REGISTRY: dict[str, type[NutritionStrategy]] = {
+    <span class="st">"keto"</span>:         KetoStrategy,
+    <span class="st">"vegan"</span>:        VeganStrategy,
+    <span class="st">"high_protein"</span>: HighProteinStrategy,
+    <span class="cm"># "mediterranean": MediterraneanStrategy,  ← añadir aquí sin más cambios</span>
+}
+
+
+<span class="kw">class</span> <span class="ty">NutritionCalculator</span>:
+    <span class="cm">"""
+    CONTEXTO del patrón Strategy.
+    No conoce los detalles de ninguna estrategia concreta.
+    Solo sabe que todas cumplen la interfaz NutritionStrategy.
+    """</span>
+
+    <span class="kw">def</span> <span class="fn">__init__</span>(self, strategy: <span class="ty">NutritionStrategy</span>):
+        self._strategy = strategy
+
+    <span class="de">@classmethod</span>
+    <span class="kw">def</span> <span class="fn">from_strategy_name</span>(cls, strategy_name: str) -> <span class="st">"NutritionCalculator"</span>:
+        <span class="cm">"""Factory method: crea la calculadora dada una string de estrategia."""</span>
+        StrategyClass = STRATEGY_REGISTRY.get(strategy_name.lower())
+        <span class="kw">if not</span> StrategyClass:
+            available = list(STRATEGY_REGISTRY.keys())
+            <span class="kw">raise</span> ValueError(f<span class="st">"Estrategia '{strategy_name}' no registrada. Disponibles: {available}"</span>)
+        <span class="kw">return</span> cls(StrategyClass())
+
+    <span class="kw">def</span> <span class="fn">set_strategy</span>(self, strategy: <span class="ty">NutritionStrategy</span>) -> None:
+        <span class="cm">"""Permite cambiar la estrategia en tiempo de ejecución (hot-swap)."""</span>
+        self._strategy = strategy
+
+    <span class="kw">def</span> <span class="fn">calculate_plan</span>(self, bio: <span class="ty">UserBiometrics</span>) -> <span class="ty">MacroResult</span>:
+        <span class="cm">"""Delega el cálculo a la estrategia activa. La calculadora no sabe cuál es."""</span>
+        <span class="kw">return</span> self._strategy.calculate(bio)
+
+    <span class="kw">def</span> <span class="fn">compare_strategies</span>(self, bio: <span class="ty">UserBiometrics</span>) -> dict[str, MacroResult]:
+        <span class="cm">"""Calcula el plan con TODAS las estrategias para comparar (endpoint /compare)."""</span>
+        <span class="kw">return</span> {
+            name: StrategyClass().calculate(bio)
+            <span class="kw">for</span> name, StrategyClass <span class="kw">in</span> STRATEGY_REGISTRY.items()
+        }
+
+
+<span class="cm"># ──────────────────────────────────────────────────────────
+# USO EN ROUTER (FastAPI)
+# ──────────────────────────────────────────────────────────
+# calculator = NutritionCalculator.from_strategy_name("keto")
+# result = calculator.calculate_plan(bio)
+#
+# Para añadir "mediterranean":
+# 1. Crear MediterraneanStrategy(NutritionStrategy) en nuevo archivo
+# 2. Registrar en STRATEGY_REGISTRY
+# 3. ✅ Listo. NutritionCalculator no cambia nada.
+# ──────────────────────────────────────────────────────────</span></pre>
+  </div>
+
+  <h3>Diagrama UML del Strategy Pattern <span class="h3-tag" style="background:rgba(188,140,255,0.12);color:var(--purple)">DDD</span></h3>
+
+  <div style="background:var(--bg2);border:1px solid var(--border);border-radius:10px;padding:20px;font-family:var(--font-code);font-size:0.72rem;line-height:2;color:var(--text2)">
+    <pre style="padding:0;font-size:0.72rem;line-height:1.8">
+  ┌──────────────────────────────┐
+  │     &lt;&lt;interface&gt;&gt;           │
+  │   NutritionStrategy          │
+  │──────────────────────────────│
+  │  + calculate(bio) → Macros   │
+  │  # _calculate_tdee()         │
+  │  # _apply_goal_adjustment()  │
+  └─────────────┬────────────────┘
+                │ implements
+    ┌───────────┼────────────┐
+    ▼           ▼            ▼
+┌────────┐ ┌────────┐ ┌────────────┐   ┌ ─ ─ ─ ─ ─ ─ ─ ─ ┐
+│  Keto  │ │ Vegan  │ │HighProtein │   │ Mediterranean... │
+│Strategy│ │Strategy│ │  Strategy  │    ─ ─ ─ ─ ─ ─ ─ ─ ─
+└────────┘ └────────┘ └────────────┘   (añadir sin cambiar)
+
+  ┌─────────────────────────────┐
+  │    NutritionCalculator       │  ← Contexto: no conoce
+  │──────────────────────────────│    qué estrategia usa
+  │  - _strategy: Strategy       │
+  │  + calculate_plan(bio)       │
+  │  + set_strategy(strategy)    │
+  │  + compare_strategies(bio)   │
+  └─────────────────────────────┘</pre>
+  </div>
+</section>
+
+<!-- API ENDPOINTS -->
+<section class="section" id="api">
+  <h2 class="section-title"><span class="section-num">§7</span> Endpoints API — Definición y Seguridad</h2>
+
+  <h3>Autenticación y Usuarios</h3>
+  <div class="scroll-x">
+  <table class="api-table">
+    <thead>
+      <tr><th>Método</th><th>Endpoint</th><th>Descripción</th><th>Auth</th><th>Notas AEPD</th></tr>
+    </thead>
+    <tbody>
+      <tr><td><span class="method POST">POST</span></td><td><span class="endpoint-path">/auth/register</span></td><td>Registro + creación de health_link cifrado</td><td>–</td><td>Persiste consentimiento RGPD</td></tr>
+      <tr><td><span class="method POST">POST</span></td><td><span class="endpoint-path">/auth/login</span></td><td>Login → JWT RS256 (access 15m + refresh 7d)</td><td>–</td><td>Log de acceso sin PII</td></tr>
+      <tr><td><span class="method POST">POST</span></td><td><span class="endpoint-path">/auth/refresh</span></td><td>Renovar access token via refresh token (HttpOnly cookie)</td><td>Cookie</td><td>–</td></tr>
+      <tr><td><span class="method POST">POST</span></td><td><span class="endpoint-path">/auth/logout</span></td><td>Invalida refresh token en base de datos</td><td>Bearer</td><td>–</td></tr>
+      <tr><td><span class="method DELETE">DELETE</span></td><td><span class="endpoint-path">/auth/account</span></td><td>Elimina usuario + datos de salud (derecho al olvido)</td><td>Bearer</td><td>Art. 17 RGPD</td></tr>
+    </tbody>
+  </table>
+  </div>
+
+  <h3>Nutrición</h3>
+  <div class="scroll-x">
+  <table class="api-table">
+    <thead>
+      <tr><th>Método</th><th>Endpoint</th><th>Descripción</th><th>Auth</th></tr>
+    </thead>
+    <tbody>
+      <tr><td><span class="method POST">POST</span></td><td><span class="endpoint-path">/nutrition/calculate</span></td><td>Calcula macros. Body: <code>{strategy, weight, height, age, sex, goal}</code></td><td><span class="auth-badge">Bearer</span></td></tr>
+      <tr><td><span class="method GET">GET</span></td><td><span class="endpoint-path">/nutrition/compare</span></td><td>Devuelve cálculo con todas las estrategias para comparar</td><td><span class="auth-badge">Bearer</span></td></tr>
+      <tr><td><span class="method GET">GET</span></td><td><span class="endpoint-path">/ingredients?q=&amp;page=&amp;limit=</span></td><td>Búsqueda full-text con paginación</td><td><span class="auth-badge">Bearer</span></td></tr>
+      <tr><td><span class="method POST">POST</span></td><td><span class="endpoint-path">/ingredients</span></td><td>Crear ingrediente personalizado (Custom Ingredient)</td><td><span class="auth-badge">Bearer</span></td></tr>
+      <tr><td><span class="method GET">GET</span></td><td><span class="endpoint-path">/recipes?tags=keto,vegan</span></td><td>Listar recetas propias + públicas con filtros</td><td><span class="auth-badge">Bearer</span></td></tr>
+      <tr><td><span class="method POST">POST</span></td><td><span class="endpoint-path">/recipes</span></td><td>Crear receta con items (ingredientes + cantidades)</td><td><span class="auth-badge">Bearer</span></td></tr>
+      <tr><td><span class="method PUT">PUT</span></td><td><span class="endpoint-path">/recipes/:id</span></td><td>Actualizar receta propia (solo owner)</td><td><span class="auth-badge">Bearer</span></td></tr>
+      <tr><td><span class="method DELETE">DELETE</span></td><td><span class="endpoint-path">/recipes/:id</span></td><td>Eliminar receta propia</td><td><span class="auth-badge">Bearer</span></td></tr>
+    </tbody>
+  </table>
+  </div>
+
+  <h3>Biometría y Salud (Schema separado)</h3>
+  <div class="scroll-x">
+  <table class="api-table">
+    <thead>
+      <tr><th>Método</th><th>Endpoint</th><th>Descripción</th><th>Auth</th></tr>
+    </thead>
+    <tbody>
+      <tr><td><span class="method GET">GET</span></td><td><span class="endpoint-path">/biometrics?from=&amp;to=</span></td><td>Historial biométrico del usuario autenticado</td><td><span class="auth-badge">Bearer</span></td></tr>
+      <tr><td><span class="method POST">POST</span></td><td><span class="endpoint-path">/biometrics</span></td><td>Log diario: peso, % grasa, medidas, sueño</td><td><span class="auth-badge">Bearer</span></td></tr>
+      <tr><td><span class="method PATCH">PATCH</span></td><td><span class="endpoint-path">/biometrics/:date</span></td><td>Corregir entrada de un día</td><td><span class="auth-badge">Bearer</span></td></tr>
+      <tr><td><span class="method DELETE">DELETE</span></td><td><span class="endpoint-path">/biometrics/:date</span></td><td>Eliminar entrada específica</td><td><span class="auth-badge">Bearer</span></td></tr>
+      <tr><td><span class="method GET">GET</span></td><td><span class="endpoint-path">/biometrics/export</span></td><td>Exportar todo el historial (derecho de portabilidad, Art. 20 RGPD)</td><td><span class="auth-badge">Bearer</span></td></tr>
+    </tbody>
+  </table>
+  </div>
+
+  <h3>Entrenamiento</h3>
+  <div class="scroll-x">
+  <table class="api-table">
+    <thead>
+      <tr><th>Método</th><th>Endpoint</th><th>Descripción</th><th>Auth</th></tr>
+    </thead>
+    <tbody>
+      <tr><td><span class="method POST">POST</span></td><td><span class="endpoint-path">/workouts/generate</span></td><td>Genera rutina con el motor dinámico (peso, RPE, fatiga, sueño)</td><td><span class="auth-badge">Bearer</span></td></tr>
+      <tr><td><span class="method GET">GET</span></td><td><span class="endpoint-path">/workouts</span></td><td>Rutinas del usuario</td><td><span class="auth-badge">Bearer</span></td></tr>
+      <tr><td><span class="method POST">POST</span></td><td><span class="endpoint-path">/workouts/:id/sessions</span></td><td>Registrar sesión completada + RPE + cargas</td><td><span class="auth-badge">Bearer</span></td></tr>
+      <tr><td><span class="method GET">GET</span></td><td><span class="endpoint-path">/workouts/:id/sessions</span></td><td>Historial de sesiones de una rutina</td><td><span class="auth-badge">Bearer</span></td></tr>
+    </tbody>
+  </table>
+  </div>
+
+  <div class="callout info" style="margin-top:16px">
+    <div class="callout-icon">🔐</div>
+    <div class="callout-body">
+      <strong>Seguridad en endpoints de salud:</strong> Cada request a <code>/biometrics/*</code> y <code>/workouts/*/sessions</code> pasa por <code>CryptoService.resolve_health_subject()</code> antes de ejecutar la query. El endpoint <strong>nunca recibe</strong> ni expone el <code>health_subject_id</code> al cliente — solo el usuario autenticado puede acceder a sus propios datos gracias al JWT + resolución del CryptoService.
+    </div>
+  </div>
+</section>
+
+<!-- SECURITY -->
+<section class="section" id="security">
+  <h2 class="section-title"><span class="section-num">§8</span> Estrategia de Seguridad Completa</h2>
+
+  <div class="code-block">
+    <div class="code-header">
+      <span class="code-lang">Python</span>
+      <span class="code-file">apps/api/app/core/security.py</span>
+    </div>
+    <pre>
+<span class="kw">import</span> os, jwt
+<span class="kw">from</span> argon2 <span class="kw">import</span> PasswordHasher
+<span class="kw">from</span> argon2.exceptions <span class="kw">import</span> VerifyMismatchError
+<span class="kw">from</span> datetime <span class="kw">import</span> datetime, timedelta, timezone
+<span class="kw">from</span> cryptography.hazmat.primitives <span class="kw">import</span> serialization
+<span class="kw">from</span> fastapi <span class="kw">import</span> Depends, HTTPException, status
+<span class="kw">from</span> fastapi.security <span class="kw">import</span> HTTPBearer
+
+<span class="cm"># Argon2id — OWASP recomienda sobre bcrypt para nuevos sistemas</span>
+_hasher = PasswordHasher(
+    time_cost=<span class="nu">3</span>,       <span class="cm"># iteraciones</span>
+    memory_cost=<span class="nu">65536</span>,  <span class="cm"># 64 MB</span>
+    parallelism=<span class="nu">1</span>,
+    hash_len=<span class="nu">32</span>,
+    salt_len=<span class="nu">16</span>,
+)
+
+<span class="kw">def</span> <span class="fn">hash_password</span>(plain: str) -> str:
+    <span class="kw">return</span> _hasher.hash(plain)
+
+<span class="kw">def</span> <span class="fn">verify_password</span>(plain: str, hashed: str) -> bool:
+    <span class="kw">try</span>:
+        <span class="kw">return</span> _hasher.verify(hashed, plain)
+    <span class="kw">except</span> VerifyMismatchError:
+        <span class="kw">return</span> False
+
+
+<span class="cm"># JWT RS256 — clave asimétrica (la pública puede compartirse con otros servicios)</span>
+<span class="kw">def</span> <span class="fn">_load_private_key</span>():
+    key_data = os.environ[<span class="st">"JWT_PRIVATE_KEY_PEM"</span>]
+    <span class="kw">return</span> serialization.load_pem_private_key(key_data.encode(), password=None)
+
+<span class="kw">def</span> <span class="fn">create_access_token</span>(user_id: str, role: str) -> str:
+    payload = {
+        <span class="st">"sub"</span>:  user_id,
+        <span class="st">"role"</span>: role,
+        <span class="st">"iat"</span>:  datetime.now(timezone.utc),
+        <span class="st">"exp"</span>:  datetime.now(timezone.utc) + timedelta(minutes=<span class="nu">15</span>),
+        <span class="st">"iss"</span>:  <span class="st">"healthstack.api"</span>,
+        <span class="st">"aud"</span>:  <span class="st">"healthstack.web"</span>,
+    }
+    <span class="kw">return</span> jwt.encode(payload, _load_private_key(), algorithm=<span class="st">"RS256"</span>)
+
+<span class="kw">def</span> <span class="fn">verify_access_token</span>(token: str) -> dict:
+    public_key_pem = os.environ[<span class="st">"JWT_PUBLIC_KEY_PEM"</span>]
+    <span class="kw">try</span>:
+        <span class="kw">return</span> jwt.decode(
+            token, public_key_pem,
+            algorithms=[<span class="st">"RS256"</span>],
+            audience=<span class="st">"healthstack.web"</span>,
+        )
+    <span class="kw">except</span> jwt.ExpiredSignatureError:
+        <span class="kw">raise</span> HTTPException(status.<span class="fn">HTTP_401_UNAUTHORIZED</span>, detail=<span class="st">"Token expirado"</span>)
+    <span class="kw">except</span> jwt.InvalidTokenError:
+        <span class="kw">raise</span> HTTPException(status.<span class="fn">HTTP_401_UNAUTHORIZED</span>, detail=<span class="st">"Token inválido"</span>)
+
+<span class="cm"># FastAPI dependency</span>
+bearer_scheme = HTTPBearer()
+
+<span class="kw">async def</span> <span class="fn">get_current_user</span>(token = Depends(bearer_scheme)):
+    payload = verify_access_token(token.credentials)
+    <span class="kw">return</span> {<span class="st">"user_id"</span>: payload[<span class="st">"sub"</span>], <span class="st">"role"</span>: payload[<span class="st">"role"</span>]}</pre>
+  </div>
+
+  <div class="code-block">
+    <div class="code-header">
+      <span class="code-lang">nginx</span>
+      <span class="code-file">infra/nginx/nginx.conf</span>
+    </div>
+    <pre>
+<span class="cm"># Nginx como Reverse Proxy — TLS 1.3 + Headers de Seguridad</span>
+server {
+    listen 443 ssl http2;
+    server_name api.healthstackpro.es;
+
+    <span class="cm"># TLS 1.3 exclusivamente</span>
+    ssl_certificate     /etc/letsencrypt/live/api.healthstackpro.es/fullchain.pem;
+    ssl_certificate_key /etc/letsencrypt/live/api.healthstackpro.es/privkey.pem;
+    ssl_protocols       TLSv1.3;
+    ssl_session_cache   shared:SSL:10m;
+    ssl_session_timeout 1d;
+
+    <span class="cm"># HSTS (2 años + includeSubDomains)</span>
+    add_header Strict-Transport-Security <span class="st">"max-age=63072000; includeSubDomains; preload"</span> always;
+    add_header X-Frame-Options            <span class="st">"DENY"</span> always;
+    add_header X-Content-Type-Options     <span class="st">"nosniff"</span> always;
+    add_header Referrer-Policy            <span class="st">"strict-origin-when-cross-origin"</span> always;
+    add_header Content-Security-Policy    <span class="st">"default-src 'self'; frame-ancestors 'none'"</span> always;
+
+    <span class="cm"># Rate Limiting — 30 req/min por IP (10/min para /auth)</span>
+    limit_req_zone $binary_remote_addr zone=api:10m     rate=30r/m;
+    limit_req_zone $binary_remote_addr zone=auth:10m    rate=10r/m;
+    limit_req_zone $binary_remote_addr zone=export:10m  rate=2r/m;
+
+    location /auth/ {
+        limit_req zone=auth burst=5 nodelay;
+        proxy_pass http://fastapi:8000;
+        proxy_set_header X-Real-IP       $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+    }
+
+    location /biometrics/export {
+        limit_req zone=export burst=1 nodelay;
+        proxy_pass http://fastapi:8000;
+    }
+
+    location / {
+        limit_req zone=api burst=20 nodelay;
+        proxy_pass http://fastapi:8000;
+        proxy_set_header Host            $host;
+        proxy_set_header X-Real-IP       $remote_addr;
+    }
+}
+
+<span class="cm"># Redirigir HTTP → HTTPS</span>
+server {
+    listen 80;
+    return 301 https://$host$request_uri;
+}</pre>
+  </div>
+</section>
+
+<!-- DOCKER -->
+<section class="section" id="docker">
+  <h2 class="section-title"><span class="section-num">§9</span> Docker Compose — Infraestructura Completa</h2>
+
+  <div class="code-block">
+    <div class="code-header">
+      <span class="code-lang">YAML</span>
+      <span class="code-file">infra/docker-compose.prod.yml</span>
+    </div>
+    <pre>
+version: <span class="st">"3.9"</span>
+
+services:
+
+  postgres:
+    image: postgres:16-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB:       healthstack
+      POSTGRES_USER:     ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./infra/postgres/init.sql:/docker-entrypoint-initdb.d/init.sql
+    healthcheck:
+      test: [<span class="st">"CMD-SHELL"</span>, <span class="st">"pg_isready -U ${POSTGRES_USER} -d healthstack"</span>]
+      interval: 10s; timeout: 5s; retries: 5
+    <span class="cm"># Nunca exponer el puerto en producción</span>
+    networks: [internal]
+
+  redis:
+    image: redis:7-alpine
+    restart: unless-stopped
+    command: redis-server --requirepass ${REDIS_PASSWORD} --save 60 1
+    volumes:
+      - redis_data:/data
+    networks: [internal]
+
+  fastapi:
+    build: ./apps/api
+    restart: unless-stopped
+    env_file: ./apps/api/.env
+    environment:
+      DATABASE_URL:              postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@postgres:5432/healthstack
+      REDIS_URL:                 redis://:${REDIS_PASSWORD}@redis:6379/0
+      HEALTH_LINK_MASTER_KEY:    ${HEALTH_LINK_MASTER_KEY}    <span class="cm"># 256-bit hex key</span>
+      JWT_PRIVATE_KEY_PEM:       ${JWT_PRIVATE_KEY_PEM}
+      JWT_PUBLIC_KEY_PEM:        ${JWT_PUBLIC_KEY_PEM}
+    depends_on:
+      postgres: { condition: service_healthy }
+      redis:    { condition: service_started }
+    networks: [internal, external]
+    <span class="cm"># NUNCA mapear el puerto 8000 en producción (solo Nginx accede)</span>
+
+  nextjs:
+    build: ./apps/web
+    restart: unless-stopped
+    env_file: ./apps/web/.env.local
+    environment:
+      NEXT_PUBLIC_API_URL: https://api.healthstackpro.es
+    depends_on: [fastapi]
+    networks: [internal, external]
+
+  nginx:
+    image: nginx:alpine
+    restart: unless-stopped
+    ports:
+      - <span class="st">"80:80"</span>
+      - <span class="st">"443:443"</span>
+    volumes:
+      - ./infra/nginx/nginx.conf:/etc/nginx/nginx.conf:ro
+      - /etc/letsencrypt:/etc/letsencrypt:ro
+    depends_on: [fastapi, nextjs]
+    networks: [external]
+
+  prometheus:
+    image: prom/prometheus:v2.50.0
+    volumes:
+      - ./infra/prometheus/prometheus.yml:/etc/prometheus/prometheus.yml
+      - prometheus_data:/prometheus
+    networks: [internal]
+
+  grafana:
+    image: grafana/grafana:10.3.0
+    environment:
+      GF_SECURITY_ADMIN_PASSWORD: ${GRAFANA_PASSWORD}
+      GF_SERVER_DOMAIN:           metrics.healthstackpro.es
+    volumes:
+      - grafana_data:/var/lib/grafana
+    networks: [internal, external]
+
+networks:
+  internal: { driver: bridge, internal: true }
+  external: { driver: bridge }
+
+volumes:
+  postgres_data:
+  redis_data:
+  prometheus_data:
+  grafana_data:</pre>
+  </div>
+</section>
+
+<!-- MONITORING -->
+<section class="section" id="monitoring">
+  <h2 class="section-title"><span class="section-num">§10</span> Observabilidad — Sentry + Prometheus</h2>
+
+  <h3>Métricas Prometheus clave <span class="h3-tag" style="background:rgba(118,227,234,0.1);color:var(--cyan)">SLO/SLA</span></h3>
+
+  <div class="metrics-grid">
+    <div class="metric-card">
+      <div class="metric-card-name">HTTP latency p95</div>
+      <div class="metric-card-value">http_request_duration_seconds</div>
+      <div class="metric-card-desc">SLO: &lt;300ms p95 para endpoints /nutrition</div>
+    </div>
+    <div class="metric-card">
+      <div class="metric-card-name">Error Rate</div>
+      <div class="metric-card-value">http_requests_total{status=~"5.."}</div>
+      <div class="metric-card-desc">Alerta si supera 1% en ventana de 5 min</div>
+    </div>
+    <div class="metric-card">
+      <div class="metric-card-name">Auth Failed</div>
+      <div class="metric-card-value">auth_failures_total</div>
+      <div class="metric-card-desc">Detección de fuerza bruta. Alerta &gt;100/min</div>
+    </div>
+    <div class="metric-card">
+      <div class="metric-card-name">Crypto Ops</div>
+      <div class="metric-card-value">crypto_decrypt_duration_seconds</div>
+      <div class="metric-card-desc">Latencia del CryptoService en p99</div>
+    </div>
+    <div class="metric-card">
+      <div class="metric-card-name">DB Pool</div>
+      <div class="metric-card-value">sqlalchemy_pool_checked_out</div>
+      <div class="metric-card-desc">Conexiones activas. Alerta si &gt;80% del pool</div>
+    </div>
+    <div class="metric-card">
+      <div class="metric-card-name">GDPR Deletions</div>
+      <div class="metric-card-value">gdpr_deletion_requests_total</div>
+      <div class="metric-card-desc">Solicitudes Art. 17. Log de auditoría.</div>
+    </div>
+  </div>
+
+  <div class="code-block">
+    <div class="code-header">
+      <span class="code-lang">Python</span>
+      <span class="code-file">apps/api/app/core/observability.py</span>
+    </div>
+    <pre>
+<span class="kw">import</span> sentry_sdk
+<span class="kw">from</span> sentry_sdk.integrations.fastapi <span class="kw">import</span> FastApiIntegration
+<span class="kw">from</span> sentry_sdk.integrations.sqlalchemy <span class="kw">import</span> SqlalchemyIntegration
+<span class="kw">from</span> prometheus_client <span class="kw">import</span> Counter, Histogram, Gauge, generate_latest
+<span class="kw">from</span> fastapi <span class="kw">import</span> Request
+<span class="kw">import</span> time, os
+
+
+<span class="kw">def</span> <span class="fn">init_sentry</span>():
+    <span class="cm">"""
+    Sentry con Data Scrubbing activado.
+    CRÍTICO: Los datos de salud NUNCA deben aparecer en logs de error.
+    """</span>
+    sentry_sdk.init(
+        dsn=os.environ.get(<span class="st">"SENTRY_DSN"</span>),
+        environment=os.environ.get(<span class="st">"ENV"</span>, <span class="st">"production"</span>),
+        integrations=[FastApiIntegration(), SqlalchemyIntegration()],
+        traces_sample_rate=<span class="nu">0.1</span>,        <span class="cm"># 10% de transacciones trazadas</span>
+        profiles_sample_rate=<span class="nu">0.05</span>,
+        send_default_pii=<span class="kw">False</span>,        <span class="cm"># ← CRÍTICO: nunca enviar PII a Sentry</span>
+
+        <span class="cm"># Ofuscar campos sensibles automáticamente</span>
+        before_send=_sanitize_event,
+    )
+
+<span class="kw">def</span> <span class="fn">_sanitize_event</span>(event: dict, hint: dict) -> dict | None:
+    <span class="cm">"""Elimina datos sensibles antes de enviar a Sentry (AEPD compliance)."""</span>
+    SENSITIVE_KEYS = {
+        <span class="st">"password"</span>, <span class="st">"password_hash"</span>, <span class="st">"health_uuid_enc"</span>,
+        <span class="st">"health_subject_id"</span>, <span class="st">"weight_kg"</span>, <span class="st">"body_fat_pct"</span>,
+        <span class="st">"email"</span>, <span class="st">"token"</span>, <span class="st">"authorization"</span>,
+    }
+    <span class="kw">def</span> <span class="fn">scrub</span>(obj):
+        <span class="kw">if isinstance</span>(obj, dict):
+            <span class="kw">return</span> {
+                k: <span class="st">"[REDACTED]"</span> <span class="kw">if</span> k.lower() <span class="kw">in</span> SENSITIVE_KEYS <span class="kw">else</span> scrub(v)
+                <span class="kw">for</span> k, v <span class="kw">in</span> obj.items()
+            }
+        <span class="kw">elif isinstance</span>(obj, list):
+            <span class="kw">return</span> [scrub(i) <span class="kw">for</span> i <span class="kw">in</span> obj]
+        <span class="kw">return</span> obj
+    <span class="kw">return</span> scrub(event)
+
+
+<span class="cm"># ── PROMETHEUS METRICS ────────────────────────────────────</span>
+
+REQUEST_LATENCY = Histogram(
+    <span class="st">"http_request_duration_seconds"</span>,
+    <span class="st">"HTTP request latency"</span>,
+    [<span class="st">"method"</span>, <span class="st">"endpoint"</span>, <span class="st">"status_code"</span>],
+    buckets=[<span class="nu">.005</span>, <span class="nu">.01</span>, <span class="nu">.025</span>, <span class="nu">.05</span>, <span class="nu">.1</span>, <span class="nu">.25</span>, <span class="nu">.5</span>, <span class="nu">1.0</span>, <span class="nu">2.5</span>],
+)
+AUTH_FAILURES   = Counter(<span class="st">"auth_failures_total"</span>, <span class="st">"Auth failures"</span>, [<span class="st">"reason"</span>])
+GDPR_DELETIONS  = Counter(<span class="st">"gdpr_deletion_requests_total"</span>, <span class="st">"RGPD Art.17 requests"</span>)
+CRYPTO_OPS      = Histogram(<span class="st">"crypto_decrypt_duration_seconds"</span>, <span class="st">"CryptoService latency"</span>)
+ACTIVE_USERS    = Gauge(<span class="st">"active_sessions_total"</span>, <span class="st">"Active JWT sessions"</span>)
+
+
+<span class="kw">async def</span> <span class="fn">prometheus_middleware</span>(request: Request, call_next):
+    start = time.time()
+    response = <span class="kw">await</span> call_next(request)
+    duration = time.time() - start
+
+    <span class="cm"># Solo trackear endpoints de API, no /metrics ni /health</span>
+    <span class="kw">if not</span> request.url.path.startswith(<span class="st">"/metrics"</span>):
+        REQUEST_LATENCY.labels(
+            method=request.method,
+            endpoint=request.url.path,
+            status_code=response.status_code,
+        ).observe(duration)
+
+    <span class="kw">return</span> response</pre>
+  </div>
+</section>
+
+<!-- RGPD CHECKLIST -->
+<section class="section" id="rgpd">
+  <h2 class="section-title"><span class="section-num">§11</span> Checklist RGPD/AEPD — Estado de Cumplimiento</h2>
+
+  <div class="compliance-item">
+    <div class="compliance-status done">✅ Implementado</div>
+    <div class="compliance-content"><h5>Art. 25 — Privacy by Design y por Defecto</h5><p>Seudonimización implementada en el esquema de base de datos. El health_subject_id nunca se vincula directamente al user_id en ninguna query SQL.</p></div>
+  </div>
+  <div class="compliance-item">
+    <div class="compliance-status done">✅ Implementado</div>
+    <div class="compliance-content"><h5>Art. 32 — Seguridad del Tratamiento</h5><p>AES-256-GCM para la llave de cruce, Argon2id para contraseñas, JWT RS256, TLS 1.3, Rate limiting, HSTS, CSP. Backups cifrados en Hetzner Fráncfort.</p></div>
+  </div>
+  <div class="compliance-item">
+    <div class="compliance-status done">✅ Implementado</div>
+    <div class="compliance-content"><h5>Art. 7 — Consentimiento Explícito</h5><p>Campo <code>consent_gdpr</code> + <code>consent_date</code> en tabla <code>users</code>. No se crean datos de salud sin consentimiento previo registrado.</p></div>
+  </div>
+  <div class="compliance-item">
+    <div class="compliance-status done">✅ Implementado</div>
+    <div class="compliance-content"><h5>Art. 17 — Derecho al Olvido</h5><p>Endpoint <code>DELETE /auth/account</code> elimina en cascada: User → HealthLink (cascade) + BiometricData (borrado por health_subject_id). Contador Prometheus para auditoría.</p></div>
+  </div>
+  <div class="compliance-item">
+    <div class="compliance-status done">✅ Implementado</div>
+    <div class="compliance-content"><h5>Art. 20 — Portabilidad de Datos</h5><p>Endpoint <code>GET /biometrics/export</code> devuelve todo el historial en formato JSON/CSV. Rate limited a 2 req/min por IP.</p></div>
+  </div>
+  <div class="compliance-item">
+    <div class="compliance-status arch">🏗️ Arquitectura</div>
+    <div class="compliance-content"><h5>Art. 33 — Notificación de Brechas (72h)</h5><p>Sentry con alertas inmediatas. Alerta de Prometheus en <code>auth_failures_total > 100/min</code> sugiere posible ataque. Procedimiento interno de 72h pendiente de documentar.</p></div>
+  </div>
+  <div class="compliance-item">
+    <div class="compliance-status arch">🏗️ Arquitectura</div>
+    <div class="compliance-content"><h5>Art. 30 — Registro de Actividades de Tratamiento</h5><p>Log estructurado con Loki. La tabla <code>audit_log</code> (pendiente de implementar) debe registrar: quién accedió a qué datos de salud y cuándo, sin incluir el contenido de los datos.</p></div>
+  </div>
+  <div class="compliance-item">
+    <div class="compliance-status req">📋 Requerido</div>
+    <div class="compliance-content"><h5>Art. 35 — Evaluación de Impacto (DPIA)</h5><p>Obligatoria para plataformas que traten datos de salud a gran escala. Debe realizarse antes del despliegue en producción. Contactar con el delegado de protección de datos (DPD) designado.</p></div>
+  </div>
+
+  <div class="callout warning" style="margin-top:20px">
+    <div class="callout-icon">⚠️</div>
+    <div class="callout-body">
+      <strong>Nota legal importante:</strong> Esta arquitectura implementa medidas técnicas de seudonimización conformes al RGPD, pero la plataforma debe complementarse con una <strong>Política de Privacidad</strong> actualizada, un <strong>Aviso de Cookies</strong>, el nombramiento de un <strong>DPD (Delegado de Protección de Datos)</strong> y la realización de una <strong>DPIA</strong> si el tratamiento de datos de salud supera los umbrales de riesgo alto. Consulta con un especialista legal en privacidad antes del lanzamiento.
+    </div>
+  </div>
+</section>
+
+<!-- NEXT STEPS -->
+<section class="section">
+  <h2 class="section-title"><span class="section-num">§12</span> Plan de Implementación por Fases</h2>
+
+  <div class="steps">
+    <div class="step">
+      <div class="step-num">1</div>
+      <div class="step-content">
+        <h4>Paso 1 — Base (Esta sesión)</h4>
+        <p>Crear la estructura de carpetas, el esquema Prisma con los 3 schemas de PostgreSQL (<code>public</code>, <code>health</code>, <code>content</code>), y el <code>CryptoService</code> para la llave de cruce AES-256.</p>
+      </div>
+    </div>
+    <div class="step">
+      <div class="step-num">2</div>
+      <div class="step-content">
+        <h4>Paso 2 — Motor Nutricional</h4>
+        <p>Implementar las 3 estrategias de dieta (Keto, Vegan, HighProtein) + la clase contexto <code>NutritionCalculator</code> + el router de FastAPI <code>/nutrition/calculate</code> + tests unitarios con Pytest.</p>
+      </div>
+    </div>
+    <div class="step">
+      <div class="step-num">3</div>
+      <div class="step-content">
+        <h4>Paso 3 — Motor de Entrenamiento</h4>
+        <p>Algoritmo dinámico de generación de rutinas con periodización DUP. Variables de entrada: RPE reciente, horas de sueño, historial de fatiga. Autoregulación del volumen semanal.</p>
+      </div>
+    </div>
+    <div class="step">
+      <div class="step-num">4</div>
+      <div class="step-content">
+        <h4>Paso 4 — Frontend Next.js</h4>
+        <p>Dashboard de biometría con Chart.js/Recharts. Formulario de recetas con CRUD completo. Integración con React Query + Zod para validaciones tipadas end-to-end.</p>
+      </div>
+    </div>
+    <div class="step">
+      <div class="step-num">5</div>
+      <div class="step-content">
+        <h4>Paso 5 — Despliegue y Observabilidad</h4>
+        <p>Docker Compose en Hetzner CX31 (Fráncfort). Certbot automatizado. Prometheus + Grafana + Sentry configurados. Alertas de Auth failures y latencia del CryptoService.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<div class="doc-footer">
+  <span>HealthStack Pro V2 · Arquitectura Técnica v1.0</span>
+  <span>© 2025 · Confidencial · RGPD/AEPD Compliant</span>
+  <span>Stack: Next.js 14 · FastAPI · PostgreSQL · Docker · Hetzner EU</span>
+</div>
+
+</main>
+
+<script>
+// Highlight active nav item on scroll
+const sections = document.querySelectorAll('section[id]');
+const navItems = document.querySelectorAll('.nav-item');
+
+const observer = new IntersectionObserver((entries) => {
+  entries.forEach(e => {
+    if (e.isIntersecting) {
+      navItems.forEach(n => n.classList.remove('active'));
+      const active = document.querySelector(`.nav-item[href="#${e.target.id}"]`);
+      if (active) active.classList.add('active');
+    }
+  });
+}, { threshold: 0.2 });
+
+sections.forEach(s => observer.observe(s));
+
+// Copy code button
+document.querySelectorAll('.code-copy').forEach(btn => {
+  btn.addEventListener('click', function() {
+    const pre = this.closest('.code-block').querySelector('pre');
+    navigator.clipboard.writeText(pre.textContent).then(() => {
+      this.textContent = '✓ Copiado';
+      setTimeout(() => this.textContent = 'Copiar', 2000);
+    });
+  });
+});
+</script>
+</body>
+</html>

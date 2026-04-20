@@ -1,0 +1,127 @@
+{
+  "nav": {
+    "links": ["Funciones", "Preview", "Testimonios", "Precios"],
+    "login": "Entrar",
+    "cta": "Empezar Gratis"
+  },
+  "hero": {
+    "badge": "#1 Fitness Platform · Gratis y Open Source",
+    "line1": "MOLDEA TU",
+    "line3": "VERSIÓN",
+    "typewriter": ["FUERZA", "MÚSCULO", "POTENCIA", "RESISTENCIA", "CUERPO"],
+    "body": "Rutinas generadas por algoritmos inteligentes, nutrición de precisión y una comunidad que te impulsa más lejos. Todo lo que necesitas para construir el cuerpo — y la vida — que quieres.",
+    "cta_primary": "Empieza Ya — Es Gratis",
+    "cta_secondary": "Ver Demo",
+    "stats": ["Miembros activos", "Entrenamientos", "Valoración media"],
+    "tag1_title": "Rutina Lista",
+    "tag1_sub": "Push · Pull · Legs",
+    "tag2_title": "+2.8 kg músculo",
+    "tag2_sub": "Últimas 12 semanas"
+  },
+  "band": ["Miembros mundiales", "Ejercicios en biblioteca", "Ingredientes rastreados", "Gratis y open source"],
+  "expansion": {
+    "label": "El entorno lo es todo",
+    "title_1": "CONSTRUIDO PARA",
+    "title_2": "ATLETAS SERIOS",
+    "subtitle": "Cada función fue diseñada con un solo objetivo: hacer que tu progreso sea inevitable."
+  },
+  "features": {
+    "label": "Lo que obtienes",
+    "title_1": "TODO LO QUE",
+    "title_2": "NECESITAS PARA GANAR",
+    "subtitle": "Seis herramientas potentes, una sola plataforma. Construida por atletas, para atletas.",
+    "items": [
+      { "title": "Generador de Rutinas", "desc": "Responde 7 preguntas inteligentes. Obtén un plan semanal personalizado construido para tu cuerpo, objetivos y equipamiento." },
+      { "title": "Nutrición de Precisión", "desc": "Calculadora TDEE, seguimiento de macros en 142 ingredientes, planificador de comidas 7 días y creador de recetas." },
+      { "title": "Seguimiento de Peso", "desc": "Registra tu progreso con gráficas hermosas, análisis de tendencias y rachas semanales que te mantienen constante." },
+      { "title": "Retos Comunitarios", "desc": "Compite en clasificaciones, gana XP, desbloquea logros y comparte tus victorias con la comunidad." },
+      { "title": "Gamificación y XP", "desc": "Sube de nivel de Novato a Leyenda. Cada entrenamiento registrado y cada racha mantenida tiene recompensa real." },
+      { "title": "Timing Óptimo", "desc": "Planificador de nutrición respaldado por ciencia — sabe exactamente qué comer antes y después de cada sesión." }
+    ]
+  },
+  "preview": {
+    "label": "Vista previa",
+    "title_1": "TU DASHBOARD",
+    "title_2": "SIEMPRE LISTO",
+    "subtitle": "Peso, macros, rutinas y XP — todo lo que importa en una sola pantalla. Limpio. Rápido. Sin distracciones."
+  },
+  "shader": {
+    "label": "Tecnología que trabaja para ti",
+    "title_1": "CADA DECISIÓN",
+    "title_2": "RESPALDADA POR DATOS",
+    "subtitle": "Algoritmos inteligentes que aprenden de tu cuerpo, tus hábitos y tus metas para darte las recomendaciones más precisas del mercado."
+  },
+  "testimonials": {
+    "label": "Resultados reales",
+    "title_1": "ATLETAS QUE",
+    "title_2": "CONFIARON EN EL PROCESO",
+    "subtitle": "Personas reales. Transformaciones reales. Cero excusas.",
+    "items": [
+      { "name": "Carlos M.", "role": "Perdió 18 kg · Madrid", "quote": "Perdí 18 kg en 4 meses usando el generador de rutinas y el tracker de nutrición. Esta app reemplazó tres suscripciones de pago. Un valor brutal." },
+      { "name": "Ana R.", "role": "Primera competición de powerlifting · Barcelona", "quote": "Las rutinas transformaron mi entrenamiento por completo. En 12 semanas pasé de principiante a competir en mi primera powerlifting. La comunidad me mantuvo en marcha." },
+      { "name": "David L.", "role": "+8 kg de músculo · Berlín", "quote": "Por fin una app de fitness que respeta mi tiempo. El planificador sincroniza automáticamente con mis macros y la guía de suplementos es basada en evidencia." }
+    ]
+  },
+  "pricing": {
+    "label": "Precios",
+    "title_1": "SIN EXCUSAS.",
+    "title_2": "EMPIEZA GRATIS.",
+    "subtitle": "HealthStack Pro es y siempre será gratuito. Los niveles Pro y Elite desbloquean funciones premium cuando estés listo para ir más lejos.",
+    "popular": "Más popular",
+    "plans": [
+      {
+        "tier": "Starter",
+        "period": "/siempre",
+        "desc": "Todo lo que necesitas para comenzar — sin tarjeta de crédito.",
+        "cta": "Empezar gratis",
+        "features": ["Seguimiento de peso y progreso", "+300 ejercicios en biblioteca", "Calculadora TDEE y macros", "Acceso a la comunidad", "Generador de rutinas", "Planificador de comidas completo"]
+      },
+      {
+        "tier": "Pro",
+        "period": "/mes",
+        "desc": "Para atletas serios que quieren todas las herramientas juntas.",
+        "cta": "Empezar Pro — 9 €/mes",
+        "features": ["Todo lo de Starter", "Generador de rutinas", "Planificador de comidas 7 días", "Creador de recetas personalizado", "Guía de suplementos con evidencia", "Badge de prioridad en comunidad"]
+      },
+      {
+        "tier": "Elite",
+        "period": "/mes",
+        "desc": "El stack completo para atletas competitivos y entrenadores.",
+        "cta": "Ir a Elite",
+        "features": ["Todo lo de Pro", "Integración con entrenador personal", "Composición corporal avanzada", "Seguimiento de marcadores sanguíneos", "Sincronización wearable (próximamente)", "Onboarding personalizado"]
+      }
+    ]
+  },
+  "cta": {
+    "label": "El momento es ahora",
+    "title_1": "TU MEJOR VERSIÓN",
+    "title_2": "EMPIEZA HOY",
+    "subtitle": "Únete a miles de atletas que ya entrenan de forma más inteligente. Sin gym necesario. Sin excusas aceptadas.",
+    "primary": "Lanzar la App — Es Gratis",
+    "secondary": "Conocer la Comunidad"
+  },
+  "footer": {
+    "links": ["App", "Funciones", "Precios", "Comunidad", "Suplementos", "GitHub"],
+    "copyright": "© 2025 HealthStack Pro · Open Source · MIT License",
+    "tagline": "Construido con ❤️ para atletas de todo el mundo"
+  },
+  "dashboard": {
+    "weight": "Peso actual",
+    "calories": "Calorías hoy",
+    "xp": "XP Total",
+    "level": "Nivel",
+    "level_value": "Avanzado",
+    "weight_total": "−3.1 kg total",
+    "chart_title": "Progreso de peso · últimas 8 semanas",
+    "macros_title": "Macros hoy",
+    "protein": "Proteína",
+    "carbs": "Carbohidratos",
+    "fats": "Grasas",
+    "workout_title": "Rutina de hoy",
+    "level_title": "Progreso de nivel",
+    "level_next": "XP para Élite",
+    "exercises": ["Press Banca", "Press Militar", "Aperturas", "Tríceps Polea"],
+    "sets": ["4×8", "3×10", "3×12", "3×15"],
+    "streak": "Racha"
+  }
+}

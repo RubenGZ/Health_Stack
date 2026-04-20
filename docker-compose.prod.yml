@@ -1,0 +1,127 @@
+# =============================================================================
+# HealthStack Pro — PRODUCTION
+# Images are pre-built by CI and pushed to GHCR.
+# Secrets are supplied via environment variables on the host (or via a secrets
+# manager that populates them before `docker compose up`).
+#
+# Required host env vars before running:
+#   GITHUB_REPOSITORY   e.g.  myorg/healthstack-pro
+#   IMAGE_TAG           git SHA or semver tag (defaults to "latest")
+#   POSTGRES_PASSWORD   strong random password
+#   REDIS_PASSWORD      strong random password
+#   DATABASE_URL        postgresql+asyncpg://... (full DSN)
+#   DATABASE_SYNC_URL   postgresql://...         (sync DSN for Alembic)
+#   SECRET_KEY          application secret key
+#   JWT_PRIVATE_KEY_PEM RSA 2048 private key (newlines replaced with \n)
+#   JWT_PUBLIC_KEY_PEM  RSA 2048 public key  (newlines replaced with \n)
+#   SENTRY_DSN          (optional)
+#   ALLOWED_ORIGINS     comma-separated list of allowed CORS origins
+# =============================================================================
+
+services:
+
+  # ---------------------------------------------------------------------------
+  # PostgreSQL 16  (internal only — no exposed ports)
+  # ---------------------------------------------------------------------------
+  postgres:
+    image: postgres:16-alpine
+    container_name: healthstack_postgres_prod
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: healthstack
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+    volumes:
+      - postgres_data_prod:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d healthstack"]
+      interval: 15s
+      timeout: 5s
+      retries: 5
+      start_period: 20s
+    networks:
+      - internal
+
+  # ---------------------------------------------------------------------------
+  # Redis 7  (internal only — password-protected)
+  # ---------------------------------------------------------------------------
+  redis:
+    image: redis:7-alpine
+    container_name: healthstack_redis_prod
+    restart: unless-stopped
+    command: redis-server --requirepass ${REDIS_PASSWORD} --appendonly yes
+    volumes:
+      - redis_data_prod:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "-a", "${REDIS_PASSWORD}", "ping"]
+      interval: 15s
+      timeout: 5s
+      retries: 5
+    networks:
+      - internal
+
+  # ---------------------------------------------------------------------------
+  # FastAPI Backend  (pre-built image from GHCR, no exposed ports)
+  # ---------------------------------------------------------------------------
+  backend:
+    image: ghcr.io/${GITHUB_REPOSITORY}/backend:${IMAGE_TAG:-latest}
+    container_name: healthstack_backend_prod
+    restart: unless-stopped
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    environment:
+      APP_ENV: production
+      DEBUG: "false"
+      DATABASE_URL: ${DATABASE_URL}
+      DATABASE_SYNC_URL: ${DATABASE_SYNC_URL}
+      REDIS_URL: redis://:${REDIS_PASSWORD}@redis:6379/0
+      SECRET_KEY: ${SECRET_KEY}
+      JWT_ALGORITHM: RS256
+      JWT_ACCESS_TOKEN_EXPIRE_MINUTES: "15"
+      JWT_REFRESH_TOKEN_EXPIRE_DAYS: "7"
+      JWT_PRIVATE_KEY_PEM: ${JWT_PRIVATE_KEY_PEM}
+      JWT_PUBLIC_KEY_PEM: ${JWT_PUBLIC_KEY_PEM}
+      SENTRY_DSN: ${SENTRY_DSN:-""}
+      ALLOWED_ORIGINS: ${ALLOWED_ORIGINS:-"https://healthstackpro.app"}
+    networks:
+      - internal
+
+  # ---------------------------------------------------------------------------
+  # Nginx  (public-facing: 80 + 443, proxies to backend, serves static files)
+  # ---------------------------------------------------------------------------
+  nginx:
+    image: nginx:1.25-alpine
+    container_name: healthstack_nginx_prod
+    restart: unless-stopped
+    depends_on:
+      - backend
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      # Nginx configuration
+      - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
+      # Frontend SPA static files  (built by CI, copied to server)
+      - /opt/healthstack-pro/static/app:/usr/share/nginx/html/app:ro
+      # Landing page (built by `vite build` in landing/)
+      - /opt/healthstack-pro/static/landing:/usr/share/nginx/html/landing:ro
+      # Let's Encrypt TLS certificates (managed by certbot on the host)
+      - /etc/letsencrypt:/etc/letsencrypt:ro
+      - /var/lib/letsencrypt:/var/lib/letsencrypt:ro
+    networks:
+      - internal
+      - external
+
+networks:
+  internal:
+    driver: bridge
+    internal: true
+  external:
+    driver: bridge
+
+volumes:
+  postgres_data_prod:
+  redis_data_prod:

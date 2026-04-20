@@ -1,0 +1,16 @@
+
+http://localhost:5174	React landing page (la nueva con Spline)
+http://localhost:3000	App principal vanilla JS (donde está el visor 3D)
+
+
+5174
+
+cd C:\Users\Rubén\Desktop\healthstack-pro\landing
+npm run dev
+
+
+3000
+
+Copy: (Abrir puerto comunicacion)
+cd C:\Users\Rubén\Desktop\healthstack-pro
+npx serve frontend

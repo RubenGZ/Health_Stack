@@ -1,0 +1,1406 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>FitScience Pro — Transforma tu cuerpo con ciencia</title>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@300;400;500;600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --black: #0a0a0a;
+    --dark: #111111;
+    --panel: #181818;
+    --card: #1e1e1e;
+    --border: #2a2a2a;
+    --border-light: #333;
+    --neon: #c8f135;
+    --neon-dim: rgba(200,241,53,0.12);
+    --neon-glow: rgba(200,241,53,0.25);
+    --steel: #8a9ba8;
+    --text: #e8e8e8;
+    --muted: #7a7a7a;
+    --white: #f5f5f5;
+    --accent-red: #e8453c;
+    --accent-blue: #4a9eff;
+    --accent-amber: #f5a623;
+    --radius: 12px;
+    --radius-sm: 6px;
+    --mono: 'DM Mono', monospace;
+    --display: 'Bebas Neue', sans-serif;
+    --body: 'DM Sans', sans-serif;
+  }
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  html { scroll-behavior: smooth; }
+
+  body {
+    background: var(--black);
+    color: var(--text);
+    font-family: var(--body);
+    font-size: 16px;
+    line-height: 1.7;
+    overflow-x: hidden;
+  }
+
+  /* ─── NAV ─────────────────────────────────────────── */
+  nav {
+    position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+    background: rgba(10,10,10,0.92);
+    backdrop-filter: blur(16px);
+    border-bottom: 1px solid var(--border);
+    padding: 0 5vw;
+    display: flex; align-items: center; justify-content: space-between;
+    height: 64px;
+  }
+
+  .nav-logo {
+    font-family: var(--display);
+    font-size: 1.6rem;
+    letter-spacing: 0.08em;
+    color: var(--white);
+  }
+  .nav-logo span { color: var(--neon); }
+
+  .nav-links {
+    display: flex; gap: 2rem; list-style: none;
+  }
+
+  .nav-links a {
+    font-family: var(--mono);
+    font-size: 0.78rem;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--steel);
+    text-decoration: none;
+    transition: color 0.2s;
+    position: relative;
+  }
+
+  .nav-links a::after {
+    content: '';
+    position: absolute; bottom: -3px; left: 0; right: 0;
+    height: 1px; background: var(--neon);
+    transform: scaleX(0); transform-origin: left;
+    transition: transform 0.25s;
+  }
+
+  .nav-links a:hover { color: var(--neon); }
+  .nav-links a:hover::after { transform: scaleX(1); }
+
+  .nav-toggle {
+    display: none;
+    flex-direction: column; gap: 5px; cursor: pointer; padding: 4px;
+    background: none; border: none;
+  }
+  .nav-toggle span {
+    width: 24px; height: 2px; background: var(--white);
+    transition: all 0.3s;
+  }
+
+  /* ─── HERO ─────────────────────────────────────────── */
+  #hero {
+    min-height: 100vh;
+    display: flex; align-items: center;
+    padding: 80px 5vw 60px;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .hero-bg {
+    position: absolute; inset: 0;
+    background:
+      radial-gradient(ellipse 70% 60% at 80% 50%, rgba(200,241,53,0.06) 0%, transparent 70%),
+      repeating-linear-gradient(0deg, transparent, transparent 79px, rgba(255,255,255,0.02) 80px),
+      repeating-linear-gradient(90deg, transparent, transparent 79px, rgba(255,255,255,0.02) 80px);
+    pointer-events: none;
+  }
+
+  .hero-content {
+    max-width: 900px; position: relative; z-index: 1;
+  }
+
+  .hero-tag {
+    display: inline-flex; align-items: center; gap: 8px;
+    font-family: var(--mono);
+    font-size: 0.72rem; letter-spacing: 0.15em; text-transform: uppercase;
+    color: var(--neon);
+    border: 1px solid rgba(200,241,53,0.3);
+    padding: 6px 14px; border-radius: 50px;
+    margin-bottom: 2rem;
+  }
+  .hero-tag::before {
+    content: '';
+    width: 6px; height: 6px; border-radius: 50%;
+    background: var(--neon);
+    box-shadow: 0 0 8px var(--neon);
+    animation: pulse 2s infinite;
+  }
+
+  @keyframes pulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.4; }
+  }
+
+  .hero-title {
+    font-family: var(--display);
+    font-size: clamp(3.5rem, 9vw, 7.5rem);
+    line-height: 0.92;
+    letter-spacing: 0.02em;
+    color: var(--white);
+    margin-bottom: 1.5rem;
+  }
+
+  .hero-title .accent { color: var(--neon); display: block; }
+
+  .hero-sub {
+    font-size: 1.15rem;
+    color: var(--steel);
+    max-width: 580px;
+    margin-bottom: 2.5rem;
+    font-weight: 300;
+  }
+
+  .hero-stats {
+    display: flex; flex-wrap: wrap; gap: 2rem;
+    margin-bottom: 3rem;
+  }
+
+  .hero-stat {
+    display: flex; flex-direction: column;
+  }
+
+  .hero-stat .num {
+    font-family: var(--display);
+    font-size: 2.2rem;
+    color: var(--neon);
+    letter-spacing: 0.04em;
+    line-height: 1;
+  }
+
+  .hero-stat .label {
+    font-family: var(--mono);
+    font-size: 0.7rem;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-top: 2px;
+  }
+
+  .hero-ctas {
+    display: flex; flex-wrap: wrap; gap: 1rem;
+  }
+
+  .btn {
+    font-family: var(--mono);
+    font-size: 0.78rem;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    text-decoration: none;
+    padding: 14px 32px;
+    border-radius: var(--radius-sm);
+    transition: all 0.25s;
+    cursor: pointer;
+    border: none;
+    display: inline-block;
+  }
+
+  .btn-primary {
+    background: var(--neon);
+    color: var(--black);
+    font-weight: 600;
+  }
+  .btn-primary:hover {
+    background: #d9ff50;
+    transform: translateY(-2px);
+    box-shadow: 0 8px 24px rgba(200,241,53,0.3);
+  }
+
+  .btn-ghost {
+    background: transparent;
+    color: var(--white);
+    border: 1px solid var(--border-light);
+  }
+  .btn-ghost:hover {
+    border-color: var(--steel);
+    background: var(--panel);
+  }
+
+  .hero-scroll {
+    position: absolute; bottom: 2rem; left: 50%;
+    transform: translateX(-50%);
+    display: flex; flex-direction: column; align-items: center; gap: 8px;
+    font-family: var(--mono);
+    font-size: 0.65rem;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: var(--muted);
+  }
+  .scroll-line {
+    width: 1px; height: 48px;
+    background: linear-gradient(to bottom, var(--muted), transparent);
+    animation: scrollDown 1.8s ease-in-out infinite;
+  }
+  @keyframes scrollDown {
+    0% { transform: scaleY(0); transform-origin: top; }
+    50% { transform: scaleY(1); transform-origin: top; }
+    51% { transform: scaleY(1); transform-origin: bottom; }
+    100% { transform: scaleY(0); transform-origin: bottom; }
+  }
+
+  /* ─── SECTIONS ─────────────────────────────────────── */
+  .section {
+    padding: 100px 5vw;
+    border-top: 1px solid var(--border);
+  }
+
+  .section-header {
+    display: flex; align-items: flex-start;
+    justify-content: space-between; flex-wrap: wrap;
+    gap: 1rem;
+    margin-bottom: 4rem;
+  }
+
+  .section-num {
+    font-family: var(--mono);
+    font-size: 0.72rem;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: var(--neon);
+    margin-bottom: 0.75rem;
+    display: block;
+  }
+
+  .section-title {
+    font-family: var(--display);
+    font-size: clamp(2.5rem, 5vw, 4.5rem);
+    line-height: 0.95;
+    letter-spacing: 0.02em;
+    color: var(--white);
+  }
+
+  /* ─── EXERCISES SECTION ─────────────────────────────── */
+  #ejercicios { background: var(--black); }
+
+  .muscle-tabs {
+    display: flex; flex-wrap: wrap; gap: 8px;
+    margin-bottom: 2.5rem;
+  }
+
+  .tab-btn {
+    font-family: var(--mono);
+    font-size: 0.72rem;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    padding: 8px 18px;
+    border-radius: 50px;
+    border: 1px solid var(--border-light);
+    background: transparent;
+    color: var(--muted);
+    cursor: pointer;
+    transition: all 0.2s;
+    white-space: nowrap;
+  }
+
+  .tab-btn:hover { border-color: var(--neon); color: var(--neon); }
+  .tab-btn.active {
+    background: var(--neon); color: var(--black);
+    border-color: var(--neon); font-weight: 600;
+  }
+
+  .exercises-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+    gap: 1.5rem;
+    margin-bottom: 3rem;
+  }
+
+  .ex-card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 1.5rem;
+    transition: border-color 0.25s, transform 0.25s;
+    display: flex; flex-direction: column; gap: 1rem;
+  }
+
+  .ex-card:hover {
+    border-color: var(--border-light);
+    transform: translateY(-3px);
+  }
+
+  .ex-card-top {
+    display: flex; justify-content: space-between; align-items: flex-start;
+  }
+
+  .ex-name {
+    font-family: var(--display);
+    font-size: 1.4rem;
+    letter-spacing: 0.03em;
+    color: var(--white);
+    line-height: 1.1;
+  }
+
+  .ex-muscle-tag {
+    font-family: var(--mono);
+    font-size: 0.65rem;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    padding: 4px 10px;
+    border-radius: 50px;
+    background: var(--neon-dim);
+    color: var(--neon);
+    border: 1px solid rgba(200,241,53,0.25);
+    white-space: nowrap;
+    flex-shrink: 0;
+  }
+
+  .ex-sets {
+    display: flex; gap: 1rem;
+  }
+
+  .ex-set-item {
+    display: flex; flex-direction: column;
+    background: var(--panel);
+    border-radius: var(--radius-sm);
+    padding: 10px 14px;
+    flex: 1;
+  }
+
+  .ex-set-val {
+    font-family: var(--display);
+    font-size: 1.3rem;
+    color: var(--neon);
+    line-height: 1;
+  }
+
+  .ex-set-label {
+    font-family: var(--mono);
+    font-size: 0.62rem;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-top: 2px;
+  }
+
+  .ex-tip {
+    border-left: 2px solid var(--neon);
+    padding-left: 12px;
+    font-size: 0.9rem;
+    color: var(--steel);
+    line-height: 1.5;
+  }
+
+  .ex-tip strong {
+    color: var(--white);
+    font-weight: 500;
+  }
+
+  /* Compound section */
+  .compound-banner {
+    margin-top: 3rem;
+    background: linear-gradient(135deg, var(--panel) 0%, #1a1a1a 100%);
+    border: 1px solid var(--border-light);
+    border-radius: var(--radius);
+    padding: 2.5rem;
+  }
+
+  .compound-title {
+    font-family: var(--display);
+    font-size: 2rem;
+    color: var(--white);
+    margin-bottom: 0.5rem;
+    letter-spacing: 0.03em;
+  }
+
+  .compound-sub {
+    font-size: 0.95rem;
+    color: var(--steel);
+    margin-bottom: 2rem;
+    max-width: 640px;
+  }
+
+  .compound-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+    gap: 1rem;
+  }
+
+  .compound-card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    padding: 1.25rem;
+    transition: border-color 0.2s;
+  }
+
+  .compound-card:hover { border-color: rgba(200,241,53,0.4); }
+
+  .compound-card h4 {
+    font-family: var(--display);
+    font-size: 1.2rem;
+    color: var(--white);
+    letter-spacing: 0.03em;
+    margin-bottom: 6px;
+  }
+
+  .compound-card p {
+    font-size: 0.88rem;
+    color: var(--steel);
+    line-height: 1.5;
+  }
+
+  .compound-badge {
+    display: inline-block;
+    font-family: var(--mono);
+    font-size: 0.62rem;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--accent-amber);
+    border: 1px solid rgba(245,166,35,0.3);
+    padding: 3px 9px;
+    border-radius: 50px;
+    margin-bottom: 8px;
+  }
+
+  /* ─── NUTRITION SECTION ─────────────────────────────── */
+  #nutricion { background: var(--dark); }
+
+  .macro-split {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1.5rem;
+    margin-bottom: 3rem;
+  }
+
+  .macro-card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 2rem 1.5rem;
+    text-align: center;
+    transition: transform 0.25s;
+  }
+
+  .macro-card:hover { transform: translateY(-3px); }
+
+  .macro-card.protein { border-top: 3px solid var(--accent-red); }
+  .macro-card.carbs { border-top: 3px solid var(--accent-blue); }
+  .macro-card.fats { border-top: 3px solid var(--accent-amber); }
+
+  .macro-icon {
+    font-size: 2rem;
+    margin-bottom: 0.75rem;
+    display: block;
+  }
+
+  .macro-name {
+    font-family: var(--display);
+    font-size: 1.6rem;
+    color: var(--white);
+    letter-spacing: 0.04em;
+    margin-bottom: 0.25rem;
+  }
+
+  .macro-gram {
+    font-family: var(--mono);
+    font-size: 0.72rem;
+    letter-spacing: 0.1em;
+    color: var(--muted);
+    text-transform: uppercase;
+    margin-bottom: 1rem;
+  }
+
+  .macro-desc {
+    font-size: 0.88rem;
+    color: var(--steel);
+    line-height: 1.55;
+    text-align: left;
+  }
+
+  .meal-plan {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 1rem;
+    margin-bottom: 3rem;
+  }
+
+  .meal-card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    overflow: hidden;
+    transition: border-color 0.2s;
+  }
+
+  .meal-card:hover { border-color: var(--border-light); }
+
+  .meal-header {
+    background: var(--panel);
+    padding: 0.75rem 1.25rem;
+    display: flex; justify-content: space-between; align-items: center;
+  }
+
+  .meal-time {
+    font-family: var(--mono);
+    font-size: 0.7rem;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--neon);
+  }
+
+  .meal-kcal {
+    font-family: var(--mono);
+    font-size: 0.7rem;
+    color: var(--muted);
+  }
+
+  .meal-body { padding: 1.25rem; }
+
+  .meal-name {
+    font-weight: 500;
+    color: var(--white);
+    margin-bottom: 6px;
+    font-size: 0.95rem;
+  }
+
+  .meal-detail {
+    font-size: 0.85rem;
+    color: var(--steel);
+    line-height: 1.5;
+  }
+
+  .macros-pill {
+    display: flex; gap: 8px; margin-top: 10px; flex-wrap: wrap;
+  }
+
+  .mpill {
+    font-family: var(--mono);
+    font-size: 0.62rem;
+    letter-spacing: 0.06em;
+    padding: 3px 8px;
+    border-radius: 50px;
+  }
+
+  .mpill.p { background: rgba(232,69,60,0.15); color: #e8453c; border: 1px solid rgba(232,69,60,0.25); }
+  .mpill.c { background: rgba(74,158,255,0.12); color: #4a9eff; border: 1px solid rgba(74,158,255,0.25); }
+  .mpill.g { background: rgba(245,166,35,0.12); color: var(--accent-amber); border: 1px solid rgba(245,166,35,0.25); }
+
+  .nutricion-grid {
+    display: grid; grid-template-columns: 1fr 1fr; gap: 2rem;
+    margin-top: 2rem;
+  }
+
+  .info-block {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 1.75rem;
+  }
+
+  .info-block h3 {
+    font-family: var(--display);
+    font-size: 1.5rem;
+    color: var(--white);
+    letter-spacing: 0.03em;
+    margin-bottom: 1rem;
+  }
+
+  .info-block p, .info-block li {
+    font-size: 0.92rem;
+    color: var(--steel);
+    line-height: 1.65;
+  }
+
+  .info-block ul {
+    padding-left: 1.25rem;
+  }
+
+  .info-block li { margin-bottom: 6px; }
+
+  .timing-row {
+    display: flex; gap: 12px; align-items: flex-start; margin-bottom: 12px;
+  }
+
+  .timing-dot {
+    width: 8px; height: 8px; border-radius: 50%;
+    background: var(--neon); margin-top: 8px; flex-shrink: 0;
+  }
+
+  .timing-dot.red { background: var(--accent-red); }
+  .timing-dot.blue { background: var(--accent-blue); }
+
+  .timing-content { flex: 1; }
+
+  .timing-label {
+    font-family: var(--mono);
+    font-size: 0.7rem;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--neon);
+    margin-bottom: 3px;
+  }
+
+  .timing-label.red { color: var(--accent-red); }
+  .timing-label.blue { color: var(--accent-blue); }
+
+  .timing-text {
+    font-size: 0.9rem;
+    color: var(--steel);
+  }
+
+  .section-subtitle {
+    font-family: var(--display);
+    font-size: 1.8rem;
+    letter-spacing: 0.03em;
+    color: var(--white);
+    margin-bottom: 1.25rem;
+    margin-top: 3rem;
+  }
+
+  /* ─── SUPPLEMENTS SECTION ─────────────────────────────── */
+  #suplementos { background: var(--black); }
+
+  .supp-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
+    gap: 1.5rem;
+    margin-bottom: 3rem;
+  }
+
+  .supp-card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 1.75rem;
+    position: relative;
+    overflow: hidden;
+    transition: transform 0.25s, border-color 0.25s;
+  }
+
+  .supp-card:hover {
+    transform: translateY(-3px);
+    border-color: var(--border-light);
+  }
+
+  .supp-card.essential::before {
+    content: '';
+    position: absolute; top: 0; left: 0; right: 0;
+    height: 3px;
+    background: var(--neon);
+  }
+
+  .supp-card.optional::before {
+    content: '';
+    position: absolute; top: 0; left: 0; right: 0;
+    height: 3px;
+    background: var(--accent-blue);
+  }
+
+  .supp-badge {
+    font-family: var(--mono);
+    font-size: 0.62rem;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    padding: 4px 10px;
+    border-radius: 50px;
+    margin-bottom: 1rem;
+    display: inline-block;
+  }
+
+  .supp-badge.essential { background: var(--neon-dim); color: var(--neon); border: 1px solid rgba(200,241,53,0.25); }
+  .supp-badge.optional { background: rgba(74,158,255,0.1); color: var(--accent-blue); border: 1px solid rgba(74,158,255,0.25); }
+
+  .supp-name {
+    font-family: var(--display);
+    font-size: 1.6rem;
+    color: var(--white);
+    letter-spacing: 0.03em;
+    margin-bottom: 1rem;
+    line-height: 1.1;
+  }
+
+  .supp-meta {
+    display: grid; grid-template-columns: 1fr 1fr;
+    gap: 8px;
+    margin-bottom: 1.25rem;
+  }
+
+  .supp-meta-item {
+    background: var(--panel);
+    border-radius: var(--radius-sm);
+    padding: 10px 12px;
+  }
+
+  .supp-meta-item .val {
+    font-family: var(--mono);
+    font-size: 0.82rem;
+    color: var(--white);
+    font-weight: 500;
+  }
+
+  .supp-meta-item .key {
+    font-family: var(--mono);
+    font-size: 0.62rem;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-top: 2px;
+  }
+
+  .supp-desc {
+    font-size: 0.9rem;
+    color: var(--steel);
+    line-height: 1.6;
+  }
+
+  .warning-box {
+    background: rgba(232,69,60,0.08);
+    border: 1px solid rgba(232,69,60,0.25);
+    border-radius: var(--radius);
+    padding: 2rem;
+    margin-top: 2rem;
+  }
+
+  .warning-title {
+    font-family: var(--display);
+    font-size: 1.5rem;
+    color: var(--accent-red);
+    letter-spacing: 0.03em;
+    margin-bottom: 1rem;
+    display: flex; align-items: center; gap: 10px;
+  }
+
+  .warning-title svg { flex-shrink: 0; }
+
+  .scam-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+    gap: 12px;
+    margin-top: 1rem;
+  }
+
+  .scam-item {
+    background: rgba(232,69,60,0.06);
+    border: 1px solid rgba(232,69,60,0.15);
+    border-radius: var(--radius-sm);
+    padding: 1rem;
+  }
+
+  .scam-item h5 {
+    font-family: var(--mono);
+    font-size: 0.78rem;
+    letter-spacing: 0.05em;
+    color: var(--accent-red);
+    margin-bottom: 6px;
+    font-weight: 500;
+  }
+
+  .scam-item p {
+    font-size: 0.84rem;
+    color: var(--steel);
+    line-height: 1.5;
+  }
+
+  /* ─── FOOTER ─────────────────────────────────────────── */
+  footer {
+    background: var(--dark);
+    border-top: 1px solid var(--border);
+    padding: 3rem 5vw;
+    display: flex; flex-wrap: wrap;
+    justify-content: space-between; align-items: center;
+    gap: 1.5rem;
+  }
+
+  .footer-logo {
+    font-family: var(--display);
+    font-size: 1.5rem;
+    letter-spacing: 0.08em;
+    color: var(--white);
+  }
+  .footer-logo span { color: var(--neon); }
+
+  .footer-quote {
+    font-style: italic;
+    color: var(--muted);
+    font-size: 0.9rem;
+    max-width: 400px;
+    text-align: center;
+  }
+
+  .footer-info {
+    font-family: var(--mono);
+    font-size: 0.68rem;
+    letter-spacing: 0.1em;
+    color: var(--muted);
+    text-align: right;
+  }
+
+  /* ─── DIVIDER ─────────────────────────────────────────── */
+  .divider {
+    height: 1px;
+    background: linear-gradient(to right, transparent, var(--border-light), transparent);
+    margin: 3rem 0;
+  }
+
+  /* ─── RESPONSIVE ─────────────────────────────────────── */
+  @media (max-width: 900px) {
+    .macro-split { grid-template-columns: 1fr 1fr; }
+    .nutricion-grid { grid-template-columns: 1fr; }
+  }
+
+  @media (max-width: 700px) {
+    .nav-links {
+      display: none;
+      flex-direction: column; gap: 0.5rem;
+      position: absolute; top: 64px; left: 0; right: 0;
+      background: rgba(10,10,10,0.98);
+      border-bottom: 1px solid var(--border);
+      padding: 1.5rem 5vw;
+    }
+    .nav-links.open { display: flex; }
+    .nav-toggle { display: flex; }
+    .macro-split { grid-template-columns: 1fr; }
+    .hero-stats { gap: 1.5rem; }
+    footer { flex-direction: column; text-align: center; }
+    .footer-info { text-align: center; }
+    .exercises-grid { grid-template-columns: 1fr; }
+    .supp-grid { grid-template-columns: 1fr; }
+  }
+
+  /* ─── FADE-IN ─────────────────────────────────────────── */
+  .fade-up {
+    opacity: 0;
+    transform: translateY(28px);
+    transition: opacity 0.6s ease, transform 0.6s ease;
+  }
+  .fade-up.visible { opacity: 1; transform: translateY(0); }
+
+  /* ─── EXERCISE DATA (hidden) ─────────────────────────── */
+  #ex-content { min-height: 100px; }
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav>
+  <div class="nav-logo">FIT<span>SCI</span>PRO</div>
+  <ul class="nav-links" id="navLinks">
+    <li><a href="#ejercicios">Ejercicios</a></li>
+    <li><a href="#nutricion">Nutrición</a></li>
+    <li><a href="#suplementos">Suplementos</a></li>
+  </ul>
+  <button class="nav-toggle" onclick="toggleNav()" aria-label="Menú">
+    <span></span><span></span><span></span>
+  </button>
+</nav>
+
+<!-- HERO -->
+<section id="hero">
+  <div class="hero-bg"></div>
+  <div class="hero-content">
+    <div class="hero-tag">Ciencia aplicada al rendimiento</div>
+    <h1 class="hero-title">
+      Transforma<br>tu cuerpo con
+      <span class="accent">ciencia y experiencia real</span>
+    </h1>
+    <p class="hero-sub">Ejercicios, nutrición y suplementación basados en evidencia. Sin mitos, sin atajos, sin excusas. Solo lo que funciona de verdad.</p>
+    <div class="hero-stats">
+      <div class="hero-stat">
+        <span class="num">9+</span>
+        <span class="label">Grupos musculares</span>
+      </div>
+      <div class="hero-stat">
+        <span class="num">40+</span>
+        <span class="label">Ejercicios detallados</span>
+      </div>
+      <div class="hero-stat">
+        <span class="num">5</span>
+        <span class="label">Suplementos clave</span>
+      </div>
+    </div>
+    <div class="hero-ctas">
+      <a href="#ejercicios" class="btn btn-primary">Ver ejercicios</a>
+      <a href="#nutricion" class="btn btn-ghost">Plan nutricional</a>
+    </div>
+  </div>
+  <div class="hero-scroll">
+    <span>scroll</span>
+    <div class="scroll-line"></div>
+  </div>
+</section>
+
+<!-- EJERCICIOS -->
+<section id="ejercicios" class="section">
+  <div class="section-header">
+    <div>
+      <span class="section-num">01 / Ejercicios</span>
+      <h2 class="section-title">Hipertrofia<br>por grupo muscular</h2>
+    </div>
+    <p style="max-width:400px; color: var(--steel); font-size:0.95rem; padding-top: 3rem;">
+      Selecciona el grupo muscular que quieres trabajar. Cada ejercicio incluye series, repeticiones y técnica de élite.
+    </p>
+  </div>
+
+  <!-- TABS -->
+  <div class="muscle-tabs" id="muscleTabs">
+    <button class="tab-btn active" onclick="showMuscle('pecho', this)">Pecho</button>
+    <button class="tab-btn" onclick="showMuscle('espalda', this)">Espalda</button>
+    <button class="tab-btn" onclick="showMuscle('hombros', this)">Hombros</button>
+    <button class="tab-btn" onclick="showMuscle('cuadriceps', this)">Cuádriceps</button>
+    <button class="tab-btn" onclick="showMuscle('isquiotibiales', this)">Isquiotibiales</button>
+    <button class="tab-btn" onclick="showMuscle('gluteos', this)">Glúteos</button>
+    <button class="tab-btn" onclick="showMuscle('biceps', this)">Bíceps</button>
+    <button class="tab-btn" onclick="showMuscle('triceps', this)">Tríceps</button>
+    <button class="tab-btn" onclick="showMuscle('abdominales', this)">Abdominales</button>
+  </div>
+
+  <div class="exercises-grid fade-up" id="ex-content"></div>
+
+  <!-- COMPOUND -->
+  <div class="compound-banner fade-up">
+    <h3 class="compound-title">Ejercicios Básicos: La Base de Todo</h3>
+    <p class="compound-sub">Los ejercicios multiarticulares activan más masa muscular, estimulan más hormonas anabólicas y producen el mayor retorno de inversión en términos de hipertrofia y fuerza. Son innegociables en cualquier programa serio.</p>
+    <div class="compound-grid">
+      <div class="compound-card">
+        <span class="compound-badge">Rey de los ejercicios</span>
+        <h4>Sentadilla</h4>
+        <p>Activa cuádriceps, glúteos, isquiotibiales, core y erecciones espinales simultáneamente. Estimula la mayor liberación de testosterona y GH endógena de cualquier ejercicio. 4×5-8 para fuerza, 4×8-12 para hipertrofia.</p>
+      </div>
+      <div class="compound-card">
+        <span class="compound-badge">Clásico absoluto</span>
+        <h4>Press de Banca</h4>
+        <p>El mejor ejercicio para la fuerza y masa del pecho, hombros anteriores y tríceps. Trabaja la porción media esternal del pectoral con máxima efectividad. Varía el agarre para distintos énfasis. 4×6-10 reps.</p>
+      </div>
+      <div class="compound-card">
+        <span class="compound-badge">El más completo</span>
+        <h4>Peso Muerto</h4>
+        <p>Ejercicio más completo del cuerpo humano. Activa cadena posterior completa: isquiotibiales, glúteos, trapecios, erectores, dorsales y manos. Construye una fuerza funcional incomparable. 3-4×4-6 reps con técnica perfecta.</p>
+      </div>
+      <div class="compound-card">
+        <span class="compound-badge">Espalda superior</span>
+        <h4>Dominadas</h4>
+        <p>El "press de banca del dorsal". Construye el ancho de la espalda (dorsales) y el grosor (romboides, trapecios medios). Progresa con lastre. Si no puedes hacerlas, usa jalones con agarre ancho como sustituto. 4×6-12.</p>
+      </div>
+      <div class="compound-card">
+        <span class="compound-badge">Hombros completos</span>
+        <h4>Press Militar</h4>
+        <p>El rey para el desarrollo de hombros. Trabaja los tres haces del deltoides con énfasis en la porción anterior y media. También activa tríceps y core. La versión de pie activa más musculatura estabilizadora. 4×6-10 reps.</p>
+      </div>
+      <div class="compound-card">
+        <span class="compound-badge">Remo con barra</span>
+        <h4>Remo Pendlay</h4>
+        <p>Clave para construir el grosor de la espalda. Activa dorsales, romboides, trapecios medios e inferiores y bíceps. La variante Pendlay desde el suelo garantiza máxima activación con el torso paralelo al suelo. 4×6-10 reps.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- NUTRICION -->
+<section id="nutricion" class="section">
+  <div class="section-header">
+    <div>
+      <span class="section-num">02 / Nutrición</span>
+      <h2 class="section-title">Come para<br>construir músculo</h2>
+    </div>
+  </div>
+
+  <h3 class="section-subtitle fade-up">Distribución de Macronutrientes</h3>
+
+  <div class="macro-split fade-up">
+    <div class="macro-card protein">
+      <span class="macro-icon" style="font-size:1.5rem">🥩</span>
+      <div class="macro-name">Proteína</div>
+      <div class="macro-gram">2 – 2.4 g/kg · peso corporal</div>
+      <p class="macro-desc">El macronutriente más importante para la hipertrofia. Aporta los aminoácidos que construyen y reparan el tejido muscular. Fuentes de alta biodisponibilidad: pollo, pavo, ternera magra, huevos, pescado, lácteos, whey.<br><br><strong style="color:var(--white); font-weight:500">En volumen:</strong> 2 g/kg. <strong style="color:var(--white); font-weight:500">En definición:</strong> 2.2–2.4 g/kg para preservar masa magra durante el déficit calórico.</p>
+    </div>
+    <div class="macro-card carbs">
+      <span class="macro-icon" style="font-size:1.5rem">🌾</span>
+      <div class="macro-name">Carbohidratos</div>
+      <div class="macro-gram">3 – 6 g/kg · según objetivo</div>
+      <p class="macro-desc">El combustible principal para los entrenamientos de alta intensidad. El glucógeno muscular determina el rendimiento. No los elimines si quieres progresar en el gimnasio.<br><br><strong style="color:var(--white); font-weight:500">En volumen:</strong> 5–6 g/kg (superávit calórico). <strong style="color:var(--white); font-weight:500">En definición:</strong> 2–3 g/kg, priorizando el timing periéntreno.</p>
+    </div>
+    <div class="macro-card fats">
+      <span class="macro-icon" style="font-size:1.5rem">🥑</span>
+      <div class="macro-name">Grasas</div>
+      <div class="macro-gram">0.8 – 1.2 g/kg · peso corporal</div>
+      <p class="macro-desc">Esenciales para la producción de testosterona, función hormonal y absorción de vitaminas liposolubles (A, D, E, K). No reduzcas las grasas por debajo de 0.7 g/kg: afecta directamente a los niveles de testosterona.<br><br><strong style="color:var(--white); font-weight:500">Prioriza:</strong> Aguacate, aceite de oliva, nueces, huevos, salmón (omega-3).</p>
+    </div>
+  </div>
+
+  <div class="divider"></div>
+
+  <h3 class="section-subtitle fade-up">Plan Alimenticio Diario — 80 kg, 5 días entrenando</h3>
+  <p class="fade-up" style="color:var(--steel); margin-bottom:1.5rem; font-size:0.95rem">Ejemplo para volumen limpio (~3.000–3.200 kcal). Proteína: 170–180 g · Carbohidratos: 380–400 g · Grasas: 80–90 g</p>
+
+  <div class="meal-plan fade-up">
+    <div class="meal-card">
+      <div class="meal-header">
+        <span class="meal-time">07:00 — Desayuno</span>
+        <span class="meal-kcal">~650 kcal</span>
+      </div>
+      <div class="meal-body">
+        <div class="meal-name">Avena con proteína + huevos</div>
+        <div class="meal-detail">100g avena cocida · 1 scoop de whey (30g proteína) · 3 huevos revueltos · 1 plátano · 200ml leche semidesnatada</div>
+        <div class="macros-pill">
+          <span class="mpill p">P 52g</span>
+          <span class="mpill c">C 85g</span>
+          <span class="mpill g">G 14g</span>
+        </div>
+      </div>
+    </div>
+    <div class="meal-card">
+      <div class="meal-header">
+        <span class="meal-time">10:30 — Snack</span>
+        <span class="meal-kcal">~350 kcal</span>
+      </div>
+      <div class="meal-body">
+        <div class="meal-name">Yogur griego + fruta + nueces</div>
+        <div class="meal-detail">300g yogur griego 0% · 150g arándanos o fresas · 30g nueces · opcional: 1 cdta miel</div>
+        <div class="macros-pill">
+          <span class="mpill p">P 28g</span>
+          <span class="mpill c">C 35g</span>
+          <span class="mpill g">G 12g</span>
+        </div>
+      </div>
+    </div>
+    <div class="meal-card">
+      <div class="meal-header">
+        <span class="meal-time">13:30 — Comida principal</span>
+        <span class="meal-kcal">~850 kcal</span>
+      </div>
+      <div class="meal-body">
+        <div class="meal-name">Arroz + pollo + verduras</div>
+        <div class="meal-detail">200g arroz cocido (80g en seco) · 200g pechuga de pollo a la plancha · 200g brócoli + zanahorias · 30ml aceite de oliva virgen</div>
+        <div class="macros-pill">
+          <span class="mpill p">P 55g</span>
+          <span class="mpill c">C 110g</span>
+          <span class="mpill g">G 20g</span>
+        </div>
+      </div>
+    </div>
+    <div class="meal-card">
+      <div class="meal-header">
+        <span class="meal-time">Pre-entreno (30-60 min antes)</span>
+        <span class="meal-kcal">~400 kcal</span>
+      </div>
+      <div class="meal-body">
+        <div class="meal-name">Batido + fruta de digestión rápida</div>
+        <div class="meal-detail">1 scoop whey (30g) · 200ml leche · 1 plátano maduro · 40g copos de avena. Rica en CH de rápida absorción para máximo glucógeno durante el entreno.</div>
+        <div class="macros-pill">
+          <span class="mpill p">P 38g</span>
+          <span class="mpill c">C 60g</span>
+          <span class="mpill g">G 8g</span>
+        </div>
+      </div>
+    </div>
+    <div class="meal-card">
+      <div class="meal-header">
+        <span class="meal-time">Post-entreno (30 min después)</span>
+        <span class="meal-kcal">~500 kcal</span>
+      </div>
+      <div class="meal-body">
+        <div class="meal-name">Arroz + proteína de rápida absorción</div>
+        <div class="meal-detail">150g arroz blanco cocido · 200g atún al natural o pechuga de pavo · 1 aguacate mediano. La ventana anabólica: máxima síntesis de proteína muscular.</div>
+        <div class="macros-pill">
+          <span class="mpill p">P 50g</span>
+          <span class="mpill c">C 60g</span>
+          <span class="mpill g">G 15g</span>
+        </div>
+      </div>
+    </div>
+    <div class="meal-card">
+      <div class="meal-header">
+        <span class="meal-time">21:00 — Cena</span>
+        <span class="meal-kcal">~500 kcal</span>
+      </div>
+      <div class="meal-body">
+        <div class="meal-name">Salmón + patata + ensalada</div>
+        <div class="meal-detail">200g salmón al horno (omega-3 antes de dormir) · 150g patata cocida · ensalada grande con aceite de oliva. Cena moderada en CH, alta en proteína y grasas saludables.</div>
+        <div class="macros-pill">
+          <span class="mpill p">P 45g</span>
+          <span class="mpill c">C 35g</span>
+          <span class="mpill g">G 20g</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="divider"></div>
+
+  <h3 class="section-subtitle fade-up">Timing de Nutrientes</h3>
+  <div class="nutricion-grid fade-up">
+    <div class="info-block">
+      <h3>Ventana periéntreno</h3>
+      <div class="timing-row">
+        <div class="timing-dot"></div>
+        <div class="timing-content">
+          <div class="timing-label">Pre-entreno (60-90 min antes)</div>
+          <div class="timing-text">Comida mixta completa: CH complejos + proteína moderada + poca grasa. Objetivo: maximizar glucógeno y aminoácidos disponibles. Ejemplo: pollo + arroz.</div>
+        </div>
+      </div>
+      <div class="timing-row">
+        <div class="timing-dot red"></div>
+        <div class="timing-content">
+          <div class="timing-label red">Intra-entreno (&gt;90 min sesiones)</div>
+          <div class="timing-text">Solo necesario en sesiones largas. 30-50g de carbohidratos de rápida absorción (plátano, dátiles, bebida isotónica). La mayoría no lo necesita.</div>
+        </div>
+      </div>
+      <div class="timing-row">
+        <div class="timing-dot blue"></div>
+        <div class="timing-content">
+          <div class="timing-label blue">Post-entreno (dentro de 60 min)</div>
+          <div class="timing-text">La síntesis proteica está elevada 24-48h post-entreno, pero los primeros 60 minutos son el momento óptimo. 30-40g de proteína rápida + 60-80g de CH sencillos.</div>
+        </div>
+      </div>
+    </div>
+    <div class="info-block">
+      <h3>Principios basados en evidencia</h3>
+      <ul>
+        <li><strong style="color:var(--white); font-weight:500">Calorías totales primero:</strong> El superávit calórico (volumen) o déficit (definición) es más importante que el timing. Sin esto, nada funciona.</li>
+        <li><strong style="color:var(--white); font-weight:500">Proteína distribuida:</strong> Come 4-6 comidas con 30-40g de proteína cada una. Esto maximiza la síntesis proteica muscular durante todo el día.</li>
+        <li><strong style="color:var(--white); font-weight:500">CH antes de entrenar:</strong> No entrenes en ayunas si quieres máximo rendimiento. El glucógeno muscular pre-cargado marca la diferencia.</li>
+        <li><strong style="color:var(--white); font-weight:500">Hidratación:</strong> Mínimo 35ml/kg de peso. La deshidratación reduce la fuerza un 2-5% por cada 1% de deshidratación corporal.</li>
+        <li><strong style="color:var(--white); font-weight:500">No temas los carbohidratos:</strong> La insulina no engorda si no hay superávit calórico. Los CH son tu aliado, no tu enemigo.</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<!-- SUPLEMENTOS -->
+<section id="suplementos" class="section">
+  <div class="section-header">
+    <div>
+      <span class="section-num">03 / Suplementación</span>
+      <h2 class="section-title">Solo lo que<br>realmente funciona</h2>
+    </div>
+    <p style="max-width:400px; color: var(--steel); font-size:0.95rem; padding-top: 3rem;">
+      El 80% de los suplementos en el mercado son innecesarios. Estos son los 6 que tienen evidencia científica sólida y marcan una diferencia real.
+    </p>
+  </div>
+
+  <div class="supp-grid fade-up">
+    <div class="supp-card essential">
+      <span class="supp-badge essential">Imprescindible</span>
+      <div class="supp-name">Proteína Whey</div>
+      <div class="supp-meta">
+        <div class="supp-meta-item"><div class="val">20–40 g</div><div class="key">Dosis por toma</div></div>
+        <div class="supp-meta-item"><div class="val">Post-entreno</div><div class="key">Momento clave</div></div>
+      </div>
+      <p class="supp-desc">La proteína de suero (whey) tiene el perfil de aminoácidos más completo y la mayor concentración de leucina (activador principal de la síntesis proteica). No construye músculo por sí sola, sino que cubre las necesidades proteicas diarias de forma práctica y económica. La versión <strong style="color:var(--white); font-weight:500">isolada</strong> es superior para intolerantes a la lactosa. <strong style="color:var(--white); font-weight:500">Versión vegana:</strong> mezcla de guisante + arroz replica el perfil de aminoácidos de la whey con excelentes resultados.</p>
+    </div>
+
+    <div class="supp-card essential">
+      <span class="supp-badge essential">Imprescindible</span>
+      <div class="supp-name">Creatina Monohidrato</div>
+      <div class="supp-meta">
+        <div class="supp-meta-item"><div class="val">3–5 g</div><div class="key">Dosis diaria</div></div>
+        <div class="supp-meta-item"><div class="val">Cualquier hora</div><div class="key">Timing flexible</div></div>
+      </div>
+      <p class="supp-desc">El suplemento más estudiado y eficaz de la historia del deporte. Aumenta los depósitos de fosfocreatina muscular, mejorando la producción de ATP (energía) en esfuerzos máximos cortos. Resultado: <strong style="color:var(--white); font-weight:500">+5-15% de fuerza</strong> y mayor volumen de entrenamiento posible. No necesita "carga". Tómala todos los días, incluidos los de descanso. Solo funciona la monohidrato; las versiones "kre-alkalyn" o "HCl" no ofrecen ventajas demostradas.</p>
+    </div>
+
+    <div class="supp-card essential">
+      <span class="supp-badge essential">Imprescindible</span>
+      <div class="supp-name">Cafeína</div>
+      <div class="supp-meta">
+        <div class="supp-meta-item"><div class="val">3–6 mg/kg</div><div class="key">Dosis efectiva</div></div>
+        <div class="supp-meta-item"><div class="val">30-60 min antes</div><div class="key">Timing</div></div>
+      </div>
+      <p class="supp-desc">El estimulante más estudiado del mundo. Mejora la fuerza, la potencia, la resistencia y reduce la percepción del esfuerzo (RPE). Para 80 kg: <strong style="color:var(--white); font-weight:500">200-400 mg</strong> (1-2 cafés grandes o 1 pre-entreno estándar). Cicliza su uso para evitar tolerancia: usa 4-5 días, descansa 2-3. No la tomes después de las 14h si te afecta el sueño. El sueño es más anabólico que cualquier suplemento.</p>
+    </div>
+
+    <div class="supp-card essential">
+      <span class="supp-badge essential">Imprescindible</span>
+      <div class="supp-name">Omega-3 (EPA+DHA)</div>
+      <div class="supp-meta">
+        <div class="supp-meta-item"><div class="val">2–3 g EPA+DHA</div><div class="key">Dosis diaria</div></div>
+        <div class="supp-meta-item"><div class="val">Con comidas</div><div class="key">Timing</div></div>
+      </div>
+      <p class="supp-desc">Antiinflamatorio natural que mejora la recuperación muscular, la salud cardiovascular y la sensibilidad a la insulina. Muy relevante si no comes pescado azul 3-4 veces por semana. Busca productos con al menos <strong style="color:var(--white); font-weight:500">60% de EPA+DHA</strong> por cápsula. El aceite de krill es más biodisponible pero también más caro. Beneficio extra: mejora la función cognitiva, clave para la concentración en el entrenamiento.</p>
+    </div>
+
+    <div class="supp-card essential">
+      <span class="supp-badge essential">Imprescindible</span>
+      <div class="supp-name">Vitamina D3 + K2</div>
+      <div class="supp-meta">
+        <div class="supp-meta-item"><div class="val">2.000–4.000 UI</div><div class="key">Dosis diaria D3</div></div>
+        <div class="supp-meta-item"><div class="val">Con desayuno</div><div class="key">Timing (grasa)</div></div>
+      </div>
+      <p class="supp-desc">El 70-80% de la población en climas poco soleados tiene déficit de vitamina D. Niveles bajos de D3 se asocian directamente con menor producción de testosterona, peor recuperación y mayor riesgo de lesión. La K2 (MK-7) dirige el calcio a los huesos, no a las arterias. Hazte una analítica y ajusta la dosis. Una multivitamínica básica completa el resto de micronutrientes. <strong style="color:var(--white); font-weight:500">Tómala con grasas</strong> para maximizar la absorción.</p>
+    </div>
+
+    <div class="supp-card optional">
+      <span class="supp-badge optional">Complementario</span>
+      <div class="supp-name">Citrulina Malato</div>
+      <div class="supp-meta">
+        <div class="supp-meta-item"><div class="val">6–8 g</div><div class="key">Dosis pre-entreno</div></div>
+        <div class="supp-meta-item"><div class="val">45-60 min antes</div><div class="key">Timing</div></div>
+      </div>
+      <p class="supp-desc">Precursor del óxido nítrico (NO), mejora el flujo sanguíneo muscular y reduce la acumulación de amoniaco, retrasando la fatiga. Efectos notables: mayor "pump" muscular, mejor tolerancia al volumen de entrenamiento y <strong style="color:var(--white); font-weight:500">ligera mejora en repeticiones máximas</strong> en series de alta repetición. No es transformadora como la creatina, pero tiene evidencia suficiente. La beta-alanina (3-5g) es similar: reduce el ardor muscular en series largas de 8-15 reps.</p>
+    </div>
+  </div>
+
+  <!-- WARNING -->
+  <div class="warning-box fade-up">
+    <div class="warning-title">
+      <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+        <path d="M10 2L18 17H2L10 2Z" stroke="#e8453c" stroke-width="1.5" fill="none"/>
+        <line x1="10" y1="8" x2="10" y2="12" stroke="#e8453c" stroke-width="1.5"/>
+        <circle cx="10" cy="14.5" r="0.8" fill="#e8453c"/>
+      </svg>
+      Suplementos innecesarios y estafas comerciales
+    </div>
+    <p style="color: var(--steel); font-size: 0.92rem; margin-bottom: 1.5rem;">La industria del suplemento mueve miles de millones de euros con productos que, en el mejor caso, no tienen evidencia suficiente y en el peor, pueden perjudicarte. Ahorra tu dinero:</p>
+    <div class="scam-grid">
+      <div class="scam-item">
+        <h5>BCAA (aminoácidos ramificados)</h5>
+        <p>Completamente innecesarios si ya consumes suficiente proteína diaria. La whey los contiene en mayor cantidad. Un gasto de dinero puro si tu ingesta proteica es correcta.</p>
+      </div>
+      <div class="scam-item">
+        <h5>Quemagrasas / Termogénicos</h5>
+        <p>No existen pastillas que quemen grasa de forma significativa. El efecto real es la cafeína que contienen (que ya tienes cubierta). El déficit calórico no se compra en una farmacia.</p>
+      </div>
+      <div class="scam-item">
+        <h5>HMB (beta-hidroxi-beta-metilbutirato)</h5>
+        <p>Solo muestra efectos relevantes en personas completamente desentrenadas o en ayuno calórico severo. Para una persona que entrena regularmente: irrelevante.</p>
+      </div>
+      <div class="scam-item">
+        <h5>Gainers (masa muscular)</h5>
+        <p>Son azúcar cara. El 80% de las calorías provienen de carbohidratos de mala calidad. Haz tu propio gainer: avena + plátano + whey + leche. Mismo efecto, un quinto del precio.</p>
+      </div>
+      <div class="scam-item">
+        <h5>Boosters de testosterona</h5>
+        <p>Ningún suplemento legal eleva la testosterona de forma significativa en personas sanas. El sueño de calidad, las grasas saludables y el entrenamiento pesado son los verdaderos "boosters" naturales.</p>
+      </div>
+      <div class="scam-item">
+        <h5>Colágeno hidrolizado</h5>
+        <p>No tiene el perfil de aminoácidos necesario para estimular la síntesis de proteína muscular. Para tendones y articulaciones hay evidencia limitada. No lo uses como fuente proteica principal.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <div class="footer-logo">FIT<span>SCI</span>PRO</div>
+  <p class="footer-quote">"El cuerpo logra lo que la mente cree. Pero lo que la ciencia confirma, no lo discute nadie."</p>
+  <div class="footer-info">
+    <div>© 2025 FitSciPro</div>
+    <div style="margin-top:4px">Ciencia · Disciplina · Resultados</div>
+  </div>
+</footer>
+
+<script>
+const exerciseData = {
+  pecho: [
+    { name: "Press de Banca con Barra", tag: "Pecho Esternal", series: "4", reps: "6-10", tip: "<strong>Técnica élite:</strong> Retrae las escápulas antes de bajar la barra. La barra debe tocar el bajo pectoral, no el cuello. Arco lumbar controlado, no excesivo. Pausa de 1 segundo en el pecho para eliminar el rebote y maximizar la tensión muscular." },
+    { name: "Press Inclinado con Mancuernas", tag: "Pecho Superior", series: "4", reps: "8-12", tip: "<strong>Técnica élite:</strong> Inclinación óptima entre 30-45°. Por encima de 45° el deltoides anterior roba protagonismo. En la parte baja del movimiento, permite que los codos bajen hasta sentir un estiramiento profundo del pectoral. Eso es donde ocurre la hipertrofia." },
+    { name: "Aperturas en Polea Cruzada", tag: "Pecho Completo", series: "3", reps: "12-15", tip: "<strong>Técnica élite:</strong> Prioriza el recorrido completo sobre el peso. La polea mantiene tensión constante en todo el movimiento, algo que las mancuernas no logran en la parte alta. Ligeramente inclinado hacia delante para mayor activación del esternón." },
+    { name: "Fondos en Paralelas", tag: "Pecho Inferior", series: "3-4", reps: "8-15", tip: "<strong>Técnica élite:</strong> Inclina el torso hacia delante (30-45°) para enfocarlo en el pectoral en lugar del tríceps. Si tu peso corporal ya es insuficiente, añade lastre con un cinturón. Uno de los ejercicios más subestimados para el desarrollo del pecho inferior." },
+  ],
+  espalda: [
+    { name: "Dominadas con Lastre", tag: "Dorsal / Ancho", series: "4", reps: "6-10", tip: "<strong>Técnica élite:</strong> Agarre prono, ligeramente más ancho que los hombros. Inicia el movimiento deprimiendo las escápulas (bajar los omoplatos) ANTES de doblar los codos. Esto garantiza que el dorsal trabaje desde el principio. El codo baja hacia la cadera, no hacia atrás." },
+    { name: "Remo con Barra Pendlay", tag: "Grosor Espalda", series: "4", reps: "6-10", tip: "<strong>Técnica élite:</strong> La barra parte del suelo en cada repetición. Torso a 45-90° con el suelo. Tira hacia el ombligo bajo, no hacia el pecho. Esta versión elimina el impulso de los erecciones espinales y maximiza la activación de romboides y dorsales." },
+    { name: "Jalón al Pecho en Polea", tag: "Dorsal / Ancho", series: "3-4", reps: "10-12", tip: "<strong>Técnica élite:</strong> Agarre prono ancho. Inclínate ligeramente (15°) y tira de la barra hacia la clavícula, no hacia la barbilla. Concéntrate en llevar los codos hacia las caderas. El error más común: usar bíceps en lugar de iniciar con los dorsales." },
+    { name: "Remo con Mancuerna", tag: "Dorsal / Grosor", series: "3", reps: "10-15", tip: "<strong>Técnica élite:</strong> Apóyate en un banco con una rodilla y la mano opuesta. Lleva la mancuerna en línea recta hacia la cadera, no hacia el hombro. El rango de movimiento debe ser máximo: deja que el dorsal se estire completamente en la bajada. La rotación del torso está permitida en la subida." },
+  ],
+  hombros: [
+    { name: "Press Militar con Barra", tag: "Deltoides Completo", series: "4", reps: "6-10", tip: "<strong>Técnica élite:</strong> De pie activa más musculatura pero requiere más control del core. La barra parte de la clavícula y sube en línea recta, levemente por detrás del plano de la cara. Evita el arqueo lumbar excesivo; si ocurre, el peso es demasiado. Bloquea el core como si fueras a recibir un golpe." },
+    { name: "Elevaciones Laterales", tag: "Deltoides Medio", series: "4", reps: "12-20", tip: "<strong>Técnica élite:</strong> El ejercicio de aislamiento más importante para el desarrollo del ancho de hombros. Codo ligeramente doblado, muñeca en pronación (pulgar abajo) al llegar arriba. Eleva hasta la altura de los hombros, no más. Usa un peso que permita el recorrido completo sin balanceo." },
+    { name: "Press Arnold", tag: "Deltoides Anterior/Medio", series: "3", reps: "10-12", tip: "<strong>Técnica élite:</strong> Parte con las palmas mirando hacia ti (posición curl) y durante la subida gira hasta pronación completa. Este movimiento de rotación activa el deltoides anterior y medio con mayor amplitud que el press convencional. Excelente para el pico del hombro anterior." },
+    { name: "Face Pull en Polea", tag: "Deltoides Posterior", series: "3-4", reps: "15-20", tip: "<strong>Técnica élite:</strong> Imprescindible para equilibrar el desarrollo de los hombros y proteger el manguito rotador. Polea alta, cuerda en manos, tira hacia la cara manteniendo los codos altos. Al final del recorrido, rota externamente los hombros. Esencial si haces mucho press." },
+  ],
+  cuadriceps: [
+    { name: "Sentadilla con Barra", tag: "Cuádriceps / Glúteos", series: "4", reps: "6-12", tip: "<strong>Técnica élite:</strong> Pies a la anchura de los hombros, ligeramente girados hacia afuera. Desciende manteniendo la columna neutra. Profundidad mínima: paralela al suelo; lo ideal es por debajo del paralelo (ass to grass) si tu movilidad lo permite. Las rodillas siguen la dirección de los pies siempre." },
+    { name: "Extensión de Cuádriceps", tag: "Cuádriceps (aislamiento)", series: "3-4", reps: "12-15", tip: "<strong>Técnica élite:</strong> Mantén una ligera inclinación del respaldo hacia atrás para maximizar el estiramiento del recto femoral en la posición inicial. Pausa 1-2 segundos con la pierna extendida para máxima contracción. El pie en posición neutra activa el vasto externo e interno por igual." },
+    { name: "Prensa de Piernas", tag: "Cuádriceps / Glúteos", series: "4", reps: "8-15", tip: "<strong>Técnica élite:</strong> Los pies más altos en la plataforma activan más el glúteo; más bajos, más cuádriceps. Recorrido completo es clave. NUNCA bloquees completamente las rodillas al extender: la tensión desaparece y el riesgo aumenta. Pausa en la posición más baja para evitar el rebote." },
+    { name: "Zancadas con Mancuernas", tag: "Cuádriceps / Glúteos", series: "3", reps: "10-12 c/u", tip: "<strong>Técnica élite:</strong> La rodilla delantera no debe sobrepasar la punta del pie en exceso. El torso permanece vertical. Para mayor énfasis en cuádriceps, da pasos cortos; para glúteos, pasos más largos. Excelente para trabajar el equilibrio y la estabilidad unilateral." },
+  ],
+  isquiotibiales: [
+    { name: "Curl Femoral Tumbado", tag: "Isquiotibiales (flexión)", series: "4", reps: "10-15", tip: "<strong>Técnica élite:</strong> El ejercicio de aislamiento más directo para los isquiotibiales. Contrae el glúteo durante el movimiento para estabilizar la cadera. En la bajada, controla la fase excéntrica durante al menos 2-3 segundos. La versión nórdica (Nordic Curl) es superior para hipertrofia y prevención de lesiones." },
+    { name: "Peso Muerto Rumano", tag: "Isquiotibiales / Glúteos", series: "4", reps: "8-12", tip: "<strong>Técnica élite:</strong> La barra baja pegada a las piernas mientras la cadera retrocede. Las rodillas ligeramente flexionadas y FIJAS durante todo el movimiento. Sientes el estiramiento en los isquiotibiales a partir de la mitad del descenso. No confundas con el peso muerto convencional: aquí las piernas casi no se doblan." },
+    { name: "Buenos Días con Barra", tag: "Isquiotibiales / Lumbares", series: "3", reps: "10-12", tip: "<strong>Técnica élite:</strong> La barra en la nuca (baja o media), cadera hacia atrás manteniendo la espalda completamente recta. Excelente para trabajar isquiotibiales y erecciones espinales simultáneamente. Usa un peso moderado: el riesgo de lesión lumbar es alto con cargas excesivas o técnica deficiente." },
+    { name: "Peso Muerto Sumo", tag: "Isquiotibiales / Glúteos / Aductores", series: "3-4", reps: "6-10", tip: "<strong>Técnica élite:</strong> Apertura de piernas amplia, pies girados 45°. El torso más vertical que en el convencional activa más el cuádriceps y menos los erectores lumbares. Ideal para personas con fémures largos o movilidad limitada en la cadera. Activa los aductores de forma única." },
+  ],
+  gluteos: [
+    { name: "Hip Thrust con Barra", tag: "Glúteo Mayor (máxima activación)", series: "4", reps: "10-15", tip: "<strong>Técnica élite:</strong> El ejercicio con mayor activación EMG del glúteo mayor. La barra en los pliegues de la cadera con protección. En la extensión completa, los muslos paralelos al suelo y una pausa de 1-2 segundos con el glúteo apretado al máximo. Rodillas a 90° en la posición alta. Clave: no hiperextiendas la lumbar." },
+    { name: "Sentadilla Sumo con Mancuerna", tag: "Glúteos / Aductores", series: "3-4", reps: "12-15", tip: "<strong>Técnica élite:</strong> Conocida como 'Goblet Squat' sumo. La apertura amplia y los pies muy girados activan el glúteo medio y mayor con mayor eficacia que la sentadilla convencional. La mancuerna o kettlebell al pecho ayuda a mantener el torso vertical. Perfecto para quienes tienen movilidad limitada." },
+    { name: "Patada de Glúteo en Polea", tag: "Glúteo Mayor (aislamiento)", series: "3", reps: "15-20 c/u", tip: "<strong>Técnica élite:</strong> Correa en el tobillo, polea baja. La pierna parte flexionada y se extiende hacia atrás hasta que el glúteo esté completamente contraído. El torso ligeramente inclinado hacia delante. No arquees la lumbar para compensar: el movimiento viene de la cadera, no de la columna." },
+    { name: "Abducción en Máquina", tag: "Glúteo Medio (estabilizador)", series: "3", reps: "15-20", tip: "<strong>Técnica élite:</strong> El glúteo medio es el responsable de la estética lateral de los glúteos y de la estabilidad de la cadera durante la marcha y el squat. Siéntate ligeramente inclinado hacia delante para maximizar la activación. Pausa en la posición abierta máxima." },
+  ],
+  biceps: [
+    { name: "Curl con Barra", tag: "Bíceps (cabeza larga y corta)", series: "4", reps: "8-12", tip: "<strong>Técnica élite:</strong> El ejercicio más efectivo para la masa general del bíceps. Codos fijos a los lados del torso durante todo el recorrido. Sube hasta la contracción completa y baja de forma controlada (3 segundos). El agarre ancho activa más la cabeza corta (interna); el estrecho, la larga (pico del bíceps)." },
+    { name: "Curl Martillo", tag: "Braquial / Bíceps", series: "3", reps: "10-12", tip: "<strong>Técnica élite:</strong> La posición neutra de la muñeca (como si sostuvieras un martillo) activa principalmente el braquial y el braquiorradial. El braquial está debajo del bíceps: desarrollarlo empuja el bíceps hacia arriba, creando más 'pico'. Excelente complemento al curl tradicional." },
+    { name: "Curl Inclinado en Banco", tag: "Cabeza Larga del Bíceps", series: "3", reps: "10-15", tip: "<strong>Técnica élite:</strong> Con el banco inclinado a 45-60°, el bíceps comienza el movimiento en posición de máximo estiramiento. Esto activa preferentemente la cabeza larga, responsable del pico del bíceps. Es uno de los ejercicios más dolorosos en cuanto a tensión muscular, señal de que funciona." },
+    { name: "Curl en Polea Baja", tag: "Bíceps (tensión constante)", series: "3", reps: "12-15", tip: "<strong>Técnica élite:</strong> A diferencia de las mancuernas, la polea mantiene tensión constante en todo el recorrido, incluida la parte alta (donde las mancuernas tienen poca resistencia). Perfecta para finalizar el entrenamiento de bíceps con alto volumen de estimulación." },
+  ],
+  triceps: [
+    { name: "Press Francés con Barra EZ", tag: "Tríceps Completo", series: "4", reps: "8-12", tip: "<strong>Técnica élite:</strong> También llamado 'skull crusher'. Acostado en banco, baja la barra hacia la frente o la parte superior del cráneo manteniendo los codos fijos y apuntando al techo. La barra EZ reduce el estrés en las muñecas. Es el mejor ejercicio de masa para el tríceps junto al press de banca." },
+    { name: "Extensión en Polea Alta", tag: "Cabeza Larga del Tríceps", series: "3-4", reps: "12-15", tip: "<strong>Técnica élite:</strong> Con la cuerda, el brazo por encima de la cabeza o empujando hacia abajo. Mantén los codos pegados al cuerpo. La variante sobre la cabeza (con cuerda hacia la nuca) estira la cabeza larga del tríceps, que es la porción más grande (más del 50% del tríceps). Muy efectiva para el grosor." },
+    { name: "Fondos en Paralelas (énfasis tríceps)", tag: "Tríceps / Pecho Inferior", series: "3-4", reps: "8-15", tip: "<strong>Técnica élite:</strong> A diferencia de los fondos para pecho, aquí el torso permanece completamente vertical. Esto desplaza el esfuerzo al tríceps. Los codos se abren ligeramente durante el descenso. Añade lastre cuando el peso corporal sea insuficiente para el rango de repeticiones objetivo." },
+    { name: "Patada de Tríceps", tag: "Cabeza Lateral del Tríceps", series: "3", reps: "12-15 c/u", tip: "<strong>Técnica élite:</strong> Torso paralelo al suelo, brazo paralelo al cuerpo. Extiende el antebrazo hasta que el brazo quede completamente recto. La pausa al final activa al máximo la cabeza lateral del tríceps. Usa un peso que permita la extensión completa; el error más común es usar demasiado peso y no completar el recorrido." },
+  ],
+  abdominales: [
+    { name: "Rueda Abdominal (Ab Wheel)", tag: "Core completo / Recto Abdominal", series: "4", reps: "8-15", tip: "<strong>Técnica élite:</strong> El ejercicio de core más efectivo según EMG. El reto es mantener la columna neutral durante toda la extensión. Si no puedes, empieza desde rodillas. El abdomen no se contrae con un crunch: se estabiliza para proteger la columna bajo una carga enorme. Progresa hacia la versión de pie." },
+    { name: "Plancha con Lastre", tag: "Core Estabilizador", series: "3", reps: "30-60 seg", tip: "<strong>Técnica élite:</strong> La plancha estática es superior a los crunches para la activación muscular profunda (transverso abdominal). Coloca un disco en la espalda o usa un chaleco lastrado para progresar. Cuerpo completamente rígido: glúteos, cuádriceps y abdomen contraídos simultáneamente." },
+    { name: "Crunch en Polea", tag: "Recto Abdominal", series: "3-4", reps: "12-20", tip: "<strong>Técnica élite:</strong> A diferencia del crunch en el suelo, la polea permite añadir resistencia y progresión. Arrodillado, tira de la cuerda hacia las rodillas flexionando la columna desde el abdomen, no desde las caderas. El movimiento es pequeño pero intenso. Excelente para el grosor del recto abdominal." },
+    { name: "Elevación de Piernas Colgado", tag: "Recto Inferior / Flexores de Cadera", series: "3-4", reps: "10-15", tip: "<strong>Técnica élite:</strong> Colgado de una barra, eleva las piernas hasta la posición horizontal o más arriba. Para maximizar la activación abdominal, realiza una retroversión pélvica al final del movimiento (empuja el cóccix hacia delante). Si no puedes mantener las piernas rectas, flexiónalas." },
+  ]
+};
+
+function showMuscle(muscle, btn) {
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  const grid = document.getElementById('ex-content');
+  const data = exerciseData[muscle];
+  grid.innerHTML = data.map(ex => `
+    <div class="ex-card fade-up visible">
+      <div class="ex-card-top">
+        <div class="ex-name">${ex.name}</div>
+        <span class="ex-muscle-tag">${ex.tag}</span>
+      </div>
+      <div class="ex-sets">
+        <div class="ex-set-item">
+          <span class="ex-set-val">${ex.series}</span>
+          <span class="ex-set-label">Series</span>
+        </div>
+        <div class="ex-set-item">
+          <span class="ex-set-val">${ex.reps}</span>
+          <span class="ex-set-label">Repeticiones</span>
+        </div>
+      </div>
+      <div class="ex-tip">${ex.tip}</div>
+    </div>
+  `).join('');
+}
+
+// Init
+showMuscle('pecho', document.querySelector('.tab-btn'));
+
+// Nav toggle
+function toggleNav() {
+  document.getElementById('navLinks').classList.toggle('open');
+}
+
+// Close nav on link click
+document.querySelectorAll('.nav-links a').forEach(a => {
+  a.addEventListener('click', () => {
+    document.getElementById('navLinks').classList.remove('open');
+  });
+});
+
+// Intersection observer for fade-up
+const observer = new IntersectionObserver((entries) => {
+  entries.forEach(entry => {
+    if (entry.isIntersecting) {
+      entry.target.classList.add('visible');
+      observer.unobserve(entry.target);
+    }
+  });
+}, { threshold: 0.12 });
+
+document.querySelectorAll('.fade-up').forEach(el => observer.observe(el));
+</script>
+</body>
+</html>

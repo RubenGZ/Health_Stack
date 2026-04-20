@@ -1,0 +1,1130 @@
+﻿<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="HealthStack Pro — Tu plataforma de fitness inteligente">
+  <title>HealthStack Pro</title>
+  <link rel="stylesheet" href="css/main.css?v=3">
+  <link rel="manifest" href="manifest.json">
+  <meta name="theme-color" content="#6c63ff">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+
+  <!-- Open Graph / SEO -->
+  <meta property="og:type"        content="website">
+  <meta property="og:title"       content="HealthStack Pro — Fitness inteligente">
+  <meta property="og:description" content="Tracking de peso, rutinas, planner de comidas, gamificación y comunidad. Gratis y open source.">
+  <meta property="og:image"       content="icons/og-image.png">
+  <meta name="twitter:card"       content="summary_large_image">
+
+  <!-- Preload CDN críticos (Three.js primero — bloquea canvas) -->
+  <link rel="preload" href="https://cdn.jsdelivr.net/npm/three@0.158.0/build/three.min.js" as="script" crossorigin="anonymous">
+  <link rel="preload" href="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js" as="script" crossorigin="anonymous">
+
+  <!-- Google Fonts: Bebas Neue (headings) + Inter (body) -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
+
+</head>
+<body>
+
+
+
+  <!-- Fondo 3D Three.js -->
+  <canvas id="bg-canvas"></canvas>
+
+  <!-- ── SIDEBAR NAVEGACIÓN ────────────────────────────────── -->
+  <aside class="sidebar" id="sidebar">
+    <div class="sidebar__brand">
+      <div class="brand-logo">
+        <svg width="32" height="32" viewBox="0 0 32 32" fill="none">
+          <path d="M16 3L29 9.5V22.5L16 29L3 22.5V9.5L16 3Z" stroke="url(#grad1)" stroke-width="2" fill="none"/>
+          <path d="M8 16H24M16 8V24" stroke="url(#grad1)" stroke-width="2" stroke-linecap="round"/>
+          <defs>
+            <linearGradient id="grad1" x1="3" y1="3" x2="29" y2="29">
+              <stop offset="0%" stop-color="#6c63ff"/>
+              <stop offset="100%" stop-color="#00d2ff"/>
+            </linearGradient>
+          </defs>
+        </svg>
+      </div>
+      <div class="brand-text">
+        <span class="brand-name">HealthStack</span>
+        <span class="brand-version">Pro v2</span>
+      </div>
+    </div>
+
+    <nav class="sidebar__nav">
+
+      <!-- 1. Dashboard -->
+      <a class="nav-item active" data-section="dashboard" href="#dashboard">
+        <span class="nav-icon">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>
+        </span>
+        <span class="nav-label" data-i18n="nav.dashboard">Dashboard</span>
+      </a>
+
+      <!-- 2. Nutrición -->
+      <a class="nav-item" data-section="nutricion" href="#nutricion">
+        <span class="nav-icon">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 8h1a4 4 0 0 1 0 8h-1"/><path d="M2 8h16v9a4 4 0 0 1-4 4H6a4 4 0 0 1-4-4V8z"/><line x1="6" y1="1" x2="6" y2="4"/><line x1="10" y1="1" x2="10" y2="4"/><line x1="14" y1="1" x2="14" y2="4"/></svg>
+        </span>
+        <span class="nav-label" data-i18n="nav.nutrition">Nutrición</span>
+      </a>
+
+      <!-- 2b. Peso (dentro del bloque de salud corporal) -->
+      <a class="nav-item nav-item--sub" data-section="peso" href="#peso">
+        <span class="nav-icon">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 6l9-3 9 3v6c0 5.25-3.75 10.15-9 11.25C6.75 22.15 3 17.25 3 12V6z"/><polyline points="9 12 11 14 15 10"/></svg>
+        </span>
+        <span class="nav-label" data-i18n="nav.weight">Peso</span>
+      </a>
+
+      <!-- 3. Ejercicios -->
+      <a class="nav-item" data-section="ejercicios" href="#ejercicios">
+        <span class="nav-icon">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6.5 6.5h11M6.5 17.5h11M3 12h2m14 0h2"/><circle cx="5" cy="12" r="2"/><circle cx="19" cy="12" r="2"/></svg>
+        </span>
+        <span class="nav-label" data-i18n="nav.exercises">Ejercicios</span>
+      </a>
+
+      <!-- 4. Rutinas -->
+      <a class="nav-item" data-section="rutinas" href="#rutinas">
+        <span class="nav-icon">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>
+        </span>
+        <span class="nav-label" data-i18n="nav.routines">Rutinas</span>
+      </a>
+
+      <!-- 5. Planner -->
+      <a class="nav-item" data-section="planner" href="#planner">
+        <span class="nav-icon">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+        </span>
+        <span class="nav-label" data-i18n="nav.planner">Planner</span>
+      </a>
+
+      <!-- 6. Suplementos -->
+      <a class="nav-item" data-section="suplementos" href="#suplementos">
+        <span class="nav-icon">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 3H5a2 2 0 0 0-2 2v4m6-6h10a2 2 0 0 1 2 2v4M9 3v18m0 0h10a2 2 0 0 0 2-2v-4M9 21H5a2 2 0 0 1-2-2v-4m0 0h18"/></svg>
+        </span>
+        <span class="nav-label" data-i18n="nav.supplements">Suplementos</span>
+      </a>
+
+      <!-- 7. Horario Óptimo -->
+      <a class="nav-item" data-section="timing" href="#timing">
+        <span class="nav-icon">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+        </span>
+        <span class="nav-label" data-i18n="nav.timing">Horario Óptimo</span>
+      </a>
+
+      <!-- 8. Logros -->
+      <a class="nav-item" data-section="gamificacion" href="#gamificacion">
+        <span class="nav-icon">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+        </span>
+        <span class="nav-label" data-i18n="nav.achievements">Logros</span>
+      </a>
+
+      <!-- 8b. Comunidad -->
+      <a class="nav-item" data-section="comunidad" href="#comunidad">
+        <span class="nav-icon">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+        </span>
+        <span class="nav-label" data-i18n="nav.community">Comunidad</span>
+      </a>
+
+    </nav>
+
+    <div class="sidebar__footer">
+      <div class="user-chip" id="user-chip">
+        <div class="user-avatar" id="user-avatar">A</div>
+        <div class="user-info">
+          <span class="user-name" id="user-name">Atleta</span>
+          <span class="user-level" id="user-level">Novato · 0 XP</span>
+        </div>
+      </div>
+    </div>
+  </aside>
+
+  <!-- ── CONTENIDO PRINCIPAL ───────────────────────────────── -->
+  <main class="main-content" id="main-content">
+
+    <!-- ── DASHBOARD ─────────────────────────────────────────── -->
+    <section id="section-dashboard" class="section active">
+      <header class="section-header">
+        <div>
+          <h1 class="section-title" id="dashboard-greeting">Buenos días, Atleta</h1>
+          <p class="section-subtitle" id="dashboard-date">Hoy es un gran día para entrenar</p>
+        </div>
+        <div class="header-actions">
+          <div class="streak-badge" id="streak-badge">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="#f59e0b"><path d="M12 2c0 6-8 10-8 16a8 8 0 0 0 16 0c0-6-8-10-8-16z"/></svg>
+            <span id="streak-count">0</span><span data-i18n="dashboard.days"> días</span>
+          </div>
+        </div>
+      </header>
+
+      <!-- PWA install prompt (se muestra automáticamente si aplica) -->
+      <div id="pwa-install-banner" style="display:none;margin-bottom:16px"></div>
+
+      <!-- Stats cards -->
+      <div class="stats-grid">
+        <div class="stat-card">
+          <div class="stat-icon stat-icon--blue">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2a4 4 0 0 1 4 4c0 1.5-.8 2.8-2 3.5V20H10V9.5A4 4 0 0 1 8 6a4 4 0 0 1 4-4z"/></svg>
+          </div>
+          <div class="stat-content">
+            <span class="stat-label" data-i18n="dashboard.stat_weight">Peso actual</span>
+            <span class="stat-value" id="stat-weight">-- kg</span>
+            <span class="stat-change" id="stat-weight-change" data-i18n="dashboard.no_data">Sin datos</span>
+          </div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-icon stat-icon--purple">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18M9 21V9"/></svg>
+          </div>
+          <div class="stat-content">
+            <span class="stat-label" data-i18n="dashboard.stat_bmi">IMC</span>
+            <span class="stat-value" id="stat-bmi">--</span>
+            <span class="stat-change" id="stat-bmi-label" data-i18n="dashboard.stat_bmi_ph">Introduce tu talla</span>
+          </div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-icon stat-icon--cyan">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 8h1a4 4 0 0 1 0 8h-1"/><path d="M2 8h16v9a4 4 0 0 1-4 4H6a4 4 0 0 1-4-4V8z"/><line x1="6" y1="1" x2="6" y2="4"/><line x1="10" y1="1" x2="10" y2="4"/><line x1="14" y1="1" x2="14" y2="4"/></svg>
+          </div>
+          <div class="stat-content">
+            <span class="stat-label" data-i18n="dashboard.stat_tdee">TDEE</span>
+            <span class="stat-value" id="stat-tdee">-- kcal</span>
+            <span class="stat-change" id="stat-tdee-label" data-i18n="dashboard.stat_tdee_ph">Calcula en Nutrición</span>
+          </div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-icon stat-icon--pink">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+          </div>
+          <div class="stat-content">
+            <span class="stat-label" data-i18n="dashboard.stat_records">Registros</span>
+            <span class="stat-value" id="stat-records">0</span>
+            <span class="stat-change" id="stat-records-label" data-i18n="dashboard.stat_records_ph">Total de entradas</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Insight de progreso (se renderiza desde app.js) -->
+      <div id="progress-insight" style="display:none;margin-bottom:20px"></div>
+
+      <!-- Mini gráfica de peso + accesos rápidos -->
+      <div class="dashboard-bottom">
+        <div class="card card--chart">
+          <div class="card-header">
+            <h3 data-i18n="dashboard.chart_title">Evolución del peso (últimas 8 semanas)</h3>
+            <a class="card-link" data-section="peso" href="#peso" data-i18n="dashboard.view_all">Ver todo →</a>
+          </div>
+          <div class="chart-container chart-container--small">
+            <canvas id="mini-weight-chart"></canvas>
+            <div class="chart-empty" id="mini-chart-empty">
+              <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" opacity="0.3"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+              <p data-i18n="dashboard.chart_empty">Añade registros de peso para ver tu progreso</p>
+              <button class="btn btn--primary btn--sm" data-section="peso" data-i18n="dashboard.add_weight">Añadir peso</button>
+            </div>
+          </div>
+        </div>
+
+        <div class="quick-actions">
+          <h3 class="quick-title" data-i18n="dashboard.quick_title">Acceso rápido</h3>
+          <div class="quick-grid">
+            <button class="quick-card" data-section="peso">
+              <span class="quick-icon">⚖️</span>
+              <span data-i18n="dashboard.q_weight">Registrar peso</span>
+            </button>
+            <button class="quick-card" data-section="nutricion">
+              <span class="quick-icon">🥗</span>
+              <span data-i18n="dashboard.q_macros">Calcular macros</span>
+            </button>
+            <button class="quick-card" data-section="ejercicios">
+              <span class="quick-icon">💪</span>
+              <span data-i18n="dashboard.q_exercises">Ver ejercicios</span>
+            </button>
+            <button class="quick-card" data-section="planner">
+              <span class="quick-icon">📅</span>
+              <span data-i18n="dashboard.q_planner">Planner semanal</span>
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Banner patrocinador no intrusivo -->
+      <div id="sponsor-banner" style="margin-top:20px"></div>
+    </section>
+
+    <!-- ── TRACKING DE PESO ──────────────────────────────────── -->
+    <section id="section-peso" class="section">
+      <header class="section-header">
+        <div>
+          <h1 class="section-title" data-i18n="weight.title">Tracking de Peso</h1>
+          <p class="section-subtitle" data-i18n="weight.subtitle">Registra y visualiza tu evolución corporal</p>
+        </div>
+        <div class="header-actions">
+          <button class="btn btn--ghost" id="btn-export-weight" title="Exportar datos como CSV">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+            <span data-i18n="weight.export">Exportar CSV</span>
+          </button>
+          <button class="btn btn--primary" id="btn-open-weight-form">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+            <span data-i18n="weight.add">Añadir registro</span>
+          </button>
+        </div>
+      </header>
+
+      <!-- Mensaje de ajuste automático -->
+      <div class="adjustment-banner" id="adjustment-banner" style="display:none;">
+        <span class="adjustment-icon" id="adjustment-icon">📊</span>
+        <span id="adjustment-text"></span>
+        <button class="banner-close" id="banner-close">×</button>
+      </div>
+
+      <!-- Gráfica principal -->
+      <div class="card card--chart">
+        <div class="card-header">
+          <h3 data-i18n="weight.chart_title">Evolución del peso</h3>
+          <div class="chart-controls">
+            <button class="chip chip--active" data-range="30" data-i18n="weight.d30">30 días</button>
+            <button class="chip" data-range="90" data-i18n="weight.d90">90 días</button>
+            <button class="chip" data-range="365" data-i18n="weight.y1">1 año</button>
+            <button class="chip" data-range="0" data-i18n="weight.all">Todo</button>
+          </div>
+        </div>
+        <div class="chart-container">
+          <canvas id="weight-chart"></canvas>
+          <div class="chart-empty" id="weight-chart-empty">
+            <svg width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" opacity="0.3"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+            <p data-i18n="weight.empty">No hay registros de peso todavía</p>
+            <button class="btn btn--primary" id="btn-add-first-weight" data-i18n="weight.add_first">Añadir mi primer registro</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Estadísticas de peso -->
+      <div class="weight-stats" id="weight-stats" style="display:none;">
+        <div class="wstat-card">
+          <span class="wstat-label" data-i18n="weight.initial">Inicial</span>
+          <span class="wstat-value" id="wstat-initial">-- kg</span>
+        </div>
+        <div class="wstat-card">
+          <span class="wstat-label" data-i18n="weight.current">Actual</span>
+          <span class="wstat-value" id="wstat-current">-- kg</span>
+        </div>
+        <div class="wstat-card">
+          <span class="wstat-label" data-i18n="weight.total_change">Cambio total</span>
+          <span class="wstat-value" id="wstat-total-change">-- kg</span>
+        </div>
+        <div class="wstat-card">
+          <span class="wstat-label" data-i18n="weight.min">Mínimo</span>
+          <span class="wstat-value" id="wstat-min">-- kg</span>
+        </div>
+        <div class="wstat-card">
+          <span class="wstat-label" data-i18n="weight.max">Máximo</span>
+          <span class="wstat-value" id="wstat-max">-- kg</span>
+        </div>
+        <div class="wstat-card">
+          <span class="wstat-label" data-i18n="weight.avg">Promedio</span>
+          <span class="wstat-value" id="wstat-avg">-- kg</span>
+        </div>
+      </div>
+
+      <!-- Tabla de registros -->
+      <div class="card" id="weight-table-card" style="display:none;">
+        <div class="card-header">
+          <h3 data-i18n="weight.history">Historial de registros</h3>
+          <span class="record-count" id="record-count">0 registros</span>
+        </div>
+        <div class="table-wrapper">
+          <table class="data-table" id="weight-table">
+            <thead>
+              <tr>
+                <th data-i18n="weight.col_date">Fecha</th>
+                <th data-i18n="weight.col_weight">Peso (kg)</th>
+                <th data-i18n="weight.col_change">Cambio</th>
+                <th data-i18n="weight.col_notes">Notas</th>
+                <th data-i18n="weight.col_actions">Acciones</th>
+              </tr>
+            </thead>
+            <tbody id="weight-table-body"></tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <!-- ── NUTRICIÓN ─────────────────────────────────────────── -->
+    <section id="section-nutricion" class="section">
+      <header class="section-header">
+        <div>
+          <h1 class="section-title" data-i18n="nutrition.title">Nutrición</h1>
+          <p class="section-subtitle" data-i18n="nutrition.subtitle">Calcula tu TDEE, macros óptimos y timing de nutrientes</p>
+        </div>
+      </header>
+
+      <!-- Tabs de subsección -->
+      <div class="section-tabs" id="nutrition-tabs">
+        <button class="stab stab--active" data-tab="tdee" data-i18n="nutrition.tab_tdee">Calculadora TDEE</button>
+        <button class="stab" data-tab="macroinfo" data-i18n="nutrition.tab_macros">Macronutrientes</button>
+        <button class="stab" data-tab="nutrient-timing" data-i18n="nutrition.tab_timing">Timing nutrientes</button>
+        <button class="stab" data-tab="misrecetas" data-i18n="nutrition.tab_recipes">Mis Recetas</button>
+      </div>
+
+      <!-- Tab: Calculadora TDEE (existente) -->
+      <div class="stab-content stab-content--active" id="stab-tdee">
+      <div class="nutrition-layout">
+        <!-- Formulario TDEE -->
+        <div class="card card--form">
+          <div class="card-header">
+            <h3 data-i18n="nutrition.tdee_title">Calculadora TDEE</h3>
+            <span class="formula-badge">Mifflin-St Jeor</span>
+          </div>
+          <form id="tdee-form" class="form-grid">
+            <div class="form-group">
+              <label class="form-label" data-i18n="nutrition.sex">Sexo</label>
+              <div class="radio-group">
+                <label class="radio-label">
+                  <input type="radio" name="sex" value="male" checked><span data-i18n="nutrition.male"> Hombre</span>
+                </label>
+                <label class="radio-label">
+                  <input type="radio" name="sex" value="female"><span data-i18n="nutrition.female"> Mujer</span>
+                </label>
+              </div>
+            </div>
+            <div class="form-row">
+              <div class="form-group">
+                <label class="form-label" for="tdee-age" data-i18n="nutrition.age">Edad</label>
+                <div class="input-wrapper">
+                  <input type="number" id="tdee-age" class="form-input" min="15" max="99" placeholder="25">
+                  <span class="input-unit">años</span>
+                </div>
+              </div>
+              <div class="form-group">
+                <label class="form-label" for="tdee-weight" data-i18n="nutrition.weight_f">Peso</label>
+                <div class="input-wrapper">
+                  <input type="number" id="tdee-weight" class="form-input" min="30" max="300" step="0.1" placeholder="70.0">
+                  <span class="input-unit">kg</span>
+                </div>
+              </div>
+            </div>
+            <div class="form-row">
+              <div class="form-group">
+                <label class="form-label" for="tdee-height" data-i18n="nutrition.height">Talla</label>
+                <div class="input-wrapper">
+                  <input type="number" id="tdee-height" class="form-input" min="100" max="250" placeholder="175">
+                  <span class="input-unit">cm</span>
+                </div>
+              </div>
+              <div class="form-group">
+                <label class="form-label" for="tdee-goal" data-i18n="nutrition.goal">Objetivo</label>
+                <select id="tdee-goal" class="form-input" data-i18n-opts="nutrition">
+                  <option value="deficit_hard" data-i18n-key="g_deficit_hard">Perder peso rápido (−500 kcal)</option>
+                  <option value="deficit_soft" data-i18n-key="g_deficit_soft">Perder peso suave (−250 kcal)</option>
+                  <option value="maintain" selected data-i18n-key="g_maintain">Mantener peso</option>
+                  <option value="surplus_soft" data-i18n-key="g_surplus_soft">Ganar músculo suave (+250 kcal)</option>
+                  <option value="surplus_hard" data-i18n-key="g_surplus_hard">Ganar músculo rápido (+500 kcal)</option>
+                </select>
+              </div>
+            </div>
+            <div class="form-group">
+              <label class="form-label" for="tdee-activity" data-i18n="nutrition.activity">Nivel de actividad</label>
+              <select id="tdee-activity" class="form-input" data-i18n-opts="nutrition">
+                <option value="1.2" data-i18n-key="a_sed">Sedentario (sin ejercicio)</option>
+                <option value="1.375" data-i18n-key="a_light">Ligero (1-3 días/semana)</option>
+                <option value="1.55" selected data-i18n-key="a_mod">Moderado (3-5 días/semana)</option>
+                <option value="1.725" data-i18n-key="a_active">Activo (6-7 días/semana)</option>
+                <option value="1.9" data-i18n-key="a_very">Muy activo (2 veces/día)</option>
+              </select>
+            </div>
+            <button type="submit" class="btn btn--primary btn--full" data-i18n="nutrition.calculate">Calcular</button>
+          </form>
+        </div>
+
+        <!-- Resultados -->
+        <div class="nutrition-results" id="nutrition-results" style="display:none;">
+          <!-- Tarjetas de calorías -->
+          <div class="calorie-cards">
+            <div class="cal-card cal-card--bmr">
+              <span class="cal-label" data-i18n="nutrition.bmr">TMB (BMR)</span>
+              <span class="cal-value" id="result-bmr">--</span>
+              <span class="cal-unit" data-i18n="nutrition.kcal">kcal/día</span>
+            </div>
+            <div class="cal-card cal-card--tdee">
+              <span class="cal-label" data-i18n="nutrition.tdee_res">TDEE</span>
+              <span class="cal-value" id="result-tdee">--</span>
+              <span class="cal-unit" data-i18n="nutrition.kcal">kcal/día</span>
+            </div>
+            <div class="cal-card cal-card--target">
+              <span class="cal-label" data-i18n="nutrition.target">Objetivo</span>
+              <span class="cal-value" id="result-target">--</span>
+              <span class="cal-unit" data-i18n="nutrition.kcal">kcal/día</span>
+            </div>
+          </div>
+
+          <!-- Macros + gráfico -->
+          <div class="macros-layout">
+            <div class="card card--macros">
+              <h4 data-i18n="nutrition.macro_dist">Distribución de macros</h4>
+              <div class="macro-chart-wrapper">
+                <canvas id="macro-chart"></canvas>
+              </div>
+            </div>
+            <div class="macro-list">
+              <div class="macro-item macro-item--protein">
+                <div class="macro-color" style="background:#6c63ff"></div>
+                <div class="macro-info">
+                  <span class="macro-name" data-i18n="nutrition.protein">Proteína</span>
+                  <span class="macro-formula">2.0g × peso</span>
+                </div>
+                <div class="macro-amount">
+                  <span class="macro-g" id="macro-protein-g">-- g</span>
+                  <span class="macro-kcal" id="macro-protein-kcal">-- kcal</span>
+                </div>
+              </div>
+              <div class="macro-item macro-item--fat">
+                <div class="macro-color" style="background:#f59e0b"></div>
+                <div class="macro-info">
+                  <span class="macro-name" data-i18n="nutrition.fat">Grasa</span>
+                  <span class="macro-formula">25% de TDEE objetivo</span>
+                </div>
+                <div class="macro-amount">
+                  <span class="macro-g" id="macro-fat-g">-- g</span>
+                  <span class="macro-kcal" id="macro-fat-kcal">-- kcal</span>
+                </div>
+              </div>
+              <div class="macro-item macro-item--carbs">
+                <div class="macro-color" style="background:#00d2ff"></div>
+                <div class="macro-info">
+                  <span class="macro-name" data-i18n="nutrition.carbs">Hidratos</span>
+                  <span class="macro-formula">Calorías restantes</span>
+                </div>
+                <div class="macro-amount">
+                  <span class="macro-g" id="macro-carbs-g">-- g</span>
+                  <span class="macro-kcal" id="macro-carbs-kcal">-- kcal</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Mensaje adicional -->
+          <div class="nutrition-tip card" id="nutrition-tip">
+            <span class="tip-icon">💡</span>
+            <p id="tip-text"></p>
+          </div>
+        </div>
+      </div>
+      </div><!-- /stab-tdee -->
+
+      <!-- Tab: Macronutrientes (contenido FitSciPro) -->
+      <div class="stab-content" id="stab-macroinfo">
+        <div class="section-subtitle-banner">
+          <h2 data-i18n="nutrition.macros_title">Distribución de Macronutrientes</h2>
+          <p data-i18n="nutrition.macros_sub">Guía basada en evidencia científica para la construcción muscular y la composición corporal</p>
+        </div>
+        <div class="macro-info-grid" id="macro-info-grid">
+          <!-- Renderizado por supplements.js desde HS_CONFIG.MACRO_INFO -->
+        </div>
+      </div><!-- /stab-macroinfo -->
+
+      <!-- Tab: Timing de nutrientes (contenido FitSciPro) -->
+      <div class="stab-content" id="stab-nutrient-timing">
+        <div class="section-subtitle-banner">
+          <h2 data-i18n="nutrition.timing_title">Timing de Nutrientes</h2>
+          <p data-i18n="nutrition.timing_sub">Optimiza tus ventanas de alimentación alrededor del entrenamiento</p>
+        </div>
+        <div id="nutrient-timing-wrap">
+          <!-- Renderizado por supplements.js desde HS_CONFIG.TIMING_INFO -->
+        </div>
+      </div><!-- /stab-nutrient-timing -->
+
+      <!-- Tab: Mis Recetas (creador de recetas personalizadas) -->
+      <div class="stab-content" id="stab-misrecetas">
+        <div class="section-subtitle-banner">
+          <h2 data-i18n="nutrition.recipes_title">Mis Recetas</h2>
+          <p data-i18n="nutrition.recipes_sub">Crea recetas personalizadas con ingredientes reales y cálculo de macros en tiempo real</p>
+        </div>
+
+        <!-- Grid de recetas guardadas -->
+        <div class="card" style="margin-bottom:24px">
+          <div class="card-header">
+            <h3 data-i18n="nutrition.saved">Recetas guardadas</h3>
+            <div class="recipe-filter-tabs" id="my-recipes-filter-tabs"></div>
+          </div>
+          <input type="text" id="my-recipes-search" class="form-input" data-i18n="planner.search_my" data-i18n-attr="placeholder" placeholder="🔍 Buscar mis recetas..." style="margin-bottom:12px;max-width:320px">
+          <div class="my-recipes-grid" id="my-recipes-grid">
+            <!-- Renderizado por myRecipes.js -->
+          </div>
+        </div>
+
+        <!-- Formulario de creación -->
+        <div class="card" id="recipe-creator-form">
+          <div class="card-header">
+            <h3 id="recipe-form-title" data-i18n="nutrition.new_recipe">Nueva Receta</h3>
+          </div>
+          <div class="recipe-form-grid">
+            <div class="form-row">
+              <div class="form-group" style="flex:2">
+                <label class="form-label" data-i18n="nutrition.recipe_name">Nombre de la receta</label>
+                <input type="text" id="recipe-name-input" class="form-input" placeholder="Ej: Bowl proteico de pollo y quinoa">
+              </div>
+              <div class="form-group">
+                <label class="form-label" data-i18n="nutrition.recipe_cat">Categoría</label>
+                <select id="recipe-cat-select" class="form-input" data-i18n-opts="nutrition">
+                  <option value="desayuno" data-i18n-key="c_breakfast">Desayuno</option>
+                  <option value="almuerzo" selected data-i18n-key="c_lunch">Almuerzo</option>
+                  <option value="cena" data-i18n-key="c_dinner">Cena</option>
+                  <option value="snack" data-i18n-key="c_snack">Snack</option>
+                  <option value="pre" data-i18n-key="c_pre">Pre-entreno</option>
+                  <option value="post" data-i18n-key="c_post">Post-entreno</option>
+                </select>
+              </div>
+            </div>
+            <div class="form-group">
+              <label class="form-label" data-i18n="nutrition.add_ing">Añadir ingredientes</label>
+              <div class="ing-search-wrap">
+                <input type="text" id="ing-search" class="form-input" placeholder="🔍 Buscar ingrediente (ej: pollo, avena, aguacate...)">
+                <div class="ing-results" id="ing-results"></div>
+              </div>
+            </div>
+            <div class="form-group">
+              <label class="form-label" data-i18n="nutrition.ing_list">Ingredientes de la receta</label>
+              <div id="selected-ingredients" class="selected-ingredients-list">
+                <p class="ing-empty">Busca y añade ingredientes arriba</p>
+              </div>
+            </div>
+            <div class="macro-preview" id="recipe-macro-preview">
+              <span class="macro-preview-empty">Añade ingredientes para ver los macros</span>
+            </div>
+            <div class="form-group">
+              <label class="form-label" data-i18n="nutrition.instructions">Instrucciones (opcional)</label>
+              <textarea id="recipe-instructions" class="form-input" rows="3"
+                        placeholder="Ej: Cocinar el pollo a la plancha, hervir la quinoa 15 min..."></textarea>
+            </div>
+            <div class="form-group">
+              <label class="form-label" data-i18n="nutrition.rating">Tu valoración</label>
+              <div class="star-rating" id="recipe-stars" data-rating="5"></div>
+            </div>
+            <div class="form-actions">
+              <button class="btn btn--ghost" id="recipe-cancel-btn" data-i18n="nutrition.cancel">Cancelar</button>
+              <button class="btn btn--primary" id="recipe-save-btn" data-i18n="nutrition.save_recipe">💾 Guardar receta</button>
+            </div>
+          </div>
+        </div>
+      </div><!-- /stab-misrecetas -->
+
+    </section>
+
+    <!-- ── EJERCICIOS ───────────────────────────────────────── -->
+    <section id="section-ejercicios" class="section">
+      <header class="section-header">
+        <div>
+          <h1 class="section-title" data-i18n="exercises.title">Ejercicios</h1>
+          <p class="section-subtitle" data-i18n="exercises.subtitle">Base de datos de ejercicios con visor anatómico</p>
+        </div>
+        <div class="header-actions">
+          <input type="text" id="exercise-search" class="form-input" data-i18n="exercises.search" data-i18n-attr="placeholder" placeholder="🔍 Buscar ejercicio..." style="width:220px">
+        </div>
+      </header>
+
+      <!-- Tabs por grupo muscular -->
+      <div class="muscle-tabs" id="muscle-tabs"></div>
+
+      <!-- Layout: cards + visor anatómico -->
+      <div class="exercises-layout">
+        <div class="exercises-grid" id="exercises-grid"></div>
+
+        <!-- Visor anatómico SVG -->
+        <div class="anatomy-panel card">
+          <h4 class="anatomy-title" data-i18n="exercises.anatomy_title">Visor anatómico</h4>
+          <div class="anatomy-hint" id="anatomy-hint" data-i18n="exercises.anatomy_hint">Haz clic en un ejercicio para ver los músculos implicados</div>
+          <div class="anatomy-svg-wrap" id="anatomy-svg-wrap">
+            <!-- SVG inyectado por exercises.js -->
+          </div>
+          <div class="anatomy-legend" id="anatomy-legend"></div>
+          <div id="anatomy-affiliate"></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ── RUTINAS ─────────────────────────────────────── -->
+    <section id="section-rutinas" class="section">
+      <header class="section-header">
+        <div>
+          <h1 class="section-title" data-i18n="routines.title">Generador de Rutinas</h1>
+          <p class="section-subtitle" data-i18n="routines.subtitle">Responde el cuestionario y obtén tu plan semanal personalizado</p>
+        </div>
+        <div class="header-actions" id="routine-header-actions">
+          <button class="btn btn--ghost" id="btn-reset-routine" style="display:none" data-i18n="routines.new_quiz">↩ Nuevo cuestionario</button>
+          <button class="btn share-btn" id="btn-share-routine" style="display:none" data-i18n="routines.share">📤 Compartir rutina</button>
+        </div>
+      </header>
+
+      <!-- Layout: cuestionario izquierda + visor 3D derecha -->
+      <div class="routine-layout">
+
+        <!-- Columna izquierda: cuestionario + resultado -->
+        <div class="routine-left">
+
+          <!-- Cuestionario multi-paso -->
+          <div id="routine-questionnaire">
+            <div class="quiz-progress">
+              <div class="quiz-bar"><div class="quiz-fill" id="quiz-fill"></div></div>
+              <span class="quiz-step-label" id="quiz-step-label">Paso 1 de 7</span>
+            </div>
+            <div class="card quiz-card" id="quiz-card"></div>
+            <div class="quiz-nav">
+              <button class="btn btn--ghost" id="quiz-prev" data-i18n="routines.prev">← Anterior</button>
+              <button class="btn btn--primary" id="quiz-next" data-i18n="routines.next">Siguiente →</button>
+            </div>
+          </div>
+
+          <!-- Resultado: rutina semanal -->
+          <div id="routine-result" style="display:none">
+            <div class="routine-header-info card" id="routine-summary"></div>
+            <div class="routine-week" id="routine-week"></div>
+          </div>
+
+          <!-- Historial de rutinas previas -->
+          <div id="routine-history" style="display:none;margin-top:24px"></div>
+
+        </div><!-- /routine-left -->
+
+        <!-- Columna derecha: visor 3D interactivo -->
+        <div class="routine-3d-panel">
+          <div class="athlete-viewer-wrap">
+
+            <!-- Overlay de carga -->
+            <div id="athlete-loading" class="athlete-loading">
+              <div class="athlete-loading__spinner"></div>
+              <p class="athlete-loading__text">Cargando atleta <span id="athlete-pct">0%</span></p>
+            </div>
+
+            <!-- Canvas Three.js -->
+            <canvas id="athlete-canvas"></canvas>
+
+          </div>
+          <p class="athlete-hint">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 2l-2 2m-7.61 7.61a5.5 5.5 0 1 1-7.778 7.778 5.5 5.5 0 0 1 7.777-7.777zm0 0L15.5 7.5m0 0l3 3L22 7l-3-3m-3.5 3.5L19 4"/></svg>
+            <span data-i18n="routines.drag">Arrastra para rotar · Scroll para zoom</span>
+          </p>
+        </div><!-- /routine-3d-panel -->
+
+      </div><!-- /routine-layout -->
+    </section>
+
+    <!-- ── PLANNER DE COMIDAS ────────────────────────────── -->
+    <section id="section-planner" class="section">
+      <header class="section-header">
+        <div>
+          <h1 class="section-title" data-i18n="planner.title">Planner de Comidas</h1>
+          <p class="section-subtitle" data-i18n="planner.subtitle">Arrastra recetas al calendario semanal</p>
+        </div>
+        <div class="header-actions">
+          <button class="btn btn--ghost" id="btn-clear-planner" data-i18n="planner.clear">🗑 Limpiar semana</button>
+        </div>
+      </header>
+
+      <!-- Tabs: Predefinidas / Mis Recetas -->
+      <div class="section-tabs" id="planner-recipe-tabs" style="margin-bottom:20px">
+        <button class="stab stab--active" data-ptab="predefined" data-i18n="planner.predefined">Recetas predefinidas</button>
+        <button class="stab" data-ptab="myrecipes" data-i18n="planner.my_recipes">Mis Recetas</button>
+      </div>
+
+      <div class="planner-layout">
+        <!-- Panel de recetas (predefinidas) -->
+        <div class="recipes-panel card" id="panel-predefined">
+          <div class="card-header">
+            <h3 data-i18n="planner.recipes_h">Recetas</h3>
+            <div class="recipe-filter-tabs" id="recipe-filter-tabs"></div>
+          </div>
+          <input type="text" id="recipe-search" class="form-input" data-i18n="planner.search" data-i18n-attr="placeholder" placeholder="🔍 Buscar receta..." style="margin-bottom:12px">
+          <div class="recipes-list" id="recipes-list"></div>
+        </div>
+
+        <!-- Panel Mis Recetas (inicialmente oculto) -->
+        <div class="recipes-panel card" id="panel-myrecipes" style="display:none">
+          <div class="card-header">
+            <h3 data-i18n="planner.my_recipes">Mis Recetas</h3>
+            <div class="recipe-filter-tabs" id="my-recipes-filter-tabs"></div>
+          </div>
+          <input type="text" id="my-recipes-search" class="form-input" data-i18n="planner.search_my" data-i18n-attr="placeholder" placeholder="🔍 Buscar mis recetas..." style="margin-bottom:12px">
+          <div class="recipes-list" id="my-recipes-list-planner">
+            <!-- Las recetas de usuario se renderizan como draggable por planner.js -->
+          </div>
+          <div style="margin-top:12px;padding-top:12px;border-top:1px solid var(--glass-border)">
+            <button class="btn btn--ghost btn--sm btn--full" id="btn-crear-receta"
+               style="display:block;width:100%;text-align:center" data-i18n="planner.create">
+              ✏️ Crear nueva receta →
+            </button>
+          </div>
+        </div>
+
+        <!-- Tabla semanal -->
+        <div class="planner-right">
+          <div class="planner-grid" id="planner-grid"></div>
+
+          <!-- Macros totales de la semana -->
+          <div class="card planner-macros-card" id="planner-macros-card">
+            <div class="card-header"><h3 data-i18n="planner.weekly">Macros semanales totales</h3></div>
+            <div class="planner-macros-layout">
+              <canvas id="planner-macro-chart" style="max-width:160px;max-height:160px"></canvas>
+              <div class="planner-macro-list" id="planner-macro-list"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ── GAMIFICACIÓN ──────────────────────────────────── -->
+    <section id="section-gamificacion" class="section">
+      <header class="section-header">
+        <div>
+          <h1 class="section-title" data-i18n="gamification.title">Gamificación</h1>
+          <p class="section-subtitle" data-i18n="gamification.subtitle">Tu progreso, niveles, logros y desafíos semanales</p>
+        </div>
+      </header>
+
+      <!-- Nivel y XP -->
+      <div class="level-hero card">
+        <div class="level-info">
+          <div class="level-badge" id="gami-level-badge">1</div>
+          <div>
+            <div class="level-name" id="gami-level-name">Novato</div>
+            <div class="level-xp" id="gami-xp-label">0 XP total</div>
+          </div>
+        </div>
+        <div class="level-progress-wrap">
+          <div class="level-progress-bar">
+            <div class="level-progress-fill" id="gami-xp-fill"></div>
+          </div>
+          <div class="level-progress-labels">
+            <span id="gami-xp-current">0 XP</span>
+            <span id="gami-xp-next">— siguiente nivel</span>
+          </div>
+        </div>
+        <div class="level-stats">
+          <div class="lstat"><span class="lstat-val" id="gami-streak">0</span><span class="lstat-label" data-i18n="gamification.streak">Racha</span></div>
+          <div class="lstat"><span class="lstat-val" id="gami-badges-count">0</span><span class="lstat-label" data-i18n="gamification.badges">Badges</span></div>
+          <div class="lstat"><span class="lstat-val" id="gami-challenges-done">0</span><span class="lstat-label" data-i18n="gamification.challenges_count">Desafíos</span></div>
+        </div>
+      </div>
+
+      <div class="gami-layout">
+        <!-- Badges -->
+        <div class="card">
+          <div class="card-header"><h3 data-i18n="gamification.achievements">Logros</h3><span id="gami-badges-earned" class="record-count"></span></div>
+          <div class="badges-grid" id="badges-grid"></div>
+        </div>
+
+        <!-- Desafíos semanales -->
+        <div class="card">
+          <div class="card-header">
+            <h3 data-i18n="gamification.challenges">Desafíos de la semana</h3>
+            <span class="formula-badge" id="gami-week-label"></span>
+          </div>
+          <div class="challenges-list" id="challenges-list"></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ── COMUNIDAD ─────────────────────────────────────── -->
+    <section id="section-comunidad" class="section">
+      <header class="section-header">
+        <div>
+          <h1 class="section-title" data-i18n="community.title">Comunidad</h1>
+          <p class="section-subtitle" data-i18n="community.subtitle">Comparte tu progreso e inspírate con otros atletas</p>
+        </div>
+        <div class="header-actions">
+          <button class="btn btn--primary" id="btn-new-post" data-i18n="community.publish">✏️ Publicar</button>
+        </div>
+      </header>
+
+      <div class="community-layout">
+        <!-- Feed -->
+        <div class="community-feed">
+          <!-- Crear post -->
+          <div class="card new-post-card" id="new-post-card" style="display:none">
+            <textarea id="post-textarea" class="form-input" rows="3" data-i18n="community.placeholder" data-i18n-attr="placeholder" placeholder="¿Qué lograste hoy?..." style="resize:vertical"></textarea>
+            <div class="form-actions" style="margin-top:10px">
+              <button class="btn btn--ghost btn--sm" id="btn-cancel-post" data-i18n="community.cancel">Cancelar</button>
+              <button class="btn btn--primary btn--sm" id="btn-submit-post" data-i18n="community.post">Publicar</button>
+            </div>
+          </div>
+          <div id="feed-list"></div>
+        </div>
+
+        <!-- Leaderboard -->
+        <div class="leaderboard-panel">
+          <div class="card">
+            <div class="card-header"><h3 data-i18n="community.leaderboard">🏆 Leaderboard</h3></div>
+            <div id="leaderboard-list"></div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ── SUPLEMENTOS ──────────────────────────────────────── -->
+    <section id="section-suplementos" class="section">
+      <header class="section-header">
+        <div>
+          <h1 class="section-title" data-i18n="supplements.title">Suplementos</h1>
+          <p class="section-subtitle" data-i18n="supplements.subtitle">Solo lo que realmente funciona — basado en evidencia científica</p>
+        </div>
+      </header>
+
+      <!-- Grid de suplementos dinámicos -->
+      <div class="card">
+        <div class="card-header">
+          <h3 data-i18n="supplements.catalog">Catálogo de Suplementos</h3>
+          <span class="formula-badge">Evidencia: ●●● alta · ●●○ media · ●○○ baja</span>
+        </div>
+        <div id="suppl-grid">
+          <!-- Cargado por supplements.js desde HS_CONFIG o API -->
+          <div class="suppl-loading" data-i18n="supplements.loading">Cargando suplementos…</div>
+        </div>
+      </div>
+
+    </section>
+
+    <!-- ── PLANIFICADOR DE TIMING ────────────────────────────── -->
+    <section id="section-timing" class="section">
+      <header class="section-header">
+        <div>
+          <h1 class="section-title" data-i18n="timing.title">Horario Óptimo</h1>
+          <p class="section-subtitle" data-i18n="timing.subtitle">Genera tu horario óptimo de nutrición según tu entreno</p>
+        </div>
+      </header>
+
+      <div class="timing-layout">
+        <!-- Formulario de entrada -->
+        <div class="card timing-form-card">
+          <div class="card-header">
+            <h3 data-i18n="timing.config">Configura tu día</h3>
+          </div>
+          <div class="form-grid">
+            <div class="form-row">
+              <div class="form-group">
+                <label class="form-label" for="tp-train-time" data-i18n="timing.train_time">Hora de entrenamiento</label>
+                <input type="time" id="tp-train-time" class="form-input" value="19:00">
+              </div>
+              <div class="form-group">
+                <label class="form-label" for="tp-duration" data-i18n="timing.duration">Duración (min)</label>
+                <select id="tp-duration" class="form-input">
+                  <option value="45">45 min</option>
+                  <option value="60" selected>60 min</option>
+                  <option value="75">75 min</option>
+                  <option value="90">90 min</option>
+                  <option value="120">120 min</option>
+                </select>
+              </div>
+            </div>
+            <div class="form-row">
+              <div class="form-group">
+                <label class="form-label" for="tp-goal" data-i18n="timing.goal">Objetivo</label>
+                <select id="tp-goal" class="form-input" data-i18n-opts="timing">
+                  <option value="hypertrophy" selected data-i18n-key="g_hyp">Hipertrofia (volumen)</option>
+                  <option value="deficit" data-i18n-key="g_def">Definición (déficit)</option>
+                  <option value="performance" data-i18n-key="g_perf">Rendimiento deportivo</option>
+                </select>
+              </div>
+              <div class="form-group">
+                <label class="form-label" for="tp-meals" data-i18n="timing.meals">Número de comidas</label>
+                <select id="tp-meals" class="form-input" data-i18n-opts="timing">
+                  <option value="3" data-i18n-key="m3">3 comidas</option>
+                  <option value="4" data-i18n-key="m4">4 comidas</option>
+                  <option value="5" selected data-i18n-key="m5">5 comidas</option>
+                  <option value="6" data-i18n-key="m6">6 comidas</option>
+                </select>
+              </div>
+            </div>
+            <div class="form-group">
+              <label class="form-label" for="tp-bed-time" data-i18n="timing.bed_time">Hora de dormir</label>
+              <input type="time" id="tp-bed-time" class="form-input" value="23:00" style="max-width:160px">
+            </div>
+            <div class="form-group">
+              <label class="form-label" data-i18n="timing.suppl">Suplementos que usas</label>
+              <div class="suppl-check-grid" id="timing-suppl-checks">
+                <!-- Renderizado por timingPlanner.js -->
+              </div>
+            </div>
+            <button class="btn btn--primary btn--full" id="tp-generate-btn" data-i18n="timing.generate">
+              ⚡ Generar horario óptimo
+            </button>
+          </div>
+        </div>
+
+        <!-- Resultado: timeline del día -->
+        <div class="timing-result-panel hidden" id="timing-result">
+          <div id="timing-schedule">
+            <!-- Renderizado por timingPlanner.js -->
+          </div>
+        </div>
+      </div>
+
+    </section>
+
+  <!-- ── FOOTER DE MONETIZACIÓN (no intrusivo) ─────────────────── -->
+  <footer class="app-footer" id="app-footer">
+    <div class="footer-inner">
+      <div class="footer-left">
+        <span class="footer-brand">HealthStack Pro</span>
+        <span class="footer-tagline" data-i18n="footer.tagline">Objetivo: siempre gratuito</span>
+      </div>
+      <div class="footer-center">
+        <span class="footer-support-text" data-i18n="footer.support">¿Te ayuda la app?</span>
+        <a href="https://www.buymeacoffee.com/healthstack" target="_blank" rel="noopener"
+           class="btn btn--ghost btn--sm footer-donate" data-i18n="footer.coffee">
+          ☕ Invítame a un café
+        </a>
+        <a href="https://www.paypal.me/healthstackpro" target="_blank" rel="noopener"
+           class="btn btn--ghost btn--sm footer-donate">
+          💛 PayPal
+        </a>
+      </div>
+      <div class="footer-right">
+        <span class="footer-legal" data-i18n="footer.legal">Los enlaces de afiliado nos ayudan a mantener la app gratuita. Nunca pagas más.</span>
+      </div>
+    </div>
+  </footer>
+
+  </main><!-- /main-content -->
+
+  <!-- ── CHATBOT FLOTANTE ──────────────────────────────────── -->
+  <button class="chatbot-btn" id="chatbot-btn" title="Asistente HealthStack">
+    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+    <span class="chatbot-badge" id="chatbot-badge" style="display:none">1</span>
+  </button>
+
+  <div class="chatbot-panel" id="chatbot-panel" style="display:none">
+    <div class="chatbot-header">
+      <div class="chatbot-avatar">🤖</div>
+      <div>
+        <div class="chatbot-name" data-i18n="chatbot.name">Asistente HealthStack</div>
+        <div class="chatbot-status" data-i18n="chatbot.status">En línea</div>
+      </div>
+      <button class="chatbot-close" id="chatbot-close">×</button>
+    </div>
+    <div class="chatbot-messages" id="chatbot-messages">
+      <div class="chat-msg chat-msg--bot">
+        <div class="chat-bubble" data-i18n="chatbot.welcome">¡Hola! Soy tu asistente de fitness. Pregúntame sobre nutrición, ejercicio, pérdida de peso o cómo usar la app. 💪</div>
+      </div>
+    </div>
+    <div class="chatbot-suggestions" id="chatbot-suggestions">
+      <button class="chat-suggestion" data-i18n="chatbot.q1">¿Cuánta proteína necesito?</button>
+      <button class="chat-suggestion" data-i18n="chatbot.q2">¿Cómo pierdo grasa?</button>
+      <button class="chat-suggestion" data-i18n="chatbot.q3">¿Qué es el TDEE?</button>
+    </div>
+    <div class="chatbot-input-wrap">
+      <input type="text" id="chatbot-input" class="form-input" data-i18n="chatbot.placeholder" data-i18n-attr="placeholder" placeholder="Escribe tu pregunta...">
+      <button class="btn btn--primary btn--sm" id="chatbot-send" data-i18n="chatbot.send">Enviar</button>
+    </div>
+  </div>
+
+  <!-- ── MODAL: AÑADIR/EDITAR PESO ────────────────────────────── -->
+  <div class="modal-overlay" id="weight-modal" style="display:none;">
+    <div class="modal">
+      <div class="modal-header">
+        <h3 id="modal-title">Añadir registro de peso</h3>
+        <button class="modal-close" id="modal-close">×</button>
+      </div>
+      <form id="weight-form" class="form-grid">
+        <input type="hidden" id="weight-edit-id">
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label" for="w-date" data-i18n="modal.date">Fecha</label>
+            <input type="date" id="w-date" class="form-input" required>
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="w-weight" data-i18n="modal.weight">Peso (kg)</label>
+            <div class="input-wrapper">
+              <input type="number" id="w-weight" class="form-input" min="20" max="400" step="0.1" placeholder="70.5" required>
+              <span class="input-unit">kg</span>
+            </div>
+          </div>
+        </div>
+        <div class="form-group">
+          <label class="form-label" for="w-notes" data-i18n="modal.notes">Notas (opcional)</label>
+          <input type="text" id="w-notes" class="form-input" placeholder="Ej: después de entrenar, en ayunas...">
+        </div>
+        <div class="form-actions">
+          <button type="button" class="btn btn--ghost" id="modal-cancel" data-i18n="modal.cancel">Cancelar</button>
+          <button type="submit" class="btn btn--primary" id="modal-submit" data-i18n="modal.save">Guardar</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- ── SCRIPTS CDN ──────────────────────────────────────────── -->
+  <!-- CDN diferidos — no bloquean el render (LCP) -->
+  <script defer crossorigin="anonymous" src="https://cdn.jsdelivr.net/npm/three@0.158.0/build/three.min.js"></script>
+  <script defer crossorigin="anonymous" src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+  <script defer crossorigin="anonymous" src="https://cdn.jsdelivr.net/npm/chartjs-plugin-annotation@3.0.1/dist/chartjs-plugin-annotation.min.js"></script>
+
+  <!-- ── SCRIPTS APP (defer — ejecutan en orden tras parsear HTML) ── -->
+  <script defer src="js/i18n.js"></script>
+  <script defer src="js/config.js?v=5"></script>
+  <script defer src="js/api.js"></script>
+  <script defer src="js/background3d.js"></script>
+
+  <script defer src="js/weightTracker.js"></script>
+  <script defer src="js/macroCalc.js"></script>
+  <script defer src="js/exercises.js"></script>
+  <script defer src="js/routineGenerator.js"></script>
+  <script defer src="js/planner.js?v=3"></script>
+  <script defer src="js/gamification.js"></script>
+  <script defer src="js/chatbot.js"></script>
+  <script defer src="js/community.js"></script>
+  <script defer src="js/onboarding.js"></script>
+  <script defer src="js/supplements.js?v=3"></script>
+  <script defer src="js/myRecipes.js?v=4"></script>
+  <script defer src="js/timingPlanner.js?v=3"></script>
+  <script defer src="js/app.js"></script>
+  <!-- Importmap para el visor 3D híbrido -->
+  <script type="importmap">
+  {
+    "imports": {
+      "three": "https://cdn.jsdelivr.net/npm/three@0.158.0/build/three.module.js",
+      "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.158.0/examples/jsm/"
+    }
+  }
+  </script>
+  <script type="module" src="js/athleteViewer.js"></script>
+  <script>
+    // ── PWA: registrar service worker ─────────────────────────
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('/sw.js')
+          .then(reg => console.log('[SW] Registrado:', reg.scope))
+          .catch(err => console.warn('[SW] Error:', err));
+      });
+    }
+  </script>
+
+  <!-- Share routine overlay -->
+  <div class="share-preview-overlay" id="share-overlay" style="display:none">
+    <div class="share-preview-box">
+      <div class="share-preview-header">
+        <span>Vista previa — Compartir rutina</span>
+        <button class="share-close-btn" id="share-close">✕</button>
+      </div>
+      <div id="share-canvas-wrap"></div>
+      <div class="share-preview-actions">
+        <button class="btn btn--primary" id="btn-download-share">⬇ Descargar imagen</button>
+        <button class="btn btn--ghost" id="share-close-2" data-i18n="nutrition.cancel">Cancelar</button>
+      </div>
+    </div>
+  </div>
+
+  <canvas id="confetti-canvas" style="position:fixed;inset:0;pointer-events:none;z-index:9990;display:none"></canvas>
+
+</body>
+</html>

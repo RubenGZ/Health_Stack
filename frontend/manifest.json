@@ -1,0 +1,43 @@
+{
+  "name": "HealthStack Pro",
+  "short_name": "HealthStack",
+  "description": "Tu plataforma de fitness inteligente — tracking, nutrición, rutinas y comunidad",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#07070f",
+  "theme_color": "#6c63ff",
+  "orientation": "portrait-primary",
+  "categories": ["health", "fitness", "lifestyle"],
+  "lang": "es",
+  "icons": [
+    {
+      "src": "icons/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "icons/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ],
+  "screenshots": [],
+  "shortcuts": [
+    {
+      "name": "Registrar peso",
+      "short_name": "Peso",
+      "description": "Añadir un registro de peso",
+      "url": "/#peso",
+      "icons": [{ "src": "icons/icon-192.png", "sizes": "192x192" }]
+    },
+    {
+      "name": "Rutinas",
+      "short_name": "Rutinas",
+      "description": "Generar mi rutina semanal",
+      "url": "/#rutinas",
+      "icons": [{ "src": "icons/icon-192.png", "sizes": "192x192" }]
+    }
+  ]
+}

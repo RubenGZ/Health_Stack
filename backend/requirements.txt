@@ -1,0 +1,41 @@
+# ============================================================
+# HealthStack Pro V2 — Dependencias Python
+# Todas las versiones están fijadas para builds reproducibles
+# ============================================================
+
+# --- Framework principal ---
+fastapi==0.111.0
+uvicorn[standard]==0.30.1
+
+# --- Base de datos ---
+sqlalchemy[asyncio]==2.0.31
+asyncpg==0.29.0          # Driver async para PostgreSQL
+alembic==1.13.2          # Migraciones de BD
+
+# --- Validación y Configuración ---
+pydantic==2.8.2
+pydantic[email]==2.8.2
+pydantic-settings==2.3.4
+python-dotenv==1.0.1     # Carga .env en CLI (Alembic, scripts)
+email-validator==2.1.1   # Requerido por pydantic[email] para EmailStr
+
+# --- Seguridad y Cifrado ---
+# cryptography provee AES-256-GCM para la llave de cruce (AEPD)
+cryptography==42.0.8
+# argon2-cffi para hashing de contraseñas (OWASP recomendado sobre bcrypt)
+argon2-cffi==23.1.0
+# python-jose para JWT RS256 asimétrico
+python-jose[cryptography]==3.3.0
+
+# --- Testing ---
+pytest==8.3.1
+pytest-asyncio==0.23.7
+httpx==0.27.0            # Cliente HTTP para tests de integración
+
+# --- Rate Limiting ---
+slowapi==0.1.9             # Wrapper de limits para FastAPI/Starlette (OWASP A07)
+limits==3.13.0             # Backend de límites (en memoria por defecto, Redis en prod)
+
+# --- Observabilidad ---
+sentry-sdk[fastapi]==2.8.0
+prometheus-fastapi-instrumentator==7.0.0

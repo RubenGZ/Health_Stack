@@ -1,0 +1,10 @@
+bash
+
+touch /home/claude/healthstack-pro/app/core/database/__init__.py && echo "ok"
+
+
+
+
+Salida
+
+ok

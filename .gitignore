@@ -1,0 +1,68 @@
+# ── Python ────────────────────────────────────────────────────────────────────
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+*.egg
+*.egg-info/
+dist/
+build/
+.eggs/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.hypothesis/
+htmlcov/
+.coverage
+coverage.xml
+
+# ── Entornos virtuales ────────────────────────────────────────────────────────
+.venv/
+venv/
+env/
+ENV/
+
+# ── Variables de entorno / Secretos ── ¡NUNCA SUBIR! ─────────────────────────
+.env
+.env.*
+!.env.example
+!backend/env.example
+
+# ── Node / Frontend ───────────────────────────────────────────────────────────
+node_modules/
+dist/
+.next/
+.nuxt/
+.cache/
+*.tsbuildinfo
+
+# ── Logs ─────────────────────────────────────────────────────────────────────
+*.log
+logs/
+npm-debug.log*
+yarn-debug.log*
+
+# ── IDEs y editores ───────────────────────────────────────────────────────────
+.vscode/
+.idea/
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
+*.swp
+.DS_Store
+Thumbs.db
+
+# ── Alembic ───────────────────────────────────────────────────────────────────
+# No ignorar las migraciones — sí deben subirse
+# alembic/versions/  ← NO ignorar
+
+# ── Archivos temporales ────────────────────────────────────────────────────────
+*.tmp
+*.bak
+*.orig
+*.rej
+
+# ── Claude Code ───────────────────────────────────────────────────────────────
+.claude/

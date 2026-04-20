@@ -1,0 +1,28 @@
+backend/
+├── .env                       # (Archivo MASTER_HEALTH_KEY y DATABASE_URL)
+├── .env.example               # (Plantilla de variables de entorno)
+├── requirements.txt           # (Listado de librerías: FastAPI, SQLAlchemy, etc.)
+└── app/
+    ├── __init__.py            # (Archivo vacío para marcar como paquete)
+    ├── main.py                # (El punto de entrada que crearemos ahora)
+    ├── config.py              # (Validación de variables de entorno)
+    ├── exceptions.py          # (Gestión de errores personalizados)
+    ├── base_model.py          # (La base para tus tablas SQL)
+    ├── session.py             # (Conexión asíncrona a la base de datos)
+    ├── core/
+    │   ├── security/
+    │   │   ├── __init__.py
+    │   │   ├── crypto.py      # (AES-256-GCM - El corazón de la AEPD)
+    │   │   ├── hashing.py     # (Argon2id para contraseñas)
+    │   │   ├── jwt_handler.py # (Tokens RS256)
+    │   │   └── dependencies.py# (Inyección de dependencias para FastAPI)
+    ├── modules/
+    │   ├── identity/
+    │   │   ├── __init__.py
+    │   │   ├── models.py      # (User y DataLink)
+    │   │   └── schemas.py     # (DTOs/Validaciones de usuario)
+    │   └── health/
+    │       ├── __init__.py
+    │       └── models.py      # (HealthRecord - El bunker de biometría)
+    └── shared/
+        └── __init__.py

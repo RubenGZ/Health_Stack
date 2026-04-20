@@ -26,11 +26,11 @@ import logging
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.core.Security.cryptoservice import CryptoService
-from app.core.Security.hashing import hash_password, needs_rehash, verify_password
-from app.core.Security.jwt_handler import create_access_token, create_refresh_token
-from app.modules.Identity.repository import UserRepository
-from app.modules.Identity.schemas import (
+from app.core.security.cryptoservice import CryptoService
+from app.core.security.hashing import hash_password, needs_rehash, verify_password
+from app.core.security.jwt_handler import create_access_token, create_refresh_token
+from app.modules.identity.repository import UserRepository
+from app.modules.identity.schemas import (
     LoginRequest,
     LoginResponse,
     RegisterRequest,

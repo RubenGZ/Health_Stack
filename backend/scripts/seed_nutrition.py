@@ -29,7 +29,7 @@ from sqlalchemy.ext.asyncio import create_async_engine, AsyncSession
 from sqlalchemy.orm import sessionmaker
 
 from app.core.config import get_settings
-from app.modules.Nutrition.models import Ingredient, Supplement
+from app.modules.nutrition.models import Ingredient, Supplement
 
 settings = get_settings()
 engine = create_async_engine(settings.database_url, echo=False)

@@ -18,9 +18,9 @@ import math
 
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.modules.Gamification.models import XP_TABLE, GamificationState
-from app.modules.Gamification.repository import GamificationRepository
-from app.modules.Gamification.schemas import GamificationStateResponse
+from app.modules.gamification.models import XP_TABLE, GamificationState
+from app.modules.gamification.repository import GamificationRepository
+from app.modules.gamification.schemas import GamificationStateResponse
 
 logger = logging.getLogger(__name__)
 

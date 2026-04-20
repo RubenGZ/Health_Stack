@@ -27,7 +27,7 @@ from datetime import datetime, timezone
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.modules.Identity.models import DataLink, User
+from app.modules.identity.models import DataLink, User
 
 
 # ── USER REPOSITORY ───────────────────────────────────────────────────────────

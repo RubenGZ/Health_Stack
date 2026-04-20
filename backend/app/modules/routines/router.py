@@ -16,9 +16,9 @@ from __future__ import annotations
 
 from fastapi import APIRouter, Query, status
 
-from app.core.Security.dependencies import CurrentUser
-from app.modules.Routines.schemas import RoutineCreate, RoutineListResponse, RoutineResponse
-from app.modules.Routines.service import RoutineService
+from app.core.security.dependencies import CurrentUser
+from app.modules.routines.schemas import RoutineCreate, RoutineListResponse, RoutineResponse
+from app.modules.routines.service import RoutineService
 from app.session import DBSession
 
 router = APIRouter()

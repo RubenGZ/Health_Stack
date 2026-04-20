@@ -19,15 +19,15 @@ from typing import Annotated
 
 from fastapi import APIRouter, Depends, Query, status
 
-from app.core.Security.cryptoservice import CryptoService, get_crypto_service
-from app.core.Security.dependencies import CurrentUser
-from app.modules.Health.schemas import (
+from app.core.security.cryptoservice import CryptoService, get_crypto_service
+from app.core.security.dependencies import CurrentUser
+from app.modules.health.schemas import (
     HealthRecordCreate,
     HealthRecordListResponse,
     HealthRecordResponse,
     HealthRecordUpdate,
 )
-from app.modules.Health.service import HealthService
+from app.modules.health.service import HealthService
 from app.session import DBSession
 
 router = APIRouter()

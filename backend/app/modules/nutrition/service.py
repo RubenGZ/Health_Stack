@@ -13,13 +13,13 @@ from __future__ import annotations
 
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.modules.Nutrition.models import Ingredient, UserRecipe
-from app.modules.Nutrition.repository import (
+from app.modules.nutrition.models import Ingredient, UserRecipe
+from app.modules.nutrition.repository import (
     IngredientRepository,
     SupplementRepository,
     UserRecipeRepository,
 )
-from app.modules.Nutrition.schemas import (
+from app.modules.nutrition.schemas import (
     IngredientResponse,
     RecipeIngredientItem,
     SupplementResponse,

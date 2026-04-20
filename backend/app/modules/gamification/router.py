@@ -14,9 +14,9 @@ from __future__ import annotations
 
 from fastapi import APIRouter, status
 
-from app.core.Security.dependencies import CurrentUser
-from app.modules.Gamification.schemas import ActionRequest, GamificationStateResponse
-from app.modules.Gamification.service import GamificationService
+from app.core.security.dependencies import CurrentUser
+from app.modules.gamification.schemas import ActionRequest, GamificationStateResponse
+from app.modules.gamification.service import GamificationService
 from app.session import DBSession
 
 router = APIRouter()

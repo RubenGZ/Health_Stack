@@ -11,7 +11,7 @@ import uuid
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.modules.Gamification.models import GamificationState
+from app.modules.gamification.models import GamificationState
 
 
 class GamificationRepository:

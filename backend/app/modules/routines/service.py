@@ -10,8 +10,8 @@ import logging
 
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.modules.Routines.repository import RoutineRepository
-from app.modules.Routines.schemas import (
+from app.modules.routines.repository import RoutineRepository
+from app.modules.routines.schemas import (
     RoutineCreate,
     RoutineListResponse,
     RoutineResponse,

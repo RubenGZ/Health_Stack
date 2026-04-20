@@ -12,7 +12,7 @@ from __future__ import annotations
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.modules.Nutrition.models import Ingredient, Supplement, UserRecipe
+from app.modules.nutrition.models import Ingredient, Supplement, UserRecipe
 
 
 # ── Supplement Repository ─────────────────────────────────────────────────────

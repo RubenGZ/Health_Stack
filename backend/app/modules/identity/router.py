@@ -23,18 +23,18 @@ from __future__ import annotations
 
 from fastapi import APIRouter, Depends, Request, status
 
-from app.core.Security.cryptoservice import CryptoService, get_crypto_service
-from app.core.Security.dependencies import CurrentUser
-from app.core.Security.jwt_handler import decode_token
-from app.modules.Identity.repository import UserRepository
-from app.modules.Identity.schemas import (
+from app.core.security.cryptoservice import CryptoService, get_crypto_service
+from app.core.security.dependencies import CurrentUser
+from app.core.security.jwt_handler import decode_token
+from app.modules.identity.repository import UserRepository
+from app.modules.identity.schemas import (
     LoginRequest,
     LoginResponse,
     RegisterRequest,
     RegisterResponse,
     UserPublicResponse,
 )
-from app.modules.Identity.service import IdentityService
+from app.modules.identity.service import IdentityService
 from app.session import DBSession
 from app.shared.exceptions import TokenInvalidError, UserNotFoundError
 
@@ -173,7 +173,7 @@ async def refresh_token(
     if user is None or not user.is_active:
         raise TokenInvalidError("El usuario asociado al token no está disponible.")
 
-    from app.core.Security.jwt_handler import create_access_token
+    from app.core.security.jwt_handler import create_access_token
     new_access_token = create_access_token(
         user_id=str(user.id),
         email=user.email,

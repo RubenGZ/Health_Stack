@@ -12,7 +12,7 @@ from sqlalchemy import and_, func, select
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.modules.Community.models import CommunityLike, CommunityPost
+from app.modules.community.models import CommunityLike, CommunityPost
 
 
 class CommunityRepository:

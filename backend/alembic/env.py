@@ -19,7 +19,11 @@ from __future__ import annotations
 
 import asyncio
 import os
+import sys
 from logging.config import fileConfig
+
+# Añadir el directorio raíz del backend al path para que `app` sea importable
+sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 from sqlalchemy import pool
 from sqlalchemy.engine import Connection
@@ -41,12 +45,12 @@ except ImportError:
 # migraciones automáticas con `alembic revision --autogenerate`.
 # Importar la Base primero, luego los modelos que la usan.
 from app.shared.base_model import Base  # noqa: F401 — importar Base
-from app.modules.Identity.models import User, DataLink  # noqa: F401
-from app.modules.Health.models import HealthRecord  # noqa: F401
-from app.modules.Routines.models import SavedRoutine  # noqa: F401
-from app.modules.Community.models import CommunityPost, CommunityLike  # noqa: F401
-from app.modules.Gamification.models import GamificationState  # noqa: F401
-from app.modules.Nutrition.models import Supplement, Ingredient, UserRecipe  # noqa: F401
+from app.modules.identity.models import User, DataLink  # noqa: F401
+from app.modules.health.models import HealthRecord  # noqa: F401
+from app.modules.routines.models import SavedRoutine  # noqa: F401
+from app.modules.community.models import CommunityPost, CommunityLike  # noqa: F401
+from app.modules.gamification.models import GamificationState  # noqa: F401
+from app.modules.nutrition.models import Supplement, Ingredient, UserRecipe  # noqa: F401
 
 # ── Configuración de Alembic ──────────────────────────────────────────────────
 config = context.config
@@ -68,7 +72,8 @@ _db_url = os.environ.get("DATABASE_URL", config.get_main_option("sqlalchemy.url"
 if _db_url and not _db_url.startswith("postgresql+asyncpg"):
     _db_url = _db_url.replace("postgresql://", "postgresql+asyncpg://", 1)
 
-config.set_main_option("sqlalchemy.url", _db_url or "")
+# configparser usa % como carácter de interpolación → escapar %% para URLs con %40, etc.
+config.set_main_option("sqlalchemy.url", (_db_url or "").replace("%", "%%"))
 
 
 # ── MODO OFFLINE ──────────────────────────────────────────────────────────────

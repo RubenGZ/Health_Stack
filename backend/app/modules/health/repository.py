@@ -19,7 +19,7 @@ from datetime import date
 from sqlalchemy import and_, func, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.modules.Health.models import HealthRecord
+from app.modules.health.models import HealthRecord
 
 
 class HealthRepository:

@@ -11,9 +11,9 @@ import logging
 from fastapi import HTTPException, status
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.modules.Community.repository import CommunityRepository
-from app.modules.Community.schemas import PostCreate, PostListResponse, PostResponse
-from app.modules.Identity.repository import UserRepository
+from app.modules.community.repository import CommunityRepository
+from app.modules.community.schemas import PostCreate, PostListResponse, PostResponse
+from app.modules.identity.repository import UserRepository
 
 logger = logging.getLogger(__name__)
 

@@ -25,9 +25,9 @@ from cryptography.exceptions import InvalidTag
 from cryptography.hazmat.primitives.ciphers.aead import AESGCM
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.core.Security.cryptoservice import CryptoService
-from app.modules.Health.repository import HealthRepository
-from app.modules.Health.schemas import (
+from app.core.security.cryptoservice import CryptoService
+from app.modules.health.repository import HealthRepository
+from app.modules.health.schemas import (
     HealthRecordCreate,
     HealthRecordListResponse,
     HealthRecordResponse,

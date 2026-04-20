@@ -18,14 +18,14 @@ from __future__ import annotations
 
 from fastapi import APIRouter, Query, status
 
-from app.modules.Nutrition.schemas import (
+from app.modules.nutrition.schemas import (
     IngredientResponse,
     SupplementResponse,
     UserRecipeCreate,
     UserRecipeResponse,
     UserRecipeUpdate,
 )
-from app.modules.Nutrition.service import NutritionService
+from app.modules.nutrition.service import NutritionService
 from app.session import DBSession
 
 router = APIRouter()

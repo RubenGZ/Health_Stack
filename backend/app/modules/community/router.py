@@ -18,9 +18,9 @@ from typing import Annotated, Optional
 from fastapi import APIRouter, Depends, Query, status
 from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
 
-from app.core.Security.dependencies import CurrentUser, get_current_user
-from app.modules.Community.schemas import PostCreate, PostListResponse, PostResponse
-from app.modules.Community.service import CommunityService
+from app.core.security.dependencies import CurrentUser, get_current_user
+from app.modules.community.schemas import PostCreate, PostListResponse, PostResponse
+from app.modules.community.service import CommunityService
 from app.session import DBSession
 
 router = APIRouter()

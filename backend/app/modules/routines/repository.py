@@ -11,7 +11,7 @@ import uuid
 from sqlalchemy import func, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.modules.Routines.models import SavedRoutine
+from app.modules.routines.models import SavedRoutine
 
 
 class RoutineRepository:

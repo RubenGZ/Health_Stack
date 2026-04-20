@@ -224,12 +224,12 @@ async def validation_error_handler(request: Request, exc: ValidationError):
 
 
 # ── Routers ───────────────────────────────────────────────────────────────────
-from app.modules.Community.router import router as community_router
-from app.modules.Gamification.router import router as gamification_router
-from app.modules.Health.router import router as health_router
-from app.modules.Identity.router import router as identity_router
-from app.modules.Nutrition.router import router as nutrition_router
-from app.modules.Routines.router import router as routines_router
+from app.modules.community.router import router as community_router
+from app.modules.gamification.router import router as gamification_router
+from app.modules.health.router import router as health_router
+from app.modules.identity.router import router as identity_router
+from app.modules.nutrition.router import router as nutrition_router
+from app.modules.routines.router import router as routines_router
 
 app.include_router(
     identity_router,

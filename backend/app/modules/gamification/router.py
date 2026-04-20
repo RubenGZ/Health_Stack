@@ -10,7 +10,6 @@ Endpoints:
     POST   /action          → Registrar acción y ganar XP
 """
 
-from __future__ import annotations
 
 from fastapi import APIRouter, status
 

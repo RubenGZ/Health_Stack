@@ -12,7 +12,6 @@ Endpoints:
     DELETE /{id}    → Eliminar rutina
 """
 
-from __future__ import annotations
 
 from fastapi import APIRouter, Query, status
 

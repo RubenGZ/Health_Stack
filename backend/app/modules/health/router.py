@@ -13,7 +13,6 @@ Endpoints:
     DELETE /records/{id}      → Eliminar registro
 """
 
-from __future__ import annotations
 
 from typing import Annotated
 

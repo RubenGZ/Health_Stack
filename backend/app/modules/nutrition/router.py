@@ -14,7 +14,6 @@ Endpoints:
   DELETE /recipes/{id}           → eliminar receta
 """
 
-from __future__ import annotations
 
 from fastapi import APIRouter, Query, status
 

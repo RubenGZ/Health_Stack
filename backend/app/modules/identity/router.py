@@ -19,7 +19,6 @@ NO hace:
 - Acceso directo a BD (está en UserRepository)
 """
 
-from __future__ import annotations
 
 from fastapi import APIRouter, Depends, Request, status
 

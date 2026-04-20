@@ -1,40 +1,10 @@
-# Python artifacts
-__pycache__/
+.venv
+__pycache__
 *.pyc
 *.pyo
-*.pyd
-*.pdb
-
-# Environment files — injected at runtime, never baked into the image
 .env
 .env.*
-
-# Test infrastructure
-tests/
-.pytest_cache/
-.coverage
-htmlcov/
-pytest.ini
-pyproject.toml
-
-# Type-checker / linter caches
-.mypy_cache/
-.ruff_cache/
-
-# Build outputs
-dist/
-build/
-*.egg-info/
-
-# Editor / OS artefacts
-.vscode/
-.idea/
-*.DS_Store
-Thumbs.db
-
-# Git
-.git/
+*.egg-info
+.git
 .gitignore
-
-# Local dev scripts
-start.ps1
+alembic/versions/__pycache__

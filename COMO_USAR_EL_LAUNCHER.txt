@@ -25,16 +25,35 @@
   PASO 1 — CADA VEZ QUE QUIERAS TESTEAR
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
-  1. Abre Docker Desktop
-     (busca el icono de la ballena en la barra de tareas o en
-      el menu inicio y dale doble clic)
-     Espera hasta que ponga "Engine running"
+  IMPORTANTE: Docker Desktop NO es donde se abre el launcher.
+  Docker Desktop solo hace falta para que la base de datos
+  funcione. Es un programa que corre en segundo plano.
 
-  2. Haz DOBLE CLIC en el archivo:
-        TESTS.bat
-     (esta en la carpeta raiz del proyecto, aqui mismo)
+  ┌─────────────────────────────────────────────────────────┐
+  │  1. Abre Docker Desktop (el icono de la ballena)        │
+  │     y espera a que ponga "Engine running"               │
+  │                                                         │
+  │     NO HAGAS NADA MAS EN DOCKER. Solo dejalo abierto.  │
+  └─────────────────────────────────────────────────────────┘
 
-  Se abre una ventana negra con el menu. YA ESTAS DENTRO.
+  ┌─────────────────────────────────────────────────────────┐
+  │  2. Abre el Explorador de Archivos de Windows           │
+  │     y ve a:                                             │
+  │                                                         │
+  │     Escritorio → healthstack-pro                        │
+  │                                                         │
+  │  3. Dentro de esa carpeta busca el archivo:             │
+  │                                                         │
+  │          TESTS.bat                                      │
+  │                                                         │
+  │     y haz DOBLE CLIC en el                              │
+  └─────────────────────────────────────────────────────────┘
+
+  Se abre una ventana negra con el menu del launcher.
+  YA ESTAS DENTRO.
+
+  Resumen: Docker abierto en segundo plano + doble clic en
+  TESTS.bat que esta en la carpeta del proyecto. Eso es todo.
 
 
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
@@ -61,15 +80,15 @@
         PostgreSQL OK   (en verde)
 
   Si pone "PostgreSQL OFF" en rojo:
-     → Pulsa  5  y ENTER para arrancarlo primero
+     → Pulsa  5  y ENTER para arrancarlo
 
   Si pone "PostgreSQL OK":
      → Pulsa  2  y ENTER para correr TODOS los tests
 
   Espera. Al terminar veras:
 
-        TODOS LOS TESTS PASARON     ← todo bien, eres un crack
-        ALGUNOS TESTS FALLARON      ← algo esta roto, a revisar
+        TODOS LOS TESTS PASARON     ← todo bien
+        ALGUNOS TESTS FALLARON      ← algo esta roto
 
 
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
@@ -127,19 +146,26 @@
   RUTINA NORMAL DE CADA DIA
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
-  1. Abre Docker Desktop
-  2. Doble clic en TESTS.bat
-  3. Si PostgreSQL OFF → pulsa 5
-  4. Pulsa 2 para correr todos los tests
-  5. Lees el resultado
-  6. Si algo falla → arreglas el codigo → vuelves al paso 4
+  1. Abre Docker Desktop y espera "Engine running"
+     (Docker va en segundo plano, no hagas nada mas en el)
+  2. Ve al Escritorio → carpeta healthstack-pro
+  3. Doble clic en TESTS.bat
+  4. Si PostgreSQL OFF → pulsa 5
+  5. Pulsa 2 para correr todos los tests
+  6. Lees el resultado
+  7. Si algo falla → arreglas el codigo → vuelves al paso 5
      (o pulsa 3 para solo re-correr los que fallaron)
-  7. Cuando todo este verde → pulsa q para salir
+  8. Cuando todo este verde → pulsa q para salir
 
 
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
   PROBLEMAS COMUNES
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+  PROBLEMA: No encuentro el archivo TESTS.bat
+  SOLUCION: Esta en la carpeta del proyecto en el Escritorio:
+            Escritorio → healthstack-pro → TESTS.bat
+            NO esta dentro de Docker Desktop.
 
   PROBLEMA: Al abrir TESTS.bat dice "No se encontro el entorno virtual"
   SOLUCION: Haz el Paso 0 (instalacion) que no se ha hecho todavia
@@ -155,18 +181,11 @@
   SOLUCION: Abre una terminal normal, ve a la carpeta del proyecto
             y escribe:  python test_launcher.py
 
-  PROBLEMA: Quiero ver los tests de un modulo especifico rapidamente
-  SOLUCION: Abre terminal en la carpeta del proyecto y escribe:
-               python test_launcher.py auth
-               python test_launcher.py health
-               python test_launcher.py nutrition
-               python test_launcher.py failed
-
 
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
   RESUMEN EN UNA LINEA
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
-  Abre Docker  →  doble clic TESTS.bat  →  pulsa 2  →  lees resultado
+  Docker abierto en fondo  →  doble clic TESTS.bat  →  pulsa 2
 
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━

@@ -39,3 +39,6 @@ limits==3.13.0             # Backend de límites (en memoria por defecto, Redis 
 # --- Observabilidad ---
 sentry-sdk[fastapi]==2.8.0
 prometheus-fastapi-instrumentator==7.0.0
+
+# --- Seguridad (CI/CD) ---
+pip-audit==2.7.3             # Escaneo de CVEs en dependencias (usado en GitHub Actions)

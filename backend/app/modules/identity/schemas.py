@@ -57,15 +57,25 @@ class RegisterRequest(BaseModel):
     @classmethod
     def password_strength(cls, v: str) -> str:
         """
-        Validación básica de complejidad.
-        En producción, considerar zxcvbn para evaluación de entropía real.
+        Validación de complejidad OWASP — mínimo aceptable para datos de salud.
+        Requisitos: 8+ chars, 1 mayúscula, 1 minúscula, 1 número, 1 especial.
         """
+        errors = []
         if len(v) < 8:
-            raise ValueError("La contraseña debe tener al menos 8 caracteres.")
-        if v.isdigit():
-            raise ValueError("La contraseña no puede ser solo números.")
-        if v.lower() == v:
-            raise ValueError("La contraseña debe incluir al menos una mayúscula.")
+            errors.append("al menos 8 caracteres")
+        if not any(c.isupper() for c in v):
+            errors.append("al menos una mayúscula (A-Z)")
+        if not any(c.islower() for c in v):
+            errors.append("al menos una minúscula (a-z)")
+        if not any(c.isdigit() for c in v):
+            errors.append("al menos un número (0-9)")
+        if not any(c in r"!@#$%^&*()_+-=[]{}|;':\",./<>?" for c in v):
+            errors.append("al menos un carácter especial (!@#$%...)")
+        if errors:
+            raise ValueError(
+                "La contraseña no cumple los requisitos de seguridad: "
+                + ", ".join(errors) + "."
+            )
         return v
 
     @field_validator("consent_gdpr")
@@ -88,6 +98,16 @@ class LoginRequest(BaseModel):
 
     email: EmailStr
     password: str = Field(..., min_length=1)
+
+
+class RefreshRequest(BaseModel):
+    """Body del endpoint POST /auth/refresh."""
+
+    refresh_token: str = Field(
+        ...,
+        min_length=10,
+        description="JWT refresh token emitido en login o register.",
+    )
 
 
 # ── RESPONSE SCHEMAS ────────────────────────────────────────────────────────────

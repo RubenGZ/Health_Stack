@@ -29,6 +29,7 @@ from app.modules.identity.repository import UserRepository
 from app.modules.identity.schemas import (
     LoginRequest,
     LoginResponse,
+    RefreshRequest,
     RegisterRequest,
     RegisterResponse,
     UserPublicResponse,
@@ -141,8 +142,10 @@ async def me(
         "En producción, implementar rotación con lista de JTIs en Redis."
     ),
 )
+@_get_limiter().limit("10/minute")   # Protección contra refresh token flooding
 async def refresh_token(
-    body: dict,
+    request: Request,
+    body: RefreshRequest,
     db: DBSession,
 ) -> dict:
     """
@@ -153,11 +156,8 @@ async def refresh_token(
     TODO (Fase 2 — Seguridad):
     - Rotar el refresh token en cada uso (invalidar el anterior).
     - Almacenar JTIs válidos en Redis para permitir logout global.
-    - Límite de renovaciones por IP (rate limiting).
     """
-    token = body.get("refresh_token", "")
-    if not token:
-        raise TokenInvalidError("refresh_token es requerido.")
+    token = body.refresh_token
 
     try:
         payload = decode_token(token)

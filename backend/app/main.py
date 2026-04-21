@@ -18,7 +18,7 @@ from __future__ import annotations
 
 import logging
 
-from fastapi import FastAPI, Request, status
+from fastapi import FastAPI, Request, Response, status
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 from slowapi import Limiter, _rate_limit_exceeded_handler
@@ -53,6 +53,41 @@ settings = get_settings()
 # En desarrollo usa memoria local (reinicia con el proceso).
 limiter = Limiter(key_func=get_remote_address, default_limits=["200/minute"])
 
+# ── Sentry PII filter ─────────────────────────────────────────────────────────
+# RGPD Art. 28: Sentry es un subencargado — solo puede recibir metadatos de error,
+# nunca datos personales (email, IPs de usuarios, payloads de salud).
+_SENSITIVE_KEYS = {"email", "password", "health_subject_id", "health_uuid_enc",
+                   "weight_kg", "notes", "user_id", "refresh_token", "access_token"}
+
+def _sentry_before_send(event: dict, hint: dict) -> dict | None:
+    """
+    Filtra PII antes de enviar eventos a Sentry.
+    - Elimina keys sensibles de request bodies y user context
+    - Redacta IPs de usuarios (mantiene solo primer octeto para geolocalización)
+    - Elimina cabeceras Authorization
+    """
+    # Redactar datos del request
+    request = event.get("request", {})
+    if "data" in request and isinstance(request["data"], dict):
+        request["data"] = {
+            k: "[FILTERED]" if k in _SENSITIVE_KEYS else v
+            for k, v in request["data"].items()
+        }
+    # Eliminar cabecera Authorization (contiene JWT)
+    headers = request.get("headers", {})
+    if "Authorization" in headers:
+        headers["Authorization"] = "[FILTERED]"
+    if "authorization" in headers:
+        headers["authorization"] = "[FILTERED]"
+
+    # Redactar IP — mantener solo primer octeto para geolocalización (RGPD Art. 4)
+    if "user" in event and "ip_address" in event["user"]:
+        ip = event["user"]["ip_address"]
+        event["user"]["ip_address"] = ip.split(".")[0] + ".x.x.x" if "." in ip else "[FILTERED]"
+
+    return event
+
+
 # ── Sentry (opcional) ─────────────────────────────────────────────────────────
 if settings.sentry_dsn:
     try:
@@ -67,10 +102,10 @@ if settings.sentry_dsn:
                 FastApiIntegration(transaction_style="endpoint"),
                 SqlalchemyIntegration(),
             ],
-            # NUNCA enviar datos de salud a Sentry — solo metadata de errores
-            before_send=lambda event, hint: event,
+            before_send=_sentry_before_send,  # Filtra PII — RGPD Art. 28
+            send_default_pii=False,           # Nunca enviar PII por defecto
         )
-        logger.info("Sentry inicializado correctamente.")
+        logger.info("Sentry inicializado con filtro PII activo.")
     except ImportError:
         logger.warning("sentry-sdk no está instalado. Monitorización desactivada.")
 
@@ -89,19 +124,25 @@ app = FastAPI(
 )
 
 # ── CORS ──────────────────────────────────────────────────────────────────────
-# En producción, sustituir por los dominios reales del frontend
-_ALLOWED_ORIGINS = (
-    [
-        "http://localhost:5173",   # Vite dev server
-        "http://localhost:3000",   # CRA / Next.js dev
-        "http://127.0.0.1:5173",
-    ]
-    if settings.app_env == "development"
-    else [
-        # Añadir aquí el dominio de producción cuando se despliegue
-        # Ejemplo: "https://healthstack.app"
-    ]
-)
+_DEV_ORIGINS = [
+    "http://localhost:5173",   # Vite dev server
+    "http://localhost:3000",   # Frontend dev
+    "http://127.0.0.1:5173",
+]
+
+# En producción, ALLOWED_ORIGINS se lee del entorno para no hardcodear dominios en código.
+# Formato: "https://healthstack.app,https://www.healthstack.app"
+_PROD_ORIGINS_RAW = getattr(settings, "allowed_origins", "") or ""
+_PROD_ORIGINS = [o.strip() for o in _PROD_ORIGINS_RAW.split(",") if o.strip()]
+
+_ALLOWED_ORIGINS = _DEV_ORIGINS if settings.app_env == "development" else _PROD_ORIGINS
+
+if settings.app_env != "development" and not _ALLOWED_ORIGINS:
+    logger.warning(
+        "CORS: ALLOWED_ORIGINS no configurado en producción. "
+        "Todas las peticiones cross-origin serán bloqueadas. "
+        "Configura la variable de entorno ALLOWED_ORIGINS."
+    )
 
 app.add_middleware(
     CORSMiddleware,
@@ -111,10 +152,33 @@ app.add_middleware(
     allow_headers=["Authorization", "Content-Type", "Accept"],
 )
 
-# Rate limiting middleware + handler de 429
+# ── Security Headers Middleware ───────────────────────────────────────────────
+# OWASP A05: Security Misconfiguration — headers defensivos en toda respuesta
+@app.middleware("http")
+async def add_security_headers(request: Request, call_next) -> Response:
+    response = await call_next(request)
+    response.headers["X-Content-Type-Options"] = "nosniff"
+    response.headers["X-Frame-Options"] = "DENY"
+    response.headers["X-XSS-Protection"] = "1; mode=block"
+    response.headers["Referrer-Policy"] = "strict-origin-when-cross-origin"
+    response.headers["Permissions-Policy"] = "camera=(), microphone=(), geolocation=()"
+    # HSTS solo en producción (HTTPS obligatorio)
+    if settings.app_env != "development":
+        response.headers["Strict-Transport-Security"] = "max-age=63072000; includeSubDomains; preload"
+    return response
+
+# ── Rate limiting middleware + handler de 429 ─────────────────────────────────
 app.state.limiter = limiter
 app.add_exception_handler(RateLimitExceeded, _rate_limit_exceeded_handler)
 app.add_middleware(SlowAPIMiddleware)
+
+# ── Prometheus metrics ────────────────────────────────────────────────────────
+try:
+    from prometheus_fastapi_instrumentator import Instrumentator
+    Instrumentator().instrument(app).expose(app, endpoint="/metrics")
+    logger.info("Prometheus metrics expuestos en /metrics")
+except ImportError:
+    logger.warning("prometheus-fastapi-instrumentator no instalado. Métricas desactivadas.")
 
 
 # ── Exception Handlers ────────────────────────────────────────────────────────

@@ -57,6 +57,11 @@ class Settings(BaseSettings):
     # ── Redis ─────────────────────────────────────────────────
     redis_url: str = "redis://localhost:6379/0"
 
+    # ── CORS (producción) ─────────────────────────────────────
+    # Formato CSV: "https://healthstack.app,https://www.healthstack.app"
+    # Vacío en dev (se usan localhost origins hardcodeados en main.py)
+    allowed_origins: str = ""
+
     # ── Sentry ────────────────────────────────────────────────
     sentry_dsn: str = ""  # Vacío → Sentry desactivado
 

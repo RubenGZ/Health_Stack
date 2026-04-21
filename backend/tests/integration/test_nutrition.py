@@ -76,3 +76,85 @@ class TestNutrition:
 
         resp = await client.post("/api/v1/nutrition/recipes", json=payload)
         assert resp.status_code in (200, 201), resp.text
+
+    async def test_claim_requires_auth(self, client):
+        """Sin Bearer token → 401."""
+        resp = await client.post(
+            "/api/v1/nutrition/recipes/claim",
+            json={"user_local_id": str(uuid.uuid4())},
+        )
+        assert resp.status_code == 401
+
+    async def test_claim_no_anon_recipes_returns_zero(
+        self, client, registered_user, auth_headers
+    ):
+        """Reclamar un local_id sin recetas → claimed=0, no es error."""
+        resp = await client.post(
+            "/api/v1/nutrition/recipes/claim",
+            json={"user_local_id": str(uuid.uuid4())},
+            headers=auth_headers,
+        )
+        assert resp.status_code == 200
+        assert resp.json()["claimed"] == 0
+
+    async def test_claim_links_anon_recipes_to_user(
+        self, client, seed_ingredients, registered_user, auth_headers
+    ):
+        """Recetas anónimas quedan vinculadas al usuario autenticado tras /claim."""
+        local_id = str(uuid.uuid4())
+
+        # Obtener ingrediente válido
+        ingredients = (await client.get("/api/v1/nutrition/ingredients")).json()
+        assert ingredients, "seed_ingredients debe haber insertado datos"
+        ing = ingredients[0]
+
+        # Crear 2 recetas anónimas con ese local_id
+        for i in range(2):
+            await client.post("/api/v1/nutrition/recipes", json={
+                "user_local_id": local_id,
+                "name": f"Receta anónima {i}",
+                "category": "almuerzo",
+                "ingredients": [
+                    {"ingredient_id": ing["id"], "name": ing["name"], "grams": 100.0}
+                ],
+            })
+
+        # Reclamar
+        resp = await client.post(
+            "/api/v1/nutrition/recipes/claim",
+            json={"user_local_id": local_id},
+            headers=auth_headers,
+        )
+        assert resp.status_code == 200
+        assert resp.json()["claimed"] == 2
+
+    async def test_claim_idempotent(
+        self, client, seed_ingredients, registered_user, auth_headers
+    ):
+        """Reclamar dos veces el mismo local_id → segunda vez claimed=0 (ya vinculadas)."""
+        local_id = str(uuid.uuid4())
+        ingredients = (await client.get("/api/v1/nutrition/ingredients")).json()
+        ing = ingredients[0]
+
+        await client.post("/api/v1/nutrition/recipes", json={
+            "user_local_id": local_id,
+            "name": "Receta para reclamar",
+            "category": "almuerzo",
+            "ingredients": [
+                {"ingredient_id": ing["id"], "name": ing["name"], "grams": 150.0}
+            ],
+        })
+
+        headers = auth_headers
+        resp1 = await client.post(
+            "/api/v1/nutrition/recipes/claim",
+            json={"user_local_id": local_id},
+            headers=headers,
+        )
+        resp2 = await client.post(
+            "/api/v1/nutrition/recipes/claim",
+            json={"user_local_id": local_id},
+            headers=headers,
+        )
+        assert resp1.json()["claimed"] == 1
+        assert resp2.json()["claimed"] == 0  # Ya vinculada, no hay nada que reclamar

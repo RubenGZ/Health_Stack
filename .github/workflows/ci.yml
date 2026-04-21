@@ -60,6 +60,9 @@ jobs:
           JWT_PUBLIC_KEY_PEM=${{ secrets.JWT_PUBLIC_KEY_PEM || '-----BEGIN PUBLIC KEY-----\ntest_placeholder\n-----END PUBLIC KEY-----' }}
           EOF
 
+      - name: Lint with ruff
+        run: python -m ruff check app/ --output-format=github
+
       - name: Run tests
         env:
           PYTHONIOENCODING: utf-8

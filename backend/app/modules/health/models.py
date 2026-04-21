@@ -20,11 +20,11 @@ REGLA FUNDAMENTAL:
 
 from __future__ import annotations
 
-import uuid
-from datetime import date, datetime
+from datetime import date
 from decimal import Decimal
+import uuid
 
-from sqlalchemy import Date, DateTime, Integer, Numeric, String, Text
+from sqlalchemy import Date, Integer, Numeric, Text
 from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.orm import Mapped, mapped_column
 

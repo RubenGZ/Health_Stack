@@ -13,8 +13,8 @@ PRINCIPIO DE AISLAMIENTO DE IDENTIDAD:
 
 from __future__ import annotations
 
-import uuid
 from datetime import date
+import uuid
 
 from sqlalchemy import and_, func, select
 from sqlalchemy.ext.asyncio import AsyncSession

@@ -20,7 +20,7 @@ NO hace:
 """
 
 
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 
 from fastapi import APIRouter, Depends, Request, status
 
@@ -206,7 +206,7 @@ async def refresh_token(
         db=db,
         jti=new_rt_payload["jti"],
         user_id=str(user.id),
-        expires_at=datetime.fromtimestamp(new_rt_payload["exp"], tz=timezone.utc),
+        expires_at=datetime.fromtimestamp(new_rt_payload["exp"], tz=UTC),
     )
 
     return {

@@ -18,9 +18,9 @@ Tipos de token:
 
 from __future__ import annotations
 
-import uuid
-from datetime import datetime, timedelta, timezone
+from datetime import UTC, datetime, timedelta
 from typing import Any
+import uuid
 
 from jose import ExpiredSignatureError, JWTError, jwt
 
@@ -32,7 +32,7 @@ _settings = get_settings()
 
 def _utc_now() -> datetime:
     """Retorna el timestamp UTC actual. Centralizado para facilitar mocking en tests."""
-    return datetime.now(timezone.utc)
+    return datetime.now(UTC)
 
 
 def create_access_token(

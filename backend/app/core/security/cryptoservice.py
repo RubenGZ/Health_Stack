@@ -55,11 +55,11 @@ FORMATO DE ALMACENAMIENTO
 
 from __future__ import annotations
 
+from dataclasses import dataclass
 import logging
 import os
-import uuid
-from dataclasses import dataclass
 from typing import TYPE_CHECKING
+import uuid
 
 from cryptography.exceptions import InvalidTag
 from cryptography.hazmat.primitives.ciphers.aead import AESGCM
@@ -124,7 +124,7 @@ class EncryptedPayload:
         ])
 
     @classmethod
-    def deserialize(cls, payload_str: str) -> "EncryptedPayload":
+    def deserialize(cls, payload_str: str) -> EncryptedPayload:
         """
         Deserializa desde la BD.
         Valida el número de componentes antes de hacer fromhex()
@@ -363,7 +363,7 @@ class CryptoService:
     async def resolve_health_subject_id(
         self,
         user_id: str,
-        db: "AsyncSession",
+        db: AsyncSession,
     ) -> str:
         """
         API de alto nivel: dado un user_id, devuelve el health_subject_id.
@@ -396,8 +396,8 @@ class CryptoService:
                 "¿El registro se interrumpió antes de crear la llave de cruce?"
             )
             raise HealthLinkNotFoundError(
-                f"El usuario no tiene una llave de cruce registrada. "
-                f"El registro puede estar incompleto."
+                "El usuario no tiene una llave de cruce registrada. "
+                "El registro puede estar incompleto."
             )
 
         return self.decrypt_health_link(link.health_uuid_enc)
@@ -405,7 +405,7 @@ class CryptoService:
     async def create_health_link_for_user(
         self,
         user_id: str,
-        db: "AsyncSession",
+        db: AsyncSession,
     ) -> str:
         """
         Crea la llave de cruce durante el registro del usuario.
@@ -449,6 +449,7 @@ class CryptoService:
 # ── SINGLETON ─────────────────────────────────────────────────────────────────
 
 from functools import lru_cache as _lru_cache
+
 
 @_lru_cache(maxsize=1)
 def get_crypto_service() -> CryptoService:

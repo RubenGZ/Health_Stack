@@ -1,0 +1,73 @@
+# ============================================================
+# HealthStack Pro V2 — Configuración de herramientas Python
+# ============================================================
+
+[tool.ruff]
+target-version = "py311"
+line-length = 100
+
+[tool.ruff.lint]
+# E/W = pycodestyle, F = pyflakes, I = isort, N = pep8-naming,
+# UP = pyupgrade, B = bugbear, S = bandit-lite, ANN = annotations
+select = ["E", "W", "F", "I", "N", "UP", "B"]
+ignore = [
+    "E501",    # Líneas largas (controladas por el formatter)
+    "E402",    # Module-level import not at top of file — hay imports tardíos intencionales
+               # (singleton en cryptoservice.py, routers en main.py, evitar circular imports)
+    "B008",    # No llames funciones como default arg (FastAPI Depends usa este patrón)
+    "B904",    # raise ... from err — los servicios lanzan excepciones de dominio propias,
+               # no re-envuelven las originales para no exponer detalles internos al cliente
+    "N805",    # First argument of a method should be named `self` (Pydantic validators usan `cls`)
+    "UP007",   # Use `X | Y` para union types (incompatible con Python 3.9 si lo añadimos)
+]
+
+[tool.ruff.lint.per-file-ignores]
+"tests/**/*.py" = [
+    "S101",    # assert está OK en tests
+    "ANN",     # No necesitamos type annotations en fixtures
+]
+"alembic/**/*.py" = [
+    "N999",    # Los nombres de revisión Alembic no son PEP8
+    "F401",    # Imports unused en env.py de Alembic
+]
+
+[tool.ruff.lint.isort]
+known-first-party = ["app"]
+force-sort-within-sections = true
+
+[tool.ruff.format]
+quote-style = "double"
+indent-style = "space"
+line-ending = "lf"
+
+
+# ── mypy ────────────────────────────────────────────────────────────────────
+
+[tool.mypy]
+python_version = "3.11"
+# No strict — demasiado ruido con librerías sin stubs (SQLAlchemy, FastAPI, etc.)
+strict = false
+warn_return_any = false
+warn_unused_ignores = true
+warn_redundant_casts = true
+ignore_missing_imports = true    # SQLAlchemy 2.0, asyncpg y otros carecen de stubs completos
+no_implicit_optional = true
+check_untyped_defs = true
+
+# Excluir migraciones Alembic (código auto-generado) y tests de type checking
+exclude = [
+    "alembic/",
+    "tests/",
+]
+
+[[tool.mypy.overrides]]
+# Módulos sin stubs — silenciar
+module = [
+    "jose.*",
+    "argon2.*",
+    "slowapi.*",
+    "limits.*",
+    "sentry_sdk.*",
+    "prometheus_fastapi_instrumentator.*",
+]
+ignore_missing_imports = true

@@ -10,7 +10,6 @@ con el código de estado correcto, manteniendo los routers limpios.
 
 from __future__ import annotations
 
-
 # ── BASE ──────────────────────────────────────────────────────────────────────
 
 class HealthStackError(Exception):

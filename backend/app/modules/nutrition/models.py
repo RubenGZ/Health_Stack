@@ -20,12 +20,11 @@ from __future__ import annotations
 
 import uuid
 
-from sqlalchemy import Boolean, Float, ForeignKey, Integer, JSON, String, Text
+from sqlalchemy import JSON, Boolean, Float, ForeignKey, Integer, String, Text
 from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.orm import Mapped, mapped_column
 
 from app.shared.base_model import Base, TimestampMixin
-
 
 # ── Supplement ────────────────────────────────────────────────────────────────
 

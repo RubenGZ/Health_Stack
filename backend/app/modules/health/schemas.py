@@ -22,7 +22,6 @@ from uuid import UUID
 
 from pydantic import BaseModel, ConfigDict, Field
 
-
 # ── REQUEST SCHEMAS ────────────────────────────────────────────────────────────
 
 class HealthRecordCreate(BaseModel):

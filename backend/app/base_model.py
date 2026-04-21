@@ -11,8 +11,8 @@ Proporciona:
 
 from __future__ import annotations
 
+from datetime import datetime
 import uuid
-from datetime import datetime, timezone
 
 from sqlalchemy import DateTime, func
 from sqlalchemy.dialects.postgresql import UUID

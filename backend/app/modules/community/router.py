@@ -12,7 +12,7 @@ Endpoints:
 """
 
 
-from typing import Annotated, Optional
+from typing import Annotated
 
 from fastapi import APIRouter, Depends, Query, status
 from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer

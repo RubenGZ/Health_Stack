@@ -11,7 +11,7 @@ Endpoints:
 """
 
 
-from fastapi import APIRouter, status
+from fastapi import APIRouter
 
 from app.core.security.dependencies import CurrentUser
 from app.modules.gamification.schemas import ActionRequest, GamificationStateResponse

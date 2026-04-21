@@ -19,7 +19,6 @@ from uuid import UUID
 
 from pydantic import BaseModel, EmailStr, Field, field_validator
 
-
 # ── REQUEST SCHEMAS ────────────────────────────────────────────────────────────
 
 class RegisterRequest(BaseModel):

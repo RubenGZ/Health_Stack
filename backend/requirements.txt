@@ -42,3 +42,7 @@ prometheus-fastapi-instrumentator==7.0.0
 
 # --- Seguridad (CI/CD) ---
 pip-audit==2.7.3             # Escaneo de CVEs en dependencias (usado en GitHub Actions)
+
+# --- Calidad de código ---
+ruff==0.4.7                  # Linter + formatter ultrarrápido (reemplaza flake8/black/isort)
+mypy==1.10.0                 # Type checker estático

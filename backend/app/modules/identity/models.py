@@ -20,10 +20,10 @@ RELACIÓN ENTRE TABLAS:
 
 from __future__ import annotations
 
+from datetime import UTC, datetime
 import uuid
-from datetime import datetime
 
-from sqlalchemy import Boolean, DateTime, Enum, ForeignKey, String, Text, func
+from sqlalchemy import Boolean, DateTime, ForeignKey, String, Text
 from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
@@ -90,8 +90,7 @@ class RefreshToken(UUIDPrimaryKeyMixin, TimestampMixin, Base):
     @property
     def is_valid(self) -> bool:
         """True si el token no está revocado y no ha expirado."""
-        from datetime import timezone
-        return self.revoked_at is None and self.expires_at > datetime.now(timezone.utc)
+        return self.revoked_at is None and self.expires_at > datetime.now(UTC)
 
     def __repr__(self) -> str:
         status = "revoked" if self.revoked_at else "active"
@@ -185,7 +184,7 @@ class User(UUIDPrimaryKeyMixin, TimestampMixin, Base):
 
     # Relación 1:1 con la tabla de llave de cruce
     # uselist=False → devuelve objeto único, no lista
-    data_link: Mapped["DataLink | None"] = relationship(
+    data_link: Mapped[DataLink | None] = relationship(
         "DataLink",
         back_populates="user",
         uselist=False,
@@ -266,7 +265,7 @@ class DataLink(UUIDPrimaryKeyMixin, TimestampMixin, Base):
 
     # ── Relación ──────────────────────────────────────────────────────────────
 
-    user: Mapped["User"] = relationship(
+    user: Mapped[User] = relationship(
         "User",
         back_populates="data_link",
     )

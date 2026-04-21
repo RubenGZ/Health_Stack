@@ -11,11 +11,11 @@ from __future__ import annotations
 
 import uuid
 
-from sqlalchemy import select, update as sa_update
+from sqlalchemy import select
+from sqlalchemy import update as sa_update
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.modules.nutrition.models import Ingredient, Supplement, UserRecipe
-
 
 # ── Supplement Repository ─────────────────────────────────────────────────────
 

@@ -18,7 +18,7 @@ from __future__ import annotations
 import binascii
 from functools import lru_cache
 
-from pydantic import field_validator, PostgresDsn, RedisDsn
+from pydantic import field_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 

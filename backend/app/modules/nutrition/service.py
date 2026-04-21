@@ -29,7 +29,6 @@ from app.modules.nutrition.schemas import (
 )
 from app.shared.exceptions import ValidationError
 
-
 # Mapa numérico para calcular el índice inflamatorio ponderado
 _INFLAMMATION_SCORE: dict[str, int] = {"low": 1, "medium": 2, "high": 3}
 _INFLAMMATION_LABEL: dict[float, str] = {}  # calculado dinámicamente

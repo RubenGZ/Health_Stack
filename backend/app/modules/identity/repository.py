@@ -21,14 +21,13 @@ Separación de schemas PostgreSQL:
 
 from __future__ import annotations
 
+from datetime import UTC, datetime
 import uuid
-from datetime import datetime, timezone
 
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.modules.identity.models import DataLink, RefreshToken, User
-
 
 # ── USER REPOSITORY ───────────────────────────────────────────────────────────
 
@@ -60,7 +59,7 @@ class UserRepository:
             password_hash=password_hash,
             display_name=display_name,
             consent_gdpr=consent_gdpr,
-            consent_date=datetime.now(timezone.utc) if consent_gdpr else None,
+            consent_date=datetime.now(UTC) if consent_gdpr else None,
         )
         db.add(user)
         # flush → ejecuta el INSERT y rellena user.id sin hacer commit
@@ -94,7 +93,7 @@ class UserRepository:
         )
         user = result.scalar_one_or_none()
         if user:
-            user.last_login_at = datetime.now(timezone.utc)
+            user.last_login_at = datetime.now(UTC)
             await db.flush()
 
     @staticmethod
@@ -189,7 +188,7 @@ class DataLinkRepository:
         link = result.scalar_one_or_none()
         if link:
             link.health_uuid_enc = new_health_uuid_enc
-            link.rotated_at = datetime.now(timezone.utc)
+            link.rotated_at = datetime.now(UTC)
             await db.flush()
 
 
@@ -236,7 +235,7 @@ class RefreshTokenRepository:
         token = result.scalar_one_or_none()
         if token is None:
             return False
-        token.revoked_at = datetime.now(timezone.utc)
+        token.revoked_at = datetime.now(UTC)
         await db.flush()
         return True
 
@@ -252,7 +251,7 @@ class RefreshTokenRepository:
         result = await db.execute(
             sa_update(RefreshToken)
             .where(RefreshToken.user_id == uid, RefreshToken.revoked_at.is_(None))
-            .values(revoked_at=datetime.now(timezone.utc))
+            .values(revoked_at=datetime.now(UTC))
         )
         await db.flush()
         return result.rowcount

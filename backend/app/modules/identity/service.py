@@ -21,12 +21,11 @@ IMPORTANTE — Timing attack en login:
 
 from __future__ import annotations
 
+from datetime import UTC
 import logging
 
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.ext.asyncio import AsyncSession
-
-from datetime import timezone
 
 from app.core.security.cryptoservice import CryptoService
 from app.core.security.hashing import hash_password, needs_rehash, verify_password
@@ -142,7 +141,7 @@ class IdentityService:
             db=db,
             jti=_rt_payload["jti"],
             user_id=str(user.id),
-            expires_at=datetime.fromtimestamp(_rt_payload["exp"], tz=timezone.utc),
+            expires_at=datetime.fromtimestamp(_rt_payload["exp"], tz=UTC),
         )
 
         # 6. Construir respuesta
@@ -229,7 +228,7 @@ class IdentityService:
             db=db,
             jti=_rt_payload["jti"],
             user_id=str(user.id),
-            expires_at=datetime.fromtimestamp(_rt_payload["exp"], tz=timezone.utc),
+            expires_at=datetime.fromtimestamp(_rt_payload["exp"], tz=UTC),
         )
 
         logger.info(f"Login exitoso: user={str(user.id)[:8]}...")

@@ -23,7 +23,7 @@ from __future__ import annotations
 import uuid
 from datetime import datetime
 
-from sqlalchemy import Boolean, DateTime, Enum, String, Text, func
+from sqlalchemy import Boolean, DateTime, Enum, ForeignKey, String, Text, func
 from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
@@ -169,6 +169,7 @@ class DataLink(UUIDPrimaryKeyMixin, TimestampMixin, Base):
     # FK al usuario propietario de esta llave
     user_id: Mapped[uuid.UUID] = mapped_column(
         UUID(as_uuid=True),
+        ForeignKey("public.users.id", ondelete="CASCADE"),
         nullable=False,
         unique=True,   # UNIQUE: cada usuario tiene exactamente una llave de cruce
         index=True,

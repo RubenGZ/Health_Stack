@@ -1,0 +1,172 @@
+╔══════════════════════════════════════════════════════════════╗
+║         COMO USAR EL LAUNCHER DE TESTS - GUIA SIMPLE        ║
+╚══════════════════════════════════════════════════════════════╝
+
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  PASO 0 — SOLO LA PRIMERA VEZ (instalacion)
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+  1. Abre una terminal dentro de la carpeta "backend"
+     (clic derecho en la carpeta backend → "Abrir en terminal")
+
+  2. Escribe esto y pulsa ENTER:
+        python -m venv .venv
+
+  3. Luego esto y pulsa ENTER:
+        .venv\Scripts\pip install -r requirements.txt
+
+  4. Espera a que termine (puede tardar un par de minutos)
+
+  YA ESTA. Esto no vuelve a hacerse nunca mas.
+
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  PASO 1 — CADA VEZ QUE QUIERAS TESTEAR
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+  1. Abre Docker Desktop
+     (busca el icono de la ballena en la barra de tareas o en
+      el menu inicio y dale doble clic)
+     Espera hasta que ponga "Engine running"
+
+  2. Haz DOBLE CLIC en el archivo:
+        TESTS.bat
+     (esta en la carpeta raiz del proyecto, aqui mismo)
+
+  Se abre una ventana negra con el menu. YA ESTAS DENTRO.
+
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  PASO 2 — PRIMERA VEZ QUE ABRES EL LAUNCHER
+         (solo hay que hacer esto una vez despues del setup)
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+  Cuando el launcher este abierto, haz esto EN ORDEN:
+
+  a) Pulsa  5  y ENTER  → arranca la base de datos
+     Espera a que diga "PostgreSQL listo"
+
+  b) Pulsa  8  y ENTER  → crea la base de datos de test
+     Espera a que diga "BD healthstack_test creada"
+
+  YA ESTA. La proxima vez puedes saltar directo al Paso 3.
+
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  PASO 3 — CORRER LOS TESTS (lo que haras siempre)
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+  Mira arriba del menu. Tiene que poner:
+        PostgreSQL OK   (en verde)
+
+  Si pone "PostgreSQL OFF" en rojo:
+     → Pulsa  5  y ENTER para arrancarlo primero
+
+  Si pone "PostgreSQL OK":
+     → Pulsa  2  y ENTER para correr TODOS los tests
+
+  Espera. Al terminar veras:
+
+        TODOS LOS TESTS PASARON     ← todo bien, eres un crack
+        ALGUNOS TESTS FALLARON      ← algo esta roto, a revisar
+
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  LO QUE HACE CADA OPCION DEL MENU
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+  [1]  Elegir un modulo concreto
+       → Te pregunta cual quieres: auth, health, rutinas, etc.
+       → Util cuando solo tocaste una parte del codigo
+
+  [2]  Correr TODOS los tests
+       → El que mas usaras. Lo prueba todo de golpe.
+
+  [3]  Re-correr solo los que fallaron
+       → El launcher recuerda cuales fallaron la ultima vez
+       → Muy util despues de arreglar un bug
+
+  [4]  Buscar test por nombre
+       → Escribe una palabra y corre solo los tests que la contengan
+       → Ejemplos: "login", "health", "xp", "like", "jwt"
+
+  ── SERVICIOS ──────────────────────────────────
+
+  [5]  Arrancar la base de datos (PostgreSQL via Docker)
+       → Necesario antes de testear
+
+  [6]  Arrancar la API en modo desarrollo
+       → Abre el servidor en http://localhost:8000
+       → Para detenerla: Ctrl+C
+
+  [7]  Abrir la documentacion de la API en el navegador
+       → Abre Swagger UI (necesita la API corriendo primero)
+
+  ── CONFIGURACION (solo se usan una vez) ───────
+
+  [8]  Crear la base de datos de test
+       → Solo se hace una vez. Crea "healthstack_test" en Postgres.
+
+  [9]  Aplicar migraciones
+       → Crea/actualiza las tablas de la BD principal
+
+  [0]  Rellenar con datos de ejemplo (seed)
+       → Mete ingredientes y suplementos de prueba
+
+  ── EXTRA ──────────────────────────────────────
+
+  [s]  Estado del sistema
+       → Muestra si la BD esta OK, si la API esta OK,
+         que version de Python hay, y si algo fallo antes
+
+  [q]  Salir
+
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  RUTINA NORMAL DE CADA DIA
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+  1. Abre Docker Desktop
+  2. Doble clic en TESTS.bat
+  3. Si PostgreSQL OFF → pulsa 5
+  4. Pulsa 2 para correr todos los tests
+  5. Lees el resultado
+  6. Si algo falla → arreglas el codigo → vuelves al paso 4
+     (o pulsa 3 para solo re-correr los que fallaron)
+  7. Cuando todo este verde → pulsa q para salir
+
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  PROBLEMAS COMUNES
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+  PROBLEMA: Al abrir TESTS.bat dice "No se encontro el entorno virtual"
+  SOLUCION: Haz el Paso 0 (instalacion) que no se ha hecho todavia
+
+  PROBLEMA: Pone "PostgreSQL OFF" y al pulsar 5 da error
+  SOLUCION: Abre Docker Desktop primero y espera a que diga
+            "Engine running". Luego vuelve a pulsar 5.
+
+  PROBLEMA: Los tests fallan con errores de "connection refused"
+  SOLUCION: PostgreSQL no esta corriendo. Pulsa 5.
+
+  PROBLEMA: La ventana se cierra sola antes de ver el resultado
+  SOLUCION: Abre una terminal normal, ve a la carpeta del proyecto
+            y escribe:  python test_launcher.py
+
+  PROBLEMA: Quiero ver los tests de un modulo especifico rapidamente
+  SOLUCION: Abre terminal en la carpeta del proyecto y escribe:
+               python test_launcher.py auth
+               python test_launcher.py health
+               python test_launcher.py nutrition
+               python test_launcher.py failed
+
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  RESUMEN EN UNA LINEA
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+  Abre Docker  →  doble clic TESTS.bat  →  pulsa 2  →  lees resultado
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━

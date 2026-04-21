@@ -6,13 +6,18 @@ Pydantic v2 schemas para el módulo de gamificación.
 
 from __future__ import annotations
 
+from typing import Literal
+
 from pydantic import BaseModel, ConfigDict, Field
+
+# Acciones válidas — cambiar aquí si se añaden nuevas
+ValidAction = Literal["weight", "tdee", "routine", "post", "recipe", "streak"]
 
 
 class ActionRequest(BaseModel):
     """Body del endpoint POST /api/v1/gamification/action."""
 
-    action: str = Field(
+    action: ValidAction = Field(
         ...,
         description="Tipo de acción: 'weight' | 'tdee' | 'routine' | 'post' | 'recipe' | 'streak'",
     )

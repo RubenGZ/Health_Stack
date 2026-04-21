@@ -283,7 +283,7 @@ class CryptoService:
         ciphertext_with_tag = self._aesgcm.encrypt(
             nonce=nonce,
             data=plaintext,
-            aad=_AAD_CONTEXT,  # AAD protege la integridad del contexto
+            associated_data=_AAD_CONTEXT,  # AAD protege la integridad del contexto
         )
 
         # 3. Separar: ciphertext = todo excepto últimos 16 bytes; tag = últimos 16 bytes
@@ -340,7 +340,7 @@ class CryptoService:
             plaintext_bytes = self._aesgcm.decrypt(
                 nonce=payload.nonce,
                 data=payload.ciphertext + payload.auth_tag,  # Reconstituir formato GCM
-                aad=_AAD_CONTEXT,  # Debe coincidir exactamente con el usado en encrypt
+                associated_data=_AAD_CONTEXT,  # Debe coincidir exactamente con el usado en encrypt
             )
         except InvalidTag:
             # InvalidTag → el ciphertext, nonce o AAD fueron modificados después del cifrado

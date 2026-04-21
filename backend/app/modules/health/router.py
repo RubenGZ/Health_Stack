@@ -60,6 +60,26 @@ async def list_records(
     )
 
 
+@router.get(
+    "/records/{record_id}",
+    response_model=HealthRecordResponse,
+    summary="Obtener registro biométrico por ID",
+    description="Devuelve un registro específico del usuario autenticado. 404 si no existe o no pertenece al usuario.",
+)
+async def get_record(
+    record_id: str,
+    db: DBSession,
+    current_user: CurrentUser,
+    crypto: CryptoDep,
+):
+    return await HealthService.get_record(
+        db=db,
+        user_id=current_user["user_id"],
+        record_id=record_id,
+        crypto=crypto,
+    )
+
+
 @router.post(
     "/records",
     response_model=HealthRecordResponse,

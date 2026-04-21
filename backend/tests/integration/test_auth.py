@@ -10,8 +10,8 @@ import pytest
 REGISTER_PAYLOAD = {
     "email": "integration@healthstack.com",
     "password": "SecurePass123!",
-    "full_name": "Integration User",
-    "gdpr_consent": True,
+    "display_name": "Integration User",
+    "consent_gdpr": True,
 }
 
 
@@ -32,7 +32,7 @@ class TestRegister:
         assert resp.status_code == 409
 
     async def test_register_without_gdpr_fails(self, client):
-        payload = {**REGISTER_PAYLOAD, "gdpr_consent": False, "email": "other@test.com"}
+        payload = {**REGISTER_PAYLOAD, "consent_gdpr": False, "email": "other@test.com"}
         resp = await client.post("/api/v1/auth/register", json=payload)
         assert resp.status_code == 422
 

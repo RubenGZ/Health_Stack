@@ -87,7 +87,7 @@ def _decrypt_notes(payload_str: str) -> str:
         plaintext_bytes = aesgcm.decrypt(
             nonce=nonce,
             data=ciphertext + auth_tag,
-            aad=_NOTES_AAD,
+            associated_data=_NOTES_AAD,
         )
     except InvalidTag:
         logger.error("DecryptionIntegrityError en notas de salud — posible manipulación.")
@@ -207,6 +207,25 @@ class HealthService:
         )
 
         return _record_to_response(record, notes_plaintext=data.notes)
+
+    # ── GET SINGLE ────────────────────────────────────────────────────────────
+
+    @staticmethod
+    async def get_record(
+        db: AsyncSession,
+        user_id: str,
+        record_id: str,
+        crypto: CryptoService,
+    ) -> HealthRecordResponse:
+        """Obtiene un registro biométrico por ID. Lanza 404 si no es del usuario."""
+        subject_id = await crypto.resolve_health_subject_id(user_id, db)
+        record = await HealthRepository.get_by_id(db, record_id, subject_id)
+        if record is None:
+            raise HealthRecordNotFoundError(
+                f"No se encontró el registro con ID {record_id}."
+            )
+        notes = _decrypt_record_notes(record)
+        return _record_to_response(record, notes_plaintext=notes)
 
     # ── UPDATE ────────────────────────────────────────────────────────────────
 

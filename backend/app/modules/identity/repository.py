@@ -27,7 +27,7 @@ from datetime import datetime, timezone
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.modules.identity.models import DataLink, User
+from app.modules.identity.models import DataLink, RefreshToken, User
 
 
 # ── USER REPOSITORY ───────────────────────────────────────────────────────────
@@ -191,3 +191,68 @@ class DataLinkRepository:
             link.health_uuid_enc = new_health_uuid_enc
             link.rotated_at = datetime.now(timezone.utc)
             await db.flush()
+
+
+# ── REFRESH TOKEN REPOSITORY ──────────────────────────────────────────────────
+
+class RefreshTokenRepository:
+    """
+    Operaciones sobre la tabla `public.refresh_tokens`.
+    Permite rotación de tokens y logout global sin Redis.
+    """
+
+    @staticmethod
+    async def create(
+        db: AsyncSession,
+        *,
+        jti: str,
+        user_id: str | uuid.UUID,
+        expires_at: datetime,
+    ) -> RefreshToken:
+        """Registra un nuevo JTI como activo."""
+        uid = uuid.UUID(str(user_id)) if isinstance(user_id, str) else user_id
+        token = RefreshToken(jti=jti, user_id=uid, expires_at=expires_at)
+        db.add(token)
+        await db.flush()
+        return token
+
+    @staticmethod
+    async def get_by_jti(db: AsyncSession, jti: str) -> RefreshToken | None:
+        """Busca un JTI. Devuelve None si no existe."""
+        result = await db.execute(
+            select(RefreshToken).where(RefreshToken.jti == jti)
+        )
+        return result.scalar_one_or_none()
+
+    @staticmethod
+    async def revoke(db: AsyncSession, jti: str) -> bool:
+        """
+        Revoca un JTI marcando revoked_at = now().
+        Devuelve True si existía, False si no.
+        """
+        result = await db.execute(
+            select(RefreshToken).where(RefreshToken.jti == jti)
+        )
+        token = result.scalar_one_or_none()
+        if token is None:
+            return False
+        token.revoked_at = datetime.now(timezone.utc)
+        await db.flush()
+        return True
+
+    @staticmethod
+    async def revoke_all_for_user(db: AsyncSession, user_id: str | uuid.UUID) -> int:
+        """
+        Revoca TODOS los refresh tokens de un usuario.
+        Úsalo en: cambio de contraseña, cuenta comprometida, admin action.
+        Devuelve el número de tokens revocados.
+        """
+        from sqlalchemy import update as sa_update
+        uid = uuid.UUID(str(user_id)) if isinstance(user_id, str) else user_id
+        result = await db.execute(
+            sa_update(RefreshToken)
+            .where(RefreshToken.user_id == uid, RefreshToken.revoked_at.is_(None))
+            .values(revoked_at=datetime.now(timezone.utc))
+        )
+        await db.flush()
+        return result.rowcount

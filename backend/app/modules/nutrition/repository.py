@@ -9,7 +9,9 @@ El commit/rollback lo controla get_db() en session.py.
 
 from __future__ import annotations
 
-from sqlalchemy import select
+import uuid
+
+from sqlalchemy import select, update as sa_update
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.modules.nutrition.models import Ingredient, Supplement, UserRecipe
@@ -102,3 +104,28 @@ class UserRecipeRepository:
     async def delete(db: AsyncSession, recipe: UserRecipe) -> None:
         await db.delete(recipe)
         await db.flush()
+
+    @staticmethod
+    async def claim_by_local_id(
+        db: AsyncSession,
+        user_local_id: str,
+        user_id: str | uuid.UUID,
+    ) -> int:
+        """
+        Vincula todas las recetas anónimas (user_local_id) a un usuario autenticado.
+        Solo actualiza las que aún tienen user_id = NULL (no reclama recetas ya vinculadas).
+
+        Returns:
+            Número de recetas actualizadas.
+        """
+        uid = uuid.UUID(str(user_id)) if isinstance(user_id, str) else user_id
+        result = await db.execute(
+            sa_update(UserRecipe)
+            .where(
+                UserRecipe.user_local_id == user_local_id,
+                UserRecipe.user_id.is_(None),
+            )
+            .values(user_id=uid)
+        )
+        await db.flush()
+        return result.rowcount

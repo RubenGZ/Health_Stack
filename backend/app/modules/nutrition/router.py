@@ -15,8 +15,9 @@ Endpoints:
 """
 
 
-from fastapi import APIRouter, Query, status
+from fastapi import APIRouter, Body, Query, status
 
+from app.core.security.dependencies import CurrentUser
 from app.modules.nutrition.schemas import (
     IngredientResponse,
     SupplementResponse,
@@ -113,3 +114,36 @@ async def delete_recipe(
     db: DBSession = ...,
 ):
     await NutritionService.delete_recipe(db, recipe_id, local_id)
+
+
+@router.post(
+    "/recipes/claim",
+    status_code=status.HTTP_200_OK,
+    summary="Reclamar recetas anónimas",
+    description=(
+        "Vincula todas las recetas anónimas (identificadas por localStorage UUID) "
+        "al usuario autenticado. Úsalo justo después del registro para que el usuario "
+        "no pierda las recetas que creó antes de tener cuenta. Idempotente."
+    ),
+)
+async def claim_recipes(
+    current_user: CurrentUser,
+    db: DBSession,
+    user_local_id: str = Body(..., embed=True, description="UUID localStorage del cliente"),
+) -> dict:
+    """
+    Flujo (ADR-001-A):
+    1. Autenticar usuario vía Bearer token
+    2. Buscar recetas con user_local_id dado y user_id = NULL
+    3. Asignar user_id del token autenticado a esas recetas
+    4. Devolver el número de recetas reclamadas
+
+    Si no hay recetas anónimas con ese local_id → devuelve {"claimed": 0}
+    (no es un error — puede que ya se hayan reclamado previamente).
+    """
+    count = await NutritionService.claim_recipes(
+        db=db,
+        user_local_id=user_local_id,
+        user_id=current_user["user_id"],
+    )
+    return {"claimed": count}

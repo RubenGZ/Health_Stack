@@ -26,10 +26,12 @@ import logging
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from datetime import timezone
+
 from app.core.security.cryptoservice import CryptoService
 from app.core.security.hashing import hash_password, needs_rehash, verify_password
-from app.core.security.jwt_handler import create_access_token, create_refresh_token
-from app.modules.identity.repository import UserRepository
+from app.core.security.jwt_handler import create_access_token, create_refresh_token, decode_token
+from app.modules.identity.repository import RefreshTokenRepository, UserRepository
 from app.modules.identity.schemas import (
     LoginRequest,
     LoginResponse,
@@ -132,6 +134,17 @@ class IdentityService:
         )
         refresh_token = create_refresh_token(user_id=str(user.id))
 
+        # 5b. Persistir JTI del refresh token en BD (ADR-001-B)
+        #     Permite logout global y rotación sin Redis.
+        _rt_payload = decode_token(refresh_token)
+        from datetime import datetime
+        await RefreshTokenRepository.create(
+            db=db,
+            jti=_rt_payload["jti"],
+            user_id=str(user.id),
+            expires_at=datetime.fromtimestamp(_rt_payload["exp"], tz=timezone.utc),
+        )
+
         # 6. Construir respuesta
         return RegisterResponse(
             user=UserPublicResponse.model_validate(user),
@@ -208,6 +221,16 @@ class IdentityService:
             role=user.role,
         )
         refresh_token = create_refresh_token(user_id=str(user.id))
+
+        # 6b. Persistir JTI del refresh token en BD (ADR-001-B)
+        _rt_payload = decode_token(refresh_token)
+        from datetime import datetime
+        await RefreshTokenRepository.create(
+            db=db,
+            jti=_rt_payload["jti"],
+            user_id=str(user.id),
+            expires_at=datetime.fromtimestamp(_rt_payload["exp"], tz=timezone.utc),
+        )
 
         logger.info(f"Login exitoso: user={str(user.id)[:8]}...")
 

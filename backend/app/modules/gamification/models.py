@@ -21,6 +21,50 @@ from sqlalchemy.orm import Mapped, mapped_column
 
 from app.shared.base_model import Base, TimestampMixin, UUIDPrimaryKeyMixin
 
+
+class GamificationEvent(UUIDPrimaryKeyMixin, TimestampMixin, Base):
+    """
+    Tabla `gamification_events` — Historial de acciones que otorgaron XP.
+
+    Por qué existe además de GamificationState:
+    - GamificationState = snapshot actual (nivel, XP total, contadores)
+    - GamificationEvent = log inmutable de qué pasó y cuándo
+
+    Permite: "Esta semana ganaste 250 XP", detección de abuso (N acciones/hora),
+    leaderboards históricos, auditoría RGPD (Art. 5.1.e — limitación del plazo).
+    """
+
+    __tablename__ = "gamification_events"
+    __table_args__ = {
+        "schema": "public",
+        "comment": "Log de eventos de gamificación. Inmutable — nunca se actualiza.",
+    }
+
+    user_id: Mapped[uuid.UUID] = mapped_column(
+        UUID(as_uuid=True),
+        ForeignKey("public.users.id", ondelete="CASCADE"),
+        nullable=False,
+        index=True,
+    )
+
+    action: Mapped[str] = mapped_column(
+        String(30),
+        nullable=False,
+        comment="Acción que generó el XP: weight | tdee | routine | post | recipe | streak",
+    )
+
+    xp_awarded: Mapped[int] = mapped_column(
+        Integer,
+        nullable=False,
+        comment="XP otorgada por esta acción.",
+    )
+
+    def __repr__(self) -> str:
+        return (
+            f"<GamificationEvent user={str(self.user_id)[:8]}... "
+            f"action={self.action!r} xp={self.xp_awarded}>"
+        )
+
 # Tabla de puntos XP por acción
 XP_TABLE: dict[str, int] = {
     "weight":   10,    # Registro de peso

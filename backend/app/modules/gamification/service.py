@@ -121,6 +121,14 @@ class GamificationService:
 
         await GamificationRepository.save(db, state)
 
+        # Registrar evento inmutable en el log histórico (ADR-001-D)
+        await GamificationRepository.create_event(
+            db=db,
+            user_id=state.user_id,
+            action=action,
+            xp_awarded=xp_gain,
+        )
+
         logger.debug(
             f"[Gamification] user={user_id[:8]}... action={action} "
             f"+{xp_gain}xp → total={state.xp_total} level={state.level}"

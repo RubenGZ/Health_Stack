@@ -20,12 +20,18 @@ NO hace:
 """
 
 
+from datetime import datetime, timezone
+
 from fastapi import APIRouter, Depends, Request, status
 
 from app.core.security.cryptoservice import CryptoService, get_crypto_service
 from app.core.security.dependencies import CurrentUser
-from app.core.security.jwt_handler import decode_token
-from app.modules.identity.repository import UserRepository
+from app.core.security.jwt_handler import (
+    create_access_token,
+    create_refresh_token,
+    decode_token,
+)
+from app.modules.identity.repository import RefreshTokenRepository, UserRepository
 from app.modules.identity.schemas import (
     LoginRequest,
     LoginResponse,
@@ -135,11 +141,12 @@ async def me(
 
 @router.post(
     "/refresh",
-    summary="Renovar access token",
+    summary="Renovar access token con rotación de refresh token",
     description=(
-        "Dado un refresh token válido, emite un nuevo access token. "
-        "El refresh token NO se rota en esta versión (Fase 1). "
-        "En producción, implementar rotación con lista de JTIs en Redis."
+        "Dado un refresh token válido y no revocado, emite un nuevo access token "
+        "y un nuevo refresh token (rotación). El refresh token antiguo queda revocado "
+        "inmediatamente — no puede reutilizarse. Permite logout global y detección "
+        "de reutilización de tokens comprometidos."
     ),
 )
 @_get_limiter().limit("10/minute")   # Protección contra refresh token flooding
@@ -149,13 +156,14 @@ async def refresh_token(
     db: DBSession,
 ) -> dict:
     """
-    Renueva el access token usando el refresh token.
+    Flujo de rotación de refresh token (ADR-001-B):
+    1. Decodificar y validar el JWT (firma, expiración, type=refresh)
+    2. Verificar que el JTI existe en `refresh_tokens` y NO está revocado
+    3. Revocar el JTI antiguo (revoked_at = now)
+    4. Emitir nuevo access token + nuevo refresh token
+    5. Persistir el nuevo JTI en `refresh_tokens`
 
-    Body esperado: {"refresh_token": "<jwt>"}
-
-    TODO (Fase 2 — Seguridad):
-    - Rotar el refresh token en cada uso (invalidar el anterior).
-    - Almacenar JTIs válidos en Redis para permitir logout global.
+    Si el JTI no existe o ya está revocado → 401 (posible token reuse attack).
     """
     token = body.refresh_token
 
@@ -167,19 +175,79 @@ async def refresh_token(
     if payload.get("type") != "refresh":
         raise TokenInvalidError("El token proporcionado no es un refresh token.")
 
+    old_jti = payload.get("jti")
     user_id = payload.get("sub")
+
+    # Verificar JTI en BD — detecta tokens revocados (logout) o reutilizados
+    stored_token = await RefreshTokenRepository.get_by_jti(db, old_jti)
+    if stored_token is None or not stored_token.is_valid:
+        raise TokenInvalidError(
+            "Refresh token revocado o no registrado. Inicia sesión de nuevo."
+        )
+
     user = await UserRepository.get_by_id(db, user_id)
     if user is None or not user.is_active:
         raise TokenInvalidError("El usuario asociado al token no está disponible.")
 
-    from app.core.security.jwt_handler import create_access_token
+    # Revocar el JTI antiguo (rotación: el viejo token ya no sirve)
+    await RefreshTokenRepository.revoke(db, old_jti)
+
+    # Emitir nuevos tokens
     new_access_token = create_access_token(
         user_id=str(user.id),
         email=user.email,
         role=user.role,
     )
+    new_refresh_token = create_refresh_token(user_id=str(user.id))
+
+    # Persistir nuevo JTI en BD
+    new_rt_payload = decode_token(new_refresh_token)
+    await RefreshTokenRepository.create(
+        db=db,
+        jti=new_rt_payload["jti"],
+        user_id=str(user.id),
+        expires_at=datetime.fromtimestamp(new_rt_payload["exp"], tz=timezone.utc),
+    )
 
     return {
         "access_token": new_access_token,
+        "refresh_token": new_refresh_token,
         "token_type": "bearer",
     }
+
+
+# ── POST /logout ──────────────────────────────────────────────────────────────
+
+@router.post(
+    "/logout",
+    status_code=status.HTTP_204_NO_CONTENT,
+    summary="Cerrar sesión",
+    description=(
+        "Revoca el refresh token proporcionado. "
+        "El access token expirará en máximo 15 minutos por su TTL natural. "
+        "Para logout global (todos los dispositivos), usar /logout-all."
+    ),
+)
+@_get_limiter().limit("20/minute")
+async def logout(
+    request: Request,
+    body: RefreshRequest,
+    db: DBSession,
+) -> None:
+    """
+    Revoca el JTI del refresh token para invalidarlo inmediatamente.
+    Si el token ya está revocado o no existe, se devuelve 204 igualmente
+    (idempotente — el resultado es el mismo: el token no es válido).
+    """
+    try:
+        payload = decode_token(body.refresh_token)
+    except Exception:
+        # Token ya expirado o inválido → ya no es útil, tratamos como éxito
+        return
+
+    if payload.get("type") != "refresh":
+        return  # No es un refresh token → ignorar silenciosamente
+
+    jti = payload.get("jti")
+    if jti:
+        await RefreshTokenRepository.revoke(db, jti)  # No-op si ya revocado

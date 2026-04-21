@@ -448,17 +448,20 @@ class CryptoService:
 
 # ── SINGLETON ─────────────────────────────────────────────────────────────────
 
+from functools import lru_cache as _lru_cache
+
+@_lru_cache(maxsize=1)
 def get_crypto_service() -> CryptoService:
     """
-    Dependencia de FastAPI para inyectar el CryptoService.
+    Singleton del CryptoService — se instancia UNA SOLA VEZ en toda la vida
+    del proceso. lru_cache garantiza que AESGCM(key_bytes) no se recrea en
+    cada request (era trabajo redundante en la versión anterior).
 
-    La instancia se crea una vez y se reutiliza (singleton funcional con FastAPI).
-    Si HEALTH_LINK_MASTER_KEY no está configurada, la aplicación falla al arrancar.
+    Thread-safe: AESGCM es inmutable después de crearse.
+    Si HEALTH_LINK_MASTER_KEY no está configurada, falla en el primer request.
 
     Uso en routers/servicios:
         async def endpoint(crypto: CryptoService = Depends(get_crypto_service)):
             ...
     """
-    # Importar aquí para que el fallo sea en el primer request, no en import time
-    # (permite tests unitarios sin la variable de entorno)
     return CryptoService()

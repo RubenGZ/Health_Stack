@@ -195,3 +195,18 @@ class NutritionService:
         if recipe is None or recipe.user_local_id != user_local_id:
             raise ValidationError("Receta no encontrada o no autorizada.")
         await UserRecipeRepository.delete(db, recipe)
+
+    @staticmethod
+    async def claim_recipes(
+        db: AsyncSession,
+        user_local_id: str,
+        user_id: str,
+    ) -> int:
+        """
+        Reclama las recetas anónimas de un localStorage UUID vinculándolas
+        al usuario autenticado. Operación idempotente.
+
+        Returns:
+            Número de recetas reclamadas.
+        """
+        return await UserRecipeRepository.claim_by_local_id(db, user_local_id, user_id)

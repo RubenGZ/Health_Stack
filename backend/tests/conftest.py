@@ -29,13 +29,15 @@ import app.modules.gamification.models  # noqa: F401
 
 TEST_DB_URL = "postgresql+asyncpg://postgres:P%40ssw0rd@localhost:5432/healthstack_test"
 
-# Tablas a truncar entre tests (orden respeta FK)
+# Tablas a truncar entre tests (orden respeta FK — hijas antes que padres)
 TRUNCATE_TABLES = [
     "health.health_records",
     "public.data_links",
     "public.community_likes",
     "public.community_posts",
+    "public.gamification_events",   # ADR-001-D — antes que gamification_states
     "public.gamification_states",
+    "public.refresh_tokens",        # ADR-001-B — antes que users
     "public.saved_routines",
     "public.user_recipes",
     "public.users",

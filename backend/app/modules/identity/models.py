@@ -30,6 +30,74 @@ from sqlalchemy.orm import Mapped, mapped_column, relationship
 from app.shared.base_model import Base, TimestampMixin, UUIDPrimaryKeyMixin
 
 
+class RefreshToken(UUIDPrimaryKeyMixin, TimestampMixin, Base):
+    """
+    Tabla `refresh_tokens` — JTIs de refresh tokens activos (schema: public).
+
+    Por qué esto en lugar de Redis:
+    - Redis requiere infraestructura extra. PostgreSQL ya existe.
+    - Los refresh tokens se usan con poca frecuencia (cada 15 min).
+    - PostgreSQL con índice en jti hace un lookup en <1ms.
+
+    Flujo de rotación:
+    1. Usuario llama /auth/refresh con su refresh token
+    2. Backend verifica que jti está en esta tabla y no está revocado
+    3. Revoca el jti anterior (revoked_at = now())
+    4. Emite nuevo refresh token con nuevo jti
+    5. Inserta el nuevo jti en esta tabla
+
+    Flujo de logout:
+    1. Usuario llama /auth/logout con su refresh token
+    2. Backend revoca el jti (revoked_at = now())
+    3. El access token expira en máximo 15 minutos (no hay blacklist de access tokens)
+    """
+
+    __tablename__ = "refresh_tokens"
+    __table_args__ = {
+        "schema": "public",
+        "comment": "JTIs de refresh tokens activos. Permite rotación y logout global.",
+    }
+
+    jti: Mapped[str] = mapped_column(
+        String(36),
+        nullable=False,
+        unique=True,
+        index=True,
+        comment="JWT ID único. UUID v4 generado en jwt_handler.create_refresh_token().",
+    )
+
+    user_id: Mapped[uuid.UUID] = mapped_column(
+        UUID(as_uuid=True),
+        ForeignKey("public.users.id", ondelete="CASCADE"),
+        nullable=False,
+        index=True,
+        comment="FK al usuario propietario del token.",
+    )
+
+    expires_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True),
+        nullable=False,
+        comment="Expiración del refresh token (7 días desde emisión).",
+    )
+
+    revoked_at: Mapped[datetime | None] = mapped_column(
+        DateTime(timezone=True),
+        nullable=True,
+        default=None,
+        comment="Null = token válido. Timestamp = token revocado (logout o rotación).",
+    )
+
+    @property
+    def is_valid(self) -> bool:
+        """True si el token no está revocado y no ha expirado."""
+        from datetime import timezone
+        return self.revoked_at is None and self.expires_at > datetime.now(timezone.utc)
+
+    def __repr__(self) -> str:
+        status = "revoked" if self.revoked_at else "active"
+        return f"<RefreshToken jti={self.jti[:8]}... user={str(self.user_id)[:8]}... {status}>"
+
+
 class User(UUIDPrimaryKeyMixin, TimestampMixin, Base):
     """
     Tabla `users` — Identidad del usuario (schema: public).

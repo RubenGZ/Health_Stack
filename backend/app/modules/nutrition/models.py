@@ -18,7 +18,10 @@ Nota sobre PKs:
 
 from __future__ import annotations
 
-from sqlalchemy import Boolean, Float, Integer, JSON, String, Text
+import uuid
+
+from sqlalchemy import Boolean, Float, ForeignKey, Integer, JSON, String, Text
+from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.orm import Mapped, mapped_column
 
 from app.shared.base_model import Base, TimestampMixin
@@ -197,6 +200,18 @@ class UserRecipe(TimestampMixin, Base):
     user_local_id: Mapped[str | None] = mapped_column(
         String(100), nullable=True, index=True,
         comment="UUID localStorage del cliente. Permite recuperar recetas sin auth.",
+    )
+
+    user_id: Mapped[uuid.UUID | None] = mapped_column(
+        UUID(as_uuid=True),
+        ForeignKey("public.users.id", ondelete="SET NULL"),
+        nullable=True,
+        index=True,
+        comment=(
+            "FK a users.id. Null = receta anónima (localStorage). "
+            "Se rellena cuando el usuario reclama sus recetas anónimas tras registrarse. "
+            "Permite recuperar recetas aunque se pierda el localStorage."
+        ),
     )
     name: Mapped[str] = mapped_column(
         String(200), nullable=False,

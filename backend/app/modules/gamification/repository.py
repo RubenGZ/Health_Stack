@@ -11,10 +11,30 @@ import uuid
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.modules.gamification.models import GamificationState
+from app.modules.gamification.models import GamificationEvent, GamificationState
 
 
 class GamificationRepository:
+
+    @staticmethod
+    async def create_event(
+        db: AsyncSession,
+        user_id: uuid.UUID,
+        action: str,
+        xp_awarded: int,
+    ) -> GamificationEvent:
+        """
+        Inserta un evento inmutable en `gamification_events`.
+        Se llama cada vez que se otorga XP — permite historial y auditoría.
+        """
+        event = GamificationEvent(
+            user_id=user_id,
+            action=action,
+            xp_awarded=xp_awarded,
+        )
+        db.add(event)
+        await db.flush()
+        return event
 
     @staticmethod
     async def get_or_create(

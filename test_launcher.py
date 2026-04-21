@@ -272,26 +272,25 @@ def setup_test_db():
     """Crea la BD de test si no existe."""
     banner("CREAR BASE DE DATOS DE TEST")
     if not pg_up():
-        fail("PostgreSQL no esta corriendo. Arrancalo primero con la opcion [2].")
+        fail("PostgreSQL no esta corriendo. Arrancalo primero con la opcion [5].")
         pause()
         return
 
     info("Creando base de datos 'healthstack_test'...")
     result = subprocess.run(
-        ["powershell", "-Command",
-         "$env:PGPASSWORD='P@ssw0rd'; psql -h localhost -U postgres "
-         "-c \"CREATE DATABASE healthstack_test;\" 2>&1"],
-        capture_output=True, text=True, timeout=10
+        ["docker", "exec", "healthstack_db",
+         "psql", "-U", "postgres",
+         "-c", "CREATE DATABASE healthstack_test;"],
+        capture_output=True, text=True, timeout=15
     )
     out = result.stdout + result.stderr
     if "already exists" in out or "ya existe" in out:
-        ok("La BD 'healthstack_test' ya existia")
+        ok("La BD 'healthstack_test' ya existia (todo correcto)")
     elif result.returncode == 0:
-        ok("BD 'healthstack_test' creada")
+        ok("BD 'healthstack_test' creada correctamente")
     else:
-        warn("No se pudo crear via psql automaticamente")
-        info("Ejecuta esto manualmente en psql:")
-        print(f"\n    {W}CREATE DATABASE healthstack_test;{RS}\n")
+        fail("Error al crear la BD")
+        print(f"\n  {Y}{out.strip()}{RS}\n")
     pause()
 
 

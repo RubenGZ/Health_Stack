@@ -252,7 +252,7 @@
   font-weight: 600;
   letter-spacing: 1px;
   text-transform: uppercase;
-  color: var(--text-muted, #475569);
+  color: var(--text-muted, #618fa0);
 }
 
 /* Hero Visual (Three.js canvas) */
@@ -355,7 +355,7 @@
 }
 .float-tag__sub {
   font-size: 0.7rem;
-  color: var(--text-muted, #475569);
+  color: var(--text-muted, #618fa0);
 }
 
 /* ─────────────────────────────────────────────────────────────
@@ -539,7 +539,7 @@
   font-weight: 600;
   letter-spacing: 1.5px;
   text-transform: uppercase;
-  color: var(--text-muted, #475569);
+  color: var(--text-muted, #618fa0);
 }
 
 /* ─────────────────────────────────────────────────────────────
@@ -629,7 +629,7 @@
 
 .testimonial-role {
   font-size: 0.75rem;
-  color: var(--text-muted, #475569);
+  color: var(--text-muted, #618fa0);
 }
 
 /* ─────────────────────────────────────────────────────────────
@@ -695,7 +695,7 @@
   font-weight: 700;
   letter-spacing: 2.5px;
   text-transform: uppercase;
-  color: var(--text-muted, #475569);
+  color: var(--text-muted, #618fa0);
   margin-bottom: 16px;
 }
 
@@ -726,7 +726,7 @@
 
 .pricing-period {
   font-size: 0.82rem;
-  color: var(--text-muted, #475569);
+  color: var(--text-muted, #618fa0);
   align-self: flex-end;
   padding-bottom: 6px;
 }
@@ -877,7 +877,7 @@
 
 .landing-footer__copy {
   font-size: 0.8rem;
-  color: var(--text-muted, #475569);
+  color: var(--text-muted, #618fa0);
 }
 
 .landing-footer__links {
@@ -887,7 +887,7 @@
 
 .landing-footer__links a {
   font-size: 0.8rem;
-  color: var(--text-muted, #475569);
+  color: var(--text-muted, #618fa0);
   text-decoration: none;
   transition: color 0.2s;
 }

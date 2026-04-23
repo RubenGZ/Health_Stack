@@ -401,7 +401,7 @@ canvas { display: block; }
 }
 .quick-card:hover:not(.quick-card--soon) {
   background: var(--primary-light);
-  border-color: rgba(108,99,255,0.3);
+  border-color: rgba(8,145,178,0.3);
   color: var(--text-primary);
   transform: translateY(-2px);
 }
@@ -467,7 +467,7 @@ canvas { display: block; }
 }
 .chip:hover, .chip--active {
   background: var(--primary-light);
-  border-color: rgba(108,99,255,0.3);
+  border-color: rgba(8,145,178,0.3);
   color: var(--primary);
 }
 
@@ -552,7 +552,7 @@ canvas { display: block; }
   background: var(--primary-light);
   color: var(--primary);
   font-weight: 600;
-  border: 1px solid rgba(108,99,255,0.2);
+  border: 1px solid rgba(8,145,178,0.2);
 }
 
 /* Calorie cards */
@@ -569,8 +569,8 @@ canvas { display: block; }
   border: 1px solid transparent;
 }
 .cal-card--bmr   { background: var(--glass-bg); border-color: var(--glass-border); }
-.cal-card--tdee  { background: var(--primary-light); border-color: rgba(108,99,255,0.25); }
-.cal-card--target{ background: var(--secondary-light); border-color: rgba(0,210,255,0.25); }
+.cal-card--tdee  { background: var(--primary-light); border-color: rgba(8,145,178,0.25); }
+.cal-card--target{ background: var(--secondary-light); border-color: rgba(34,211,238,0.25); }
 .cal-label { display: block; font-size: 0.7rem; color: var(--text-muted); font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; }
 .cal-value { display: block; font-size: 1.75rem; font-weight: 800; letter-spacing: -1px; margin: 6px 0 2px; }
 .cal-unit  { font-size: 0.7rem; color: var(--text-secondary); }
@@ -636,7 +636,7 @@ canvas { display: block; }
 .form-input:focus {
   border-color: var(--primary);
   box-shadow: 0 0 0 3px var(--primary-glow);
-  background: rgba(108, 99, 255, 0.05);
+  background: rgba(8, 145, 178, 0.05);
 }
 .form-input::placeholder { color: var(--text-muted); }
 .input-wrapper { position: relative; }
@@ -770,7 +770,7 @@ select.form-input option { background: var(--bg-surface); color: var(--text-prim
 .soon-feature {
   padding: 6px 14px;
   background: var(--primary-light);
-  border: 1px solid rgba(108,99,255,0.2);
+  border: 1px solid rgba(8,145,178,0.2);
   border-radius: 99px;
   font-size: 0.8rem;
   color: var(--primary);
@@ -1012,8 +1012,8 @@ select.form-input option { background: var(--bg-surface); color: var(--text-prim
 .recipe-kcal  { font-size: 0.78rem; color: var(--amber); white-space: nowrap; }
 .recipe-macros { display: flex; gap: 6px; align-items: center; }
 .rmacro       { font-size: 0.7rem; padding: 1px 6px; border-radius: 4px; background: var(--glass-border); }
-.rmacro--p    { color: #6c63ff; }
-.rmacro--c    { color: #00d2ff; }
+.rmacro--p    { color: #0891b2; }
+.rmacro--c    { color: #22d3ee; }
 .rmacro--f    { color: #f59e0b; }
 
 .inf-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
@@ -1037,7 +1037,7 @@ select.form-input option { background: var(--bg-surface); color: var(--text-prim
 .planner-cell--slot { background: transparent; cursor: pointer; transition: var(--transition); }
 .planner-cell--slot:hover  { background: var(--glass-bg); }
 .planner-cell--slot.drag-over { background: var(--primary-light); border-color: var(--primary); }
-.planner-cell--slot.filled   { background: rgba(108,99,255,0.06); }
+.planner-cell--slot.filled   { background: rgba(8,145,178,0.06); }
 
 .slot-empty  { color: var(--text-muted); font-size: 1.2rem; opacity: 0.4; }
 .slot-recipe { display: flex; flex-direction: column; gap: 2px; width: 100%; padding: 4px; position: relative; }
@@ -1159,7 +1159,7 @@ select.form-input option { background: var(--bg-surface); color: var(--text-prim
   transform: translateY(20px);
   opacity: 0;
   transition: all 0.35s ease;
-  box-shadow: 0 8px 32px rgba(108,99,255,0.4);
+  box-shadow: 0 8px 32px rgba(8,145,178,0.4);
   pointer-events: none;
 }
 .xp-toast.visible { transform: translateY(0); opacity: 1; }
@@ -1291,7 +1291,7 @@ select.form-input option { background: var(--bg-surface); color: var(--text-prim
   background: var(--bg-surface);
   border: 1px solid var(--glass-border);
   border-radius: var(--radius-lg);
-  box-shadow: var(--shadow-card), 0 0 40px rgba(108,99,255,0.15);
+  box-shadow: var(--shadow-card), 0 0 40px rgba(8,145,178,0.15);
   z-index: 998;
   flex-direction: column;
   overflow: hidden;
@@ -1424,7 +1424,7 @@ select.form-input option { background: var(--bg-surface); color: var(--text-prim
   border-radius: var(--radius-xl);
   width: 100%;
   max-width: 520px;
-  box-shadow: 0 32px 80px rgba(0,0,0,0.6), 0 0 60px rgba(108,99,255,0.12);
+  box-shadow: 0 32px 80px rgba(0,0,0,0.6), 0 0 60px rgba(8,145,178,0.12);
   overflow: hidden;
   animation: obSlideUp 0.45s cubic-bezier(0.34, 1.56, 0.64, 1);
 }
@@ -1987,7 +1987,7 @@ select.form-input option { background: var(--bg-surface); color: var(--text-prim
   height: 520px;
   border-radius: 18px;
   overflow: hidden;
-  border: 1px solid rgba(108, 99, 255, 0.18);
+  border: 1px solid rgba(8, 145, 178, 0.18);
   box-shadow:
     0 0 0 1px rgba(255, 106, 0, 0.08),
     0 8px 40px rgba(0, 0, 0, 0.55),
@@ -2090,7 +2090,7 @@ select.form-input option { background: var(--bg-surface); color: var(--text-prim
   gap: 12px;
   padding: 12px 16px;
   background: var(--primary-light);
-  border: 1px solid rgba(108,99,255,0.3);
+  border: 1px solid rgba(8,145,178,0.3);
   border-radius: var(--radius-md);
   animation: fadeIn .35s ease;
 }

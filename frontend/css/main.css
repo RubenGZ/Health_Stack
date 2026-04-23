@@ -5,26 +5,26 @@
 
 /* ── Variables ─────────────────────────────────────────────── */
 :root {
-  --bg-base:        #07070f;
-  --bg-surface:     #0e0e1a;
-  --glass-bg:       rgba(255, 255, 255, 0.04);
-  --glass-border:   rgba(255, 255, 255, 0.08);
-  --glass-hover:    rgba(255, 255, 255, 0.07);
+  --bg-base:        #030c0e;
+  --bg-surface:     #071519;
+  --glass-bg:       rgba(8, 145, 178, 0.05);
+  --glass-border:   rgba(34, 211, 238, 0.10);
+  --glass-hover:    rgba(34, 211, 238, 0.08);
 
-  --primary:        #6c63ff;
-  --primary-light:  rgba(108, 99, 255, 0.15);
-  --primary-glow:   rgba(108, 99, 255, 0.35);
-  --secondary:      #00d2ff;
-  --secondary-light:rgba(0, 210, 255, 0.15);
-  --accent:         #ff6584;
-  --accent-light:   rgba(255, 101, 132, 0.15);
+  --primary:        #0891b2;
+  --primary-light:  rgba(8, 145, 178, 0.15);
+  --primary-glow:   rgba(8, 145, 178, 0.35);
+  --secondary:      #22d3ee;
+  --secondary-light:rgba(34, 211, 238, 0.15);
+  --accent:         #16a34a;
+  --accent-light:   rgba(22, 163, 74, 0.15);
   --amber:          #f59e0b;
   --emerald:        #10b981;
   --emerald-light:  rgba(16, 185, 129, 0.15);
 
-  --text-primary:   #e2e8f0;
-  --text-secondary: #94a3b8;
-  --text-muted:     #475569;
+  --text-primary:   #e0f7fa;
+  --text-secondary: #94c9d4;
+  --text-muted:     #618fa0;
 
   --sidebar-width:  248px;
   --header-h:       72px;
@@ -34,8 +34,8 @@
   --radius-lg:      16px;
   --radius-xl:      24px;
 
-  --shadow-glow:    0 0 40px rgba(108, 99, 255, 0.12);
-  --shadow-card:    0 4px 24px rgba(0, 0, 0, 0.4);
+  --shadow-glow:    0 0 40px rgba(8, 145, 178, 0.15);
+  --shadow-card:    0 4px 24px rgba(0, 0, 0, 0.45);
 
   --transition:     all 0.22s cubic-bezier(0.4, 0, 0.2, 1);
   --transition-slow:all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
@@ -146,7 +146,7 @@ canvas { display: block; }
 .nav-item.active {
   background: var(--primary-light);
   color: var(--primary);
-  border: 1px solid rgba(108, 99, 255, 0.2);
+  border: 1px solid rgba(8, 145, 178, 0.2);
 }
 .nav-item.active .nav-icon svg { stroke: var(--primary); }
 .nav-icon { width: 20px; flex-shrink: 0; opacity: 0.85; }

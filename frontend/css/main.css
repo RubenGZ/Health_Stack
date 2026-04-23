@@ -76,6 +76,11 @@ canvas { display: block; }
 ::-webkit-scrollbar-thumb { background: var(--glass-border); border-radius: 99px; }
 ::-webkit-scrollbar-thumb:hover { background: var(--primary); }
 
+/* ── Mobile top bar (desktop: hidden) ──────────────────────── */
+.mobile-header {
+  display: none;
+}
+
 /* ── SIDEBAR ───────────────────────────────────────────────── */
 .sidebar {
   position: fixed;
@@ -820,8 +825,45 @@ select.form-input option { background: var(--bg-surface); color: var(--text-prim
   .badge-soon { display: none; }
   .nav-label { font-size: 0.65rem; }
 
+  .mobile-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    position: fixed;
+    top: 0; left: 0; right: 0;
+    height: 52px;
+    padding: 0 16px;
+    background: rgba(7, 21, 25, 0.92);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    border-bottom: 1px solid var(--glass-border);
+    z-index: 101;
+  }
+  .mobile-brand {
+    font-family: 'Lora', Georgia, serif;
+    font-size: 0.875rem;
+    font-weight: 700;
+    background: linear-gradient(135deg, var(--primary), var(--secondary));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+  .mobile-brand em {
+    font-weight: 400;
+    font-style: italic;
+  }
+  .mobile-section-title {
+    font-family: 'Raleway', sans-serif;
+    font-size: 0.75rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--text-secondary);
+  }
+
   .main-content {
     margin-left: 0;
+    padding-top: 52px;
     padding-bottom: 80px;
   }
   .section { padding: 20px 16px 32px; }

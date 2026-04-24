@@ -35,6 +35,13 @@
     // Actualizar hash sin recargar
     history.replaceState(null, '', `#${sectionId}`);
 
+    // Sync mobile section title
+    const mobileTitle = document.getElementById('mobile-section-title');
+    if (mobileTitle) {
+      const navItem = document.querySelector(`.nav-item[data-section="${sectionId}"] .nav-label`);
+      mobileTitle.textContent = navItem ? navItem.textContent : sectionId;
+    }
+
     // Si es la sección de peso, re-renderizar el gráfico
     // (necesario si el canvas estaba oculto cuando se creó el chart)
     if (sectionId === 'peso' && typeof WeightTracker !== 'undefined') {

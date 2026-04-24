@@ -125,9 +125,12 @@ app = FastAPI(
 
 # ── CORS ──────────────────────────────────────────────────────────────────────
 _DEV_ORIGINS = [
-    "http://localhost:5173",   # Vite dev server
-    "http://localhost:3000",   # Frontend dev
+    "http://localhost:5173",   # Vite (puerto por defecto)
+    "http://localhost:5174",   # Vite (puerto configurado en este proyecto)
+    "http://localhost:3000",   # Frontend SPA
     "http://127.0.0.1:5173",
+    "http://127.0.0.1:5174",
+    "http://127.0.0.1:3000",
 ]
 
 # En producción, ALLOWED_ORIGINS se lee del entorno para no hardcodear dominios en código.

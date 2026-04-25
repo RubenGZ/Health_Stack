@@ -188,6 +188,38 @@
     });
   }
 
+  // ── Count-up animation utility ────────────────────────────
+  function animateCountUp(el, targetText, duration = 600) {
+    // Extract numeric part and suffix
+    const match = String(targetText).match(/^([\d.]+)(.*)$/);
+    if (!match) { el.textContent = targetText; return; }
+
+    const targetNum = parseFloat(match[1]);
+    const suffix    = match[2] || '';
+    const isFloat   = match[1].includes('.');
+    const decimals  = isFloat ? (match[1].split('.')[1] || '').length : 0;
+    const start     = performance.now();
+    const from      = 0;
+
+    // Trigger CSS pulse
+    el.classList.remove('counting');
+    void el.offsetWidth; // reflow to restart animation
+    el.classList.add('counting');
+
+    function tick(now) {
+      const elapsed  = now - start;
+      const progress = Math.min(elapsed / duration, 1);
+      // ease-out cubic
+      const eased    = 1 - Math.pow(1 - progress, 3);
+      const current  = from + (targetNum - from) * eased;
+      el.textContent = current.toFixed(decimals) + suffix;
+      if (progress < 1) requestAnimationFrame(tick);
+      else { el.textContent = targetText; el.classList.remove('counting'); }
+    }
+
+    requestAnimationFrame(tick);
+  }
+
   // ── Dashboard: métricas en tiempo real ────────────────────
   function updateDashboardStats() {
     const entries = typeof WeightTracker !== 'undefined' ? WeightTracker.getAll() : [];
@@ -197,7 +229,7 @@
     const changeEl  = document.getElementById('stat-weight-change');
     if (weightEl && entries.length) {
       const latest = entries[entries.length - 1];
-      weightEl.textContent = `${latest.weight.toFixed(1)} kg`;
+      animateCountUp(weightEl, `${latest.weight.toFixed(1)} kg`, 600);
 
       if (entries.length > 1) {
         // Último registro vs hace 7 días
@@ -222,7 +254,7 @@
 
     // Registros totales
     const recEl = document.getElementById('stat-records');
-    if (recEl) recEl.textContent = entries.length;
+    if (recEl) animateCountUp(recEl, entries.length, 500);
     const recLbl = document.getElementById('stat-records-label');
     if (recLbl && entries.length) {
       const weeks = new Set(entries.map(e => {
@@ -240,7 +272,7 @@
       const kg  = entries[entries.length - 1].weight;
       const m   = heightCm / 100;
       const bmi = kg / (m * m);
-      bmiEl.textContent = bmi.toFixed(1);
+      animateCountUp(bmiEl, bmi.toFixed(1), 700);
       if (bmiLbl) {
         const cat = bmi < 18.5 ? 'Bajo peso'
                   : bmi < 25   ? 'Normopeso'
@@ -256,7 +288,7 @@
     const tdeeEl  = document.getElementById('stat-tdee');
     const tdeeLbl = document.getElementById('stat-tdee-label');
     if (tdeeEl && tdeeVal) {
-      tdeeEl.textContent = `${Math.round(tdeeVal)} kcal`;
+      animateCountUp(tdeeEl, `${Math.round(tdeeVal)} kcal`, 700);
       if (tdeeLbl) { tdeeLbl.textContent = 'TDEE calculado'; tdeeLbl.style.color = 'var(--emerald)'; }
     }
 

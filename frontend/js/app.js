@@ -10,7 +10,7 @@
   const SECTIONS = [
     'dashboard','peso','nutricion','ejercicios',
     'rutinas','planner','gamificacion','comunidad',
-    'suplementos','timing','records','receipt',
+    'suplementos','timing','records','receipt','fatigue','plateau',
   ];
 
   function navigateTo(sectionId) {
@@ -52,6 +52,12 @@
     }
     if (sectionId === 'receipt' && typeof AthleteReceipt !== 'undefined') {
       AthleteReceipt.init();
+    }
+    if (sectionId === 'fatigue' && typeof FatigueHeatmap !== 'undefined') {
+      FatigueHeatmap.init();
+    }
+    if (sectionId === 'plateau' && typeof PlateauRadar !== 'undefined') {
+      PlateauRadar.init();
     }
   }
 

@@ -1066,6 +1066,48 @@
       <div id="rm-leaderboard"></div>
     </section>
 
+  <!-- Smart Rest Timer FAB -->
+  <button id="rest-timer-fab" class="rest-fab" title="Timer de descanso" aria-label="Abrir timer de descanso">
+    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+  </button>
+
+  <!-- Smart Rest Timer Modal -->
+  <div id="rest-timer-overlay" class="rest-overlay" role="dialog" aria-modal="true" style="display:none">
+    <div class="rest-modal">
+      <button class="rest-close" id="rest-close" aria-label="Cerrar">&#x2715;</button>
+      <h2 class="rest-title">Timer de Descanso</h2>
+      <div id="rest-form" class="rest-form">
+        <div class="rest-inputs">
+          <div class="rest-input-group">
+            <label>Peso (kg)</label>
+            <input id="rt-weight" type="number" placeholder="80" min="1" max="999" step="0.5" class="rest-input">
+          </div>
+          <div class="rest-input-group">
+            <label>Reps</label>
+            <input id="rt-reps" type="number" placeholder="8" min="1" max="50" class="rest-input">
+          </div>
+          <div class="rest-input-group">
+            <label>RPE <span style="opacity:.5;font-size:11px">(opc.)</span></label>
+            <input id="rt-rpe" type="number" placeholder="8" min="5" max="10" step="0.5" class="rest-input">
+          </div>
+        </div>
+        <button id="rest-start-btn" class="rest-start-btn">Iniciar descanso</button>
+      </div>
+      <div id="rest-timer-display" class="rest-timer-display" style="display:none">
+        <div class="rest-set-type" id="rest-set-type">Hipertrofia</div>
+        <div class="rest-ring-wrap">
+          <svg class="rest-ring-svg" viewBox="0 0 120 120">
+            <circle class="rest-ring-track" cx="60" cy="60" r="52"/>
+            <circle class="rest-ring-fill" cx="60" cy="60" r="52" id="rest-ring-fill"/>
+          </svg>
+          <div class="rest-time-label" id="rest-time-label">1:30</div>
+        </div>
+        <div class="rest-next-hint" id="rest-next-hint"></div>
+        <button id="rest-skip-btn" class="rest-skip-btn">Saltar descanso</button>
+      </div>
+    </div>
+  </div>
+
   </main><!-- /main-content -->
 
   <!-- ── CHATBOT FLOTANTE ──────────────────────────────────── -->
@@ -1159,6 +1201,7 @@
   <script defer src="js/timingPlanner.js?v=3"></script>
   <script defer src="js/readiness.js"></script>
   <script defer src="js/records.js"></script>
+  <script defer src="js/restTimer.js"></script>
   <script defer src="js/app.js"></script>
   <!-- Importmap para el visor 3D híbrido -->
   <script type="importmap">

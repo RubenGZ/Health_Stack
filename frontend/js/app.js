@@ -599,6 +599,7 @@
     initSectionTabs();
     updateDashboardStats();
     if (typeof Readiness !== 'undefined') Readiness.init();
+    if (typeof RestTimer !== 'undefined') RestTimer.init();
     renderProgressInsight();
     renderSponsorBanner();
     initPWAInstall();

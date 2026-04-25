@@ -2473,3 +2473,68 @@ select.form-input option { background: var(--bg-surface); color: var(--text-prim
   transition: color 0.15s, background 0.15s;
 }
 .rm-delete-btn:hover { color: #ef4444; background: rgba(239,68,68,0.10); }
+
+/* ── Smart Rest Timer ─────────────────────────────────────── */
+.rest-fab {
+  position: fixed; bottom: 28px; right: 28px; z-index: 500;
+  width: 56px; height: 56px; border-radius: 50%;
+  background: linear-gradient(135deg, #0891b2, #22d3ee);
+  border: none; cursor: pointer; color: #fff;
+  box-shadow: 0 4px 20px rgba(8,145,178,0.45);
+  display: flex; align-items: center; justify-content: center;
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+.rest-fab:hover { transform: scale(1.08); box-shadow: 0 6px 28px rgba(8,145,178,0.6); }
+.rest-fab:active { transform: scale(0.95); }
+.rest-overlay {
+  position: fixed; inset: 0; z-index: 1000;
+  background: rgba(6,15,18,0.85); backdrop-filter: blur(6px);
+  display: flex; align-items: center; justify-content: center; padding: 20px;
+}
+.rest-modal {
+  background: linear-gradient(160deg, #0f2228 0%, #0b1a1f 100%);
+  border: 1px solid rgba(34,211,238,0.2); border-radius: 20px; padding: 32px;
+  width: 100%; max-width: 420px; position: relative;
+  box-shadow: 0 32px 64px rgba(0,0,0,0.5);
+}
+.rest-close {
+  position: absolute; top: 16px; right: 16px;
+  background: rgba(255,255,255,0.06); border: none; cursor: pointer;
+  color: rgba(255,255,255,0.5); width: 32px; height: 32px;
+  border-radius: 50%; font-size: 16px; display: flex; align-items: center; justify-content: center;
+  transition: background 0.15s, color 0.15s;
+}
+.rest-close:hover { background: rgba(239,68,68,0.15); color: #ef4444; }
+.rest-title {
+  font-family: 'Lora', Georgia, serif; font-size: 22px; font-weight: 600; margin-bottom: 24px;
+  background: linear-gradient(90deg, #fff, #22d3ee);
+  -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent;
+}
+.rest-inputs { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin-bottom: 20px; }
+.rest-input-group label { display: block; font-size: 11px; color: rgba(255,255,255,0.4); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 6px; }
+.rest-input {
+  width: 100%; box-sizing: border-box;
+  background: rgba(255,255,255,0.06); border: 1px solid rgba(34,211,238,0.2);
+  border-radius: 10px; padding: 10px 12px; color: #e6f4f7; font-size: 16px; font-family: inherit;
+  transition: border-color 0.15s;
+}
+.rest-input:focus { outline: none; border-color: rgba(34,211,238,0.6); }
+.rest-start-btn {
+  width: 100%; padding: 14px;
+  background: linear-gradient(135deg, #0891b2, #22d3ee);
+  border: none; border-radius: 12px; color: #fff;
+  font-size: 15px; font-weight: 600; cursor: pointer;
+  transition: opacity 0.15s, transform 0.15s;
+}
+.rest-start-btn:hover { opacity: 0.9; transform: translateY(-1px); }
+.rest-timer-display { text-align: center; }
+.rest-set-type { font-size: 12px; letter-spacing: 3px; text-transform: uppercase; color: #22d3ee; font-weight: 600; margin-bottom: 20px; }
+.rest-ring-wrap { position: relative; width: 140px; height: 140px; margin: 0 auto 20px; }
+.rest-ring-svg { width: 140px; height: 140px; transform: rotate(-90deg); }
+.rest-ring-track { fill: none; stroke: rgba(255,255,255,0.06); stroke-width: 8; }
+.rest-ring-fill { fill: none; stroke: #22d3ee; stroke-width: 8; stroke-linecap: round; transition: stroke-dashoffset 0.9s linear, stroke 0.5s; }
+.rest-time-label { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; font-family: 'Lora', Georgia, serif; font-size: 36px; font-weight: 700; color: #e6f4f7; }
+.rest-next-hint { font-size: 13px; color: rgba(255,255,255,0.4); min-height: 20px; margin-bottom: 20px; }
+.rest-skip-btn { background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.1); border-radius: 10px; padding: 10px 24px; color: rgba(255,255,255,0.5); cursor: pointer; font-size: 13px; transition: background 0.15s, color 0.15s; }
+.rest-skip-btn:hover { background: rgba(255,255,255,0.10); color: #fff; }
+@media (prefers-reduced-motion: reduce) { .rest-ring-fill { transition: none; } }

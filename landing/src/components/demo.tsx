@@ -1,3 +1,4 @@
+import { useRef, useCallback, type ReactNode } from 'react'
 import { useTranslation }        from 'react-i18next'
 import { useGeoPrice }           from '@/hooks/useGeoPrice'
 import { SplineScene }            from '@/components/ui/splite'
@@ -44,6 +45,37 @@ const PLAN_META = [
   { featured: true,  primary: true  },
   { featured: false, primary: false },
 ]
+
+function PricingCard({ children, className }: { children: ReactNode; className?: string }) {
+  const ref = useRef<HTMLDivElement>(null)
+  const reduced = typeof window !== 'undefined'
+    && window.matchMedia('(prefers-reduced-motion: reduce)').matches
+
+  const onMove = useCallback((e: React.MouseEvent<HTMLDivElement>) => {
+    if (reduced || !ref.current) return
+    const r = ref.current.getBoundingClientRect()
+    const x = ((e.clientY - r.top)  / r.height - 0.5) * -10
+    const y = ((e.clientX - r.left) / r.width  - 0.5) *  10
+    ref.current.style.transform =
+      `perspective(900px) rotateX(${x}deg) rotateY(${y}deg) translateY(-4px) scale(1.01)`
+  }, [reduced])
+
+  const onLeave = useCallback(() => {
+    if (ref.current) ref.current.style.transform = ''
+  }, [])
+
+  return (
+    <div
+      ref={ref}
+      className={className}
+      onMouseMove={onMove}
+      onMouseLeave={onLeave}
+      style={{ transition: 'transform 0.18s cubic-bezier(0.16, 1, 0.3, 1)', willChange: 'transform' }}
+    >
+      {children}
+    </div>
+  )
+}
 
 const STAT_VALUES = [
   { v: '50K', s: '+' },
@@ -445,33 +477,35 @@ export function SplineSceneBasic() {
         </div>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-5 max-w-5xl mx-auto">
           {plans.map(plan => (
-            <Card key={plan.tier} className={`rounded-2xl p-9 flex flex-col relative transition-all duration-300 hover:-translate-y-1 ${plan.featured ? 'bg-teal-500/[0.05] border-teal-500/40 shadow-[0_0_60px_rgba(8,145,178,0.12)]' : 'bg-white/[0.025] border-white/[0.065]'}`}>
-              {plan.featured && (
-                <div className="absolute -top-px left-1/2 -translate-x-1/2 px-4 py-1 bg-gradient-to-r from-teal-500 to-cyan-400 text-white text-[10px] font-extrabold uppercase tracking-widest rounded-b-lg whitespace-nowrap">
-                  {t('pricing.popular')}
+            <PricingCard key={plan.tier}>
+              <Card className={`h-full rounded-2xl p-9 flex flex-col relative transition-colors duration-300 ${plan.featured ? 'bg-teal-500/[0.05] border-teal-500/40 shadow-[0_0_60px_rgba(8,145,178,0.12)]' : 'bg-white/[0.025] border-white/[0.065]'}`}>
+                {plan.featured && (
+                  <div className="absolute -top-px left-1/2 -translate-x-1/2 px-4 py-1 bg-gradient-to-r from-teal-500 to-cyan-400 text-white text-[10px] font-extrabold uppercase tracking-widest rounded-b-lg whitespace-nowrap">
+                    {t('pricing.popular')}
+                  </div>
+                )}
+                <p className={`text-[10px] font-bold uppercase tracking-[2.5px] mb-4 ${plan.featured ? 'text-teal-400' : 'text-neutral-500'}`}>{plan.tier}</p>
+                <div className="flex items-start gap-0.5 mb-2 leading-none">
+                  <span className="text-lg font-semibold text-neutral-400 pt-2">{plan.symbol}</span>
+                  <span className="text-[4rem] font-black text-white tracking-wide" style={HEADING}>{plan.price}</span>
+                  <span className="text-sm text-neutral-500 self-end pb-2">{plan.period}</span>
                 </div>
-              )}
-              <p className={`text-[10px] font-bold uppercase tracking-[2.5px] mb-4 ${plan.featured ? 'text-teal-400' : 'text-neutral-500'}`}>{plan.tier}</p>
-              <div className="flex items-start gap-0.5 mb-2 leading-none">
-                <span className="text-lg font-semibold text-neutral-400 pt-2">{plan.symbol}</span>
-                <span className="text-[4rem] font-black text-white tracking-wide" style={HEADING}>{plan.price}</span>
-                <span className="text-sm text-neutral-500 self-end pb-2">{plan.period}</span>
-              </div>
-              <p className="text-sm text-neutral-400 mb-7 pb-6 border-b border-white/[0.055] leading-relaxed">{plan.desc}</p>
-              <ul className="flex flex-col gap-3 mb-8 flex-1">
-                {plan.features.map((feat, fi) => (
-                  <li key={fi} className={`flex items-center gap-2.5 text-sm ${plan.okFlags[fi] ? 'text-neutral-300' : 'text-neutral-600 line-through'}`}>
-                    {plan.okFlags[fi]
-                      ? <Check className={`w-4 h-4 flex-shrink-0 ${plan.featured ? 'text-cyan-400' : 'text-green-400'}`} />
-                      : <X className="w-4 h-4 flex-shrink-0 text-neutral-600" />}
-                    {feat}
-                  </li>
-                ))}
-              </ul>
-              <Button className={`w-full py-6 text-[0.8rem] font-extrabold uppercase tracking-widest rounded-xl transition-all duration-200 hover:-translate-y-0.5 border-0 ${plan.primary ? 'bg-gradient-to-r from-teal-500 to-cyan-400 text-white shadow-[0_6px_24px_rgba(8,145,178,0.35)] hover:shadow-[0_10px_36px_rgba(8,145,178,0.5)]' : 'bg-transparent text-white border border-white/10 hover:bg-white/[0.06] hover:border-white/25'}`}>
-                {plan.cta}
-              </Button>
-            </Card>
+                <p className="text-sm text-neutral-400 mb-7 pb-6 border-b border-white/[0.055] leading-relaxed">{plan.desc}</p>
+                <ul className="flex flex-col gap-3 mb-8 flex-1">
+                  {plan.features.map((feat, fi) => (
+                    <li key={fi} className={`flex items-center gap-2.5 text-sm ${plan.okFlags[fi] ? 'text-neutral-300' : 'text-neutral-600 line-through'}`}>
+                      {plan.okFlags[fi]
+                        ? <Check className={`w-4 h-4 flex-shrink-0 ${plan.featured ? 'text-cyan-400' : 'text-green-400'}`} />
+                        : <X className="w-4 h-4 flex-shrink-0 text-neutral-600" />}
+                      {feat}
+                    </li>
+                  ))}
+                </ul>
+                <Button className={`w-full py-6 text-[0.8rem] font-extrabold uppercase tracking-widest rounded-xl transition-all duration-200 hover:-translate-y-0.5 border-0 ${plan.primary ? 'bg-gradient-to-r from-teal-500 to-cyan-400 text-white cta-glow-pulse hover:shadow-[0_10px_36px_rgba(8,145,178,0.5)]' : 'bg-transparent text-white border border-white/10 hover:bg-white/[0.06] hover:border-white/25'}`}>
+                  {plan.cta}
+                </Button>
+              </Card>
+            </PricingCard>
           ))}
         </div>
       </section>

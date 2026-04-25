@@ -180,21 +180,6 @@
       <div id="pwa-install-banner" style="display:none;margin-bottom:16px"></div>
 
       <!-- Welcome card -->
-      <div class="welcome-card">
-        <div>
-          <p class="welcome-greeting" id="welcome-greeting">Buenos días</p>
-          <p class="welcome-name" id="welcome-name">Usuario</p>
-          <p class="welcome-sub">Aquí tienes tu resumen de hoy</p>
-        </div>
-        <div class="welcome-badge">
-          <span class="welcome-badge-icon">🔥</span>
-          <span class="welcome-badge-text">
-            <span class="welcome-badge-label">Racha</span>
-            <span class="welcome-badge-value" id="welcome-streak">—</span>
-          </span>
-        </div>
-      </div>
-
       <!-- Stats cards -->
       <div class="stats-grid">
         <div class="stat-card" data-accent="blue">
@@ -242,24 +227,9 @@
       <!-- Insight de progreso (se renderiza desde app.js) -->
       <div id="progress-insight" style="display:none;margin-bottom:20px"></div>
 
-      <!-- Mini gráfica de peso + accesos rápidos -->
-      <div class="dashboard-bottom">
-        <div class="card card--chart">
-          <div class="card-header">
-            <h3 data-i18n="dashboard.chart_title">Evolución del peso (últimas 8 semanas)</h3>
-            <a class="card-link" data-section="peso" href="#peso" data-i18n="dashboard.view_all">Ver todo →</a>
-          </div>
-          <div class="chart-container chart-container--small">
-            <canvas id="mini-weight-chart"></canvas>
-            <div class="chart-empty" id="mini-chart-empty">
-              <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" opacity="0.3"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
-              <p data-i18n="dashboard.chart_empty">Añade registros de peso para ver tu progreso</p>
-              <button class="btn btn--primary btn--sm" data-section="peso" data-i18n="dashboard.add_weight">Añadir peso</button>
-            </div>
-          </div>
-        </div>
-
-        <div class="quick-actions">
+      <!-- Accesos rápidos -->
+      <div class="dashboard-bottom dashboard-bottom--full">
+        <div class="quick-actions quick-actions--full">
           <h3 class="quick-title" data-i18n="dashboard.quick_title">Acceso rápido</h3>
           <div class="quick-grid">
             <button class="quick-card" data-section="peso">

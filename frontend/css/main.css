@@ -2508,3 +2508,42 @@ select.form-input option { background: var(--bg-surface); color: var(--text-prim
 .ap-card-name  { font-size: 15px; font-weight: 600; color: var(--foreground); margin-bottom: 4px; }
 .ap-card-macros { font-size: 12px; color: var(--muted-foreground); }
 .ap-empty { text-align: center; padding: 32px; color: var(--muted-foreground); font-size: 14px; }
+
+/* ── Plateau Radar ────────────────────────────────────────── */
+.plateau-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 16px; }
+.plateau-card {
+  background: linear-gradient(160deg, #0f2228 0%, #0b1a1f 100%);
+  border: 1px solid var(--border); border-radius: 16px; padding: 20px 22px;
+}
+.plateau-card--stalled { border-color: rgba(248,113,113,0.35); background: linear-gradient(160deg, #1a0f0f 0%, #0d0a0a 100%); }
+.plateau-card--gaining { border-color: rgba(16,185,129,0.25); }
+.plateau-card-head { display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px; }
+.plateau-card-name { font-size: 16px; font-weight: 700; color: var(--foreground); }
+.plateau-badge {
+  font-size: 11px; font-weight: 700; letter-spacing: 1px; text-transform: uppercase;
+  padding: 3px 10px; border-radius: 99px;
+}
+.plateau-badge--stalled { background: rgba(248,113,113,0.15); color: #f87171; }
+.plateau-badge--gaining { background: rgba(16,185,129,0.15); color: #10b981; }
+.plateau-badge--neutral { background: rgba(255,255,255,0.07); color: rgba(255,255,255,0.4); }
+.plateau-rm { font-size: 13px; color: var(--muted-foreground); margin-bottom: 10px; }
+.plateau-trend {
+  font-size: 22px; font-weight: 700; margin-bottom: 12px;
+  font-family: 'Lora', Georgia, serif;
+}
+.plateau-trend--pos { color: #10b981; }
+.plateau-trend--neg { color: #f87171; }
+.plateau-trend--flat { color: rgba(255,255,255,0.3); }
+.plateau-causes { display: flex; flex-direction: column; gap: 6px; margin-top: 8px; }
+.plateau-cause {
+  font-size: 12.5px; color: var(--muted-foreground);
+  padding: 8px 12px; background: rgba(248,113,113,0.06);
+  border-left: 2px solid rgba(248,113,113,0.4); border-radius: 0 6px 6px 0;
+}
+.plateau-empty { text-align: center; padding: 48px 24px; color: var(--muted-foreground); font-size: 14px; }
+.plateau-all-good {
+  text-align: center; padding: 32px 24px;
+  background: rgba(16,185,129,0.07); border: 1px solid rgba(16,185,129,0.2);
+  border-radius: 16px; color: #10b981; font-size: 16px; font-weight: 600;
+  margin-bottom: 24px;
+}

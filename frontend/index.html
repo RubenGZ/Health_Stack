@@ -134,6 +134,14 @@
         <span class="nav-label" data-i18n="nav.achievements">Logros</span>
       </a>
 
+      <!-- Plateau Radar -->
+      <a class="nav-item" data-section="plateau" href="#plateau">
+        <span class="nav-icon">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+        </span>
+        <span class="nav-label">Plateau Radar</span>
+      </a>
+
       <!-- Records 1RM -->
       <a class="nav-item" data-section="records" href="#records">
         <span class="nav-icon">
@@ -1020,6 +1028,17 @@
     </div>
   </footer>
 
+    <!-- ── PLATEAU RADAR ──────────────────────────────────────────── -->
+    <section id="section-plateau" class="section">
+      <header class="section-header">
+        <div>
+          <h1 class="section-title">Plateau Radar</h1>
+          <p class="section-subtitle">Detecta estancamientos en tus levantamientos con 2-3 semanas de antelación</p>
+        </div>
+      </header>
+      <div id="plateau-root"></div>
+    </section>
+
     <!-- ── RECORDS 1RM ──────────────────────────────────────── -->
     <section id="section-records" class="section">
       <header class="section-header">
@@ -1165,6 +1184,7 @@
   <script defer src="js/readiness.js"></script>
   <script defer src="js/records.js"></script>
   <script defer src="js/macroAutopilot.js"></script>
+  <script src="js/plateauRadar.js"></script>
   <script defer src="js/app.js"></script>
   <!-- Importmap para el visor 3D híbrido -->
   <script type="importmap">

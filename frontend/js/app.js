@@ -116,6 +116,22 @@
     return Math.ceil((((d - onejan) / 86400000) + onejan.getDay() + 1) / 7);
   }
 
+  // ── Welcome card ───────────────────────────────────────────
+  function updateWelcomeCard() {
+    const user = JSON.parse(localStorage.getItem('hs_user') || 'null');
+    const hour = new Date().getHours();
+    const greet = hour < 6 ? 'Buenas noches' : hour < 13 ? 'Buenos días' : hour < 20 ? 'Buenas tardes' : 'Buenas noches';
+    const greetEl = document.getElementById('welcome-greeting');
+    const nameEl  = document.getElementById('welcome-name');
+    const streakEl = document.getElementById('welcome-streak');
+    if (greetEl) greetEl.textContent = greet;
+    if (nameEl && user?.username) nameEl.textContent = user.username;
+    if (streakEl) {
+      const streak = JSON.parse(localStorage.getItem('hs_gamification') || 'null')?.streak_days;
+      streakEl.textContent = streak != null ? `${streak} días` : '—';
+    }
+  }
+
   // ── User chip ──────────────────────────────────────────────
   function initUserChip() {
     const user = API?.getUser?.();
@@ -474,6 +490,7 @@
     if (typeof Onboarding         !== 'undefined') Onboarding.init();
 
     initUserChip();
+    updateWelcomeCard();
     listenWeightUpdates();
     initSectionTabs();
     updateDashboardStats();

@@ -1,4 +1,5 @@
 import { useTranslation }        from 'react-i18next'
+import { useGeoPrice }           from '@/hooks/useGeoPrice'
 import { SplineScene }            from '@/components/ui/splite'
 import { Card }                   from '@/components/ui/card'
 import { Spotlight }              from '@/components/ui/spotlight'
@@ -39,9 +40,9 @@ const PLAN_OK: boolean[][] = [
   [true, true, true, true, true,  true ],
 ]
 const PLAN_META = [
-  { featured: false, primary: false, price: '0'  },
-  { featured: true,  primary: true,  price: '9'  },
-  { featured: false, primary: false, price: '24' },
+  { featured: false, primary: false },
+  { featured: true,  primary: true  },
+  { featured: false, primary: false },
 ]
 
 const STAT_VALUES = [
@@ -203,7 +204,9 @@ export function SplineSceneBasic() {
 
   const features     = FEATURE_META.map((m, i) => ({ ...m, ...featureI18n[i] }))
   const testimonials = TESTIMONIAL_META.map((m, i) => ({ ...m, ...testimonialI18n[i] }))
-  const plans        = PLAN_META.map((m, i) => ({ ...m, ...planI18n[i], okFlags: PLAN_OK[i] }))
+  const geo    = useGeoPrice()
+  const geoPrices = [geo.prices.free, geo.prices.pro, geo.prices.elite]
+  const plans        = PLAN_META.map((m, i) => ({ ...m, ...planI18n[i], okFlags: PLAN_OK[i], price: geoPrices[i], symbol: geo.symbol }))
 
   return (
     <div className="min-h-screen bg-[#050508] text-white overflow-x-hidden">
@@ -450,7 +453,7 @@ export function SplineSceneBasic() {
               )}
               <p className={`text-[10px] font-bold uppercase tracking-[2.5px] mb-4 ${plan.featured ? 'text-teal-400' : 'text-neutral-500'}`}>{plan.tier}</p>
               <div className="flex items-start gap-0.5 mb-2 leading-none">
-                <span className="text-lg font-semibold text-neutral-400 pt-2">€</span>
+                <span className="text-lg font-semibold text-neutral-400 pt-2">{plan.symbol}</span>
                 <span className="text-[4rem] font-black text-white tracking-wide" style={HEADING}>{plan.price}</span>
                 <span className="text-sm text-neutral-500 self-end pb-2">{plan.period}</span>
               </div>

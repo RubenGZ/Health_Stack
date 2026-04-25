@@ -188,6 +188,9 @@
         const macroGrid = document.getElementById('macro-info-grid');
         if (macroGrid && !macroGrid.children.length) Supplements.init();
       }
+      if (tab === 'autopilot' && typeof MacroAutopilot !== 'undefined') {
+        MacroAutopilot.init();
+      }
     });
   }
 

@@ -1,4 +1,4 @@
-import { useRef, useCallback } from 'react'
+import { useRef, useCallback, type ReactNode } from 'react'
 import { useTranslation }        from 'react-i18next'
 import { useGeoPrice }           from '@/hooks/useGeoPrice'
 import { SplineScene }            from '@/components/ui/splite'
@@ -46,7 +46,7 @@ const PLAN_META = [
   { featured: false, primary: false },
 ]
 
-function PricingCard({ children, className }: { children: React.ReactNode; className?: string }) {
+function PricingCard({ children, className }: { children: ReactNode; className?: string }) {
   const ref = useRef<HTMLDivElement>(null)
   const reduced = typeof window !== 'undefined'
     && window.matchMedia('(prefers-reduced-motion: reduce)').matches

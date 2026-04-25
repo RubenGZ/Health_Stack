@@ -289,6 +289,7 @@ async def validation_error_handler(request: Request, exc: ValidationError):
 
 # ── Routers ───────────────────────────────────────────────────────────────────
 from app.modules.community.router import router as community_router
+from app.modules.geopricing.router import router as geopricing_router
 from app.modules.gamification.router import router as gamification_router
 from app.modules.health.router import router as health_router
 from app.modules.identity.router import router as identity_router
@@ -329,6 +330,12 @@ app.include_router(
     nutrition_router,
     prefix="/api/v1/nutrition",
     tags=["Nutrition"],
+)
+
+app.include_router(
+    geopricing_router,
+    prefix="/api",
+    tags=["Geo-Pricing"],
 )
 
 

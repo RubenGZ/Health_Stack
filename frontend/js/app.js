@@ -10,7 +10,7 @@
   const SECTIONS = [
     'dashboard','peso','nutricion','ejercicios',
     'rutinas','planner','gamificacion','comunidad',
-    'suplementos','timing','records','plateau',
+    'suplementos','timing','records','receipt','fatigue','plateau',
   ];
 
   function navigateTo(sectionId) {
@@ -49,6 +49,12 @@
     }
     if (sectionId === 'records' && typeof Records !== 'undefined') {
       Records.init();
+    }
+    if (sectionId === 'receipt' && typeof AthleteReceipt !== 'undefined') {
+      AthleteReceipt.init();
+    }
+    if (sectionId === 'fatigue' && typeof FatigueHeatmap !== 'undefined') {
+      FatigueHeatmap.init();
     }
     if (sectionId === 'plateau' && typeof PlateauRadar !== 'undefined') {
       PlateauRadar.init();
@@ -605,6 +611,7 @@
     initSectionTabs();
     updateDashboardStats();
     if (typeof Readiness !== 'undefined') Readiness.init();
+    if (typeof RestTimer !== 'undefined') RestTimer.init();
     renderProgressInsight();
     renderSponsorBanner();
     initPWAInstall();

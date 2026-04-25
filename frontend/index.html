@@ -78,14 +78,6 @@
         <span class="nav-label" data-i18n="nav.nutrition">Nutrición</span>
       </a>
 
-      <!-- 2b. Peso (dentro del bloque de salud corporal) -->
-      <a class="nav-item nav-item--sub" data-section="peso" href="#peso">
-        <span class="nav-icon">
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 6l9-3 9 3v6c0 5.25-3.75 10.15-9 11.25C6.75 22.15 3 17.25 3 12V6z"/><polyline points="9 12 11 14 15 10"/></svg>
-        </span>
-        <span class="nav-label" data-i18n="nav.weight">Peso</span>
-      </a>
-
       <!-- 3. Ejercicios -->
       <a class="nav-item" data-section="ejercicios" href="#ejercicios">
         <span class="nav-icon">
@@ -126,6 +118,14 @@
         <span class="nav-label" data-i18n="nav.timing">Horario Óptimo</span>
       </a>
 
+      <!-- 7b. Peso -->
+      <a class="nav-item" data-section="peso" href="#peso">
+        <span class="nav-icon">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2a4 4 0 0 1 4 4c0 1.5-.8 2.8-2 3.5V20H10V9.5A4 4 0 0 1 8 6a4 4 0 0 1 4-4z"/></svg>
+        </span>
+        <span class="nav-label" data-i18n="nav.weight">Peso</span>
+      </a>
+
       <!-- 8. Logros -->
       <a class="nav-item" data-section="gamificacion" href="#gamificacion">
         <span class="nav-icon">
@@ -134,12 +134,28 @@
         <span class="nav-label" data-i18n="nav.achievements">Logros</span>
       </a>
 
+      <!-- Fatigue Heatmap -->
+      <a class="nav-item" data-section="fatigue" href="#fatigue">
+        <span class="nav-icon">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2a4 4 0 0 1 4 4c0 1.5-.8 2.8-2 3.5V20H10V9.5A4 4 0 0 1 8 6a4 4 0 0 1 4-4z"/></svg>
+        </span>
+        <span class="nav-label">Fatigue Heatmap</span>
+      </a>
+
       <!-- Plateau Radar -->
       <a class="nav-item" data-section="plateau" href="#plateau">
         <span class="nav-icon">
           <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
         </span>
         <span class="nav-label">Plateau Radar</span>
+      </a>
+
+      <!-- Athlete Receipt -->
+      <a class="nav-item" data-section="receipt" href="#receipt">
+        <span class="nav-icon">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>
+        </span>
+        <span class="nav-label">Athlete Receipt</span>
       </a>
 
       <!-- Records 1RM -->
@@ -1028,17 +1044,6 @@
     </div>
   </footer>
 
-    <!-- ── PLATEAU RADAR ──────────────────────────────────────────── -->
-    <section id="section-plateau" class="section">
-      <header class="section-header">
-        <div>
-          <h1 class="section-title">Plateau Radar</h1>
-          <p class="section-subtitle">Detecta estancamientos en tus levantamientos con 2-3 semanas de antelación</p>
-        </div>
-      </header>
-      <div id="plateau-root"></div>
-    </section>
-
     <!-- ── RECORDS 1RM ──────────────────────────────────────── -->
     <section id="section-records" class="section">
       <header class="section-header">
@@ -1089,6 +1094,87 @@
 
       <div id="rm-leaderboard"></div>
     </section>
+
+    <!-- ── FATIGUE HEATMAP ────────────────────────────────────── -->
+    <section id="section-fatigue" class="section">
+      <header class="section-header">
+        <div>
+          <h1 class="section-title">Fatigue Heatmap</h1>
+          <p class="section-subtitle">Estado de recuperación muscular · basado en tus registros</p>
+        </div>
+      </header>
+      <div id="fatigue-root"></div>
+    </section>
+
+    <!-- ── PLATEAU RADAR ──────────────────────────────────────────── -->
+    <section id="section-plateau" class="section">
+      <header class="section-header">
+        <div>
+          <h1 class="section-title">Plateau Radar</h1>
+          <p class="section-subtitle">Detecta estancamientos en tus levantamientos con 2-3 semanas de antelación</p>
+        </div>
+      </header>
+      <div id="plateau-root"></div>
+    </section>
+
+    <!-- ── ATHLETE RECEIPT ──────────────────────────────────── -->
+    <section id="section-receipt" class="section">
+      <header class="section-header">
+        <div>
+          <h1 class="section-title">Athlete Receipt</h1>
+          <p class="section-subtitle">Tu resumen semanal de entrenamiento</p>
+        </div>
+        <div class="header-actions">
+          <button class="btn btn--primary" id="btn-print-receipt" onclick="window.print()">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 6 2 18 2 18 9"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect x="6" y="14" width="12" height="8"/></svg>
+            Guardar / Imprimir
+          </button>
+        </div>
+      </header>
+      <div id="receipt-card-wrapper"></div>
+    </section>
+
+  <!-- Smart Rest Timer FAB -->
+  <button id="rest-timer-fab" class="rest-fab" title="Timer de descanso" aria-label="Abrir timer de descanso">
+    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+  </button>
+
+  <!-- Smart Rest Timer Modal -->
+  <div id="rest-timer-overlay" class="rest-overlay" role="dialog" aria-modal="true" style="display:none">
+    <div class="rest-modal">
+      <button class="rest-close" id="rest-close" aria-label="Cerrar">&#x2715;</button>
+      <h2 class="rest-title">Timer de Descanso</h2>
+      <div id="rest-form" class="rest-form">
+        <div class="rest-inputs">
+          <div class="rest-input-group">
+            <label>Peso (kg)</label>
+            <input id="rt-weight" type="number" placeholder="80" min="1" max="999" step="0.5" class="rest-input">
+          </div>
+          <div class="rest-input-group">
+            <label>Reps</label>
+            <input id="rt-reps" type="number" placeholder="8" min="1" max="50" class="rest-input">
+          </div>
+          <div class="rest-input-group">
+            <label>RPE <span style="opacity:.5;font-size:11px">(opc.)</span></label>
+            <input id="rt-rpe" type="number" placeholder="8" min="5" max="10" step="0.5" class="rest-input">
+          </div>
+        </div>
+        <button id="rest-start-btn" class="rest-start-btn">Iniciar descanso</button>
+      </div>
+      <div id="rest-timer-display" class="rest-timer-display" style="display:none">
+        <div class="rest-set-type" id="rest-set-type">Hipertrofia</div>
+        <div class="rest-ring-wrap">
+          <svg class="rest-ring-svg" viewBox="0 0 120 120">
+            <circle class="rest-ring-track" cx="60" cy="60" r="52"/>
+            <circle class="rest-ring-fill" cx="60" cy="60" r="52" id="rest-ring-fill"/>
+          </svg>
+          <div class="rest-time-label" id="rest-time-label">1:30</div>
+        </div>
+        <div class="rest-next-hint" id="rest-next-hint"></div>
+        <button id="rest-skip-btn" class="rest-skip-btn">Saltar descanso</button>
+      </div>
+    </div>
+  </div>
 
   </main><!-- /main-content -->
 
@@ -1183,8 +1269,11 @@
   <script defer src="js/timingPlanner.js?v=3"></script>
   <script defer src="js/readiness.js"></script>
   <script defer src="js/records.js"></script>
+  <script defer src="js/restTimer.js"></script>
+  <script defer src="js/athleteReceipt.js"></script>
   <script defer src="js/macroAutopilot.js"></script>
   <script src="js/plateauRadar.js"></script>
+  <script src="js/fatigueHeatmap.js"></script>
   <script defer src="js/app.js"></script>
   <!-- Importmap para el visor 3D híbrido -->
   <script type="importmap">

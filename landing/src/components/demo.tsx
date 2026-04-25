@@ -1,5 +1,5 @@
 import { useTranslation }        from 'react-i18next'
-import { SplineScene }            from '@/components/ui/splite'
+import { HeroOrbs }               from '@/components/ui/hero-orbs'
 import { Card }                   from '@/components/ui/card'
 import { Spotlight }              from '@/components/ui/spotlight'
 import { Button }                 from '@/components/ui/button'
@@ -314,7 +314,7 @@ export function SplineSceneBasic() {
                 <p className="text-[10px] text-neutral-500">{t('hero.tag2_sub')}</p>
               </div>
             </div>
-            <SplineScene scene="https://prod.spline.design/kZDDjO5HuC9GJUM2/scene.splinecode" className="w-full h-full" />
+            <HeroOrbs className="w-full h-full" />
           </div>
         </div>
       </Card>

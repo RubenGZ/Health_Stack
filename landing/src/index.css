@@ -69,3 +69,48 @@ html {
   border-radius: 99px;
 }
 ::-webkit-scrollbar-thumb:hover { background: rgba(8, 145, 178, 0.55); }
+
+/* ── Hero orbs (replaces Spline 3D scene) ─────────────────── */
+.hero-orb-1, .hero-orb-2, .hero-orb-3 {
+  position: absolute;
+  border-radius: 50%;
+  pointer-events: none;
+}
+.hero-orb-1 {
+  width: 480px; height: 480px;
+  background: radial-gradient(circle, rgba(8,145,178,0.32) 0%, transparent 70%);
+  top: -80px; right: 5%;
+  animation: orb-drift 9s ease-in-out infinite;
+  filter: blur(60px);
+}
+.hero-orb-2 {
+  width: 320px; height: 320px;
+  background: radial-gradient(circle, rgba(34,211,238,0.18) 0%, transparent 70%);
+  top: 35%; right: 28%;
+  animation: orb-drift 12s ease-in-out -4s infinite;
+  filter: blur(50px);
+}
+.hero-orb-3 {
+  width: 260px; height: 260px;
+  background: radial-gradient(circle, rgba(22,163,74,0.15) 0%, transparent 70%);
+  bottom: 8%; right: 8%;
+  animation: orb-drift 7s ease-in-out -6s infinite;
+  filter: blur(45px);
+}
+.hero-grid-overlay {
+  position: absolute;
+  inset: 0;
+  background-image:
+    linear-gradient(rgba(255,255,255,0.025) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255,255,255,0.025) 1px, transparent 1px);
+  background-size: 48px 48px;
+  -webkit-mask-image: radial-gradient(ellipse 70% 70% at 60% 50%, black 30%, transparent 100%);
+  mask-image: radial-gradient(ellipse 70% 70% at 60% 50%, black 30%, transparent 100%);
+}
+@keyframes orb-drift {
+  0%, 100% { transform: translateY(0px) scale(1); }
+  50%       { transform: translateY(-24px) scale(1.06); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .hero-orb-1, .hero-orb-2, .hero-orb-3 { animation: none; }
+}

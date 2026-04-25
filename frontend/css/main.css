@@ -2538,3 +2538,70 @@ select.form-input option { background: var(--bg-surface); color: var(--text-prim
 .rest-skip-btn { background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.1); border-radius: 10px; padding: 10px 24px; color: rgba(255,255,255,0.5); cursor: pointer; font-size: 13px; transition: background 0.15s, color 0.15s; }
 .rest-skip-btn:hover { background: rgba(255,255,255,0.10); color: #fff; }
 @media (prefers-reduced-motion: reduce) { .rest-ring-fill { transition: none; } }
+
+/* ── Athlete Receipt ──────────────────────────────────────── */
+.receipt-card {
+  max-width: 560px; margin: 0 auto;
+  background: linear-gradient(160deg, #0f2228 0%, #071318 100%);
+  border: 1px solid rgba(34,211,238,0.25);
+  border-radius: 24px; padding: 40px 36px 32px;
+  box-shadow: 0 24px 64px rgba(0,0,0,0.5), 0 0 0 1px rgba(34,211,238,0.08);
+  position: relative; overflow: hidden;
+}
+.receipt-card::before {
+  content: '';
+  position: absolute; top: 0; left: 0; right: 0; height: 3px;
+  background: linear-gradient(90deg, transparent, #0891b2, #22d3ee, #0891b2, transparent);
+}
+.receipt-brand {
+  text-align: center; margin-bottom: 8px;
+  font-family: 'Lora', Georgia, serif;
+  font-size: 13px; letter-spacing: 5px; text-transform: uppercase;
+  color: rgba(34,211,238,0.6);
+}
+.receipt-week {
+  text-align: center; margin-bottom: 4px;
+  font-family: 'Lora', Georgia, serif; font-size: 28px; font-weight: 700;
+  background: linear-gradient(135deg, #fff, #22d3ee);
+  -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent;
+}
+.receipt-athlete {
+  text-align: center; font-size: 13px; color: rgba(255,255,255,0.35);
+  letter-spacing: 2px; text-transform: uppercase; margin-bottom: 32px;
+}
+.receipt-divider {
+  border: none; border-top: 1px dashed rgba(34,211,238,0.2); margin: 24px 0;
+}
+.receipt-metrics {
+  display: grid; grid-template-columns: repeat(2, 1fr); gap: 16px; margin-bottom: 24px;
+}
+.receipt-tile {
+  background: rgba(8,145,178,0.08); border: 1px solid rgba(34,211,238,0.12);
+  border-radius: 14px; padding: 16px 18px; text-align: center;
+}
+.receipt-tile-val {
+  font-family: 'Lora', Georgia, serif; font-size: 32px; font-weight: 700;
+  color: #22d3ee; display: block; line-height: 1.1;
+}
+.receipt-tile-lbl {
+  font-size: 11px; color: rgba(255,255,255,0.35);
+  text-transform: uppercase; letter-spacing: 1.5px; margin-top: 4px;
+}
+.receipt-highlight {
+  background: rgba(245,158,11,0.08); border: 1px solid rgba(245,158,11,0.2);
+  border-radius: 14px; padding: 18px 20px; text-align: center; margin-bottom: 24px;
+}
+.receipt-highlight-label { font-size: 11px; color: rgba(245,158,11,0.6); text-transform: uppercase; letter-spacing: 2px; margin-bottom: 6px; }
+.receipt-highlight-val   { font-family: 'Lora', Georgia, serif; font-size: 20px; font-weight: 600; color: #fbbf24; }
+.receipt-footer {
+  text-align: center; font-size: 12px; color: rgba(255,255,255,0.2);
+  letter-spacing: 1px;
+}
+
+@media print {
+  body > *:not(#main-content) { display: none !important; }
+  #main-content > .section:not(#section-receipt) { display: none !important; }
+  #section-receipt { display: block !important; }
+  .section-header, .rest-fab, .sidebar, .mobile-header { display: none !important; }
+  .receipt-card { box-shadow: none; border: 1px solid #ccc; max-width: 100%; }
+}

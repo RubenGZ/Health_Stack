@@ -10,7 +10,7 @@
   const SECTIONS = [
     'dashboard','peso','nutricion','ejercicios',
     'rutinas','planner','gamificacion','comunidad',
-    'suplementos','timing','records',
+    'suplementos','timing','records','receipt',
   ];
 
   function navigateTo(sectionId) {
@@ -49,6 +49,9 @@
     }
     if (sectionId === 'records' && typeof Records !== 'undefined') {
       Records.init();
+    }
+    if (sectionId === 'receipt' && typeof AthleteReceipt !== 'undefined') {
+      AthleteReceipt.init();
     }
   }
 

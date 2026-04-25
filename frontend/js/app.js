@@ -340,7 +340,7 @@
     renderMiniChart(entries);
 
     // Smart Progress Projection
-    var insightEl = document.getElementById('progress-insight');
+    var insightEl = document.getElementById('projection-insight');
     if (insightEl) {
       var proj = computeProjection();
       if (proj) {

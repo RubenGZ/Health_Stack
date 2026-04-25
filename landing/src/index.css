@@ -69,3 +69,17 @@ html {
   border-radius: 99px;
 }
 ::-webkit-scrollbar-thumb:hover { background: rgba(8, 145, 178, 0.55); }
+
+/* ── Premium micro-interactions ─────────────────────────────── */
+@keyframes ctaGlowRing {
+  0%, 100% { box-shadow: 0 6px 24px rgba(8,145,178,0.35), 0 0 0 0 rgba(34,211,238,0); }
+  50%       { box-shadow: 0 6px 24px rgba(8,145,178,0.5), 0 0 0 8px rgba(34,211,238,0.10); }
+}
+
+.cta-glow-pulse {
+  animation: ctaGlowRing 2.5s ease-in-out infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .cta-glow-pulse { animation: none; }
+}

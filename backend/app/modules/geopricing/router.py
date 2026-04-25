@@ -86,7 +86,7 @@ def _resolve_pricing(country_code: str) -> dict[str, Any]:
 
 # ── Endpoint ──────────────────────────────────────────────────────────────────
 
-@router.get("/geo-price", tags=["Geo-Pricing"])
+@router.get("/geo-price")
 async def geo_price(request: Request) -> JSONResponse:
     ip = _extract_ip(request)
 
@@ -104,10 +104,8 @@ async def geo_price(request: Request) -> JSONResponse:
     # Call ip-api.com
     try:
         async with httpx.AsyncClient(timeout=3.0) as client:
-            resp = await client.get(
-                f"http://ip-api.com/json/{ip}",
-                params={"fields": "status,countryCode"},
-            )
+            url = f"http://ip-api.com/json/{ip}?fields=status,countryCode"
+            resp = await client.get(url)
         if resp.status_code == 200:
             data = resp.json()
             if data.get("status") == "success":

@@ -16,7 +16,7 @@ export default defineConfig({
   },
 
   build: {
-    chunkSizeWarningLimit: 500,
+    chunkSizeWarningLimit: 1000,
 
     rollupOptions: {
       output: {
@@ -29,6 +29,8 @@ export default defineConfig({
          *   index          ~87 KB   — app code
          */
         manualChunks(id) {
+          // Spline runtime — chunk separado, carga lazy cuando el hero renderiza
+          if (id.includes('@splinetool')) return 'vendor-spline'
           // Framer Motion — animaciones de scroll
           if (id.includes('framer-motion')) return 'vendor-motion'
           // i18n — traducciones

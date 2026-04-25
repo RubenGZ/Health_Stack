@@ -526,6 +526,7 @@
     listenWeightUpdates();
     initSectionTabs();
     updateDashboardStats();
+    if (typeof Readiness !== 'undefined') Readiness.init();
     renderProgressInsight();
     renderSponsorBanner();
     initPWAInstall();

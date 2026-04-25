@@ -2379,3 +2379,43 @@ select.form-input option { background: var(--bg-surface); color: var(--text-prim
   }
 }
 
+/* ── Training Readiness Score ─────────────────────────────── */
+.readiness-card {
+  background: linear-gradient(135deg, rgba(8,145,178,0.10) 0%, rgba(16,185,129,0.08) 100%);
+  border: 1px solid rgba(8,145,178,0.20);
+  border-radius: var(--radius-lg, 12px);
+  padding: 20px 24px;
+  display: flex;
+  align-items: center;
+  gap: 20px;
+}
+.readiness-dial {
+  position: relative;
+  width: 72px;
+  height: 72px;
+  flex-shrink: 0;
+}
+.readiness-dial svg { width: 72px; height: 72px; transform: rotate(-90deg); }
+.readiness-dial__track { fill: none; stroke: rgba(255,255,255,0.08); stroke-width: 6; }
+.readiness-dial__fill  { fill: none; stroke-width: 6; stroke-linecap: round; transition: stroke-dashoffset 0.8s cubic-bezier(0.16,1,0.3,1); }
+.readiness-dial__label {
+  position: absolute; inset: 0;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 17px; font-weight: 700; color: var(--foreground);
+}
+.readiness-info { flex: 1; }
+.readiness-rec  { font-size: 18px; font-weight: 700; color: var(--foreground); margin: 0 0 4px; }
+.readiness-sub  { font-size: 13px; color: var(--muted-foreground); margin: 0; }
+.readiness-badge {
+  display: inline-block; padding: 2px 10px; border-radius: 99px;
+  font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em;
+  margin-bottom: 6px;
+}
+.readiness-badge--push     { background: rgba(16,185,129,0.18); color: #10b981; }
+.readiness-badge--moderate { background: rgba(245,158,11,0.18); color: #f59e0b; }
+.readiness-badge--rest     { background: rgba(139,92,246,0.18); color: #8b5cf6; }
+
+@media (prefers-reduced-motion: reduce) {
+  .readiness-dial__fill { transition: none; }
+}
+

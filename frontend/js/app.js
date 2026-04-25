@@ -10,7 +10,7 @@
   const SECTIONS = [
     'dashboard','peso','nutricion','ejercicios',
     'rutinas','planner','gamificacion','comunidad',
-    'suplementos','timing',
+    'suplementos','timing','records',
   ];
 
   function navigateTo(sectionId) {
@@ -46,6 +46,9 @@
     // (necesario si el canvas estaba oculto cuando se creó el chart)
     if (sectionId === 'peso' && typeof WeightTracker !== 'undefined') {
       setTimeout(() => WeightTracker.renderAll(), 50);
+    }
+    if (sectionId === 'records' && typeof Records !== 'undefined') {
+      Records.init();
     }
   }
 
@@ -220,6 +223,50 @@
     requestAnimationFrame(tick);
   }
 
+  function computeProjection() {
+    var entries = typeof WeightTracker !== 'undefined' ? WeightTracker.getAll() : [];
+    if (entries.length < 5) return null;
+
+    var recent = entries.slice(-14);
+    var t0 = new Date(recent[0].date).getTime();
+    var n = recent.length;
+    var sumX = 0, sumY = 0, sumXY = 0, sumX2 = 0;
+
+    recent.forEach(function (e) {
+      var x = (new Date(e.date).getTime() - t0) / 86400000;
+      var y = e.weight;
+      sumX  += x;
+      sumY  += y;
+      sumXY += x * y;
+      sumX2 += x * x;
+    });
+
+    var denom = n * sumX2 - sumX * sumX;
+    if (Math.abs(denom) < 0.001) return null;
+
+    var slope     = (n * sumXY - sumX * sumY) / denom;
+    var intercept = (sumY - slope * sumX) / n;
+
+    if (slope >= 0) return null;
+
+    var user   = JSON.parse(localStorage.getItem('hs_user') || 'null');
+    var latest = recent[recent.length - 1].weight;
+    var goal   = (user && user.goal_weight && user.goal_weight < latest)
+      ? user.goal_weight
+      : +(latest - 5).toFixed(1);
+
+    var daysToGoal = (goal - intercept) / slope;
+    var lastX = (new Date(recent[recent.length - 1].date).getTime() - t0) / 86400000;
+    if (daysToGoal <= lastX) return null;
+
+    var goalDate   = new Date(t0 + daysToGoal * 86400000);
+    var ratePerWeek = +(slope * 7).toFixed(2);
+    var months     = ['ene','feb','mar','abr','may','jun','jul','ago','sep','oct','nov','dic'];
+    var dateStr    = goalDate.getDate() + ' ' + months[goalDate.getMonth()] + ' ' + goalDate.getFullYear();
+
+    return { goal: goal.toFixed(1), dateStr: dateStr, ratePerWeek: ratePerWeek };
+  }
+
   // ── Dashboard: métricas en tiempo real ────────────────────
   function updateDashboardStats() {
     const entries = typeof WeightTracker !== 'undefined' ? WeightTracker.getAll() : [];
@@ -294,6 +341,31 @@
 
     // Mini gráfico de peso
     renderMiniChart(entries);
+
+    // Smart Progress Projection
+    var insightEl = document.getElementById('projection-insight');
+    if (insightEl) {
+      var proj = computeProjection();
+      if (proj) {
+        insightEl.style.display = 'block';
+        insightEl.innerHTML = [
+          '<div class="projection-card">',
+            '<div class="projection-icon">📈</div>',
+            '<div class="projection-body">',
+              '<p class="projection-headline">',
+                'A este ritmo llegarás a <span class="projection-highlight">' + proj.goal + ' kg</span>',
+                ' el <span class="projection-highlight">' + proj.dateStr + '</span>',
+              '</p>',
+              '<p class="projection-detail">',
+                'Perdiendo ~' + Math.abs(proj.ratePerWeek) + ' kg/semana · basado en tus últimos registros',
+              '</p>',
+            '</div>',
+          '</div>',
+        ].join('');
+      } else {
+        insightEl.style.display = 'none';
+      }
+    }
   }
 
   function renderMiniChart(entries) {
@@ -526,6 +598,7 @@
     listenWeightUpdates();
     initSectionTabs();
     updateDashboardStats();
+    if (typeof Readiness !== 'undefined') Readiness.init();
     renderProgressInsight();
     renderSponsorBanner();
     initPWAInstall();

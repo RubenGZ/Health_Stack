@@ -134,6 +134,14 @@
         <span class="nav-label" data-i18n="nav.achievements">Logros</span>
       </a>
 
+      <!-- Records 1RM -->
+      <a class="nav-item" data-section="records" href="#records">
+        <span class="nav-icon">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M8.21 13.89L7 23l5-3 5 3-1.21-9.12"/><path d="M15 7a3 3 0 1 0-6 0 3 3 0 0 0 6 0z"/><path d="M12 4v3"/></svg>
+        </span>
+        <span class="nav-label">Records 1RM</span>
+      </a>
+
       <!-- 8b. Comunidad -->
       <a class="nav-item" data-section="comunidad" href="#comunidad">
         <span class="nav-icon">
@@ -227,8 +235,12 @@
         </div>
       </div>
 
+      <!-- Training Readiness Score -->
+      <div id="readiness-widget" style="display:none;margin-bottom:20px"></div>
+
       <!-- Insight de progreso (se renderiza desde app.js) -->
       <div id="progress-insight" style="display:none;margin-bottom:20px"></div>
+      <div id="projection-insight" style="display:none;margin-bottom:20px"></div>
 
       <!-- Accesos rápidos -->
       <div class="dashboard-bottom dashboard-bottom--full">
@@ -1003,6 +1015,57 @@
     </div>
   </footer>
 
+    <!-- ── RECORDS 1RM ──────────────────────────────────────── -->
+    <section id="section-records" class="section">
+      <header class="section-header">
+        <div>
+          <h1 class="section-title">Records 1RM</h1>
+          <p class="section-subtitle">Tu fuerza máxima estimada por ejercicio · Fórmula de Epley</p>
+        </div>
+        <div class="header-actions">
+          <button class="btn btn--primary" id="btn-open-rm-form">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+            Añadir intento
+          </button>
+        </div>
+      </header>
+
+      <div id="rm-form-wrapper" style="display:none;margin-bottom:24px">
+        <div class="card" style="padding:24px">
+          <h3 style="margin:0 0 16px;font-size:16px">Nuevo intento</h3>
+          <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;margin-bottom:16px">
+            <div>
+              <label style="display:block;font-size:12px;color:var(--muted-foreground);margin-bottom:4px">Ejercicio</label>
+              <input id="rm-exercise" list="rm-exercise-list" class="form-input" placeholder="Press banca…" style="width:100%;box-sizing:border-box">
+              <datalist id="rm-exercise-list">
+                <option value="Press banca">
+                <option value="Sentadilla">
+                <option value="Peso muerto">
+                <option value="Press militar">
+                <option value="Dominadas lastradas">
+                <option value="Hip thrust">
+                <option value="Remo con barra">
+              </datalist>
+            </div>
+            <div>
+              <label style="display:block;font-size:12px;color:var(--muted-foreground);margin-bottom:4px">Peso (kg)</label>
+              <input id="rm-weight" type="number" class="form-input" placeholder="80" min="1" max="999" step="0.5" style="width:100%;box-sizing:border-box">
+            </div>
+            <div>
+              <label style="display:block;font-size:12px;color:var(--muted-foreground);margin-bottom:4px">Repeticiones</label>
+              <input id="rm-reps" type="number" class="form-input" placeholder="5" min="1" max="30" style="width:100%;box-sizing:border-box">
+            </div>
+          </div>
+          <div style="display:flex;gap:8px">
+            <button class="btn btn--primary" id="btn-save-rm">Guardar</button>
+            <button class="btn btn--ghost" id="btn-cancel-rm">Cancelar</button>
+          </div>
+        </div>
+      </div>
+
+      <div id="rm-leaderboard"></div>
+    </section>
+
   </main><!-- /main-content -->
 
   <!-- ── CHATBOT FLOTANTE ──────────────────────────────────── -->
@@ -1094,6 +1157,8 @@
   <script defer src="js/supplements.js?v=3"></script>
   <script defer src="js/myRecipes.js?v=4"></script>
   <script defer src="js/timingPlanner.js?v=3"></script>
+  <script defer src="js/readiness.js"></script>
+  <script defer src="js/records.js"></script>
   <script defer src="js/app.js"></script>
   <!-- Importmap para el visor 3D híbrido -->
   <script type="importmap">

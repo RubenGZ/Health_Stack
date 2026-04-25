@@ -35,7 +35,7 @@ const TESTIMONIAL_META = [
 
 // ok flags: which plan features are included (true) vs crossed-out (false)
 const PLAN_OK: boolean[][] = [
-  [true, true, true, true, false, false],
+  [true, true, true, true, true,  true ],
   [true, true, true, true, true,  true ],
   [true, true, true, true, true,  true ],
 ]

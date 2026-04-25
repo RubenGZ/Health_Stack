@@ -386,6 +386,12 @@ canvas { display: block; }
   grid-template-columns: 1fr 320px;
   gap: 20px;
 }
+.dashboard-bottom--full {
+  grid-template-columns: 1fr;
+}
+.quick-actions--full .quick-grid {
+  grid-template-columns: repeat(4, 1fr);
+}
 .card--chart { display: flex; flex-direction: column; }
 
 /* Chart containers */
@@ -523,7 +529,7 @@ canvas { display: block; }
 /* Weight stats bar */
 .weight-stats {
   display: grid;
-  grid-template-columns: repeat(6, 1fr);
+  grid-template-columns: repeat(3, 1fr);
   gap: 12px;
   margin: 20px 0;
 }

@@ -10,7 +10,7 @@
   const SECTIONS = [
     'dashboard','peso','nutricion','ejercicios',
     'rutinas','planner','gamificacion','comunidad',
-    'suplementos','timing','records','receipt','fatigue','plateau',
+    'suplementos','timing','records','receipt','fatigue','plateau','deload',
   ];
 
   function navigateTo(sectionId) {
@@ -58,6 +58,9 @@
     }
     if (sectionId === 'plateau' && typeof PlateauRadar !== 'undefined') {
       PlateauRadar.init();
+    }
+    if (sectionId === 'deload' && typeof AutoDeload !== 'undefined') {
+      AutoDeload.init();
     }
   }
 

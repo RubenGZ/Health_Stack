@@ -2441,3 +2441,35 @@ select.form-input option { background: var(--bg-surface); color: var(--text-prim
 .projection-detail   { font-size: 13px; color: var(--muted-foreground); margin: 0; }
 .projection-highlight { color: #a78bfa; font-weight: 600; }
 
+
+/* ── 1RM Records Section ──────────────────────────────────── */
+.rm-exercise-block { margin-bottom: 24px; }
+.rm-exercise-name  {
+  font-size: 15px; font-weight: 700; color: var(--foreground);
+  margin: 0 0 12px;
+  display: flex; align-items: center; gap: 8px;
+}
+.rm-best-badge {
+  background: rgba(245,158,11,0.18); color: #f59e0b;
+  border-radius: 6px; padding: 2px 8px; font-size: 11px; font-weight: 700;
+}
+.rm-table { width: 100%; border-collapse: collapse; }
+.rm-table th, .rm-table td {
+  text-align: left; padding: 10px 12px;
+  font-size: 13px; border-bottom: 1px solid var(--border);
+}
+.rm-table th { color: var(--muted-foreground); font-weight: 600; font-size: 11px; text-transform: uppercase; letter-spacing: 0.04em; }
+.rm-table tr:last-child td { border-bottom: none; }
+.rm-table .rm-pr-row td { color: #f59e0b; font-weight: 600; }
+.rm-1rm-val { font-weight: 700; color: var(--primary); }
+.rm-empty {
+  text-align: center; padding: 48px 24px;
+  color: var(--muted-foreground); font-size: 14px;
+}
+.rm-delete-btn {
+  background: none; border: none; cursor: pointer;
+  color: var(--muted-foreground); padding: 2px 6px; border-radius: 4px;
+  font-size: 14px; line-height: 1;
+  transition: color 0.15s, background 0.15s;
+}
+.rm-delete-btn:hover { color: #ef4444; background: rgba(239,68,68,0.10); }

@@ -10,7 +10,7 @@
   const SECTIONS = [
     'dashboard','peso','nutricion','ejercicios',
     'rutinas','planner','gamificacion','comunidad',
-    'suplementos','timing',
+    'suplementos','timing','records',
   ];
 
   function navigateTo(sectionId) {
@@ -46,6 +46,9 @@
     // (necesario si el canvas estaba oculto cuando se creó el chart)
     if (sectionId === 'peso' && typeof WeightTracker !== 'undefined') {
       setTimeout(() => WeightTracker.renderAll(), 50);
+    }
+    if (sectionId === 'records' && typeof Records !== 'undefined') {
+      Records.init();
     }
   }
 

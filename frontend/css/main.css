@@ -2419,3 +2419,25 @@ select.form-input option { background: var(--bg-surface); color: var(--text-prim
   .readiness-dial__fill { transition: none; }
 }
 
+/* ── Smart Progress Projection ───────────────────────────── */
+.projection-card {
+  background: linear-gradient(135deg, rgba(139,92,246,0.10) 0%, rgba(8,145,178,0.08) 100%);
+  border: 1px solid rgba(139,92,246,0.22);
+  border-radius: var(--radius-lg, 12px);
+  padding: 18px 24px;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+.projection-icon {
+  width: 44px; height: 44px; flex-shrink: 0;
+  background: rgba(139,92,246,0.15);
+  border-radius: 10px;
+  display: flex; align-items: center; justify-content: center;
+  color: #8b5cf6; font-size: 20px;
+}
+.projection-body { flex: 1; }
+.projection-headline { font-size: 16px; font-weight: 700; color: var(--foreground); margin: 0 0 4px; }
+.projection-detail   { font-size: 13px; color: var(--muted-foreground); margin: 0; }
+.projection-highlight { color: #a78bfa; font-weight: 600; }
+

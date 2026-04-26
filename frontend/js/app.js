@@ -10,7 +10,7 @@
   const SECTIONS = [
     'dashboard','peso','nutricion','ejercicios',
     'rutinas','planner','gamificacion','comunidad',
-    'suplementos','timing','records','receipt','fatigue','plateau','deload','bodycomp',
+    'suplementos','timing','records','receipt','fatigue','plateau','deload','bodycomp','sessionreplay',
   ];
 
   function navigateTo(sectionId) {
@@ -64,6 +64,9 @@
     }
     if (sectionId === 'bodycomp' && typeof BodyCompForecast !== 'undefined') {
       BodyCompForecast.init();
+    }
+    if (sectionId === 'sessionreplay' && typeof SessionReplay !== 'undefined') {
+      SessionReplay.init();
     }
   }
 

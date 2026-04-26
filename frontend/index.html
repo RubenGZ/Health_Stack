@@ -134,6 +134,14 @@
         <span class="nav-label" data-i18n="nav.achievements">Logros</span>
       </a>
 
+      <!-- Session Replay -->
+      <a class="nav-item" data-section="sessionreplay" href="#sessionreplay">
+        <span class="nav-icon">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+        </span>
+        <span class="nav-label">Session Replay</span>
+      </a>
+
       <!-- Body-Comp Forecast -->
       <a class="nav-item" data-section="bodycomp" href="#bodycomp">
         <span class="nav-icon">
@@ -1133,6 +1141,46 @@
       <div id="plateau-root"></div>
     </section>
 
+    <!-- ── SESSION REPLAY ───────────────────────────────────── -->
+    <section id="section-sessionreplay" class="section">
+      <header class="section-header">
+        <div>
+          <h1 class="section-title">Session Replay</h1>
+          <p class="section-subtitle">Diario de entreno · series timestamped · notas de voz 5s</p>
+        </div>
+      </header>
+      <div id="sr-root">
+        <div class="sr-session-title-row">
+          <span class="sr-session-label">Sesión de hoy:</span>
+          <span id="sr-session-name" class="sr-session-name"></span>
+        </div>
+        <form id="sr-add-form" class="sr-add-form">
+          <div class="sr-add-grid">
+            <div class="sr-add-field">
+              <label class="sr-add-label" for="sr-ex">Ejercicio</label>
+              <input id="sr-ex" class="sr-add-input" type="text" placeholder="Press banca" autocomplete="off" required>
+            </div>
+            <div class="sr-add-field">
+              <label class="sr-add-label" for="sr-wt">Kg</label>
+              <input id="sr-wt" class="sr-add-input" type="number" min="0" step="0.5" placeholder="100" required>
+            </div>
+            <div class="sr-add-field">
+              <label class="sr-add-label" for="sr-rp">Reps</label>
+              <input id="sr-rp" class="sr-add-input" type="number" min="1" step="1" placeholder="5" required>
+            </div>
+            <div class="sr-add-field sr-add-field--note">
+              <label class="sr-add-label" for="sr-note">Nota (opcional)</label>
+              <input id="sr-note" class="sr-add-input" type="text" placeholder="Técnica perfecta…">
+            </div>
+          </div>
+          <button type="submit" class="btn btn--primary sr-add-btn">+ Añadir serie</button>
+        </form>
+        <div id="sr-timeline" class="sr-timeline"></div>
+        <h3 class="sr-hist-title">Sesiones anteriores</h3>
+        <div id="sr-history" class="sr-history"></div>
+      </div>
+    </section>
+
     <!-- ── BODY-COMP FORECAST ────────────────────────────────── -->
     <section id="section-bodycomp" class="section">
       <header class="section-header">
@@ -1312,6 +1360,7 @@
   <script defer src="js/macroAutopilot.js"></script>
   <script src="js/plateauRadar.js"></script>
   <script src="js/fatigueHeatmap.js"></script>
+  <script src="js/sessionReplay.js"></script>
   <script src="js/bodyCompForecast.js"></script>
   <script src="js/autoDeload.js"></script>
   <script defer src="js/app.js"></script>

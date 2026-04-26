@@ -3,9 +3,10 @@ var SessionReplay = (function () {
 
   var LS_KEY      = 'hs_session_log';   // [{id, date, name, sets:[{exercise,weight,reps,note,noteBlob,ts}]}]
   var MAX_NOTE_MS = 5000;               // 5 s voice cap
-  var _recorder   = null;
-  var _chunks     = [];
+  var _recorder    = null;
+  var _chunks      = [];
   var _activeSetEl = null;
+  var _wired       = false;
 
   // ── Storage helpers ────────────────────────────────────────────
   function loadSessions() {
@@ -195,8 +196,10 @@ var SessionReplay = (function () {
     var titleEl = root.querySelector('#sr-session-name');
     if (titleEl) titleEl.textContent = _sessionName;
 
-    // Wire add-set form
+    // Wire add-set form (guard against duplicate listeners on re-init)
     var form = root.querySelector('#sr-add-form');
+    if (_wired) { renderTimeline(root.querySelector('#sr-timeline')); renderHistory(root.querySelector('#sr-history')); return; }
+    _wired = true;
     if (form) {
       form.addEventListener('submit', function (e) {
         e.preventDefault();

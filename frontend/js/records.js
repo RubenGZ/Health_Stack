@@ -1,7 +1,8 @@
 var Records = (function () {
   'use strict';
 
-  var LS_KEY = 'hs_pr_records';
+  var LS_KEY   = 'hs_pr_records';
+  var _wired   = false;
 
   function load() {
     try {
@@ -116,6 +117,7 @@ var Records = (function () {
   }
 
   function initForm() {
+    if (_wired) return;
     var openBtn   = document.getElementById('btn-open-rm-form');
     var cancelBtn = document.getElementById('btn-cancel-rm');
     var saveBtn   = document.getElementById('btn-save-rm');
@@ -131,6 +133,7 @@ var Records = (function () {
       wrapper.style.display = 'none';
     });
 
+    _wired = true;
     if (saveBtn) saveBtn.addEventListener('click', function () {
       var exercise = (document.getElementById('rm-exercise').value || '').trim();
       var weight   = parseFloat(document.getElementById('rm-weight').value);

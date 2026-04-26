@@ -5,6 +5,7 @@ var RestTimer = (function () {
   var _total     = 0;
   var _remaining = 0;
   var _warned    = false;
+  var _wired     = false;
   var CIRC       = 2 * Math.PI * 52;
 
   function fmt(s) {
@@ -97,6 +98,8 @@ var RestTimer = (function () {
   }
 
   function init() {
+    if (_wired) return;
+    _wired = true;
     document.getElementById('rest-timer-fab')?.addEventListener('click', openModal);
     document.getElementById('rest-close')?.addEventListener('click', closeModal);
     document.getElementById('rest-skip-btn')?.addEventListener('click', closeModal);

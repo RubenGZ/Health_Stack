@@ -1,0 +1,9 @@
+User-agent: *
+Allow: /
+
+# Block API and private routes
+Disallow: /api/
+Disallow: /*.json$
+
+# Sitemap
+Sitemap: https://healthstack.pro/sitemap.xml

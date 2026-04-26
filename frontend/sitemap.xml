@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"
+        xmlns:xhtml="http://www.w3.org/1999/xhtml">
+
+  <!-- Landing page — Spanish (canonical) -->
+  <url>
+    <loc>https://healthstack.pro/</loc>
+    <lastmod>2026-04-26</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>1.0</priority>
+    <xhtml:link rel="alternate" hreflang="es"       href="https://healthstack.pro/" />
+    <xhtml:link rel="alternate" hreflang="en"       href="https://healthstack.pro/en/" />
+    <xhtml:link rel="alternate" hreflang="de"       href="https://healthstack.pro/de/" />
+    <xhtml:link rel="alternate" hreflang="fr"       href="https://healthstack.pro/fr/" />
+    <xhtml:link rel="alternate" hreflang="it"       href="https://healthstack.pro/it/" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://healthstack.pro/" />
+  </url>
+
+  <!-- Landing — English -->
+  <url>
+    <loc>https://healthstack.pro/en/</loc>
+    <lastmod>2026-04-26</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.9</priority>
+  </url>
+
+  <!-- Landing — German -->
+  <url>
+    <loc>https://healthstack.pro/de/</loc>
+    <lastmod>2026-04-26</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+
+  <!-- Landing — French -->
+  <url>
+    <loc>https://healthstack.pro/fr/</loc>
+    <lastmod>2026-04-26</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+
+  <!-- Landing — Italian -->
+  <url>
+    <loc>https://healthstack.pro/it/</loc>
+    <lastmod>2026-04-26</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+
+  <!-- App (PWA) -->
+  <url>
+    <loc>https://healthstack.pro/app/</loc>
+    <lastmod>2026-04-26</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+  </url>
+
+</urlset>

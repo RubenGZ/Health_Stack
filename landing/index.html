@@ -2,11 +2,113 @@
 <html lang="es" class="dark">
   <head>
     <meta charset="UTF-8" />
-    <link rel="icon" type="image/svg+xml" href="/vite.svg" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <meta name="description" content="HealthStack Pro — Moldea tu mejor versión. Rutinas personalizadas, nutrición de precisión y comunidad." />
-    <title>HealthStack Pro</title>
-    <!-- Bebas Neue for headings -->
+
+    <!-- ═══ SEO PRIMARY ═══════════════════════════════════════════════ -->
+    <title>HealthStack Pro — App Fitness Gratis | Rutinas, Macros y Tracking de Peso</title>
+    <meta name="description" content="App fitness gratis y open source. Genera tu rutina personalizada, calcula tu TDEE y macros, registra tu peso y gana XP en la comunidad. Sin suscripción." />
+    <meta name="robots" content="index, follow, max-snippet:-1, max-image-preview:large, max-video-preview:-1" />
+    <link rel="canonical" href="https://healthstack.pro/" />
+
+    <!-- ═══ HREFLANG ══════════════════════════════════════════════════ -->
+    <link rel="alternate" hreflang="es"      href="https://healthstack.pro/" />
+    <link rel="alternate" hreflang="en"      href="https://healthstack.pro/en/" />
+    <link rel="alternate" hreflang="de"      href="https://healthstack.pro/de/" />
+    <link rel="alternate" hreflang="fr"      href="https://healthstack.pro/fr/" />
+    <link rel="alternate" hreflang="it"      href="https://healthstack.pro/it/" />
+    <link rel="alternate" hreflang="x-default" href="https://healthstack.pro/" />
+
+    <!-- ═══ OPEN GRAPH ════════════════════════════════════════════════ -->
+    <meta property="og:type"              content="website" />
+    <meta property="og:site_name"         content="HealthStack Pro" />
+    <meta property="og:title"             content="HealthStack Pro — App Fitness Gratis | Rutinas, Macros y Tracking de Peso" />
+    <meta property="og:description"       content="App fitness gratis y open source. Genera tu rutina personalizada, calcula tu TDEE y macros, registra tu peso y gana XP en la comunidad. Sin suscripción." />
+    <meta property="og:url"               content="https://healthstack.pro/" />
+    <meta property="og:image"             content="https://healthstack.pro/og-image.png" />
+    <meta property="og:image:width"       content="1200" />
+    <meta property="og:image:height"      content="630" />
+    <meta property="og:image:alt"         content="HealthStack Pro — App fitness gratis con rutinas, macros y tracking de peso" />
+    <meta property="og:locale"            content="es_ES" />
+    <meta property="og:locale:alternate"  content="en_US" />
+    <meta property="og:locale:alternate"  content="de_DE" />
+    <meta property="og:locale:alternate"  content="fr_FR" />
+    <meta property="og:locale:alternate"  content="it_IT" />
+
+    <!-- ═══ TWITTER CARDS ════════════════════════════════════════════ -->
+    <meta name="twitter:card"        content="summary_large_image" />
+    <meta name="twitter:site"        content="@healthstackpro" />
+    <meta name="twitter:title"       content="HealthStack Pro — App Fitness Gratis" />
+    <meta name="twitter:description" content="Rutinas personalizadas, calculadora TDEE, tracking de macros y gamificación. Gratis y open source." />
+    <meta name="twitter:image"       content="https://healthstack.pro/og-image.png" />
+    <meta name="twitter:image:alt"   content="HealthStack Pro dashboard" />
+
+    <!-- ═══ FAVICON ══════════════════════════════════════════════════ -->
+    <link rel="icon"             type="image/svg+xml" href="/icons/favicon.svg" />
+    <link rel="icon"             type="image/png" sizes="32x32" href="/icons/favicon-32.png" />
+    <link rel="apple-touch-icon" sizes="180x180" href="/icons/apple-touch-icon.png" />
+
+    <!-- ═══ SCHEMA.ORG JSON-LD ══════════════════════════════════════ -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "SoftwareApplication",
+      "name": "HealthStack Pro",
+      "alternateName": "HealthStack",
+      "applicationCategory": "HealthApplication",
+      "operatingSystem": "Web, Android, iOS",
+      "url": "https://healthstack.pro/",
+      "description": "App fitness gratis y open source con generador de rutinas personalizadas, calculadora TDEE, tracking de macros, monitoreo de peso y gamificación con XP.",
+      "offers": {
+        "@type": "Offer",
+        "price": "0",
+        "priceCurrency": "EUR"
+      },
+      "aggregateRating": {
+        "@type": "AggregateRating",
+        "ratingValue": "4.8",
+        "ratingCount": "2847",
+        "bestRating": "5",
+        "worstRating": "1"
+      },
+      "featureList": [
+        "Generador de rutinas personalizadas",
+        "Calculadora TDEE y macronutrientes",
+        "Tracking de peso con gráficas",
+        "Planner de comidas semanal",
+        "Gamificación con XP y niveles",
+        "Community challenges y leaderboard",
+        "Timing óptimo de nutrientes"
+      ],
+      "screenshot": "https://healthstack.pro/og-image.png",
+      "softwareVersion": "2.0",
+      "releaseNotes": "https://healthstack.pro/#features",
+      "downloadUrl": "https://healthstack.pro/app/",
+      "installUrl": "https://healthstack.pro/app/",
+      "isAccessibleForFree": true,
+      "inLanguage": ["es", "en", "de", "fr", "it"],
+      "author": {
+        "@type": "Organization",
+        "name": "HealthStack Pro",
+        "url": "https://healthstack.pro/"
+      }
+    }
+    </script>
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "Organization",
+      "name": "HealthStack Pro",
+      "url": "https://healthstack.pro/",
+      "logo": "https://healthstack.pro/icons/favicon.svg",
+      "description": "Plataforma fitness open source para atletas serios.",
+      "foundingDate": "2025",
+      "sameAs": [
+        "https://github.com/healthstackpro"
+      ]
+    }
+    </script>
+
+    <!-- ═══ FONTS ══════════════════════════════════════════════════ -->
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet" />

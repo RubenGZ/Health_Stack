@@ -3,20 +3,64 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta name="description" content="HealthStack Pro — Tu plataforma de fitness inteligente">
-  <title>HealthStack Pro</title>
+  <title>HealthStack Pro — App Fitness | Rutinas, TDEE, Macros y Tracking</title>
+  <meta name="description" content="Tu app fitness gratis: generador de rutinas, calculadora TDEE, tracking de macros con 142 ingredientes, registro de peso y gamificación con XP. Open source." />
+  <meta name="robots" content="index, follow, max-snippet:-1, max-image-preview:large" />
+  <link rel="canonical" href="https://healthstack.pro/app/" />
+
   <link rel="stylesheet" href="css/main.css?v=3">
   <link rel="manifest" href="manifest.json">
   <meta name="theme-color" content="#0891b2">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 
-  <!-- Open Graph / SEO -->
-  <meta property="og:type"        content="website">
-  <meta property="og:title"       content="HealthStack Pro — Fitness inteligente">
-  <meta property="og:description" content="Tracking de peso, rutinas, planner de comidas, gamificación y comunidad. Gratis y open source.">
-  <meta property="og:image"       content="icons/og-image.png">
-  <meta name="twitter:card"       content="summary_large_image">
+  <!-- ═══ OPEN GRAPH ════════════════════════════════════════════════ -->
+  <meta property="og:type"          content="website">
+  <meta property="og:site_name"     content="HealthStack Pro">
+  <meta property="og:title"         content="HealthStack Pro — App Fitness Gratis">
+  <meta property="og:description"   content="Tracking de peso, rutinas personalizadas, planner de comidas, gamificación XP y comunidad. Gratis y open source.">
+  <meta property="og:url"           content="https://healthstack.pro/app/">
+  <meta property="og:image"         content="https://healthstack.pro/icons/og-image.png">
+  <meta property="og:image:width"   content="1200">
+  <meta property="og:image:height"  content="630">
+  <meta property="og:image:alt"     content="HealthStack Pro — Dashboard de fitness">
+  <meta property="og:locale"        content="es_ES">
+
+  <!-- ═══ TWITTER CARDS ════════════════════════════════════════════ -->
+  <meta name="twitter:card"        content="summary_large_image">
+  <meta name="twitter:site"        content="@healthstackpro">
+  <meta name="twitter:title"       content="HealthStack Pro — App Fitness Gratis">
+  <meta name="twitter:description" content="Rutinas, TDEE, macros, tracking de peso y gamificación. Todo gratis y open source.">
+  <meta name="twitter:image"       content="https://healthstack.pro/icons/og-image.png">
+
+  <!-- ═══ SCHEMA.ORG JSON-LD ══════════════════════════════════════ -->
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "WebApplication",
+    "name": "HealthStack Pro",
+    "url": "https://healthstack.pro/app/",
+    "description": "Aplicación web fitness con generador de rutinas, calculadora TDEE, tracking de macronutrientes, registro de peso y gamificación con XP.",
+    "applicationCategory": "HealthApplication",
+    "operatingSystem": "Web",
+    "offers": {
+      "@type": "Offer",
+      "price": "0",
+      "priceCurrency": "EUR"
+    },
+    "featureList": [
+      "Calculadora TDEE (Mifflin-St Jeor)",
+      "Tracking de macronutrientes — 142 ingredientes",
+      "Generador de rutinas personalizadas",
+      "Planner de comidas semanal",
+      "Tracking de peso con gráficas",
+      "Gamificación — XP, niveles y badges",
+      "Comunidad y leaderboard"
+    ],
+    "isAccessibleForFree": true,
+    "inLanguage": ["es", "en", "de", "fr", "it"]
+  }
+  </script>
 
   <!-- Preload CDN críticos (Three.js primero — bloquea canvas) -->
   <link rel="preload" href="https://cdn.jsdelivr.net/npm/three@0.158.0/build/three.min.js" as="script" crossorigin="anonymous">

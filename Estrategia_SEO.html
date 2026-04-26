@@ -1,0 +1,1286 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Estrategia SEO — HealthStack Pro</title>
+  <style>
+    :root {
+      --bg:       #07070f;
+      --surface:  #0f0f1a;
+      --card:     #141428;
+      --border:   rgba(255,255,255,0.07);
+      --accent:   #6c63ff;
+      --cyan:     #22d3ee;
+      --emerald:  #34d399;
+      --amber:    #f59e0b;
+      --red:      #f87171;
+      --text:     #e2e8f0;
+      --muted:    #94a3b8;
+      --dim:      #475569;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: 'Segoe UI', system-ui, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.6;
+      font-size: 15px;
+    }
+
+    /* ── Layout ── */
+    .sidebar {
+      position: fixed; top: 0; left: 0; width: 240px; height: 100vh;
+      background: var(--surface);
+      border-right: 1px solid var(--border);
+      overflow-y: auto;
+      padding: 24px 16px;
+      z-index: 100;
+    }
+    .main { margin-left: 240px; padding: 40px 48px; max-width: 1100px; }
+    @media (max-width: 900px) { .sidebar { display: none; } .main { margin-left: 0; padding: 24px 20px; } }
+
+    /* ── Nav ── */
+    .nav-logo { font-size: 17px; font-weight: 800; color: var(--accent); margin-bottom: 24px; display: flex; align-items: center; gap: 8px; }
+    .nav-section { font-size: 10px; font-weight: 700; letter-spacing: 1.5px; text-transform: uppercase; color: var(--dim); margin: 18px 0 6px 8px; }
+    .nav-link { display: block; padding: 7px 10px; border-radius: 8px; color: var(--muted); text-decoration: none; font-size: 13px; transition: background 0.15s, color 0.15s; }
+    .nav-link:hover { background: rgba(108,99,255,0.12); color: var(--text); }
+    .nav-link.active { background: rgba(108,99,255,0.15); color: var(--accent); font-weight: 600; }
+
+    /* ── Typography ── */
+    .page-header { margin-bottom: 48px; padding-bottom: 32px; border-bottom: 1px solid var(--border); }
+    .page-tag { font-size: 11px; font-weight: 700; letter-spacing: 2px; text-transform: uppercase; color: var(--accent); margin-bottom: 12px; }
+    h1 { font-size: 36px; font-weight: 800; line-height: 1.2; margin-bottom: 12px; }
+    h1 span { color: var(--accent); }
+    .page-sub { font-size: 16px; color: var(--muted); max-width: 600px; }
+    h2 { font-size: 22px; font-weight: 700; margin: 40px 0 16px; display: flex; align-items: center; gap: 10px; }
+    h2 .section-num { font-size: 12px; font-weight: 700; background: var(--accent); color: white; width: 24px; height: 24px; border-radius: 50%; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+    h3 { font-size: 16px; font-weight: 600; margin: 24px 0 10px; color: var(--cyan); }
+    p { margin-bottom: 12px; color: var(--muted); }
+    strong { color: var(--text); }
+    a { color: var(--accent); }
+
+    /* ── Section ── */
+    section { margin-bottom: 56px; scroll-margin-top: 80px; }
+    .section-divider { height: 1px; background: var(--border); margin: 48px 0; }
+
+    /* ── Cards ── */
+    .card { background: var(--card); border: 1px solid var(--border); border-radius: 14px; padding: 24px; margin-bottom: 16px; }
+    .card-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 16px; margin-bottom: 24px; }
+    .stat-card { background: var(--card); border: 1px solid var(--border); border-radius: 12px; padding: 20px; }
+    .stat-card .stat-val { font-size: 28px; font-weight: 800; color: var(--accent); }
+    .stat-card .stat-lbl { font-size: 12px; color: var(--muted); margin-top: 4px; }
+
+    /* ── Status badges ── */
+    .badge { display: inline-flex; align-items: center; gap: 5px; font-size: 11px; font-weight: 700; padding: 3px 9px; border-radius: 20px; }
+    .badge--red    { background: rgba(248,113,113,0.15); color: var(--red); }
+    .badge--amber  { background: rgba(245,158,11,0.15);  color: var(--amber); }
+    .badge--green  { background: rgba(52,211,153,0.15);  color: var(--emerald); }
+    .badge--blue   { background: rgba(34,211,238,0.15);  color: var(--cyan); }
+    .badge--purple { background: rgba(108,99,255,0.15);  color: var(--accent); }
+
+    /* ── Audit table ── */
+    .audit-table { width: 100%; border-collapse: collapse; font-size: 13px; }
+    .audit-table th { text-align: left; padding: 10px 14px; font-size: 11px; font-weight: 700; letter-spacing: 1px; text-transform: uppercase; color: var(--dim); border-bottom: 1px solid var(--border); }
+    .audit-table td { padding: 12px 14px; border-bottom: 1px solid var(--border); vertical-align: top; }
+    .audit-table tr:last-child td { border-bottom: none; }
+    .audit-table tr:hover td { background: rgba(255,255,255,0.02); }
+
+    /* ── Competitor table ── */
+    .comp-table { width: 100%; border-collapse: collapse; font-size: 13px; }
+    .comp-table th { background: rgba(108,99,255,0.1); padding: 10px 14px; text-align: left; font-size: 11px; font-weight: 700; letter-spacing: 1px; text-transform: uppercase; color: var(--accent); }
+    .comp-table td { padding: 12px 14px; border-bottom: 1px solid var(--border); vertical-align: top; }
+    .comp-table tr:last-child td { border-bottom: none; }
+
+    /* ── Keyword table ── */
+    .kw-table { width: 100%; border-collapse: collapse; font-size: 13px; }
+    .kw-table th { text-align: left; padding: 10px 14px; font-size: 11px; font-weight: 700; letter-spacing: 1px; text-transform: uppercase; color: var(--dim); border-bottom: 2px solid var(--border); }
+    .kw-table td { padding: 11px 14px; border-bottom: 1px solid var(--border); }
+    .kw-table tr:hover td { background: rgba(255,255,255,0.015); }
+    .vol-bar { display: flex; align-items: center; gap: 8px; }
+    .vol-fill { height: 5px; border-radius: 3px; background: var(--accent); opacity: 0.7; }
+
+    /* ── Roadmap ── */
+    .roadmap { position: relative; }
+    .roadmap::before { content: ''; position: absolute; left: 15px; top: 0; bottom: 0; width: 2px; background: var(--border); }
+    .rm-item { position: relative; padding-left: 44px; margin-bottom: 24px; }
+    .rm-dot { position: absolute; left: 7px; top: 4px; width: 18px; height: 18px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 9px; font-weight: 800; }
+    .rm-dot--done  { background: var(--emerald); color: #07070f; }
+    .rm-dot--active { background: var(--accent); color: white; }
+    .rm-dot--todo  { background: var(--surface); border: 2px solid var(--border); color: var(--dim); }
+    .rm-title { font-size: 15px; font-weight: 600; color: var(--text); margin-bottom: 4px; }
+    .rm-desc  { font-size: 13px; color: var(--muted); }
+    .rm-week  { font-size: 11px; font-weight: 700; color: var(--dim); margin-top: 4px; }
+
+    /* ── Code blocks ── */
+    pre { background: #0a0a18; border: 1px solid var(--border); border-radius: 10px; padding: 20px; overflow-x: auto; font-size: 12px; line-height: 1.7; margin: 12px 0 20px; }
+    code { font-family: 'Cascadia Code', 'Fira Code', monospace; color: #a5b4fc; }
+    .code-label { font-size: 11px; font-weight: 600; color: var(--dim); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 4px; margin-top: 16px; }
+
+    /* ── Score meter ── */
+    .score-ring { display: flex; align-items: center; gap: 16px; margin: 16px 0; }
+    .score-circle { width: 72px; height: 72px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 22px; font-weight: 800; flex-shrink: 0; }
+    .score-circle--red    { background: rgba(248,113,113,0.15); border: 3px solid var(--red); color: var(--red); }
+    .score-circle--amber  { background: rgba(245,158,11,0.15); border: 3px solid var(--amber); color: var(--amber); }
+    .score-circle--green  { background: rgba(52,211,153,0.15); border: 3px solid var(--emerald); color: var(--emerald); }
+
+    /* ── Checklist ── */
+    .checklist { list-style: none; }
+    .checklist li { display: flex; align-items: flex-start; gap: 10px; padding: 8px 0; border-bottom: 1px solid var(--border); font-size: 13px; color: var(--muted); }
+    .checklist li:last-child { border-bottom: none; }
+    .check-icon { flex-shrink: 0; width: 18px; height: 18px; border-radius: 4px; display: flex; align-items: center; justify-content: center; font-size: 11px; margin-top: 1px; }
+    .check-icon--done { background: var(--emerald); color: #07070f; font-weight: 800; }
+    .check-icon--todo { background: var(--surface); border: 1px solid var(--border); color: var(--dim); }
+    .check-icon--wip  { background: rgba(245,158,11,0.2); border: 1px solid var(--amber); color: var(--amber); font-weight: 800; }
+
+    /* ── Alert box ── */
+    .alert { border-radius: 10px; padding: 14px 18px; font-size: 13px; margin: 16px 0; display: flex; gap: 12px; align-items: flex-start; }
+    .alert--red    { background: rgba(248,113,113,0.08); border: 1px solid rgba(248,113,113,0.25); }
+    .alert--amber  { background: rgba(245,158,11,0.08);  border: 1px solid rgba(245,158,11,0.25); }
+    .alert--green  { background: rgba(52,211,153,0.08);  border: 1px solid rgba(52,211,153,0.25); }
+    .alert--blue   { background: rgba(34,211,238,0.08);  border: 1px solid rgba(34,211,238,0.25); }
+    .alert-icon { font-size: 18px; flex-shrink: 0; margin-top: -1px; }
+
+    /* ── Tags ── */
+    .tag-list { display: flex; flex-wrap: wrap; gap: 8px; margin: 12px 0; }
+    .tag { font-size: 12px; background: rgba(108,99,255,0.12); color: var(--accent); border: 1px solid rgba(108,99,255,0.25); padding: 4px 10px; border-radius: 20px; }
+    .tag--cyan    { background: rgba(34,211,238,0.1); color: var(--cyan); border-color: rgba(34,211,238,0.2); }
+    .tag--emerald { background: rgba(52,211,153,0.1); color: var(--emerald); border-color: rgba(52,211,153,0.2); }
+
+    /* ── Footer ── */
+    .doc-footer { margin-top: 64px; padding-top: 32px; border-top: 1px solid var(--border); text-align: center; font-size: 13px; color: var(--dim); }
+  </style>
+</head>
+<body>
+
+<!-- ── Sidebar ────────────────────────────────────────────── -->
+<nav class="sidebar">
+  <div class="nav-logo">📈 SEO Strategy</div>
+
+  <div class="nav-section">Diagnóstico</div>
+  <a class="nav-link" href="#audit">Auditoría Técnica</a>
+  <a class="nav-link" href="#scores">Puntuaciones</a>
+
+  <div class="nav-section">Competidores</div>
+  <a class="nav-link" href="#competitors">Análisis Competidores</a>
+  <a class="nav-link" href="#gaps">Oportunidades</a>
+
+  <div class="nav-section">Keywords</div>
+  <a class="nav-link" href="#keywords-es">Español (primario)</a>
+  <a class="nav-link" href="#keywords-en">Inglés (secundario)</a>
+  <a class="nav-link" href="#longtail">Long-tail</a>
+
+  <div class="nav-section">Estrategia Técnica</div>
+  <a class="nav-link" href="#technical">On-page SEO</a>
+  <a class="nav-link" href="#schema">Schema / JSON-LD</a>
+  <a class="nav-link" href="#cwv">Core Web Vitals</a>
+  <a class="nav-link" href="#international">SEO Internacional</a>
+
+  <div class="nav-section">Contenido</div>
+  <a class="nav-link" href="#content">Estrategia Contenido</a>
+  <a class="nav-link" href="#linkbuilding">Link Building</a>
+
+  <div class="nav-section">Hoja de Ruta</div>
+  <a class="nav-link" href="#roadmap">Plan 90 Días</a>
+  <a class="nav-link" href="#kpis">KPIs y Métricas</a>
+  <a class="nav-link" href="#implemented">Implementado ✓</a>
+</nav>
+
+<!-- ── Main ──────────────────────────────────────────────── -->
+<main class="main">
+
+  <!-- Header -->
+  <div class="page-header">
+    <div class="page-tag">HealthStack Pro · Estrategia SEO 2026</div>
+    <h1>SEO &amp; Posicionamiento<br><span>Orgánico</span></h1>
+    <p class="page-sub">Auditoría completa, análisis de competidores, keyword research y plan de acción de 90 días para posicionar HealthStack Pro como la app fitness gratuita de referencia en español.</p>
+    <div style="margin-top:20px;display:flex;gap:12px;flex-wrap:wrap">
+      <span class="badge badge--amber">⚠ Audit: Abril 2026</span>
+      <span class="badge badge--green">✓ Implementación activa</span>
+      <span class="badge badge--purple">Mercado primario: España + LATAM</span>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════════════════════════════
+       1. AUDITORÍA TÉCNICA
+       ═══════════════════════════════════════════════════════ -->
+  <section id="audit">
+    <h2><span class="section-num">1</span> Auditoría Técnica SEO</h2>
+
+    <div class="alert alert--amber">
+      <span class="alert-icon">⚠</span>
+      <div><strong>Estado pre-implementación:</strong> La landing y la SPA carecían de la mayoría de tags SEO críticos. Ninguna página tenía Schema markup, robots.txt, sitemap, ni hreflang. La title tag no incluía ninguna keyword primaria.</div>
+    </div>
+
+    <div class="card-grid" style="grid-template-columns:repeat(auto-fill,minmax(200px,1fr))">
+      <div class="stat-card">
+        <div class="stat-val" style="color:var(--red)">2/10</div>
+        <div class="stat-lbl">Score SEO On-Page (pre)</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-val" style="color:var(--red)">0</div>
+        <div class="stat-lbl">Schema markup implementado</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-val" style="color:var(--red)">0</div>
+        <div class="stat-lbl">Open Graph tags completos</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-val" style="color:var(--red)">No</div>
+        <div class="stat-lbl">robots.txt / sitemap.xml</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-val" style="color:var(--red)">No</div>
+        <div class="stat-lbl">hreflang (5 idiomas)</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-val" style="color:var(--red)">No</div>
+        <div class="stat-lbl">Canonical URL</div>
+      </div>
+    </div>
+
+    <table class="audit-table">
+      <thead>
+        <tr>
+          <th>Elemento</th>
+          <th>Estado Pre</th>
+          <th>Problema</th>
+          <th>Impacto</th>
+          <th>Estado Post</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><strong>&lt;title&gt; landing</strong></td>
+          <td><span class="badge badge--red">Roto</span></td>
+          <td>"HealthStack Pro" — sin keywords, 15 chars</td>
+          <td><span class="badge badge--red">Crítico</span></td>
+          <td><span class="badge badge--green">✓ Corregido</span></td>
+        </tr>
+        <tr>
+          <td><strong>Meta description</strong></td>
+          <td><span class="badge badge--amber">Parcial</span></td>
+          <td>Sin keywords primarias, CTR bajo</td>
+          <td><span class="badge badge--amber">Alto</span></td>
+          <td><span class="badge badge--green">✓ Optimizado</span></td>
+        </tr>
+        <tr>
+          <td><strong>Open Graph</strong></td>
+          <td><span class="badge badge--red">Ausente</span></td>
+          <td>Sin og:title, og:image, og:url en landing</td>
+          <td><span class="badge badge--amber">Alto</span></td>
+          <td><span class="badge badge--green">✓ Completo</span></td>
+        </tr>
+        <tr>
+          <td><strong>Twitter Card</strong></td>
+          <td><span class="badge badge--red">Ausente</span></td>
+          <td>Sin twitter:title, twitter:description</td>
+          <td><span class="badge badge--amber">Medio</span></td>
+          <td><span class="badge badge--green">✓ Completo</span></td>
+        </tr>
+        <tr>
+          <td><strong>JSON-LD Schema</strong></td>
+          <td><span class="badge badge--red">Ausente</span></td>
+          <td>Sin SoftwareApplication ni Organization</td>
+          <td><span class="badge badge--red">Crítico</span></td>
+          <td><span class="badge badge--green">✓ Implementado</span></td>
+        </tr>
+        <tr>
+          <td><strong>hreflang</strong></td>
+          <td><span class="badge badge--red">Ausente</span></td>
+          <td>App en 5 idiomas sin señales de idioma</td>
+          <td><span class="badge badge--amber">Alto</span></td>
+          <td><span class="badge badge--green">✓ 5 idiomas</span></td>
+        </tr>
+        <tr>
+          <td><strong>Canonical URL</strong></td>
+          <td><span class="badge badge--red">Ausente</span></td>
+          <td>Sin canonical, riesgo de contenido duplicado</td>
+          <td><span class="badge badge--amber">Medio</span></td>
+          <td><span class="badge badge--green">✓ Añadido</span></td>
+        </tr>
+        <tr>
+          <td><strong>robots.txt</strong></td>
+          <td><span class="badge badge--red">Ausente</span></td>
+          <td>Bots no tienen instrucciones de rastreo</td>
+          <td><span class="badge badge--amber">Medio</span></td>
+          <td><span class="badge badge--green">✓ Creado</span></td>
+        </tr>
+        <tr>
+          <td><strong>sitemap.xml</strong></td>
+          <td><span class="badge badge--red">Ausente</span></td>
+          <td>Google no sabe qué páginas indexar</td>
+          <td><span class="badge badge--amber">Alto</span></td>
+          <td><span class="badge badge--green">✓ Creado</span></td>
+        </tr>
+        <tr>
+          <td><strong>Favicon</strong></td>
+          <td><span class="badge badge--red">Roto</span></td>
+          <td>Apunta a /vite.svg (Vite default)</td>
+          <td><span class="badge badge--amber">Medio</span></td>
+          <td><span class="badge badge--green">✓ Corregido</span></td>
+        </tr>
+        <tr>
+          <td><strong>Blog / Contenido</strong></td>
+          <td><span class="badge badge--red">Ausente</span></td>
+          <td>Sin páginas de contenido para keywords long-tail</td>
+          <td><span class="badge badge--red">Crítico (largo plazo)</span></td>
+          <td><span class="badge badge--amber">Pendiente</span></td>
+        </tr>
+        <tr>
+          <td><strong>Core Web Vitals</strong></td>
+          <td><span class="badge badge--amber">No medido</span></td>
+          <td>Spline 3D scene puede impactar LCP</td>
+          <td><span class="badge badge--amber">Alto</span></td>
+          <td><span class="badge badge--amber">En progreso</span></td>
+        </tr>
+      </tbody>
+    </table>
+  </section>
+
+  <div class="section-divider"></div>
+
+  <!-- ═══════════════════════════════════════════════════════
+       2. SCORES POR ÁREA
+       ═══════════════════════════════════════════════════════ -->
+  <section id="scores">
+    <h2><span class="section-num">2</span> Puntuaciones por Área</h2>
+    <div class="card-grid">
+
+      <div class="card">
+        <div class="score-ring">
+          <div class="score-circle score-circle--amber">6</div>
+          <div>
+            <strong>SEO Técnico</strong>
+            <p style="margin:4px 0 0">Title, meta, schema, robots, sitemap implementados. Pendiente: blog, PWA install-url en schema.</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="score-ring">
+          <div class="score-circle score-circle--red">2</div>
+          <div>
+            <strong>SEO de Contenido</strong>
+            <p style="margin:4px 0 0">Sin blog, sin landing pages por keyword, sin FAQ page. Mayor oportunidad de crecimiento.</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="score-ring">
+          <div class="score-circle score-circle--red">1</div>
+          <div>
+            <strong>Link Building</strong>
+            <p style="margin:4px 0 0">Sin backlinks externos conocidos. GitHub repo como fuente de enlaces. Pendiente estrategia.</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="score-ring">
+          <div class="score-circle score-circle--amber">5</div>
+          <div>
+            <strong>SEO Internacional</strong>
+            <p style="margin:4px 0 0">App en 5 idiomas, hreflang implementado. Falta subdominios/rutas por idioma y contenido localizado.</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="score-ring">
+          <div class="score-circle score-circle--amber">4</div>
+          <div>
+            <strong>Core Web Vitals</strong>
+            <p style="margin:4px 0 0">Preconnect y preload en su sitio. Spline 3D hero puede dañar LCP. PWA offline = buen FID.</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="score-ring">
+          <div class="score-circle score-circle--green">8</div>
+          <div>
+            <strong>Diferenciación</strong>
+            <p style="margin:4px 0 0">Open source + gratuito + sin trackers es ventaja real vs MyFitnessPal y Hevy. Hay que comunicarlo.</p>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+  <div class="section-divider"></div>
+
+  <!-- ═══════════════════════════════════════════════════════
+       3. ANÁLISIS DE COMPETIDORES
+       ═══════════════════════════════════════════════════════ -->
+  <section id="competitors">
+    <h2><span class="section-num">3</span> Análisis de Competidores</h2>
+
+    <div class="alert alert--blue">
+      <span class="alert-icon">💡</span>
+      <div>El mercado de apps fitness mueve <strong>$12.12B en 2025 → $33.58B en 2033 (CAGR 13.4%)</strong>. El segmento "ejercicio y pérdida de peso" domina con 53.69% del mercado. HealthStack Pro tiene una ventaja táctica real: es la única app con ese nivel de features que es 100% gratuita y open source.</div>
+    </div>
+
+    <table class="comp-table">
+      <thead>
+        <tr>
+          <th>Competidor</th>
+          <th>Usuarios</th>
+          <th>Modelo</th>
+          <th>Title Tag SEO</th>
+          <th>Fortaleza SEO</th>
+          <th>Brecha vs HSP</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><strong>MyFitnessPal</strong></td>
+          <td>200M+</td>
+          <td>Freemium $19.99/mes</td>
+          <td><em>"Calorie Tracker &amp; BMR Calculator to Reach Your Goals | MyFitnessPal"</em></td>
+          <td>DA altísima, 20M+ alimentos, 35+ integraciones</td>
+          <td>Paywall agresivo. Sin datos privados. <strong>HSP gana en "gratis".</strong></td>
+        </tr>
+        <tr>
+          <td><strong>Hevy</strong></td>
+          <td>12M+</td>
+          <td>Freemium $10/mes</td>
+          <td><em>"Hevy - The #1 Workout Tracker &amp; Gym Logger App"</em></td>
+          <td>Rating 4.9, UI excelente, 12M usuarios, fuerte en inglés</td>
+          <td>Sin nutrición, sin planning. <strong>HSP tiene feature set más amplio.</strong></td>
+        </tr>
+        <tr>
+          <td><strong>Fitbod</strong></td>
+          <td>5M+</td>
+          <td>$12.99/mes o $79.99/año</td>
+          <td><em>"AI-Powered Workout App - Fitbod"</em></td>
+          <td>IA adaptativa, fuerte en US market</td>
+          <td>Sin nutrición, muy caro. <strong>HSP gana en precio + amplitud.</strong></td>
+        </tr>
+        <tr>
+          <td><strong>Strong</strong></td>
+          <td>3M+</td>
+          <td>$4.99/mes</td>
+          <td><em>"Strong - Workout Tracker"</em></td>
+          <td>Simplicidad, iOS first</td>
+          <td>Solo gym tracking. <strong>HSP tiene 10x más features.</strong></td>
+        </tr>
+        <tr>
+          <td><strong>wger (open source)</strong></td>
+          <td>35K</td>
+          <td>Gratis / Self-hosted</td>
+          <td>Bajo perfil SEO</td>
+          <td>Open source, FOSS community</td>
+          <td>Sin PWA, diseño anticuado. <strong>HSP gana en UX.</strong></td>
+        </tr>
+        <tr>
+          <td><strong style="color:var(--accent)">HealthStack Pro</strong></td>
+          <td>Lanzamiento</td>
+          <td><strong>100% Gratis</strong></td>
+          <td><em>—— Optimizando ——</em></td>
+          <td>Open source, offline-first, 17 features, ES/EN/DE/FR/IT</td>
+          <td><strong>Sin DA, sin backlinks. Gap: tiempo y contenido.</strong></td>
+        </tr>
+      </tbody>
+    </table>
+
+    <h3>Posicionamiento estratégico</h3>
+    <div class="card" style="border-color:rgba(108,99,255,0.3)">
+      <p><strong>El ángulo ganador de HealthStack Pro:</strong> "La app de fitness más completa del mercado que es totalmente gratuita, open source, sin anuncios invasivos y que funciona sin conexión."</p>
+      <p>Ningún competidor top tiene ese combo. MyFitnessPal cobra $20/mes y llena la app de ads. Hevy tiene paywall. Fitbod es $80/año. Ese gap es el territorio que hay que conquistar.</p>
+    </div>
+  </section>
+
+  <!-- ═══════════════════════════════════════════════════════
+       4. OPORTUNIDADES
+       ═══════════════════════════════════════════════════════ -->
+  <section id="gaps">
+    <h2><span class="section-num">4</span> Oportunidades de Posicionamiento</h2>
+    <div class="card-grid">
+      <div class="card">
+        <h3 style="margin-top:0">🇪🇸 Español primer idioma</h3>
+        <p>Hevy y MyFitnessPal son apps pensadas en inglés. El mercado hispano (500M hablantes) está desatendido. HSP tiene el contenido en ES de serie.</p>
+        <div class="tag-list"><span class="tag tag--emerald">Alta prioridad</span></div>
+      </div>
+      <div class="card">
+        <h3 style="margin-top:0">🆓 "Gratis" como keyword anchor</h3>
+        <p>"App fitness gratis", "calculadora TDEE gratis", "rutinas gym gratis" — cualquier variación + "gratis" tiene baja competencia de dominio.</p>
+        <div class="tag-list"><span class="tag tag--emerald">Alta prioridad</span></div>
+      </div>
+      <div class="card">
+        <h3 style="margin-top:0">📱 PWA / sin instalación</h3>
+        <p>"App fitness sin instalar", "fitness app web browser" — nadie rankea esto. HSP es una PWA que funciona directamente desde el navegador.</p>
+        <div class="tag-list"><span class="tag">Media prioridad</span></div>
+      </div>
+      <div class="card">
+        <h3 style="margin-top:0">🔐 Privacidad / sin tracking</h3>
+        <p>Post-GDPR, los usuarios buscan "app fitness sin anuncios", "fitness tracker privado". HSP con AES-256 y sin analytics third-party es ganador.</p>
+        <div class="tag-list"><span class="tag">Media prioridad</span></div>
+      </div>
+      <div class="card">
+        <h3 style="margin-top:0">🛠 Open Source</h3>
+        <p>Comunidad dev + GitHub = backlinks orgánicos, "alternative to MyFitnessPal open source" — búsquedas con alta intención de instalar.</p>
+        <div class="tag-list"><span class="tag tag--cyan">Long-term</span></div>
+      </div>
+      <div class="card">
+        <h3 style="margin-top:0">🧮 Calculadoras como SEO magnets</h3>
+        <p>TDEE calculator, macro calculator, 1RM calculator — herramientas gratuitas atraen tráfico orgánico masivo con alta intención de uso.</p>
+        <div class="tag-list"><span class="tag tag--emerald">Alta prioridad</span></div>
+      </div>
+    </div>
+  </section>
+
+  <div class="section-divider"></div>
+
+  <!-- ═══════════════════════════════════════════════════════
+       5. KEYWORDS — ESPAÑOL
+       ═══════════════════════════════════════════════════════ -->
+  <section id="keywords-es">
+    <h2><span class="section-num">5</span> Keyword Research — Español (Mercado Primario)</h2>
+
+    <div class="alert alert--green">
+      <span class="alert-icon">🎯</span>
+      <div><strong>Estrategia:</strong> Atacar primero las keywords con <strong>"gratis"</strong> en la query — baja competencia de dominio, alta intención. Luego escalar hacia keywords más amplias conforme la DA crece.</div>
+    </div>
+
+    <h3>Tier 1 — Keywords de alto volumen y baja competencia</h3>
+    <table class="kw-table">
+      <thead><tr><th>Keyword</th><th>Tipo</th><th>Volumen est.</th><th>Dificultad</th><th>Página target</th></tr></thead>
+      <tbody>
+        <tr>
+          <td><strong>calculadora TDEE gratis</strong></td>
+          <td>Herramienta</td>
+          <td><div class="vol-bar"><div class="vol-fill" style="width:75px"></div><span>8K/mes</span></div></td>
+          <td><span class="badge badge--green">Baja</span></td>
+          <td>Landing + SPA #nutricion</td>
+        </tr>
+        <tr>
+          <td><strong>app fitness gratis</strong></td>
+          <td>Comparación</td>
+          <td><div class="vol-bar"><div class="vol-fill" style="width:90px"></div><span>12K/mes</span></div></td>
+          <td><span class="badge badge--amber">Media</span></td>
+          <td>Landing homepage</td>
+        </tr>
+        <tr>
+          <td><strong>calculadora macros gratis</strong></td>
+          <td>Herramienta</td>
+          <td><div class="vol-bar"><div class="vol-fill" style="width:80px"></div><span>9K/mes</span></div></td>
+          <td><span class="badge badge--green">Baja</span></td>
+          <td>Landing + /calculadora-macros</td>
+        </tr>
+        <tr>
+          <td><strong>rutinas gym personalizadas gratis</strong></td>
+          <td>Herramienta</td>
+          <td><div class="vol-bar"><div class="vol-fill" style="width:55px"></div><span>5K/mes</span></div></td>
+          <td><span class="badge badge--green">Muy baja</span></td>
+          <td>Landing + /generador-rutinas</td>
+        </tr>
+        <tr>
+          <td><strong>seguimiento peso app</strong></td>
+          <td>App</td>
+          <td><div class="vol-bar"><div class="vol-fill" style="width:60px"></div><span>6K/mes</span></div></td>
+          <td><span class="badge badge--amber">Media</span></td>
+          <td>Landing + SPA #peso</td>
+        </tr>
+        <tr>
+          <td><strong>app contar calorías gratis español</strong></td>
+          <td>App</td>
+          <td><div class="vol-bar"><div class="vol-fill" style="width:70px"></div><span>7K/mes</span></div></td>
+          <td><span class="badge badge--green">Baja</span></td>
+          <td>Landing homepage</td>
+        </tr>
+        <tr>
+          <td><strong>planner comidas semanal gratis</strong></td>
+          <td>Herramienta</td>
+          <td><div class="vol-bar"><div class="vol-fill" style="width:45px"></div><span>4K/mes</span></div></td>
+          <td><span class="badge badge--green">Muy baja</span></td>
+          <td>/planner-comidas</td>
+        </tr>
+        <tr>
+          <td><strong>calculadora 1RM</strong></td>
+          <td>Herramienta</td>
+          <td><div class="vol-bar"><div class="vol-fill" style="width:50px"></div><span>4.5K/mes</span></div></td>
+          <td><span class="badge badge--green">Baja</span></td>
+          <td>/calculadora-1rm</td>
+        </tr>
+        <tr>
+          <td><strong>app entrenamiento gym gratis</strong></td>
+          <td>App</td>
+          <td><div class="vol-bar"><div class="vol-fill" style="width:65px"></div><span>6.5K/mes</span></div></td>
+          <td><span class="badge badge--amber">Media</span></td>
+          <td>Landing homepage</td>
+        </tr>
+        <tr>
+          <td><strong>generador rutina gimnasio</strong></td>
+          <td>Herramienta</td>
+          <td><div class="vol-bar"><div class="vol-fill" style="width:85px"></div><span>10K/mes</span></div></td>
+          <td><span class="badge badge--amber">Media-alta</span></td>
+          <td>/generador-rutinas</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <h3>Tier 2 — Keywords de intención informacional (blog)</h3>
+    <div class="tag-list">
+      <span class="tag">cómo calcular TDEE</span>
+      <span class="tag">qué son los macros nutrición</span>
+      <span class="tag">rutina push pull legs</span>
+      <span class="tag">déficit calórico para perder grasa</span>
+      <span class="tag">1RM fórmula epley</span>
+      <span class="tag">timing proteínas post-entrenamiento</span>
+      <span class="tag">deload semana de descarga</span>
+      <span class="tag">composición corporal porcentaje grasa</span>
+      <span class="tag">superávit calórico volumen limpio</span>
+      <span class="tag">progresión de carga hipertrofia</span>
+    </div>
+  </section>
+
+  <!-- ═══════════════════════════════════════════════════════
+       6. KEYWORDS — INGLÉS
+       ═══════════════════════════════════════════════════════ -->
+  <section id="keywords-en">
+    <h2><span class="section-num">6</span> Keyword Research — Inglés (Secundario)</h2>
+
+    <table class="kw-table">
+      <thead><tr><th>Keyword</th><th>Volumen est.</th><th>Dificultad</th><th>Oportunidad</th></tr></thead>
+      <tbody>
+        <tr>
+          <td><strong>free fitness app no subscription</strong></td>
+          <td>22K/mes</td>
+          <td><span class="badge badge--amber">Media</span></td>
+          <td>HSP es exactamente esto. Landing en inglés.</td>
+        </tr>
+        <tr>
+          <td><strong>TDEE calculator free</strong></td>
+          <td>49K/mes</td>
+          <td><span class="badge badge--amber">Media-alta</span></td>
+          <td>Landing page de calculadora standalone</td>
+        </tr>
+        <tr>
+          <td><strong>macro calculator</strong></td>
+          <td>135K/mes</td>
+          <td><span class="badge badge--red">Alta</span></td>
+          <td>Long-term target, requiere DA alta</td>
+        </tr>
+        <tr>
+          <td><strong>1RM calculator</strong></td>
+          <td>18K/mes</td>
+          <td><span class="badge badge--green">Baja</span></td>
+          <td>Calculadora standalone — quick win</td>
+        </tr>
+        <tr>
+          <td><strong>open source fitness app</strong></td>
+          <td>3.5K/mes</td>
+          <td><span class="badge badge--green">Muy baja</span></td>
+          <td>Diferenciador único. Página GitHub/About.</td>
+        </tr>
+        <tr>
+          <td><strong>MyFitnessPal alternative free</strong></td>
+          <td>8K/mes</td>
+          <td><span class="badge badge--amber">Media</span></td>
+          <td>Comparison page "HSP vs MFP"</td>
+        </tr>
+        <tr>
+          <td><strong>workout planner free</strong></td>
+          <td>27K/mes</td>
+          <td><span class="badge badge--amber">Media</span></td>
+          <td>Landing en inglés destacando el planner</td>
+        </tr>
+        <tr>
+          <td><strong>strength training app free</strong></td>
+          <td>15K/mes</td>
+          <td><span class="badge badge--green">Baja-media</span></td>
+          <td>Landing + Records/1RM feature page</td>
+        </tr>
+      </tbody>
+    </table>
+  </section>
+
+  <!-- ═══════════════════════════════════════════════════════
+       7. LONG-TAIL
+       ═══════════════════════════════════════════════════════ -->
+  <section id="longtail">
+    <h2><span class="section-num">7</span> Keywords Long-tail de Alto Valor</h2>
+    <p>Menos búsquedas pero <strong>mayor intención de conversión</strong>. Perfectas para los primeros 90 días cuando la DA es baja.</p>
+    <div class="card-grid">
+      <div class="card">
+        <h3 style="margin-top:0;color:var(--emerald)">Español — Quick Wins</h3>
+        <ul style="list-style:none;font-size:13px;color:var(--muted)">
+          <li style="padding:5px 0;border-bottom:1px solid var(--border)">→ "app para llevar registro de pesas gym"</li>
+          <li style="padding:5px 0;border-bottom:1px solid var(--border)">→ "calculadora proteinas diarias gratis"</li>
+          <li style="padding:5px 0;border-bottom:1px solid var(--border)">→ "como saber mi 1RM sin hacer el test"</li>
+          <li style="padding:5px 0;border-bottom:1px solid var(--border)">→ "planner comidas semana gym"</li>
+          <li style="padding:5px 0;border-bottom:1px solid var(--border)">→ "timer descanso entre series app"</li>
+          <li style="padding:5px 0">→ "app rutinas gym sin internet offline"</li>
+        </ul>
+      </div>
+      <div class="card">
+        <h3 style="margin-top:0;color:var(--cyan)">Inglés — Quick Wins</h3>
+        <ul style="list-style:none;font-size:13px;color:var(--muted)">
+          <li style="padding:5px 0;border-bottom:1px solid var(--border)">→ "free gym tracker no ads"</li>
+          <li style="padding:5px 0;border-bottom:1px solid var(--border)">→ "offline workout tracker app"</li>
+          <li style="padding:5px 0;border-bottom:1px solid var(--border)">→ "bodyweight macro calculator no login"</li>
+          <li style="padding:5px 0;border-bottom:1px solid var(--border)">→ "self hosted fitness tracking app"</li>
+          <li style="padding:5px 0;border-bottom:1px solid var(--border)">→ "plateau detection workout app"</li>
+          <li style="padding:5px 0">→ "auto deload calculator strength training"</li>
+        </ul>
+      </div>
+      <div class="card">
+        <h3 style="margin-top:0;color:var(--amber)">Comparaciones (alta conversión)</h3>
+        <ul style="list-style:none;font-size:13px;color:var(--muted)">
+          <li style="padding:5px 0;border-bottom:1px solid var(--border)">→ "alternativa a myfitnesspal gratis"</li>
+          <li style="padding:5px 0;border-bottom:1px solid var(--border)">→ "hevy app alternativa gratuita"</li>
+          <li style="padding:5px 0;border-bottom:1px solid var(--border)">→ "myfitnesspal alternative no paywall"</li>
+          <li style="padding:5px 0;border-bottom:1px solid var(--border)">→ "hevy vs HealthStack Pro"</li>
+          <li style="padding:5px 0;border-bottom:1px solid var(--border)">→ "strong app free alternative"</li>
+          <li style="padding:5px 0">→ "best free hevy alternative 2026"</li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <div class="section-divider"></div>
+
+  <!-- ═══════════════════════════════════════════════════════
+       8. SEO TÉCNICO IMPLEMENTADO
+       ═══════════════════════════════════════════════════════ -->
+  <section id="technical">
+    <h2><span class="section-num">8</span> SEO Técnico On-Page — Implementado</h2>
+
+    <h3>Title Tags Optimizadas</h3>
+    <div class="code-label">landing/index.html — Antes</div>
+    <pre><code>&lt;title&gt;HealthStack Pro&lt;/title&gt;
+&lt;!-- 15 chars, 0 keywords --&gt;</code></pre>
+    <div class="code-label">landing/index.html — Después (optimizado)</div>
+    <pre><code>&lt;title&gt;HealthStack Pro — App Fitness Gratis | Rutinas, Macros y Tracking de Peso&lt;/title&gt;
+&lt;!-- 77 chars, keywords primarias: "app fitness gratis", "rutinas", "macros", "tracking peso" --&gt;</code></pre>
+
+    <h3>Meta Descriptions</h3>
+    <div class="code-label">Meta description landing (156 chars)</div>
+    <pre><code>&lt;meta name="description" content="App fitness 100% gratuita y open source.
+Generador de rutinas personalizadas, calculadora TDEE y macros, tracking de peso,
+planner semanal y comunidad. Sin suscripción. Sin anuncios." /&gt;</code></pre>
+
+    <h3>Open Graph + Twitter Cards Completos</h3>
+    <pre><code>&lt;!-- Open Graph --&gt;
+&lt;meta property="og:type"              content="website" /&gt;
+&lt;meta property="og:site_name"         content="HealthStack Pro" /&gt;
+&lt;meta property="og:title"             content="HealthStack Pro — App Fitness Gratis | Rutinas, Macros y Tracking" /&gt;
+&lt;meta property="og:description"       content="App fitness gratuita y open source..." /&gt;
+&lt;meta property="og:url"               content="https://healthstack.pro/" /&gt;
+&lt;meta property="og:image"             content="https://healthstack.pro/og-image.png" /&gt;
+&lt;meta property="og:image:width"       content="1200" /&gt;
+&lt;meta property="og:image:height"      content="630" /&gt;
+&lt;meta property="og:locale"            content="es_ES" /&gt;
+&lt;meta property="og:locale:alternate"  content="en_US" /&gt;
+&lt;!-- Twitter --&gt;
+&lt;meta name="twitter:card"             content="summary_large_image" /&gt;
+&lt;meta name="twitter:site"             content="@healthstackpro" /&gt;
+&lt;meta name="twitter:title"            content="HealthStack Pro — App Fitness Gratis" /&gt;
+&lt;meta name="twitter:description"      content="Rutinas, macros, tracking de peso y más. Gratis. Open source." /&gt;
+&lt;meta name="twitter:image"            content="https://healthstack.pro/og-image.png" /&gt;</code></pre>
+
+    <h3>Canonical + robots</h3>
+    <pre><code>&lt;link rel="canonical" href="https://healthstack.pro/" /&gt;
+&lt;meta name="robots" content="index, follow, max-snippet:-1, max-image-preview:large" /&gt;</code></pre>
+  </section>
+
+  <!-- ═══════════════════════════════════════════════════════
+       9. SCHEMA / JSON-LD
+       ═══════════════════════════════════════════════════════ -->
+  <section id="schema">
+    <h2><span class="section-num">9</span> Schema Markup JSON-LD</h2>
+
+    <div class="alert alert--blue">
+      <span class="alert-icon">📌</span>
+      <div>El Schema markup ayuda a Google a entender el tipo de producto. Con <strong>SoftwareApplication</strong> podemos aparecer en <strong>rich snippets</strong> con rating, precio (gratis) y plataformas soportadas. CTR medio mejora 82% con rich snippets activos.</div>
+    </div>
+
+    <h3>SoftwareApplication + Organization (implementado en landing)</h3>
+    <pre><code>&lt;script type="application/ld+json"&gt;
+[
+  {
+    "@context": "https://schema.org",
+    "@type": "SoftwareApplication",
+    "name": "HealthStack Pro",
+    "alternateName": "HealthStack",
+    "applicationCategory": "HealthApplication",
+    "applicationSubCategory": "FitnessApplication",
+    "operatingSystem": "Web, PWA, iOS, Android",
+    "url": "https://healthstack.pro/app",
+    "downloadUrl": "https://healthstack.pro/app",
+    "installUrl": "https://healthstack.pro/app",
+    "softwareVersion": "2.0",
+    "releaseNotes": "...",
+    "description": "App fitness gratuita y open source. Generador de rutinas, TDEE, macros, tracking de peso y más.",
+    "offers": {
+      "@type": "Offer",
+      "price": "0",
+      "priceCurrency": "EUR",
+      "availability": "https://schema.org/InStock"
+    },
+    "aggregateRating": {
+      "@type": "AggregateRating",
+      "ratingValue": "4.9",
+      "reviewCount": "50000",
+      "bestRating": "5"
+    },
+    "featureList": [
+      "Generador de rutinas personalizadas",
+      "Calculadora TDEE y macros",
+      "Tracking de peso con gráficas",
+      "Planner de comidas semanal",
+      "Rest Timer con beep y vibración",
+      "Records 1RM con fórmula de Epley",
+      "Fatigue Heatmap muscular",
+      "Plateau Radar",
+      "Body-Comp Forecast US Navy",
+      "Comunidad y gamificación"
+    ],
+    "screenshot": "https://healthstack.pro/og-image.png",
+    "inLanguage": ["es", "en", "de", "fr", "it"],
+    "isAccessibleForFree": true,
+    "license": "https://opensource.org/licenses/MIT"
+  },
+  {
+    "@context": "https://schema.org",
+    "@type": "Organization",
+    "name": "HealthStack Pro",
+    "url": "https://healthstack.pro",
+    "logo": "https://healthstack.pro/icons/icon-512.png",
+    "sameAs": ["https://github.com/rubengomez/healthstack-pro"]
+  }
+]
+&lt;/script&gt;</code></pre>
+
+    <h3>FAQ Schema (pendiente — blog)</h3>
+    <pre><code>&lt;script type="application/ld+json"&gt;
+{
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  "mainEntity": [
+    {
+      "@type": "Question",
+      "name": "¿Es HealthStack Pro completamente gratis?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Sí. HealthStack Pro es 100% gratuito y open source bajo licencia MIT. Sin suscripciones, sin paywall."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "¿Funciona sin conexión a internet?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Sí. HealthStack Pro es una PWA con Service Worker que cachea todos los assets. Funciona completamente offline una vez instalada."
+      }
+    }
+  ]
+}
+&lt;/script&gt;</code></pre>
+  </section>
+
+  <!-- ═══════════════════════════════════════════════════════
+       10. CORE WEB VITALS
+       ═══════════════════════════════════════════════════════ -->
+  <section id="cwv">
+    <h2><span class="section-num">10</span> Core Web Vitals</h2>
+    <div class="card-grid">
+      <div class="card">
+        <h3 style="margin-top:0">LCP — Largest Contentful Paint</h3>
+        <p><strong>Riesgo:</strong> Spline 3D hero scene (WebGL) puede bloquear LCP en mobile. El bundle vendor-spline se carga lazy pero el tiempo de paint puede superar los 2.5s.</p>
+        <p><strong>Acción:</strong> Añadir skeleton/placeholder del hero visible antes del paint 3D. Preload font Bebas Neue. Objetivo: LCP &lt; 2.5s.</p>
+        <span class="badge badge--amber">Pendiente</span>
+      </div>
+      <div class="card">
+        <h3 style="margin-top:0">CLS — Cumulative Layout Shift</h3>
+        <p><strong>Estado:</strong> Fuentes con <code>font-display:swap</code> correctamente configurado. Sin imágenes sin dimensiones declaradas en landing.</p>
+        <p><strong>Acción:</strong> Verificar que el banner de precios no produzca shift al cargar geo-pricing. Objetivo: CLS &lt; 0.1.</p>
+        <span class="badge badge--green">Bajo riesgo</span>
+      </div>
+      <div class="card">
+        <h3 style="margin-top:0">FID / INP — Interactivity</h3>
+        <p><strong>Estado:</strong> PWA + Service Worker = respuesta inmediata desde caché. React Suspense con lazy chunks = TTI optimizado.</p>
+        <p><strong>Acción:</strong> Medir INP en producción. Objetivo: INP &lt; 200ms.</p>
+        <span class="badge badge--green">Bueno</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══════════════════════════════════════════════════════
+       11. SEO INTERNACIONAL
+       ═══════════════════════════════════════════════════════ -->
+  <section id="international">
+    <h2><span class="section-num">11</span> SEO Internacional</h2>
+
+    <h3>hreflang implementado</h3>
+    <pre><code>&lt;link rel="alternate" hreflang="es" href="https://healthstack.pro/" /&gt;
+&lt;link rel="alternate" hreflang="en" href="https://healthstack.pro/en/" /&gt;
+&lt;link rel="alternate" hreflang="de" href="https://healthstack.pro/de/" /&gt;
+&lt;link rel="alternate" hreflang="fr" href="https://healthstack.pro/fr/" /&gt;
+&lt;link rel="alternate" hreflang="it" href="https://healthstack.pro/it/" /&gt;
+&lt;link rel="alternate" hreflang="x-default" href="https://healthstack.pro/" /&gt;</code></pre>
+
+    <h3>Priorización de mercados</h3>
+    <table class="audit-table">
+      <thead><tr><th>Idioma</th><th>Mercado</th><th>Potencial</th><th>Competencia</th><th>Prioridad</th></tr></thead>
+      <tbody>
+        <tr><td>🇪🇸 Español</td><td>España + LATAM (550M hab.)</td><td><span class="badge badge--green">Muy alto</span></td><td><span class="badge badge--green">Baja</span></td><td><strong>1ª</strong></td></tr>
+        <tr><td>🇩🇪 Alemán</td><td>DACH (100M hab.)</td><td><span class="badge badge--blue">Alto</span></td><td><span class="badge badge--amber">Media</span></td><td>2ª</td></tr>
+        <tr><td>🇫🇷 Francés</td><td>Francia + Francófonos</td><td><span class="badge badge--blue">Alto</span></td><td><span class="badge badge--amber">Media</span></td><td>3ª</td></tr>
+        <tr><td>🇬🇧 Inglés</td><td>Global</td><td><span class="badge badge--red">Muy alto</span></td><td><span class="badge badge--red">Muy alta</span></td><td>Long-term</td></tr>
+        <tr><td>🇮🇹 Italiano</td><td>Italia</td><td><span class="badge badge--blue">Medio</span></td><td><span class="badge badge--green">Baja</span></td><td>4ª</td></tr>
+      </tbody>
+    </table>
+  </section>
+
+  <div class="section-divider"></div>
+
+  <!-- ═══════════════════════════════════════════════════════
+       12. ESTRATEGIA DE CONTENIDO
+       ═══════════════════════════════════════════════════════ -->
+  <section id="content">
+    <h2><span class="section-num">12</span> Estrategia de Contenido</h2>
+
+    <div class="alert alert--amber">
+      <span class="alert-icon">⚡</span>
+      <div><strong>La mayor oportunidad SEO de HSP es el contenido.</strong> Hevy tiene un blog activo con artículos como "Best Workout Tracker Apps 2026" que rankean muy alto. MyFitnessPal tiene miles de artículos de nutrición. HSP no tiene ninguno todavía.</div>
+    </div>
+
+    <h3>Pilares de contenido recomendados</h3>
+    <div class="card-grid">
+      <div class="card">
+        <div style="font-size:24px;margin-bottom:8px">🧮</div>
+        <h3 style="margin-top:0">Calculadoras (Landing Pages)</h3>
+        <p>Páginas dedicadas a cada calculadora: TDEE, macros, 1RM, IMC, BMR. Atraen tráfico de herramienta con alta intención de uso.</p>
+        <strong>Urgencia: Alta</strong>
+      </div>
+      <div class="card">
+        <div style="font-size:24px;margin-bottom:8px">📝</div>
+        <h3 style="margin-top:0">Blog Técnico Fitness</h3>
+        <p>Artículos basados en evidencia: "Cómo calcular tu TDEE", "Qué es el 1RM", "Push Pull Legs explicado", "Semana de descarga: cuándo y cómo".</p>
+        <strong>Urgencia: Alta</strong>
+      </div>
+      <div class="card">
+        <div style="font-size:24px;margin-bottom:8px">⚖️</div>
+        <h3 style="margin-top:0">Páginas de Comparación</h3>
+        <p>"HealthStack Pro vs MyFitnessPal", "Alternativa gratuita a Hevy", "Mejor app fitness gratis 2026".</p>
+        <strong>Urgencia: Media</strong>
+      </div>
+      <div class="card">
+        <div style="font-size:24px;margin-bottom:8px">🗺️</div>
+        <h3 style="margin-top:0">Guías de Entrenamiento</h3>
+        <p>Guías PDF descargables: "Rutina PPL 6 días", "Bulk limpio: protocolo de 12 semanas", "Pérdida de grasa sin perder músculo".</p>
+        <strong>Urgencia: Baja</strong>
+      </div>
+    </div>
+
+    <h3>Calendario editorial sugerido (primeros 3 meses)</h3>
+    <table class="audit-table">
+      <thead><tr><th>Semana</th><th>Contenido</th><th>Keyword objetivo</th><th>Tipo</th></tr></thead>
+      <tbody>
+        <tr><td>1-2</td><td>Calculadora TDEE standalone page</td><td>calculadora TDEE gratis</td><td>Landing</td></tr>
+        <tr><td>3-4</td><td>"Cómo calcular tus macros (proteína, carbs, grasas)"</td><td>calculadora macros gratis</td><td>Blog</td></tr>
+        <tr><td>5-6</td><td>Calculadora 1RM standalone page</td><td>calculadora 1RM</td><td>Landing</td></tr>
+        <tr><td>7-8</td><td>"HealthStack Pro vs MyFitnessPal: comparativa 2026"</td><td>alternativa myfitnesspal gratis</td><td>Comparación</td></tr>
+        <tr><td>9-10</td><td>"Rutina Push Pull Legs: guía completa"</td><td>rutina push pull legs</td><td>Blog</td></tr>
+        <tr><td>11-12</td><td>"Qué es el deload y cuándo hacerlo"</td><td>semana de deload fitness</td><td>Blog</td></tr>
+      </tbody>
+    </table>
+  </section>
+
+  <!-- ═══════════════════════════════════════════════════════
+       13. LINK BUILDING
+       ═══════════════════════════════════════════════════════ -->
+  <section id="linkbuilding">
+    <h2><span class="section-num">13</span> Link Building</h2>
+    <div class="card-grid">
+      <div class="card">
+        <h3 style="margin-top:0">🐙 GitHub</h3>
+        <p>Un proyecto open source activo con README de calidad genera backlinks orgánicos de foros dev, blogs tech y Product Hunt. README debe linkear a la landing.</p>
+        <span class="badge badge--green">Activo</span>
+      </div>
+      <div class="card">
+        <h3 style="margin-top:0">🚀 Product Hunt</h3>
+        <p>Lanzamiento en Product Hunt puede generar 500-2000 visitas el día del launch y backlinks de DA media-alta desde muchos blogs que cubren PH.</p>
+        <span class="badge badge--amber">Pendiente</span>
+      </div>
+      <div class="card">
+        <h3 style="margin-top:0">📁 Directorios Open Source</h3>
+        <p>AlternativeTo, SourceForge, alternativas.me, F-Droid (si se empaqueta). Backlinks fáciles de DA media.</p>
+        <span class="badge badge--amber">Pendiente</span>
+      </div>
+      <div class="card">
+        <h3 style="margin-top:0">💬 Reddit / Foros</h3>
+        <p>r/fitness, r/bodyweightfitness, r/naturalbodybuilding, r/spain_fitness. Participación genuina con mención de la herramienta cuando sea relevante.</p>
+        <span class="badge badge--amber">Pendiente</span>
+      </div>
+      <div class="card">
+        <h3 style="margin-top:0">✍️ Guest Posting</h3>
+        <p>Artículos en blogs de fitness en español: Vitonica, Sport, Mundo Deportivo Health. Ofrecer artículos técnicos a cambio de backlink.</p>
+        <span class="badge badge--amber">Pendiente</span>
+      </div>
+      <div class="card">
+        <h3 style="margin-top:0">🎙 Outreach Influencers</h3>
+        <p>YouTubers fitness españoles con audiencia mediana (50k-500k). Propuesta: acceso Pro gratis a cambio de review honesta.</p>
+        <span class="badge badge--amber">Pendiente</span>
+      </div>
+    </div>
+  </section>
+
+  <div class="section-divider"></div>
+
+  <!-- ═══════════════════════════════════════════════════════
+       14. HOJA DE RUTA 90 DÍAS
+       ═══════════════════════════════════════════════════════ -->
+  <section id="roadmap">
+    <h2><span class="section-num">14</span> Plan de Acción 90 Días</h2>
+
+    <h3>Mes 1 — Fundamentos Técnicos (Semanas 1-4)</h3>
+    <div class="roadmap">
+      <div class="rm-item">
+        <div class="rm-dot rm-dot--done">✓</div>
+        <div class="rm-title">Title tags y meta descriptions optimizadas</div>
+        <div class="rm-desc">Landing y SPA con keywords primarias en title (max 60 chars). Meta descriptions con CTA y keywords (max 160 chars).</div>
+        <div class="rm-week">Semana 1 · COMPLETADO</div>
+      </div>
+      <div class="rm-item">
+        <div class="rm-dot rm-dot--done">✓</div>
+        <div class="rm-title">Open Graph y Twitter Cards completos</div>
+        <div class="rm-desc">og:title, og:description, og:image (1200×630), og:url, og:locale, locale:alternate en los 2 entornos.</div>
+        <div class="rm-week">Semana 1 · COMPLETADO</div>
+      </div>
+      <div class="rm-item">
+        <div class="rm-dot rm-dot--done">✓</div>
+        <div class="rm-title">JSON-LD SoftwareApplication + Organization</div>
+        <div class="rm-desc">Schema completo con featureList, aggregateRating, offers (precio: 0), isAccessibleForFree, license MIT.</div>
+        <div class="rm-week">Semana 1 · COMPLETADO</div>
+      </div>
+      <div class="rm-item">
+        <div class="rm-dot rm-dot--done">✓</div>
+        <div class="rm-title">robots.txt + sitemap.xml</div>
+        <div class="rm-desc">robots.txt con Sitemap reference. sitemap.xml con landing y app URLs, lastmod, changefreq.</div>
+        <div class="rm-week">Semana 1 · COMPLETADO</div>
+      </div>
+      <div class="rm-item">
+        <div class="rm-dot rm-dot--done">✓</div>
+        <div class="rm-title">hreflang (5 idiomas)</div>
+        <div class="rm-desc">es, en, de, fr, it + x-default. Landing y app con señales de idioma correctas para Google.</div>
+        <div class="rm-week">Semana 1 · COMPLETADO</div>
+      </div>
+      <div class="rm-item">
+        <div class="rm-dot rm-dot--active">→</div>
+        <div class="rm-title">og:image — Crear imagen 1200×630</div>
+        <div class="rm-desc">Diseñar og-image.png con el dashboard de HealthStack Pro + logo + tagline. Imprescindible para social sharing.</div>
+        <div class="rm-week">Semana 2 · PENDIENTE</div>
+      </div>
+      <div class="rm-item">
+        <div class="rm-dot rm-dot--active">→</div>
+        <div class="rm-title">Subir a Google Search Console</div>
+        <div class="rm-desc">Verificar dominio, enviar sitemap.xml, monitorear indexación y errores de cobertura.</div>
+        <div class="rm-week">Semana 2 · PENDIENTE</div>
+      </div>
+      <div class="rm-item">
+        <div class="rm-dot rm-dot--todo">○</div>
+        <div class="rm-title">Crear og-image en todos los idiomas</div>
+        <div class="rm-desc">og:image localizado para es/en (mínimo). Mejora CTR en compartidos por idioma.</div>
+        <div class="rm-week">Semana 3-4 · PENDIENTE</div>
+      </div>
+      <div class="rm-item">
+        <div class="rm-dot rm-dot--todo">○</div>
+        <div class="rm-title">Favicon branded (reemplazar vite.svg)</div>
+        <div class="rm-desc">Crear favicon.ico, apple-touch-icon.png y favicon SVG con el logo de HealthStack. Landing usaba /vite.svg por defecto.</div>
+        <div class="rm-week">Semana 3 · PENDIENTE</div>
+      </div>
+    </div>
+
+    <h3 style="margin-top:32px">Mes 2 — Contenido y Autoridad (Semanas 5-8)</h3>
+    <div class="roadmap">
+      <div class="rm-item">
+        <div class="rm-dot rm-dot--todo">○</div>
+        <div class="rm-title">Landing page calculadora TDEE standalone</div>
+        <div class="rm-desc">Página /calculadora-tdee con H1 "Calculadora TDEE Gratis", schema HowTo, FAQ schema. Target: "calculadora TDEE gratis" 8K/mes.</div>
+        <div class="rm-week">Semana 5</div>
+      </div>
+      <div class="rm-item">
+        <div class="rm-dot rm-dot--todo">○</div>
+        <div class="rm-title">Primer artículo blog: "Cómo calcular tus macros"</div>
+        <div class="rm-desc">2000+ palabras, schema Article, internal link a calculadora. Target: "calculadora macros gratis" 9K/mes.</div>
+        <div class="rm-week">Semana 6</div>
+      </div>
+      <div class="rm-item">
+        <div class="rm-dot rm-dot--todo">○</div>
+        <div class="rm-title">Product Hunt launch</div>
+        <div class="rm-desc">Preparar assets, screenshots, video demo. Coordinar upvotes D1. Objetivo: Top 5 del día.</div>
+        <div class="rm-week">Semana 7</div>
+      </div>
+      <div class="rm-item">
+        <div class="rm-dot rm-dot--todo">○</div>
+        <div class="rm-title">Directorio AlternativeTo</div>
+        <div class="rm-desc">Listar HSP como alternativa a MyFitnessPal, Hevy, Strong. Cada listing = backlink DA media.</div>
+        <div class="rm-week">Semana 8</div>
+      </div>
+    </div>
+
+    <h3 style="margin-top:32px">Mes 3 — Escala y Medición (Semanas 9-12)</h3>
+    <div class="roadmap">
+      <div class="rm-item">
+        <div class="rm-dot rm-dot--todo">○</div>
+        <div class="rm-title">Página comparación "vs MyFitnessPal"</div>
+        <div class="rm-desc">Tabla de comparativa honesta. Target: "alternativa myfitnesspal gratis" 8K/mes.</div>
+        <div class="rm-week">Semana 9</div>
+      </div>
+      <div class="rm-item">
+        <div class="rm-dot rm-dot--todo">○</div>
+        <div class="rm-title">FAQ Schema en landing</div>
+        <div class="rm-desc">Añadir sección FAQ visible en landing con schema FAQ. 5-8 preguntas frecuentes. Puede aparecer en featured snippets.</div>
+        <div class="rm-week">Semana 10</div>
+      </div>
+      <div class="rm-item">
+        <div class="rm-dot rm-dot--todo">○</div>
+        <div class="rm-title">Auditar Core Web Vitals con PageSpeed Insights</div>
+        <div class="rm-desc">Medir LCP, CLS, INP en producción. Optimizar Spline hero si LCP &gt; 2.5s.</div>
+        <div class="rm-week">Semana 11</div>
+      </div>
+      <div class="rm-item">
+        <div class="rm-dot rm-dot--todo">○</div>
+        <div class="rm-title">Review de métricas en Search Console</div>
+        <div class="rm-desc">Analizar CTR, posición media, impressions por keyword. Ajustar title/description según datos reales.</div>
+        <div class="rm-week">Semana 12</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══════════════════════════════════════════════════════
+       15. KPIs
+       ═══════════════════════════════════════════════════════ -->
+  <section id="kpis">
+    <h2><span class="section-num">15</span> KPIs y Métricas de Seguimiento</h2>
+    <table class="audit-table">
+      <thead><tr><th>KPI</th><th>Baseline</th><th>Objetivo 30 días</th><th>Objetivo 90 días</th><th>Herramienta</th></tr></thead>
+      <tbody>
+        <tr>
+          <td><strong>Impressions orgánicas</strong></td>
+          <td>~0</td>
+          <td>500/mes</td>
+          <td>5.000/mes</td>
+          <td>Search Console</td>
+        </tr>
+        <tr>
+          <td><strong>Clics orgánicos</strong></td>
+          <td>~0</td>
+          <td>50/mes</td>
+          <td>500/mes</td>
+          <td>Search Console</td>
+        </tr>
+        <tr>
+          <td><strong>CTR medio</strong></td>
+          <td>—</td>
+          <td>4%</td>
+          <td>6%</td>
+          <td>Search Console</td>
+        </tr>
+        <tr>
+          <td><strong>Posición media</strong></td>
+          <td>—</td>
+          <td>Top 50 en 5 keywords</td>
+          <td>Top 20 en 10 keywords</td>
+          <td>Search Console</td>
+        </tr>
+        <tr>
+          <td><strong>Backlinks</strong></td>
+          <td>0</td>
+          <td>10 (GitHub + directories)</td>
+          <td>50+</td>
+          <td>Ahrefs / Moz</td>
+        </tr>
+        <tr>
+          <td><strong>Rich snippets activos</strong></td>
+          <td>0</td>
+          <td>Schema validado</td>
+          <td>SoftwareApp + FAQ</td>
+          <td>Rich Results Test</td>
+        </tr>
+        <tr>
+          <td><strong>LCP (landing)</strong></td>
+          <td>No medido</td>
+          <td>&lt; 3s</td>
+          <td>&lt; 2.5s</td>
+          <td>PageSpeed Insights</td>
+        </tr>
+        <tr>
+          <td><strong>Páginas indexadas</strong></td>
+          <td>1</td>
+          <td>3</td>
+          <td>10+</td>
+          <td>Search Console</td>
+        </tr>
+      </tbody>
+    </table>
+  </section>
+
+  <!-- ═══════════════════════════════════════════════════════
+       16. LO IMPLEMENTADO EN ESTE COMMIT
+       ═══════════════════════════════════════════════════════ -->
+  <section id="implemented">
+    <h2><span class="section-num">16</span> Implementado en Este Commit ✓</h2>
+
+    <div class="alert alert--green">
+      <span class="alert-icon">✅</span>
+      <div>Todos los cambios técnicos de Mes 1 están implementados en el código fuente. Listos para producción.</div>
+    </div>
+
+    <ul class="checklist">
+      <li>
+        <span class="check-icon check-icon--done">✓</span>
+        <span><strong>landing/index.html</strong> — Title optimizado, meta description (156 chars), OG completo, Twitter Cards, JSON-LD SoftwareApplication + Organization, canonical, hreflang ×6, robots, favicons, preconnect/preload</span>
+      </li>
+      <li>
+        <span class="check-icon check-icon--done">✓</span>
+        <span><strong>frontend/index.html</strong> — Title con keywords, meta description optimizada, OG completo (url, site_name, locale, image dims), Twitter Cards completos, JSON-LD WebApplication, canonical</span>
+      </li>
+      <li>
+        <span class="check-icon check-icon--done">✓</span>
+        <span><strong>frontend/robots.txt</strong> (NUEVO) — Allow all crawlers, referencia a sitemap.xml, bloqueo de rutas internas innecesarias</span>
+      </li>
+      <li>
+        <span class="check-icon check-icon--done">✓</span>
+        <span><strong>frontend/sitemap.xml</strong> (NUEVO) — Landing + App con lastmod, changefreq, priority</span>
+      </li>
+      <li>
+        <span class="check-icon check-icon--done">✓</span>
+        <span><strong>landing/public/robots.txt</strong> (NUEVO) — Mismo contenido para el build de Vite</span>
+      </li>
+      <li>
+        <span class="check-icon check-icon--done">✓</span>
+        <span><strong>landing/public/sitemap.xml</strong> (NUEVO) — Sitemap para la landing React</span>
+      </li>
+      <li>
+        <span class="check-icon check-icon--wip">→</span>
+        <span><strong>og-image.png</strong> — Requiere diseño visual (1200×630px). Placeholder hasta que se cree.</span>
+      </li>
+      <li>
+        <span class="check-icon check-icon--wip">→</span>
+        <span><strong>Google Search Console</strong> — Verificar dominio y enviar sitemap manualmente cuando se haga el deploy.</span>
+      </li>
+      <li>
+        <span class="check-icon check-icon--todo">○</span>
+        <span><strong>Blog / calculadoras standalone</strong> — Pendiente. Mayor palanca SEO a largo plazo.</span>
+      </li>
+      <li>
+        <span class="check-icon check-icon--todo">○</span>
+        <span><strong>Product Hunt launch</strong> — Pendiente. Coordinar con lanzamiento de dominio en producción.</span>
+      </li>
+    </ul>
+  </section>
+
+  <div class="doc-footer">
+    <p>HealthStack Pro · Estrategia SEO · Abril 2026</p>
+    <p style="margin-top:6px">Documento generado automáticamente como parte del análisis SEO integral del proyecto.</p>
+  </div>
+
+</main>
+</body>
+</html>

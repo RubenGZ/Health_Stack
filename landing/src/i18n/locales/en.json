@@ -74,21 +74,21 @@
         "period": "/forever",
         "desc": "Everything you need to get started — no credit card required.",
         "cta": "Start for free",
-        "features": ["Weight & progress tracking", "300+ exercise library", "TDEE & macro calculator", "Community access", "Routine generator", "Full meal planner"]
+        "features": ["Weight tracking & charts", "300+ exercise library", "TDEE & macro calculator", "Community + gamification", "Weekly routine generator", "7-day meal planner"]
       },
       {
         "tier": "Pro",
         "period": "/month",
-        "desc": "For serious athletes who want all the tools together.",
+        "desc": "For serious athletes who want to optimize every workout.",
         "cta": "Start Pro — €9/month",
-        "features": ["Everything in Starter", "Routine generator", "7-day meal planner", "Custom recipe creator", "Evidence-based supplement guide", "Community priority badge"]
+        "features": ["Everything in Starter", "Optimal Nutrition Timing", "Records & 1RM Tracker", "Weekly Athlete Receipt", "Smart Rest Timer", "Macro Autopilot AI"]
       },
       {
         "tier": "Elite",
         "period": "/month",
-        "desc": "The complete stack for competitive athletes and coaches.",
-        "cta": "Go Elite",
-        "features": ["Everything in Pro", "Personal trainer integration", "Advanced body composition", "Blood marker tracking", "Wearable sync (coming soon)", "Personalized onboarding"]
+        "desc": "Advanced analytics for competitive athletes and coaches.",
+        "cta": "Go Elite — €24/month",
+        "features": ["Everything in Pro", "Muscle Fatigue Heatmap", "Plateau Radar + diagnosis", "Session Replay + voice notes", "Body-Comp Forecast (Navy)", "Auto-Deload Detector AI"]
       }
     ]
   },

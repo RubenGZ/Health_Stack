@@ -74,21 +74,21 @@
         "period": "/für immer",
         "desc": "Alles, was du zum Starten brauchst — keine Kreditkarte erforderlich.",
         "cta": "Kostenlos starten",
-        "features": ["Gewichts- & Fortschrittsverfolgung", "+300 Übungen in der Bibliothek", "TDEE & Makro-Rechner", "Community-Zugang", "Routine-Generator", "Vollständiger Mahlzeitenplaner"]
+        "features": ["Gewichts-Tracking & Charts", "+300 Übungen in der Bibliothek", "TDEE & Makro-Rechner", "Community + Gamification", "Wöchentlicher Routine-Generator", "7-Tage-Mahlzeitenplaner"]
       },
       {
         "tier": "Pro",
         "period": "/Monat",
-        "desc": "Für ernsthafte Athleten, die alle Tools zusammen wollen.",
+        "desc": "Für ernsthafte Athleten, die jedes Training optimieren wollen.",
         "cta": "Pro starten — 9 €/Monat",
-        "features": ["Alles aus Starter", "Routine-Generator", "7-Tage-Mahlzeitenplaner", "Personalisierter Rezeptersteller", "Evidenzbasierter Supplement-Guide", "Community-Prioritäts-Badge"]
+        "features": ["Alles aus Starter", "Optimales Ernährungs-Timing", "Records & 1RM-Tracker", "Wöchentlicher Athlete Receipt", "Intelligenter Rest-Timer", "Makro-Autopilot KI"]
       },
       {
         "tier": "Elite",
         "period": "/Monat",
-        "desc": "Der komplette Stack für Wettkampfsportler und Trainer.",
-        "cta": "Zu Elite wechseln",
-        "features": ["Alles aus Pro", "Personaltrainer-Integration", "Erweiterte Körperzusammensetzung", "Blutwert-Tracking", "Wearable-Sync (demnächst)", "Personalisiertes Onboarding"]
+        "desc": "Erweiterte Analytik für Wettkampfsportler und Trainer.",
+        "cta": "Zu Elite — 24 €/Monat",
+        "features": ["Alles aus Pro", "Muskel-Fatigue-Heatmap", "Plateau-Radar + Diagnose", "Session Replay + Sprachnotizen", "Body-Comp Forecast (US Navy)", "Auto-Deload-Detektor KI"]
       }
     ]
   },

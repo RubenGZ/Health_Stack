@@ -74,21 +74,21 @@
         "period": "/siempre",
         "desc": "Todo lo que necesitas para comenzar — sin tarjeta de crédito.",
         "cta": "Empezar gratis",
-        "features": ["Seguimiento de peso y progreso", "+300 ejercicios en biblioteca", "Calculadora TDEE y macros", "Acceso a la comunidad", "Generador de rutinas", "Planificador de comidas completo"]
+        "features": ["Seguimiento de peso y gráficas", "+300 ejercicios en biblioteca", "Calculadora TDEE y macros", "Acceso a comunidad + gamificación", "Generador de rutinas semanal", "Planificador de comidas 7 días"]
       },
       {
         "tier": "Pro",
         "period": "/mes",
-        "desc": "Para atletas serios que quieren todas las herramientas juntas.",
+        "desc": "Para atletas serios que quieren optimizar cada entrenamiento.",
         "cta": "Empezar Pro — 9 €/mes",
-        "features": ["Todo lo de Starter", "Generador de rutinas", "Planificador de comidas 7 días", "Creador de recetas personalizado", "Guía de suplementos con evidencia", "Badge de prioridad en comunidad"]
+        "features": ["Todo lo de Starter", "Horario Óptimo de Nutrición", "Records & Tracker de 1RM", "Athlete Receipt semanal", "Rest Timer inteligente", "Macro Autopilot IA"]
       },
       {
         "tier": "Elite",
         "period": "/mes",
-        "desc": "El stack completo para atletas competitivos y entrenadores.",
-        "cta": "Ir a Elite",
-        "features": ["Todo lo de Pro", "Integración con entrenador personal", "Composición corporal avanzada", "Seguimiento de marcadores sanguíneos", "Sincronización wearable (próximamente)", "Onboarding personalizado"]
+        "desc": "Analítica avanzada para atletas competitivos y entrenadores.",
+        "cta": "Ir a Elite — 24 €/mes",
+        "features": ["Todo lo de Pro", "Fatigue Heatmap muscular", "Plateau Radar con diagnóstico", "Session Replay + notas de voz", "Body-Comp Forecast (US Navy)", "Auto-Deload Detector IA"]
       }
     ]
   },

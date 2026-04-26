@@ -3090,3 +3090,196 @@ select.form-input option { background: var(--bg-surface); color: var(--text-prim
 .sr-hist-date { font-size: 12px; color: var(--muted-foreground); }
 
 .sr-empty { font-size: 13px; color: var(--muted-foreground); padding: 24px 0; }
+
+/* ================================================================
+   Plan Gating — Upgrade Modal, Badges & Nav Locks
+   ================================================================ */
+
+/* ── Upgrade modal overlay ──────────────────────────────────── */
+.plan-modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.72);
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 9999;
+  padding: 24px;
+  animation: fadeIn 0.18s ease;
+}
+
+.plan-modal {
+  background: #0f0f1a;
+  border: 1px solid rgba(108,99,255,0.3);
+  border-radius: 20px;
+  padding: 36px 32px 28px;
+  max-width: 400px;
+  width: 100%;
+  position: relative;
+  text-align: center;
+  box-shadow: 0 24px 80px rgba(0,0,0,0.6), 0 0 0 1px rgba(108,99,255,0.15);
+  animation: slideUp 0.22s cubic-bezier(0.16,1,0.3,1);
+}
+
+@keyframes slideUp {
+  from { opacity: 0; transform: translateY(24px) scale(0.96); }
+  to   { opacity: 1; transform: translateY(0)  scale(1);    }
+}
+
+.plan-modal-close {
+  position: absolute;
+  top: 16px;
+  right: 16px;
+  background: rgba(255,255,255,0.06);
+  border: none;
+  color: #94a3b8;
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  cursor: pointer;
+  font-size: 13px;
+  line-height: 30px;
+  text-align: center;
+  transition: background 0.15s, color 0.15s;
+}
+.plan-modal-close:hover { background: rgba(255,255,255,0.12); color: #e2e8f0; }
+
+.plan-modal-icon {
+  font-size: 42px;
+  margin-bottom: 6px;
+  line-height: 1;
+}
+
+.plan-modal-badge {
+  display: inline-block;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  color: #fff;
+  padding: 3px 10px;
+  border-radius: 20px;
+  margin-bottom: 16px;
+}
+
+.plan-modal-title {
+  font-size: 18px;
+  font-weight: 700;
+  color: #e2e8f0;
+  margin: 0 0 8px;
+  line-height: 1.3;
+}
+
+.plan-modal-desc {
+  font-size: 14px;
+  color: #94a3b8;
+  margin: 0 0 20px;
+  line-height: 1.6;
+}
+.plan-modal-desc strong { color: #e2e8f0; }
+
+.plan-modal-perks {
+  list-style: none;
+  padding: 0;
+  margin: 0 0 24px;
+  text-align: left;
+  background: rgba(255,255,255,0.03);
+  border: 1px solid rgba(255,255,255,0.06);
+  border-radius: 12px;
+  padding: 14px 18px;
+}
+
+.plan-modal-perks li {
+  font-size: 13px;
+  color: #cbd5e1;
+  padding: 5px 0;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.plan-modal-check {
+  font-weight: 700;
+  font-size: 14px;
+  flex-shrink: 0;
+}
+
+.plan-modal-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-bottom: 14px;
+}
+
+.plan-modal-cta {
+  display: block;
+  width: 100%;
+  padding: 13px 20px;
+  border-radius: 10px;
+  font-size: 15px;
+  font-weight: 600;
+  text-align: center;
+  text-decoration: none;
+  color: #fff;
+  background: var(--btn-bg, #6c63ff);
+  transition: opacity 0.15s, transform 0.15s;
+}
+.plan-modal-cta:hover { opacity: 0.9; transform: translateY(-1px); }
+
+.plan-modal-demo {
+  background: none;
+  border: 1px solid rgba(255,255,255,0.12);
+  color: #64748b;
+  font-size: 13px;
+  padding: 10px 20px;
+  border-radius: 10px;
+  cursor: pointer;
+  transition: border-color 0.15s, color 0.15s;
+  width: 100%;
+}
+.plan-modal-demo:hover { border-color: rgba(255,255,255,0.24); color: #94a3b8; }
+
+.plan-modal-note {
+  font-size: 12px;
+  color: #475569;
+  margin: 0;
+}
+.plan-modal-note a { color: #6c63ff; text-decoration: none; }
+.plan-modal-note a:hover { text-decoration: underline; }
+
+/* ── Plan badge (user chip) ─────────────────────────────────── */
+.plan-badge {
+  display: inline-block;
+  font-size: 9px;
+  font-weight: 800;
+  letter-spacing: 1.2px;
+  text-transform: uppercase;
+  color: #fff;
+  padding: 2px 7px;
+  border-radius: 20px;
+  margin-top: 2px;
+  width: fit-content;
+}
+.plan-badge--pro   { background: #6c63ff; }
+.plan-badge--elite { background: #f59e0b; }
+
+/* ── Locked nav items ───────────────────────────────────────── */
+.nav-item--locked {
+  opacity: 0.55;
+}
+.nav-item--locked .nav-icon { filter: grayscale(1); }
+
+.nav-lock-icon {
+  font-size: 10px;
+  margin-left: auto;
+  opacity: 0.7;
+  line-height: 1;
+}
+
+/* ── Locked stab tab ────────────────────────────────────────── */
+.stab--locked {
+  opacity: 0.5;
+  cursor: default;
+}

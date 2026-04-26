@@ -34,11 +34,13 @@ const TESTIMONIAL_META = [
   { avatar: 'D', avatarCls: 'from-purple-500 to-violet-700 text-white'  },
 ]
 
-// ok flags: which plan features are included (true) vs crossed-out (false)
+// ok flags: which features are included (true) vs locked (false) per plan
+// Each plan's feature list describes its own tier — all shown as included.
+// The false entries mark features shown as "not included" in the lower tier card.
 const PLAN_OK: boolean[][] = [
-  [true, true, true, true, true,  true ],
-  [true, true, true, true, true,  true ],
-  [true, true, true, true, true,  true ],
+  [true,  true,  true,  true,  true,  true  ], // Starter: all 6 Starter features ✓
+  [true,  true,  true,  true,  true,  true  ], // Pro: all 6 Pro features ✓
+  [true,  true,  true,  true,  true,  true  ], // Elite: all 6 Elite features ✓
 ]
 const PLAN_META = [
   { featured: false, primary: false },

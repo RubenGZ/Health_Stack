@@ -14,6 +14,15 @@
   ];
 
   function navigateTo(sectionId) {
+    // ── Plan gate ───────────────────────────────────────────
+    if (typeof Plan !== 'undefined' && !Plan.can(sectionId)) {
+      Plan.showUpgradeModal(sectionId, function () {
+        // Called after user activates demo mode → retry navigation
+        navigateTo(sectionId);
+      });
+      return;
+    }
+
     // Ocultar todas las secciones
     SECTIONS.forEach(id => {
       const el = document.getElementById(`section-${id}`);
@@ -81,6 +90,19 @@
         }
       });
     });
+
+    // Macro Autopilot tab — gate for Pro
+    const autoTab = document.querySelector('.stab[data-tab="autopilot"]');
+    if (autoTab) {
+      autoTab.addEventListener('click', function (e) {
+        if (typeof Plan !== 'undefined' && !Plan.isPro()) {
+          e.stopImmediatePropagation();
+          Plan.showUpgradeModal('autopilot', function () {
+            autoTab.click();
+          });
+        }
+      }, true); // capture phase so it fires before the tab switcher
+    }
 
     // Leer hash inicial
     const hash = window.location.hash.replace('#', '');
@@ -624,6 +646,20 @@
     renderProgressInsight();
     renderSponsorBanner();
     initPWAInstall();
+
+    // Plan gating — must run after DOM is ready
+    if (typeof Plan !== 'undefined') Plan.init();
+
+    // Gate RestTimer FAB click directly (shows modal if not Pro)
+    const fab = document.getElementById('rest-timer-fab');
+    if (fab) {
+      fab.addEventListener('click', function (e) {
+        if (typeof Plan !== 'undefined' && !Plan.isPro()) {
+          e.stopImmediatePropagation();
+          Plan.showUpgradeModal('restimer');
+        }
+      }, true); // capture before restTimer.js listener
+    }
 
     console.log('%c HealthStack Pro v2.0 ', 'background:#6c63ff;color:white;padding:4px 8px;border-radius:4px;font-weight:bold');
   }

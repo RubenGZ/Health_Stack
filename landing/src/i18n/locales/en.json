@@ -5,7 +5,7 @@
     "cta": "Start Free"
   },
   "hero": {
-    "badge": "#1 Fitness Platform · Free & Open Source",
+    "badge": "#1 Freemium Fitness App · Start free, upgrade when you're ready",
     "line1": "SHAPE YOUR",
     "line3": "VERSION",
     "typewriter": ["STRENGTH", "MUSCLE", "POWER", "ENDURANCE", "BODY"],
@@ -18,7 +18,7 @@
     "tag2_title": "+2.8 kg muscle",
     "tag2_sub": "Last 12 weeks"
   },
-  "band": ["Global members", "Exercises in library", "Tracked ingredients", "Free & open source"],
+  "band": ["Active members", "Exercises in library", "Tracked ingredients", "No credit card needed"],
   "expansion": {
     "label": "Environment is everything",
     "title_1": "BUILT FOR",
@@ -66,29 +66,29 @@
     "label": "Pricing",
     "title_1": "NO EXCUSES.",
     "title_2": "START FREE.",
-    "subtitle": "HealthStack Pro is and always will be free. Pro and Elite tiers unlock premium features when you're ready to go further.",
+    "subtitle": "Start free with full access to core features. Pro and Elite remove ads and add advanced analytics tools that separate those who progress from those who plateau.",
     "popular": "Most popular",
     "plans": [
       {
         "tier": "Starter",
         "period": "/forever",
-        "desc": "Everything you need to get started — no credit card required.",
+        "desc": "Everything you need to start — no card, no commitment.",
         "cta": "Start for free",
         "features": ["Weight tracking & charts", "300+ exercise library", "TDEE & macro calculator", "Community + gamification", "Weekly routine generator", "7-day meal planner"]
       },
       {
         "tier": "Pro",
         "period": "/month",
-        "desc": "For serious athletes who want to optimize every workout.",
-        "cta": "Start Pro — €9/month",
-        "features": ["Everything in Starter", "Optimal Nutrition Timing", "Records & 1RM Tracker", "Weekly Athlete Receipt", "Smart Rest Timer", "Macro Autopilot AI"]
+        "desc": "Ad-free, with AI tools and analytics for athletes who mean it.",
+        "cta": "Activate Pro — €9/month",
+        "features": ["Everything in Starter", "No ads", "Optimal Nutrition Timing", "Records & 1RM Tracker", "Smart Rest Timer", "Macro Autopilot AI"]
       },
       {
         "tier": "Elite",
         "period": "/month",
-        "desc": "Advanced analytics for competitive athletes and coaches.",
+        "desc": "Elite-level analysis for competitive athletes, coaches, and those who refuse to plateau.",
         "cta": "Go Elite — €24/month",
-        "features": ["Everything in Pro", "Muscle Fatigue Heatmap", "Plateau Radar + diagnosis", "Session Replay + voice notes", "Body-Comp Forecast (Navy)", "Auto-Deload Detector AI"]
+        "features": ["Everything in Pro", "Muscle Fatigue Heatmap", "Plateau Radar + AI diagnosis", "Session Replay + voice notes", "Body-Comp Forecast (Navy)", "Auto-Deload Detector AI"]
       }
     ]
   },
@@ -101,9 +101,9 @@
     "secondary": "Meet the Community"
   },
   "footer": {
-    "links": ["App", "Features", "Pricing", "Community", "Supplements", "GitHub"],
-    "copyright": "© 2025 HealthStack Pro · Open Source · MIT License",
-    "tagline": "Built with ❤️ for athletes worldwide"
+    "links": ["App", "Features", "Pricing", "Community", "Supplements", "Blog"],
+    "copyright": "© 2025 HealthStack Pro · All rights reserved",
+    "tagline": "Built with ❤️ for athletes who mean business"
   },
   "dashboard": {
     "weight": "Current weight",

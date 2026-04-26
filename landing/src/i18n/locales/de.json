@@ -5,7 +5,7 @@
     "cta": "Kostenlos starten"
   },
   "hero": {
-    "badge": "#1 Fitness-Plattform · Kostenlos & Open Source",
+    "badge": "#1 Freemium Fitness App · Kostenlos starten, jederzeit upgraden",
     "line1": "FORME DEINE",
     "line3": "VERSION",
     "typewriter": ["KRAFT", "MUSKELN", "STÄRKE", "AUSDAUER", "KÖRPER"],
@@ -18,7 +18,7 @@
     "tag2_title": "+2,8 kg Muskeln",
     "tag2_sub": "Letzte 12 Wochen"
   },
-  "band": ["Weltweite Mitglieder", "Übungen in der Bibliothek", "Verfolgte Zutaten", "Kostenlos & open source"],
+  "band": ["Aktive Mitglieder", "Übungen in der Bibliothek", "Verfolgte Zutaten", "Keine Kreditkarte nötig"],
   "expansion": {
     "label": "Das Umfeld ist alles",
     "title_1": "ENTWICKELT FÜR",
@@ -66,29 +66,29 @@
     "label": "Preise",
     "title_1": "KEINE AUSREDEN.",
     "title_2": "KOSTENLOS STARTEN.",
-    "subtitle": "HealthStack Pro ist und bleibt kostenlos. Pro- und Elite-Stufen schalten Premium-Funktionen frei, wenn du bereit bist, weiter zu gehen.",
+    "subtitle": "Starte kostenlos mit vollem Zugang zu allen Kernfunktionen. Pro und Elite entfernen Werbung und schalten erweiterte Analyse-Tools frei, die Fortschritt von Stagnation trennen.",
     "popular": "Am beliebtesten",
     "plans": [
       {
         "tier": "Starter",
         "period": "/für immer",
-        "desc": "Alles, was du zum Starten brauchst — keine Kreditkarte erforderlich.",
+        "desc": "Alles zum Starten — keine Karte, kein Engagement.",
         "cta": "Kostenlos starten",
         "features": ["Gewichts-Tracking & Charts", "+300 Übungen in der Bibliothek", "TDEE & Makro-Rechner", "Community + Gamification", "Wöchentlicher Routine-Generator", "7-Tage-Mahlzeitenplaner"]
       },
       {
         "tier": "Pro",
         "period": "/Monat",
-        "desc": "Für ernsthafte Athleten, die jedes Training optimieren wollen.",
-        "cta": "Pro starten — 9 €/Monat",
-        "features": ["Alles aus Starter", "Optimales Ernährungs-Timing", "Records & 1RM-Tracker", "Wöchentlicher Athlete Receipt", "Intelligenter Rest-Timer", "Makro-Autopilot KI"]
+        "desc": "Werbefrei, mit KI-Tools und Analytik für echte Athleten.",
+        "cta": "Pro aktivieren — 9 €/Monat",
+        "features": ["Alles aus Starter", "Keine Werbung", "Optimales Ernährungs-Timing", "Records & 1RM-Tracker", "Intelligenter Rest-Timer", "Makro-Autopilot KI"]
       },
       {
         "tier": "Elite",
         "period": "/Monat",
-        "desc": "Erweiterte Analytik für Wettkampfsportler und Trainer.",
+        "desc": "Elite-Analytik für Wettkampfsportler, Trainer und alle, die sich kein Plateau leisten.",
         "cta": "Zu Elite — 24 €/Monat",
-        "features": ["Alles aus Pro", "Muskel-Fatigue-Heatmap", "Plateau-Radar + Diagnose", "Session Replay + Sprachnotizen", "Body-Comp Forecast (US Navy)", "Auto-Deload-Detektor KI"]
+        "features": ["Alles aus Pro", "Muskel-Fatigue-Heatmap", "Plateau-Radar + KI-Diagnose", "Session Replay + Sprachnotizen", "Body-Comp Forecast (Navy)", "Auto-Deload-Detektor KI"]
       }
     ]
   },
@@ -101,9 +101,9 @@
     "secondary": "Community kennenlernen"
   },
   "footer": {
-    "links": ["App", "Funktionen", "Preise", "Community", "Supplements", "GitHub"],
-    "copyright": "© 2025 HealthStack Pro · Open Source · MIT-Lizenz",
-    "tagline": "Mit ❤️ für Athleten weltweit gebaut"
+    "links": ["App", "Funktionen", "Preise", "Community", "Supplements", "Blog"],
+    "copyright": "© 2025 HealthStack Pro · Alle Rechte vorbehalten",
+    "tagline": "Mit ❤️ für Athleten gebaut, die es ernst meinen"
   },
   "dashboard": {
     "weight": "Aktuelles Gewicht",

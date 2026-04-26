@@ -5,7 +5,7 @@
     "cta": "Empezar Gratis"
   },
   "hero": {
-    "badge": "#1 Fitness Platform · Gratis y Open Source",
+    "badge": "#1 App Fitness Freemium · Empieza gratis, escala cuando quieras",
     "line1": "MOLDEA TU",
     "line3": "VERSIÓN",
     "typewriter": ["FUERZA", "MÚSCULO", "POTENCIA", "RESISTENCIA", "CUERPO"],
@@ -18,7 +18,7 @@
     "tag2_title": "+2.8 kg músculo",
     "tag2_sub": "Últimas 12 semanas"
   },
-  "band": ["Miembros mundiales", "Ejercicios en biblioteca", "Ingredientes rastreados", "Gratis y open source"],
+  "band": ["Miembros activos", "Ejercicios en biblioteca", "Ingredientes rastreados", "Sin tarjeta de crédito"],
   "expansion": {
     "label": "El entorno lo es todo",
     "title_1": "CONSTRUIDO PARA",
@@ -66,29 +66,29 @@
     "label": "Precios",
     "title_1": "SIN EXCUSAS.",
     "title_2": "EMPIEZA GRATIS.",
-    "subtitle": "HealthStack Pro es y siempre será gratuito. Los niveles Pro y Elite desbloquean funciones premium cuando estés listo para ir más lejos.",
+    "subtitle": "Empieza gratis con acceso completo a las funciones core. Pro y Elite eliminan los anuncios y añaden herramientas de análisis avanzado que separan a los que progresan de los que se estancan.",
     "popular": "Más popular",
     "plans": [
       {
         "tier": "Starter",
         "period": "/siempre",
-        "desc": "Todo lo que necesitas para comenzar — sin tarjeta de crédito.",
+        "desc": "Todo lo que necesitas para arrancar — sin tarjeta, sin compromiso.",
         "cta": "Empezar gratis",
-        "features": ["Seguimiento de peso y gráficas", "+300 ejercicios en biblioteca", "Calculadora TDEE y macros", "Acceso a comunidad + gamificación", "Generador de rutinas semanal", "Planificador de comidas 7 días"]
+        "features": ["Seguimiento de peso y gráficas", "+300 ejercicios en biblioteca", "Calculadora TDEE y macros", "Comunidad + gamificación", "Generador de rutinas semanal", "Planificador de comidas 7 días"]
       },
       {
         "tier": "Pro",
         "period": "/mes",
-        "desc": "Para atletas serios que quieren optimizar cada entrenamiento.",
-        "cta": "Empezar Pro — 9 €/mes",
-        "features": ["Todo lo de Starter", "Horario Óptimo de Nutrición", "Records & Tracker de 1RM", "Athlete Receipt semanal", "Rest Timer inteligente", "Macro Autopilot IA"]
+        "desc": "Sin anuncios, herramientas de análisis y IA para quien va en serio.",
+        "cta": "Activar Pro — 9 €/mes",
+        "features": ["Todo lo de Starter", "Sin anuncios", "Horario Óptimo de Nutrición", "Records & Tracker de 1RM", "Rest Timer inteligente", "Macro Autopilot IA"]
       },
       {
         "tier": "Elite",
         "period": "/mes",
-        "desc": "Analítica avanzada para atletas competitivos y entrenadores.",
+        "desc": "Análisis de élite para atletas competitivos, coaches y quienes no aceptan estancarse.",
         "cta": "Ir a Elite — 24 €/mes",
-        "features": ["Todo lo de Pro", "Fatigue Heatmap muscular", "Plateau Radar con diagnóstico", "Session Replay + notas de voz", "Body-Comp Forecast (US Navy)", "Auto-Deload Detector IA"]
+        "features": ["Todo lo de Pro", "Fatigue Heatmap muscular", "Plateau Radar + diagnóstico IA", "Session Replay + notas de voz", "Body-Comp Forecast (Navy)", "Auto-Deload Detector IA"]
       }
     ]
   },
@@ -101,9 +101,9 @@
     "secondary": "Conocer la Comunidad"
   },
   "footer": {
-    "links": ["App", "Funciones", "Precios", "Comunidad", "Suplementos", "GitHub"],
-    "copyright": "© 2025 HealthStack Pro · Open Source · MIT License",
-    "tagline": "Construido con ❤️ para atletas de todo el mundo"
+    "links": ["App", "Funciones", "Precios", "Comunidad", "Suplementos", "Blog"],
+    "copyright": "© 2025 HealthStack Pro · Todos los derechos reservados",
+    "tagline": "Construido con ❤️ para atletas que van en serio"
   },
   "dashboard": {
     "weight": "Peso actual",

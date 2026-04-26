@@ -4,7 +4,7 @@
                Network-first para CDN externos
    ============================================================ */
 
-const CACHE_NAME    = 'healthstack-v11';
+const CACHE_NAME    = 'healthstack-v12';
 const CDN_CACHE     = 'healthstack-cdn-v2';
 
 // Assets locales a pre-cachear en install
@@ -32,6 +32,16 @@ const STATIC_ASSETS = [
   '/js/supplements.js',
   '/js/myRecipes.js',
   '/js/timingPlanner.js',
+  '/js/readiness.js',
+  '/js/records.js',
+  '/js/restTimer.js',
+  '/js/athleteReceipt.js',
+  '/js/macroAutopilot.js',
+  '/js/plateauRadar.js',
+  '/js/fatigueHeatmap.js',
+  '/js/sessionReplay.js',
+  '/js/bodyCompForecast.js',
+  '/js/autoDeload.js',
   '/js/app.js',
   '/manifest.json',
 ];

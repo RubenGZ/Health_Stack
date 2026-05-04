@@ -355,7 +355,29 @@ async def health_check():
 @app.get(
     "/",
     tags=["System"],
-    include_in_schema=False,  # No mostrar en docs
+    summary="Bienvenida",
+    description="Punto de entrada de la API. Devuelve información básica del servicio.",
 )
 async def root():
-    return {"message": "HealthStack Pro API v2.0 — /health para estado, /docs para documentación."}
+    return {
+        "welcome": "Bienvenido a HealthStack Pro API",
+        "version": "2.0.0",
+        "description": (
+            "Plataforma de salud personal con seguimiento biométrico, "
+            "nutrición, rutinas de ejercicio y comunidad."
+        ),
+        "endpoints": {
+            "health_check": "/health",
+            "docs": "/docs" if settings.debug else "No disponible en producción",
+            "redoc": "/redoc" if settings.debug else "No disponible en producción",
+        },
+        "modules": [
+            "auth",
+            "health",
+            "nutrition",
+            "routines",
+            "community",
+            "gamification",
+        ],
+        "environment": settings.app_env,
+    }

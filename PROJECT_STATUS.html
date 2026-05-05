@@ -1,0 +1,783 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>HealthStack Pro — Project Status</title>
+<style>
+  :root {
+    --bg:       #050508;
+    --surface:  #0d0d14;
+    --border:   rgba(255,255,255,0.07);
+    --orange:   #ff6a00;
+    --amber:    #f59e0b;
+    --green:    #22c55e;
+    --sky:      #38bdf8;
+    --purple:   #a855f7;
+    --red:      #ef4444;
+    --yellow:   #eab308;
+    --text:     #e5e7eb;
+    --muted:    #6b7280;
+    --font:     'Segoe UI', system-ui, -apple-system, sans-serif;
+    --mono:     'Cascadia Code', 'Fira Code', 'Consolas', monospace;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: var(--font);
+    min-height: 100vh;
+    padding: 48px 24px;
+    line-height: 1.6;
+  }
+
+  /* ── HEADER ──────────────────────────────── */
+  .header {
+    text-align: center;
+    margin-bottom: 56px;
+  }
+  .badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 6px 16px;
+    border-radius: 100px;
+    background: rgba(255,106,0,0.1);
+    border: 1px solid rgba(255,106,0,0.3);
+    color: var(--orange);
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    margin-bottom: 20px;
+  }
+  .dot { width: 6px; height: 6px; border-radius: 50%; background: var(--orange); animation: ping 1.5s ease-in-out infinite; }
+  @keyframes ping { 0%,100%{opacity:1;transform:scale(1)} 50%{opacity:.5;transform:scale(1.4)} }
+
+  h1 {
+    font-size: clamp(2rem, 5vw, 3.5rem);
+    font-weight: 900;
+    letter-spacing: .12em;
+    text-transform: uppercase;
+    background: linear-gradient(135deg, #fff 30%, var(--orange) 70%, var(--amber));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    margin-bottom: 12px;
+  }
+  .subtitle { color: var(--muted); font-size: 14px; }
+  .subtitle strong { color: var(--text); }
+
+  /* ── OVERALL SCORE ───────────────────────── */
+  .score-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+    gap: 12px;
+    max-width: 900px;
+    margin: 0 auto 56px;
+  }
+  .score-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 20px 16px;
+    text-align: center;
+  }
+  .score-num {
+    font-size: 2.2rem;
+    font-weight: 900;
+    letter-spacing: .04em;
+    line-height: 1;
+    margin-bottom: 4px;
+  }
+  .score-label { font-size: 10px; color: var(--muted); text-transform: uppercase; letter-spacing: 1.5px; font-weight: 600; }
+  .c-green  { color: var(--green); }
+  .c-orange { color: var(--orange); }
+  .c-sky    { color: var(--sky); }
+  .c-purple { color: var(--purple); }
+  .c-amber  { color: var(--amber); }
+  .c-red    { color: var(--red); }
+  .c-yellow { color: var(--yellow); }
+
+  /* ── SECTION TITLE ───────────────────────── */
+  .section-title {
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 3px;
+    color: var(--orange);
+    margin-bottom: 16px;
+    padding-bottom: 10px;
+    border-bottom: 1px solid var(--border);
+  }
+
+  /* ── AREA GRID ───────────────────────────── */
+  .area-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(340px, 1fr));
+    gap: 20px;
+    max-width: 1200px;
+    margin: 0 auto 48px;
+  }
+  .area-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 20px;
+    padding: 24px;
+    position: relative;
+    overflow: hidden;
+    transition: border-color .2s;
+  }
+  .area-card:hover { border-color: rgba(255,255,255,0.14); }
+  .area-card::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 2px;
+    border-radius: 20px 20px 0 0;
+  }
+  .area-card.green::before  { background: linear-gradient(90deg, var(--green), #16a34a); }
+  .area-card.orange::before { background: linear-gradient(90deg, var(--orange), var(--amber)); }
+  .area-card.sky::before    { background: linear-gradient(90deg, var(--sky), #0284c7); }
+  .area-card.purple::before { background: linear-gradient(90deg, var(--purple), #7c3aed); }
+  .area-card.yellow::before { background: linear-gradient(90deg, var(--yellow), #ca8a04); }
+  .area-card.red::before    { background: linear-gradient(90deg, var(--red), #b91c1c); }
+
+  .area-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 18px;
+  }
+  .area-icon-title { display: flex; align-items: center; gap: 10px; }
+  .area-icon {
+    font-size: 22px;
+    width: 44px; height: 44px;
+    border-radius: 12px;
+    display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0;
+  }
+  .area-icon.green  { background: rgba(34,197,94,0.1);   border: 1px solid rgba(34,197,94,0.2); }
+  .area-icon.orange { background: rgba(255,106,0,0.1);   border: 1px solid rgba(255,106,0,0.2); }
+  .area-icon.sky    { background: rgba(56,189,248,0.1);  border: 1px solid rgba(56,189,248,0.2); }
+  .area-icon.purple { background: rgba(168,85,247,0.1);  border: 1px solid rgba(168,85,247,0.2); }
+  .area-icon.yellow { background: rgba(234,179,8,0.1);   border: 1px solid rgba(234,179,8,0.2); }
+  .area-icon.red    { background: rgba(239,68,68,0.1);   border: 1px solid rgba(239,68,68,0.2); }
+
+  .area-name { font-size: 15px; font-weight: 700; color: #fff; }
+  .area-sub  { font-size: 11px; color: var(--muted); margin-top: 1px; }
+
+  .pct-pill {
+    font-size: 13px;
+    font-weight: 800;
+    padding: 5px 12px;
+    border-radius: 100px;
+  }
+  .pct-pill.green  { background: rgba(34,197,94,0.12);  color: var(--green); }
+  .pct-pill.orange { background: rgba(255,106,0,0.12);  color: var(--orange); }
+  .pct-pill.sky    { background: rgba(56,189,248,0.12); color: var(--sky); }
+  .pct-pill.purple { background: rgba(168,85,247,0.12); color: var(--purple); }
+  .pct-pill.yellow { background: rgba(234,179,8,0.12);  color: var(--yellow); }
+  .pct-pill.red    { background: rgba(239,68,68,0.12);  color: var(--red); }
+
+  /* Progress bar */
+  .progress-wrap { margin-bottom: 18px; }
+  .progress-bar {
+    height: 5px;
+    background: rgba(255,255,255,0.06);
+    border-radius: 100px;
+    overflow: hidden;
+  }
+  .progress-fill {
+    height: 100%;
+    border-radius: 100px;
+    transition: width 1s ease;
+  }
+  .progress-fill.green  { background: linear-gradient(90deg, var(--green), #16a34a); }
+  .progress-fill.orange { background: linear-gradient(90deg, var(--orange), var(--amber)); }
+  .progress-fill.sky    { background: linear-gradient(90deg, var(--sky), #0284c7); }
+  .progress-fill.purple { background: linear-gradient(90deg, var(--purple), #7c3aed); }
+  .progress-fill.yellow { background: linear-gradient(90deg, var(--yellow), #ca8a04); }
+  .progress-fill.red    { background: linear-gradient(90deg, var(--red), #b91c1c); }
+
+  /* Item list */
+  .items { display: flex; flex-direction: column; gap: 7px; margin-bottom: 18px; }
+  .item  { display: flex; align-items: flex-start; gap: 8px; font-size: 13px; color: var(--muted); }
+  .item .icon { flex-shrink: 0; margin-top: 1px; font-size: 12px; }
+  .item.done   .icon::before { content: '✓'; color: var(--green); font-weight: 700; }
+  .item.warn   .icon::before { content: '⚠'; color: var(--yellow); }
+  .item.todo   .icon::before { content: '○'; color: var(--muted); }
+  .item.done { color: #9ca3af; }
+  .item.warn { color: #ca8a04; }
+  .item em { color: var(--text); font-style: normal; font-weight: 600; }
+
+  /* Next steps */
+  .next-title {
+    font-size: 10px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    color: var(--muted);
+    margin-bottom: 8px;
+  }
+  .next-steps { display: flex; flex-direction: column; gap: 6px; }
+  .next-step {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 12px;
+    padding: 7px 10px;
+    border-radius: 8px;
+    background: rgba(255,255,255,0.03);
+    border: 1px solid rgba(255,255,255,0.05);
+    color: #9ca3af;
+  }
+  .next-step .ns-icon { font-size: 14px; flex-shrink: 0; }
+  .chip {
+    font-size: 9px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    padding: 2px 7px;
+    border-radius: 100px;
+    flex-shrink: 0;
+    margin-left: auto;
+  }
+  .chip.high   { background: rgba(239,68,68,0.15);   color: #fca5a5; }
+  .chip.med    { background: rgba(234,179,8,0.15);   color: #fde047; }
+  .chip.low    { background: rgba(34,197,94,0.1);    color: #86efac; }
+  .chip.done   { background: rgba(34,197,94,0.1);    color: #86efac; }
+
+  /* ── TIMELINE ────────────────────────────── */
+  .timeline-wrap {
+    max-width: 900px;
+    margin: 0 auto 48px;
+  }
+  .tl { display: flex; flex-direction: column; gap: 0; }
+  .tl-item {
+    display: flex;
+    gap: 20px;
+    padding-bottom: 28px;
+    position: relative;
+  }
+  .tl-item:not(:last-child)::before {
+    content: '';
+    position: absolute;
+    left: 17px;
+    top: 34px;
+    bottom: 0;
+    width: 1px;
+    background: var(--border);
+  }
+  .tl-dot {
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 14px;
+    flex-shrink: 0;
+    border: 2px solid;
+  }
+  .tl-dot.done   { background: rgba(34,197,94,0.1);   border-color: var(--green); }
+  .tl-dot.active { background: rgba(255,106,0,0.15);  border-color: var(--orange); box-shadow: 0 0 12px rgba(255,106,0,0.3); }
+  .tl-dot.todo   { background: rgba(255,255,255,0.03); border-color: rgba(255,255,255,0.1); }
+
+  .tl-content { flex: 1; padding-top: 4px; }
+  .tl-head { display: flex; align-items: center; gap: 10px; margin-bottom: 4px; }
+  .tl-title { font-size: 14px; font-weight: 700; color: #fff; }
+  .tl-date  { font-size: 11px; color: var(--muted); font-family: var(--mono); }
+  .tl-body  { font-size: 12px; color: var(--muted); line-height: 1.6; }
+  .tl-tags  { display: flex; flex-wrap: wrap; gap: 5px; margin-top: 8px; }
+  .tag {
+    font-size: 10px;
+    font-weight: 600;
+    padding: 2px 8px;
+    border-radius: 100px;
+    background: rgba(255,255,255,0.05);
+    border: 1px solid var(--border);
+    color: var(--muted);
+    font-family: var(--mono);
+  }
+
+  /* ── FOOTER ──────────────────────────────── */
+  .footer {
+    text-align: center;
+    margin-top: 48px;
+    padding-top: 24px;
+    border-top: 1px solid var(--border);
+    font-size: 12px;
+    color: var(--muted);
+  }
+  .footer strong { color: var(--orange); }
+
+  code {
+    font-family: var(--mono);
+    font-size: 11px;
+    background: rgba(255,255,255,0.06);
+    padding: 1px 6px;
+    border-radius: 4px;
+    color: var(--sky);
+  }
+
+  @media (max-width: 600px) {
+    .area-grid { grid-template-columns: 1fr; }
+    .score-grid { grid-template-columns: repeat(3, 1fr); }
+  }
+</style>
+</head>
+<body>
+
+<!-- ── HEADER ─────────────────────────────────────── -->
+<div class="header">
+  <div class="badge"><span class="dot"></span> Live Report · 22 Apr 2026</div>
+  <h1>HealthStack Pro</h1>
+  <p class="subtitle">Estado completo del proyecto · <strong>Backend · Frontend · DB · Infraestructura · Seguridad</strong></p>
+</div>
+
+<!-- ── OVERALL SCORES ──────────────────────────────── -->
+<div class="score-grid">
+  <div class="score-card">
+    <div class="score-num c-green">65</div>
+    <div class="score-label">Tests pasando</div>
+  </div>
+  <div class="score-card">
+    <div class="score-num c-orange">6</div>
+    <div class="score-label">Módulos API</div>
+  </div>
+  <div class="score-card">
+    <div class="score-num c-sky">4</div>
+    <div class="score-label">Migraciones</div>
+  </div>
+  <div class="score-card">
+    <div class="score-num c-purple">0</div>
+    <div class="score-label">Issues ruff</div>
+  </div>
+  <div class="score-card">
+    <div class="score-num c-amber">4</div>
+    <div class="score-label">ADRs impl.</div>
+  </div>
+  <div class="score-card">
+    <div class="score-num c-green">✓</div>
+    <div class="score-label">CI/CD activo</div>
+  </div>
+</div>
+
+<!-- ── AREA CARDS ──────────────────────────────────── -->
+<p class="section-title" style="max-width:1200px;margin:0 auto 20px;">Estado por área</p>
+<div class="area-grid">
+
+  <!-- BACKEND -->
+  <div class="area-card green">
+    <div class="area-head">
+      <div class="area-icon-title">
+        <div class="area-icon green">⚡</div>
+        <div>
+          <div class="area-name">Backend — FastAPI</div>
+          <div class="area-sub">Python 3.14 · SQLAlchemy 2.0 async</div>
+        </div>
+      </div>
+      <div class="pct-pill green">95%</div>
+    </div>
+    <div class="progress-wrap">
+      <div class="progress-bar"><div class="progress-fill green" style="width:95%"></div></div>
+    </div>
+    <div class="items">
+      <div class="item done"><span class="icon"></span><span>6 módulos (identity, health, nutrition, routines, community, gamification)</span></div>
+      <div class="item done"><span class="icon"></span><span>Arquitectura 4 capas: <em>Router → Service → Repository → Model</em></span></div>
+      <div class="item done"><span class="icon"></span><span>JWT RS256 asimétrico + Argon2id passwords</span></div>
+      <div class="item done"><span class="icon"></span><span>Rate limiting con <em>slowapi</em> (5/min login, 3/h registro)</span></div>
+      <div class="item done"><span class="icon"></span><span>Prometheus wired — <code>/metrics</code> expuesto</span></div>
+      <div class="item done"><span class="icon"></span><span>Sentry con filtro PII (RGPD Art. 28)</span></div>
+      <div class="item done"><span class="icon"></span><span>ruff linting — 0 issues en <code>app/</code></span></div>
+      <div class="item warn"><span class="icon"></span><span>mypy — configurado, sin CI check todavía</span></div>
+      <div class="item todo"><span class="icon"></span><span>Redis para rate limiting en producción</span></div>
+    </div>
+    <div class="next-title">Next steps</div>
+    <div class="next-steps">
+      <div class="next-step"><span class="ns-icon">🔴</span>Añadir <code>mypy check</code> al CI pipeline<span class="chip med">Med</span></div>
+      <div class="next-step"><span class="ns-icon">🔴</span>Redis para rate limiting en producción<span class="chip med">Med</span></div>
+    </div>
+  </div>
+
+  <!-- BASE DE DATOS -->
+  <div class="area-card sky">
+    <div class="area-head">
+      <div class="area-icon-title">
+        <div class="area-icon sky">🗄️</div>
+        <div>
+          <div class="area-name">Base de Datos</div>
+          <div class="area-sub">PostgreSQL 17 · Alembic migrations</div>
+        </div>
+      </div>
+      <div class="pct-pill sky">92%</div>
+    </div>
+    <div class="progress-wrap">
+      <div class="progress-bar"><div class="progress-fill sky" style="width:92%"></div></div>
+    </div>
+    <div class="items">
+      <div class="item done"><span class="icon"></span><span>2 schemas: <em>public</em> (identidad) + <em>health</em> (biometría)</span></div>
+      <div class="item done"><span class="icon"></span><span>4 migraciones Alembic versionadas</span></div>
+      <div class="item done"><span class="icon"></span><span>Seudonimización: <code>data_links</code> AES-256-GCM (AEPD/RGPD)</span></div>
+      <div class="item done"><span class="icon"></span><span><code>refresh_tokens</code> — JTI store, rotación sin Redis</span></div>
+      <div class="item done"><span class="icon"></span><span><code>gamification_events</code> — log inmutable de XP</span></div>
+      <div class="item done"><span class="icon"></span><span><code>user_recipes.user_id</code> FK nullable — recipe claiming</span></div>
+      <div class="item done"><span class="icon"></span><span>Script de rotación de <code>MASTER_KEY</code> con dry-run</span></div>
+      <div class="item warn"><span class="icon"></span><span>Rotación periódica de MASTER_KEY sin automatizar</span></div>
+      <div class="item todo"><span class="icon"></span><span>Backup automático (pg_dump cron)</span></div>
+    </div>
+    <div class="next-title">Next steps</div>
+    <div class="next-steps">
+      <div class="next-step"><span class="ns-icon">📅</span>Cron pg_dump + upload a S3/B2<span class="chip high">Alto</span></div>
+      <div class="next-step"><span class="ns-icon">🔑</span>Política de rotación MASTER_KEY cada 12 meses<span class="chip med">Med</span></div>
+    </div>
+  </div>
+
+  <!-- CIBERSEGURIDAD -->
+  <div class="area-card green">
+    <div class="area-head">
+      <div class="area-icon-title">
+        <div class="area-icon green">🔒</div>
+        <div>
+          <div class="area-name">Ciberseguridad</div>
+          <div class="area-sub">OWASP Top 10 · RGPD Art. 9/25/32</div>
+        </div>
+      </div>
+      <div class="pct-pill green">90%</div>
+    </div>
+    <div class="progress-wrap">
+      <div class="progress-bar"><div class="progress-fill green" style="width:90%"></div></div>
+    </div>
+    <div class="items">
+      <div class="item done"><span class="icon"></span><span>AES-256-GCM pseudonimización datos salud (AEPD)</span></div>
+      <div class="item done"><span class="icon"></span><span>JWT RS256 con <em>iss/aud/jti</em> validados</span></div>
+      <div class="item done"><span class="icon"></span><span>Refresh token rotation + logout global (JTI blacklist en PG)</span></div>
+      <div class="item done"><span class="icon"></span><span>Argon2id time_cost=3, memory=64MB (OWASP recomendado)</span></div>
+      <div class="item done"><span class="icon"></span><span>OWASP password: mayúsculas, números, especiales, mín. 8 chars</span></div>
+      <div class="item done"><span class="icon"></span><span>HTTP Security headers: HSTS, CSP, X-Frame-Options, etc.</span></div>
+      <div class="item done"><span class="icon"></span><span>CORS configurado por variable de entorno (no wildcard)</span></div>
+      <div class="item done"><span class="icon"></span><span>pip-audit + TruffleHog en CI (secrets scan)</span></div>
+      <div class="item done"><span class="icon"></span><span>Sentry PII filter — no se envían emails ni health data</span></div>
+      <div class="item warn"><span class="icon"></span><span>Sin 2FA / MFA todavía</span></div>
+      <div class="item todo"><span class="icon"></span><span>RGPD Art. 30 — Libro de tratamiento de datos (documentación)</span></div>
+    </div>
+    <div class="next-title">Next steps</div>
+    <div class="next-steps">
+      <div class="next-step"><span class="ns-icon">🔐</span>TOTP/MFA para cuentas admin<span class="chip med">Med</span></div>
+      <div class="next-step"><span class="ns-icon">📋</span>Registro de actividades de tratamiento Art. 30 RGPD<span class="chip med">Med</span></div>
+      <div class="next-step"><span class="ns-icon">🔍</span>Penetration test (OWASP ZAP o Burp Suite)<span class="chip low">Low</span></div>
+    </div>
+  </div>
+
+  <!-- DOCKER -->
+  <div class="area-card orange">
+    <div class="area-head">
+      <div class="area-icon-title">
+        <div class="area-icon orange">🐳</div>
+        <div>
+          <div class="area-name">Docker</div>
+          <div class="area-sub">Dev + Prod compose</div>
+        </div>
+      </div>
+      <div class="pct-pill orange">80%</div>
+    </div>
+    <div class="progress-wrap">
+      <div class="progress-bar"><div class="progress-fill orange" style="width:80%"></div></div>
+    </div>
+    <div class="items">
+      <div class="item done"><span class="icon"></span><span><code>docker-compose.yml</code> — dev, corriendo en local</span></div>
+      <div class="item done"><span class="icon"></span><span><code>docker-compose.prod.yml</code> — definido</span></div>
+      <div class="item done"><span class="icon"></span><span><code>Dockerfile</code> backend — multi-stage build</span></div>
+      <div class="item done"><span class="icon"></span><span>healthcheck en PostgreSQL container</span></div>
+      <div class="item warn"><span class="icon"></span><span>Prod compose sin testear en servidor real</span></div>
+      <div class="item todo"><span class="icon"></span><span>Imagen Docker del frontend SPA (nginx static)</span></div>
+      <div class="item todo"><span class="icon"></span><span><code>.dockerignore</code> optimizado para no incluir .venv</span></div>
+    </div>
+    <div class="next-title">Next steps</div>
+    <div class="next-steps">
+      <div class="next-step"><span class="ns-icon">🧪</span>Testear <code>docker-compose.prod.yml</code> en VPS staging<span class="chip high">Alto</span></div>
+      <div class="next-step"><span class="ns-icon">📦</span>Dockerizar frontend SPA (servir con nginx)<span class="chip med">Med</span></div>
+    </div>
+  </div>
+
+  <!-- FRONTEND SPA -->
+  <div class="area-card yellow">
+    <div class="area-head">
+      <div class="area-icon-title">
+        <div class="area-icon yellow">🖥️</div>
+        <div>
+          <div class="area-name">Frontend SPA</div>
+          <div class="area-sub">Vanilla JS · Puerto 3000</div>
+        </div>
+      </div>
+      <div class="pct-pill yellow">60%</div>
+    </div>
+    <div class="progress-wrap">
+      <div class="progress-bar"><div class="progress-fill yellow" style="width:60%"></div></div>
+    </div>
+    <div class="items">
+      <div class="item done"><span class="icon"></span><span>Estructura de módulos JS (identity, health, nutrition…)</span></div>
+      <div class="item done"><span class="icon"></span><span>Dashboard mockup con gráficos peso/macros</span></div>
+      <div class="item warn"><span class="icon"></span><span>Integración real con API — parcial (sin test E2E)</span></div>
+      <div class="item warn"><span class="icon"></span><span>Manejo de refresh token rotation pendiente en cliente</span></div>
+      <div class="item todo"><span class="icon"></span><span>Llamar a <code>POST /auth/logout</code> al cerrar sesión</span></div>
+      <div class="item todo"><span class="icon"></span><span>Llamar a <code>POST /nutrition/recipes/claim</code> tras registro</span></div>
+      <div class="item todo"><span class="icon"></span><span>Tests E2E con Playwright o Cypress</span></div>
+      <div class="item todo"><span class="icon"></span><span>PWA / Service Worker (offline-first)</span></div>
+    </div>
+    <div class="next-title">Next steps</div>
+    <div class="next-steps">
+      <div class="next-step"><span class="ns-icon">🔄</span>Actualizar cliente para manejar nuevo par de tokens en /refresh<span class="chip high">Alto</span></div>
+      <div class="next-step"><span class="ns-icon">🚪</span>Implementar logout real llamando a <code>/auth/logout</code><span class="chip high">Alto</span></div>
+      <div class="next-step"><span class="ns-icon">🧪</span>Tests E2E con Playwright (flujo registro → login → dashboard)<span class="chip med">Med</span></div>
+    </div>
+  </div>
+
+  <!-- LANDING -->
+  <div class="area-card purple">
+    <div class="area-head">
+      <div class="area-icon-title">
+        <div class="area-icon purple">🚀</div>
+        <div>
+          <div class="area-name">Landing Page</div>
+          <div class="area-sub">React + Vite + Tailwind · Puerto 5174</div>
+        </div>
+      </div>
+      <div class="pct-pill purple">88%</div>
+    </div>
+    <div class="progress-wrap">
+      <div class="progress-bar"><div class="progress-fill purple" style="width:88%"></div></div>
+    </div>
+    <div class="items">
+      <div class="item done"><span class="icon"></span><span>Hero con Spline 3D (lazy-loaded, propio chunk)</span></div>
+      <div class="item done"><span class="icon"></span><span>i18n español/inglés con react-i18next</span></div>
+      <div class="item done"><span class="icon"></span><span>Secciones: features, preview, pricing, testimonials, CTA</span></div>
+      <div class="item done"><span class="icon"></span><span>Bundle splitting: React, framer-motion, i18n, lucide, Spline en chunks separados</span></div>
+      <div class="item done"><span class="icon"></span><span>WebGL shader animation (sin deps externas)</span></div>
+      <div class="item warn"><span class="icon"></span><span>Sin meta tags SEO / Open Graph</span></div>
+      <div class="item todo"><span class="icon"></span><span>Conectar CTAs a la app real (URL del SPA)</span></div>
+      <div class="item todo"><span class="icon"></span><span>Google Analytics / Plausible (conversiones)</span></div>
+    </div>
+    <div class="next-title">Next steps</div>
+    <div class="next-steps">
+      <div class="next-step"><span class="ns-icon">🔍</span>SEO: meta title, description, Open Graph tags<span class="chip med">Med</span></div>
+      <div class="next-step"><span class="ns-icon">🔗</span>Conectar botones "Empezar gratis" → URL del SPA<span class="chip med">Med</span></div>
+      <div class="next-step"><span class="ns-icon">📊</span>Analytics (Plausible — privacy-first, compatible RGPD)<span class="chip low">Low</span></div>
+    </div>
+  </div>
+
+  <!-- CI/CD -->
+  <div class="area-card green">
+    <div class="area-head">
+      <div class="area-icon-title">
+        <div class="area-icon green">⚙️</div>
+        <div>
+          <div class="area-name">CI/CD</div>
+          <div class="area-sub">GitHub Actions · 3 jobs</div>
+        </div>
+      </div>
+      <div class="pct-pill green">85%</div>
+    </div>
+    <div class="progress-wrap">
+      <div class="progress-bar"><div class="progress-fill green" style="width:85%"></div></div>
+    </div>
+    <div class="items">
+      <div class="item done"><span class="icon"></span><span>Job <em>test</em>: PostgreSQL service + ruff lint + pytest 65 tests</span></div>
+      <div class="item done"><span class="icon"></span><span>Job <em>security</em>: pip-audit CVEs + TruffleHog secrets scan</span></div>
+      <div class="item done"><span class="icon"></span><span>Job <em>build</em>: Docker build backend + npm build landing</span></div>
+      <div class="item warn"><span class="icon"></span><span>Sin deploy automático a servidor tras merge</span></div>
+      <div class="item warn"><span class="icon"></span><span>Sin mypy en CI todavía</span></div>
+      <div class="item todo"><span class="icon"></span><span>Deploy job: SSH + docker pull + compose up</span></div>
+      <div class="item todo"><span class="icon"></span><span>Notifications (Slack/Discord en fallo)</span></div>
+    </div>
+    <div class="next-title">Next steps</div>
+    <div class="next-steps">
+      <div class="next-step"><span class="ns-icon">🚢</span>Job <em>deploy</em>: SSH → docker compose pull && up -d<span class="chip high">Alto</span></div>
+      <div class="next-step"><span class="ns-icon">🔍</span>Añadir <code>mypy check</code> al pipeline<span class="chip med">Med</span></div>
+    </div>
+  </div>
+
+  <!-- SERVIDOR / PRODUCCIÓN -->
+  <div class="area-card red">
+    <div class="area-head">
+      <div class="area-icon-title">
+        <div class="area-icon red">🌐</div>
+        <div>
+          <div class="area-name">Servidor & Producción</div>
+          <div class="area-sub">nginx · TLS 1.3 · Let's Encrypt</div>
+        </div>
+      </div>
+      <div class="pct-pill red">40%</div>
+    </div>
+    <div class="progress-wrap">
+      <div class="progress-bar"><div class="progress-fill red" style="width:40%"></div></div>
+    </div>
+    <div class="items">
+      <div class="item done"><span class="icon"></span><span><code>nginx/nginx.conf</code> — TLS 1.3, rate limiting, security headers, /metrics bloqueado</span></div>
+      <div class="item done"><span class="icon"></span><span><code>docker-compose.prod.yml</code> definido</span></div>
+      <div class="item todo"><span class="icon"></span><span>VPS / servidor donde desplegar (no contratado)</span></div>
+      <div class="item todo"><span class="icon"></span><span>Dominio real + DNS apuntando al servidor</span></div>
+      <div class="item todo"><span class="icon"></span><span>Certificado TLS — Let's Encrypt con Certbot</span></div>
+      <div class="item todo"><span class="icon"></span><span>Variables de entorno de producción en servidor (secrets)</span></div>
+      <div class="item todo"><span class="icon"></span><span>Primera puesta en marcha en producción</span></div>
+      <div class="item todo"><span class="icon"></span><span>Monitorización: Grafana + Prometheus dashboards</span></div>
+    </div>
+    <div class="next-title">Next steps — bloquean el lanzamiento</div>
+    <div class="next-steps">
+      <div class="next-step"><span class="ns-icon">🖥️</span>Contratar VPS (Hetzner CX22 ~4€/mes o similar)<span class="chip high">Crítico</span></div>
+      <div class="next-step"><span class="ns-icon">🌍</span>Dominio + DNS → IP del servidor<span class="chip high">Crítico</span></div>
+      <div class="next-step"><span class="ns-icon">🔐</span>Let's Encrypt: <code>certbot --nginx -d tudominio.com</code><span class="chip high">Crítico</span></div>
+      <div class="next-step"><span class="ns-icon">⬆️</span>Primera puesta en marcha: <code>docker compose -f docker-compose.prod.yml up -d</code><span class="chip high">Crítico</span></div>
+      <div class="next-step"><span class="ns-icon">📈</span>Grafana dashboard sobre Prometheus<span class="chip low">Low</span></div>
+    </div>
+  </div>
+
+  <!-- OBSERVABILIDAD -->
+  <div class="area-card orange">
+    <div class="area-head">
+      <div class="area-icon-title">
+        <div class="area-icon orange">📊</div>
+        <div>
+          <div class="area-name">Observabilidad</div>
+          <div class="area-sub">Prometheus · Sentry</div>
+        </div>
+      </div>
+      <div class="pct-pill orange">65%</div>
+    </div>
+    <div class="progress-wrap">
+      <div class="progress-bar"><div class="progress-fill orange" style="width:65%"></div></div>
+    </div>
+    <div class="items">
+      <div class="item done"><span class="icon"></span><span>Prometheus wired — <code>prometheus_fastapi_instrumentator</code></span></div>
+      <div class="item done"><span class="icon"></span><span>Sentry configurado con DSN + PII filter + RGPD</span></div>
+      <div class="item done"><span class="icon"></span><span><code>/metrics</code> bloqueado en nginx (solo acceso interno)</span></div>
+      <div class="item warn"><span class="icon"></span><span>Sin Grafana dashboard todavía</span></div>
+      <div class="item warn"><span class="icon"></span><span>Sin alertas configuradas (Alertmanager)</span></div>
+      <div class="item todo"><span class="icon"></span><span>Grafana con dashboards FastAPI / PostgreSQL</span></div>
+      <div class="item todo"><span class="icon"></span><span>Alertas: latencia P95 > 500ms, error rate > 1%</span></div>
+    </div>
+    <div class="next-title">Next steps</div>
+    <div class="next-steps">
+      <div class="next-step"><span class="ns-icon">📈</span>Grafana Cloud free tier (ya tienen FastAPI dashboards)<span class="chip med">Med</span></div>
+      <div class="next-step"><span class="ns-icon">🚨</span>Alertas en Sentry para errores críticos<span class="chip med">Med</span></div>
+    </div>
+  </div>
+
+</div>
+
+<!-- ── TIMELINE DE HITOS ────────────────────────────── -->
+<p class="section-title" style="max-width:900px;margin:0 auto 20px;">Línea de tiempo del proyecto</p>
+<div class="timeline-wrap">
+  <div class="tl">
+
+    <div class="tl-item">
+      <div class="tl-dot done">✓</div>
+      <div class="tl-content">
+        <div class="tl-head">
+          <div class="tl-title">MVP Backend — 6 módulos completos</div>
+          <div class="tl-date">Fase 1</div>
+        </div>
+        <div class="tl-body">FastAPI 4-layer architecture, SQLAlchemy 2.0 async, JWT RS256, Argon2id, AES-256-GCM pseudonimización AEPD. 52 tests pasando.</div>
+        <div class="tl-tags"><span class="tag">FastAPI</span><span class="tag">PostgreSQL 17</span><span class="tag">JWT RS256</span><span class="tag">AES-256-GCM</span><span class="tag">52 tests</span></div>
+      </div>
+    </div>
+
+    <div class="tl-item">
+      <div class="tl-dot done">✓</div>
+      <div class="tl-content">
+        <div class="tl-head">
+          <div class="tl-title">Infraestructura + Security Hardening</div>
+          <div class="tl-date">21 Apr 2026</div>
+        </div>
+        <div class="tl-body">nginx TLS 1.3, GitHub Actions CI (test + security + build), Prometheus, Sentry PII filter, CORS fix, security headers, OWASP password validation.</div>
+        <div class="tl-tags"><span class="tag">nginx</span><span class="tag">GitHub Actions</span><span class="tag">Prometheus</span><span class="tag">Sentry PII</span><span class="tag">OWASP</span></div>
+      </div>
+    </div>
+
+    <div class="tl-item">
+      <div class="tl-dot done">✓</div>
+      <div class="tl-content">
+        <div class="tl-head">
+          <div class="tl-title">ADR-001 — 4 mejoras arquitectónicas</div>
+          <div class="tl-date">21 Apr 2026</div>
+        </div>
+        <div class="tl-body">Refresh token JTI en PostgreSQL (sin Redis), rotación + logout global, gamification event log inmutable, CryptoService singleton, recipe claiming anon→auth.</div>
+        <div class="tl-tags"><span class="tag">JTI blacklist</span><span class="tag">lru_cache</span><span class="tag">event log</span><span class="tag">recipe claim</span></div>
+      </div>
+    </div>
+
+    <div class="tl-item">
+      <div class="tl-dot done">✓</div>
+      <div class="tl-content">
+        <div class="tl-head">
+          <div class="tl-title">Tests +13, ruff, MASTER_KEY rotation, bundle splitting</div>
+          <div class="tl-date">22 Apr 2026</div>
+        </div>
+        <div class="tl-body">65 tests (13 nuevos para logout, refresh rotation, recipe claim). ruff 0 issues. Script de rotación de clave maestra con dry-run. Landing bundle splitting por chunks.</div>
+        <div class="tl-tags"><span class="tag">65 tests</span><span class="tag">ruff clean</span><span class="tag">key rotation</span><span class="tag">vite chunks</span></div>
+      </div>
+    </div>
+
+    <div class="tl-item">
+      <div class="tl-dot active">▶</div>
+      <div class="tl-content">
+        <div class="tl-head">
+          <div class="tl-title">Frontend SPA — integración completa con API</div>
+          <div class="tl-date">Próximo</div>
+        </div>
+        <div class="tl-body">Actualizar cliente JS para manejar token rotation, implementar logout real, llamar a /recipes/claim tras registro. Tests E2E con Playwright.</div>
+        <div class="tl-tags"><span class="tag">token rotation</span><span class="tag">logout</span><span class="tag">Playwright</span></div>
+      </div>
+    </div>
+
+    <div class="tl-item">
+      <div class="tl-dot todo">○</div>
+      <div class="tl-content">
+        <div class="tl-head">
+          <div class="tl-title">Primer deploy en producción</div>
+          <div class="tl-date">Pendiente</div>
+        </div>
+        <div class="tl-body">VPS contratado, dominio DNS, Let's Encrypt TLS, docker compose prod up. Deploy automático desde CI tras merge a main.</div>
+        <div class="tl-tags"><span class="tag">VPS</span><span class="tag">Let's Encrypt</span><span class="tag">auto-deploy</span><span class="tag">Grafana</span></div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- ── QUICK REFERENCE ─────────────────────────────── -->
+<p class="section-title" style="max-width:1200px;margin:0 auto 20px;">Comandos rápidos</p>
+<div class="area-grid" style="max-width:1200px;margin:0 auto 48px;">
+  <div class="area-card green" style="grid-column:span 1">
+    <div class="area-name" style="margin-bottom:12px">🧪 Tests</div>
+    <div class="items">
+      <div class="item done"><span class="icon"></span><code>.venv/Scripts/python.exe -m pytest tests/ -q</code></div>
+      <div class="item done"><span class="icon"></span><code>.venv/Scripts/python.exe -m ruff check app/</code></div>
+    </div>
+  </div>
+  <div class="area-card sky" style="grid-column:span 1">
+    <div class="area-name" style="margin-bottom:12px">🐳 Docker dev</div>
+    <div class="items">
+      <div class="item done"><span class="icon"></span><code>docker compose up -d</code></div>
+      <div class="item done"><span class="icon"></span><code>docker exec healthstack_db psql -U postgres -c "CREATE DATABASE healthstack_test;"</code></div>
+    </div>
+  </div>
+  <div class="area-card orange" style="grid-column:span 1">
+    <div class="area-name" style="margin-bottom:12px">🔑 Key rotation</div>
+    <div class="items">
+      <div class="item done"><span class="icon"></span><code>OLD_MASTER_KEY=... NEW_MASTER_KEY=... python scripts/rotate_master_key.py --dry-run</code></div>
+    </div>
+  </div>
+</div>
+
+<!-- ── FOOTER ──────────────────────────────────────── -->
+<div class="footer">
+  <p>HealthStack Pro · <strong>4374d27</strong> · main · Generado el 22 Apr 2026</p>
+  <p style="margin-top:6px">Backend <strong>95%</strong> · Tests <strong>65/65</strong> · Ruff <strong>0 issues</strong> · Deploy <strong>pendiente</strong></p>
+</div>
+
+</body>
+</html>

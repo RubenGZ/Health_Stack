@@ -1,0 +1,752 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Premium Features Roadmap — HealthStack Pro</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Lora:wght@500;600;700&family=Raleway:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #060f12;
+  --bg-elev: #0b1a1f;
+  --bg-card: #0f2228;
+  --primary: #0891b2;
+  --accent: #22d3ee;
+  --accent-soft: rgba(34, 211, 238, 0.12);
+  --border: rgba(34, 211, 238, 0.18);
+  --text: #e6f4f7;
+  --text-dim: #8aa6ad;
+  --text-mute: #5d7a82;
+  --gold: #fbbf24;
+  --green: #34d399;
+  --orange: #fb923c;
+  --red: #f87171;
+}
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+html { scroll-behavior: smooth; }
+
+body {
+  font-family: 'Raleway', system-ui, sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  line-height: 1.6;
+  font-weight: 400;
+  min-height: 100vh;
+  overflow-x: hidden;
+}
+
+/* Background ambient glow */
+body::before {
+  content: "";
+  position: fixed;
+  top: -20%;
+  left: -10%;
+  width: 60%;
+  height: 60%;
+  background: radial-gradient(circle, rgba(8, 145, 178, 0.18) 0%, transparent 60%);
+  pointer-events: none;
+  z-index: 0;
+}
+body::after {
+  content: "";
+  position: fixed;
+  bottom: -20%;
+  right: -10%;
+  width: 50%;
+  height: 50%;
+  background: radial-gradient(circle, rgba(34, 211, 238, 0.10) 0%, transparent 60%);
+  pointer-events: none;
+  z-index: 0;
+}
+
+main { position: relative; z-index: 1; }
+
+/* HERO */
+.hero {
+  padding: 120px 32px 80px;
+  text-align: center;
+  max-width: 980px;
+  margin: 0 auto;
+}
+.hero .eyebrow {
+  display: inline-block;
+  font-size: 12px;
+  letter-spacing: 4px;
+  text-transform: uppercase;
+  color: var(--accent);
+  background: var(--accent-soft);
+  padding: 8px 16px;
+  border-radius: 999px;
+  border: 1px solid var(--border);
+  margin-bottom: 28px;
+  font-weight: 600;
+}
+.hero h1 {
+  font-family: 'Lora', serif;
+  font-size: clamp(40px, 6vw, 72px);
+  font-weight: 700;
+  letter-spacing: -1.5px;
+  line-height: 1.05;
+  background: linear-gradient(135deg, #ffffff 0%, var(--accent) 60%, var(--primary) 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  margin-bottom: 24px;
+}
+.hero p.subtitle {
+  font-size: clamp(16px, 1.6vw, 20px);
+  color: var(--text-dim);
+  max-width: 680px;
+  margin: 0 auto 40px;
+  font-weight: 300;
+}
+.hero-stats {
+  display: flex;
+  gap: 48px;
+  justify-content: center;
+  flex-wrap: wrap;
+  margin-top: 24px;
+}
+.hero-stat {
+  text-align: center;
+}
+.hero-stat .num {
+  font-family: 'Lora', serif;
+  font-size: 36px;
+  font-weight: 700;
+  color: var(--accent);
+  display: block;
+}
+.hero-stat .label {
+  font-size: 11px;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  color: var(--text-mute);
+  margin-top: 4px;
+}
+
+/* SECTION TITLE */
+.section-title {
+  text-align: center;
+  margin: 80px auto 48px;
+  max-width: 800px;
+  padding: 0 32px;
+}
+.section-title h2 {
+  font-family: 'Lora', serif;
+  font-size: clamp(28px, 4vw, 44px);
+  font-weight: 600;
+  margin-bottom: 12px;
+  letter-spacing: -0.5px;
+}
+.section-title p {
+  color: var(--text-dim);
+  font-weight: 300;
+}
+
+/* FEATURE GRID */
+.features {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(420px, 1fr));
+  gap: 24px;
+  max-width: 1320px;
+  margin: 0 auto;
+  padding: 0 32px 100px;
+}
+
+.feature {
+  position: relative;
+  background: linear-gradient(160deg, var(--bg-card) 0%, var(--bg-elev) 100%);
+  border: 1px solid var(--border);
+  border-radius: 20px;
+  padding: 32px;
+  overflow: hidden;
+  transition: transform 0.35s cubic-bezier(.2,.8,.2,1), border-color 0.35s, box-shadow 0.35s;
+}
+.feature::before {
+  content: "";
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 2px;
+  background: linear-gradient(90deg, transparent, var(--accent), transparent);
+  opacity: 0.35;
+  transition: opacity 0.35s;
+}
+.feature:hover {
+  transform: translateY(-6px);
+  border-color: rgba(34, 211, 238, 0.5);
+  box-shadow: 0 30px 60px -20px rgba(8, 145, 178, 0.35),
+              0 0 0 1px rgba(34, 211, 238, 0.2);
+}
+.feature:hover::before { opacity: 1; }
+
+.feature-head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+  margin-bottom: 8px;
+}
+.feature-num {
+  font-family: 'Lora', serif;
+  font-size: 56px;
+  font-weight: 700;
+  line-height: 1;
+  color: transparent;
+  -webkit-text-stroke: 1.5px rgba(34, 211, 238, 0.45);
+  letter-spacing: -2px;
+  flex-shrink: 0;
+}
+.feature h3 {
+  font-family: 'Lora', serif;
+  font-size: 26px;
+  font-weight: 600;
+  letter-spacing: -0.4px;
+  line-height: 1.15;
+  flex: 1;
+  padding-top: 8px;
+}
+.value-prop {
+  font-size: 15px;
+  color: var(--accent);
+  font-weight: 500;
+  font-style: italic;
+  margin: 4px 0 20px;
+  padding-left: 14px;
+  border-left: 2px solid var(--accent);
+}
+.feature p.desc {
+  font-size: 14.5px;
+  color: var(--text);
+  margin-bottom: 22px;
+  line-height: 1.65;
+}
+
+.meta-block {
+  border-top: 1px dashed rgba(34, 211, 238, 0.15);
+  padding-top: 18px;
+  margin-top: 20px;
+}
+.meta-row {
+  display: flex;
+  gap: 12px;
+  align-items: flex-start;
+  margin-bottom: 12px;
+  font-size: 13px;
+}
+.meta-label {
+  flex-shrink: 0;
+  font-size: 10.5px;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  color: var(--text-mute);
+  font-weight: 600;
+  width: 100px;
+  padding-top: 2px;
+}
+.meta-value { color: var(--text-dim); flex: 1; }
+.meta-value strong { color: var(--text); font-weight: 500; }
+
+.tags { display: flex; flex-wrap: wrap; gap: 6px; }
+.tag {
+  font-size: 11px;
+  padding: 3px 10px;
+  background: rgba(34, 211, 238, 0.08);
+  color: var(--accent);
+  border: 1px solid rgba(34, 211, 238, 0.2);
+  border-radius: 999px;
+  font-weight: 500;
+}
+
+.footer-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-top: 22px;
+  padding-top: 18px;
+  border-top: 1px solid rgba(34, 211, 238, 0.1);
+}
+.complexity {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 11px;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  font-weight: 600;
+  padding: 6px 14px;
+  border-radius: 999px;
+}
+.complexity.low {
+  background: rgba(52, 211, 153, 0.12);
+  color: var(--green);
+  border: 1px solid rgba(52, 211, 153, 0.3);
+}
+.complexity.medium {
+  background: rgba(251, 146, 60, 0.12);
+  color: var(--orange);
+  border: 1px solid rgba(251, 146, 60, 0.3);
+}
+.complexity.high {
+  background: rgba(248, 113, 113, 0.12);
+  color: var(--red);
+  border: 1px solid rgba(248, 113, 113, 0.3);
+}
+.complexity::before {
+  content: "";
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: currentColor;
+}
+
+.stars {
+  font-size: 16px;
+  letter-spacing: 2px;
+  color: var(--gold);
+  text-shadow: 0 0 8px rgba(251, 191, 36, 0.4);
+}
+.stars .empty { color: rgba(251, 191, 36, 0.2); text-shadow: none; }
+
+/* MATRIX */
+.matrix-section {
+  max-width: 1200px;
+  margin: 40px auto 120px;
+  padding: 0 32px;
+}
+.matrix {
+  background: linear-gradient(160deg, var(--bg-card) 0%, var(--bg-elev) 100%);
+  border: 1px solid var(--border);
+  border-radius: 24px;
+  padding: 48px;
+  position: relative;
+}
+.matrix-grid {
+  display: grid;
+  grid-template-columns: 80px repeat(3, 1fr);
+  grid-template-rows: 60px repeat(3, 1fr) 50px;
+  gap: 0;
+  min-height: 540px;
+}
+.axis-label {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 10.5px;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  color: var(--text-mute);
+  font-weight: 600;
+  text-align: center;
+}
+.axis-y {
+  writing-mode: vertical-rl;
+  transform: rotate(180deg);
+  grid-row: 1 / 5;
+  grid-column: 1;
+  font-size: 11px;
+  letter-spacing: 3px;
+  color: var(--accent);
+}
+.axis-x {
+  grid-row: 5;
+  grid-column: 2 / 5;
+  font-size: 11px;
+  letter-spacing: 3px;
+  color: var(--accent);
+  margin-top: 16px;
+}
+.col-header {
+  grid-row: 1;
+  font-size: 10px;
+  color: var(--text-mute);
+  border-bottom: 1px solid rgba(34, 211, 238, 0.1);
+  padding-bottom: 8px;
+}
+.cell {
+  border: 1px dashed rgba(34, 211, 238, 0.08);
+  padding: 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  min-height: 140px;
+  position: relative;
+  transition: background 0.3s;
+}
+.cell:hover { background: rgba(34, 211, 238, 0.03); }
+.cell.sweet {
+  background: linear-gradient(135deg, rgba(34, 211, 238, 0.08), rgba(8, 145, 178, 0.04));
+  border: 1px solid rgba(34, 211, 238, 0.3);
+}
+.cell.sweet::after {
+  content: "SWEET SPOT";
+  position: absolute;
+  top: 8px;
+  right: 10px;
+  font-size: 9px;
+  letter-spacing: 1.5px;
+  color: var(--accent);
+  font-weight: 700;
+}
+.chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 5px 10px;
+  background: rgba(8, 145, 178, 0.18);
+  border: 1px solid rgba(34, 211, 238, 0.25);
+  border-radius: 8px;
+  font-size: 11.5px;
+  font-weight: 500;
+  color: var(--text);
+  cursor: default;
+  transition: transform 0.2s, background 0.2s;
+}
+.chip:hover {
+  background: rgba(34, 211, 238, 0.25);
+  transform: translateY(-1px);
+}
+.chip-num {
+  font-family: 'Lora', serif;
+  font-weight: 700;
+  color: var(--accent);
+  font-size: 12px;
+}
+
+/* FOOTER */
+footer {
+  text-align: center;
+  padding: 60px 32px;
+  border-top: 1px solid var(--border);
+  color: var(--text-mute);
+  font-size: 13px;
+  font-weight: 300;
+}
+footer .brand {
+  font-family: 'Lora', serif;
+  font-size: 18px;
+  color: var(--accent);
+  font-weight: 600;
+  display: block;
+  margin-bottom: 8px;
+}
+
+/* RESPONSIVE */
+@media (max-width: 720px) {
+  .hero { padding: 80px 20px 60px; }
+  .features { grid-template-columns: 1fr; padding: 0 20px 80px; gap: 20px; }
+  .feature { padding: 24px; }
+  .feature-num { font-size: 42px; }
+  .feature h3 { font-size: 22px; }
+  .meta-label { width: 80px; font-size: 10px; }
+  .matrix { padding: 24px 16px; }
+  .matrix-grid { grid-template-columns: 50px repeat(3, 1fr); }
+  .cell { padding: 8px; min-height: 110px; }
+  .chip { font-size: 10px; padding: 4px 7px; }
+  .hero-stats { gap: 28px; }
+}
+</style>
+</head>
+<body>
+<main>
+  <section class="hero">
+    <span class="eyebrow">HealthStack Pro · Roadmap</span>
+    <h1>Premium Features Roadmap</h1>
+    <p class="subtitle">Ten frontend-only features that turn HealthStack Pro into the analytics layer serious recreational athletes have been quietly waiting for. Built on data you already have. No backend dependencies. No paid APIs.</p>
+    <div class="hero-stats">
+      <div class="hero-stat"><span class="num">10</span><span class="label">Features</span></div>
+      <div class="hero-stat"><span class="num">0</span><span class="label">Backend Cost</span></div>
+      <div class="hero-stat"><span class="num">100%</span><span class="label">Frontend Only</span></div>
+      <div class="hero-stat"><span class="num">€7.99</span><span class="label">Target Price/mo</span></div>
+    </div>
+  </section>
+
+  <div class="section-title">
+    <h2>The Ten Features</h2>
+    <p>Each one solves a problem the athlete already has but currently tracks in a spreadsheet, a notes app, or not at all.</p>
+  </div>
+
+  <section class="features">
+
+    <!-- 1 -->
+    <article class="feature">
+      <div class="feature-head">
+        <span class="feature-num">01</span>
+        <h3>Fatigue Heatmap</h3>
+      </div>
+      <p class="value-prop">See exactly which muscle groups are cooked, recovered, or under-stimulated — at a glance.</p>
+      <p class="desc">An interactive front/back human silhouette where each muscle group is shaded by accumulated training volume of the last 7 days, decayed by recovery curves (chest 48h, legs 72h, lower back 96h). Tap a muscle to see exact tonnage, sessions hit, and time since last load. Tells you in two seconds whether tomorrow should be push, pull, legs, or rest.</p>
+      <div class="meta-block">
+        <div class="meta-row"><span class="meta-label">Shows</span><span class="meta-value">Body silhouette · per-muscle volume tonnage · recovery % · last hit timestamp</span></div>
+        <div class="meta-row"><span class="meta-label">Data</span><div class="meta-value tags"><span class="tag">workout logs</span><span class="tag">exercise→muscle map</span><span class="tag">sets×reps×weight</span></div></div>
+        <div class="meta-row"><span class="meta-label">Why pay</span><span class="meta-value">No app shows accumulated muscular fatigue visually. Every athlete eyeballs this in their head — we make it real and accurate.</span></div>
+      </div>
+      <div class="footer-row">
+        <span class="complexity medium">Medium</span>
+        <span class="stars">★★★★★</span>
+      </div>
+    </article>
+
+    <!-- 2 -->
+    <article class="feature">
+      <div class="feature-head">
+        <span class="feature-num">02</span>
+        <h3>Auto-Deload Detector</h3>
+      </div>
+      <p class="value-prop">An algorithm that tells you "deload this week" before you crash — with the data to prove it.</p>
+      <p class="desc">Continuously scores three signals: weekly tonnage trend, top-set RPE drift, and Training Readiness moving average. When 2 of 3 signals trigger thresholds (e.g. RPE +1.5 above baseline, readiness <60% for 5+ days), the dashboard surfaces a deload prompt with a one-click 60% volume week pre-built from your current routine. Saves you from 3-week plateaus.</p>
+      <div class="meta-block">
+        <div class="meta-row"><span class="meta-label">Shows</span><span class="meta-value">Traffic-light card · 14-day trend lines · auto-generated deload week</span></div>
+        <div class="meta-row"><span class="meta-label">Data</span><div class="meta-value tags"><span class="tag">RPE log</span><span class="tag">readiness score</span><span class="tag">routines</span><span class="tag">weight log</span></div></div>
+        <div class="meta-row"><span class="meta-label">Why pay</span><span class="meta-value">Most lifters know they should deload but don't. This removes the guesswork and the guilt — built on your own numbers.</span></div>
+      </div>
+      <div class="footer-row">
+        <span class="complexity medium">Medium</span>
+        <span class="stars">★★★★★</span>
+      </div>
+    </article>
+
+    <!-- 3 -->
+    <article class="feature">
+      <div class="feature-head">
+        <span class="feature-num">03</span>
+        <h3>Macro Autopilot</h3>
+      </div>
+      <p class="value-prop">Hit your daily macros in 30 seconds with rolling meal templates that adapt to what's left.</p>
+      <p class="desc">Mid-day, the app already knows you've eaten 1,400 kcal / 90P / 130C / 50F. Tap "Suggest dinner" — it pulls from your saved meals + current pantry and proposes 3 combos that close the macro gap within ±5%. Each suggestion shows the macro delta visually. No food database, no scanning — just your own meals scored by fit.</p>
+      <div class="meta-block">
+        <div class="meta-row"><span class="meta-label">Shows</span><span class="meta-value">3 meal cards · macro fit score · gap visualizer · one-tap log</span></div>
+        <div class="meta-row"><span class="meta-label">Data</span><div class="meta-value tags"><span class="tag">saved recipes</span><span class="tag">today's intake</span><span class="tag">macro targets</span><span class="tag">pantry</span></div></div>
+        <div class="meta-row"><span class="meta-label">Why pay</span><span class="meta-value">Manual macro hitting is the #1 friction point in cutting/bulking. This collapses 10 minutes of mental math into one tap.</span></div>
+      </div>
+      <div class="footer-row">
+        <span class="complexity low">Low</span>
+        <span class="stars">★★★★<span class="empty">★</span></span>
+      </div>
+    </article>
+
+    <!-- 4 -->
+    <article class="feature">
+      <div class="feature-head">
+        <span class="feature-num">04</span>
+        <h3>PR Probability Engine</h3>
+      </div>
+      <p class="value-prop">"You have a 78% chance to hit 142.5kg bench today." Backed by your last 90 days, not vibes.</p>
+      <p class="desc">Before each top set the app predicts your true capacity for the day, combining: current readiness score, sleep input, last-session RPE, days since last PR attempt, and bar-speed proxies derived from set duration. Shows a probability curve across weights so you pick the load that's both ambitious and achievable. Logs prediction vs actual to refine itself.</p>
+      <div class="meta-block">
+        <div class="meta-row"><span class="meta-label">Shows</span><span class="meta-value">Probability curve · suggested top set · prediction accuracy badge</span></div>
+        <div class="meta-row"><span class="meta-label">Data</span><div class="meta-value tags"><span class="tag">1RM history</span><span class="tag">readiness</span><span class="tag">RPE log</span><span class="tag">sleep</span></div></div>
+        <div class="meta-row"><span class="meta-label">Why pay</span><span class="meta-value">Strength athletes obsess over picking the right top-set weight. Anything that takes the guesswork out is a credit-card moment.</span></div>
+      </div>
+      <div class="footer-row">
+        <span class="complexity high">High</span>
+        <span class="stars">★★★★★</span>
+      </div>
+    </article>
+
+    <!-- 5 -->
+    <article class="feature">
+      <div class="feature-head">
+        <span class="feature-num">05</span>
+        <h3>Plateau Radar</h3>
+      </div>
+      <p class="value-prop">Catches a stalling lift 2-3 weeks before you notice it — and tells you the most likely cause.</p>
+      <p class="desc">Linear regression across the trailing 8 weeks of estimated 1RM for each main lift. When slope drops below threshold (less than 0.4% weekly progression), the lift gets flagged. The diagnosis card cross-references possible causes from your own data: "Sleep avg 5h12m, protein under target 4 of last 7 days, deload overdue by 9 days." Specific, evidence-based, no generic advice.</p>
+      <div class="meta-block">
+        <div class="meta-row"><span class="meta-label">Shows</span><span class="meta-value">Lift cards with slope · cause cards · suggested intervention</span></div>
+        <div class="meta-row"><span class="meta-label">Data</span><div class="meta-value tags"><span class="tag">workout history</span><span class="tag">sleep</span><span class="tag">nutrition log</span><span class="tag">readiness</span></div></div>
+        <div class="meta-row"><span class="meta-label">Why pay</span><span class="meta-value">Plateaus are the silent killer of motivation. Catching them early — with data-driven causes — is what coaches charge €80/hr for.</span></div>
+      </div>
+      <div class="footer-row">
+        <span class="complexity medium">Medium</span>
+        <span class="stars">★★★★★</span>
+      </div>
+    </article>
+
+    <!-- 6 -->
+    <article class="feature">
+      <div class="feature-head">
+        <span class="feature-num">06</span>
+        <h3>Body-Comp Forecast</h3>
+      </div>
+      <p class="value-prop">"At your current pace, you'll hit 12% bodyfat on June 14." With confidence bands.</p>
+      <p class="desc">Multi-variable projection that combines weight trend (7-day moving average), average daily caloric balance, and circumference logs (waist, hip) to forecast bodyfat % over the next 12 weeks. Shows three bands: aggressive / current pace / sustainable. Hovering shows the exact daily intake needed to hit each curve. Updates daily as new data arrives.</p>
+      <div class="meta-block">
+        <div class="meta-row"><span class="meta-label">Shows</span><span class="meta-value">Forecast chart · 3 trajectory bands · target-date countdown · required calories</span></div>
+        <div class="meta-row"><span class="meta-label">Data</span><div class="meta-value tags"><span class="tag">weight log</span><span class="tag">macro log</span><span class="tag">body measurements</span><span class="tag">TDEE</span></div></div>
+        <div class="meta-row"><span class="meta-label">Why pay</span><span class="meta-value">Cutting/bulking without an end date is depressing. Putting a number on the calendar is psychological gold.</span></div>
+      </div>
+      <div class="footer-row">
+        <span class="complexity medium">Medium</span>
+        <span class="stars">★★★★<span class="empty">★</span></span>
+      </div>
+    </article>
+
+    <!-- 7 -->
+    <article class="feature">
+      <div class="feature-head">
+        <span class="feature-num">07</span>
+        <h3>Session Replay & Voice Notes</h3>
+      </div>
+      <p class="value-prop">A frame-by-frame log of every session you can scrub through later — like Strava for the gym.</p>
+      <p class="desc">During a workout, every set is timestamped with rest interval and an optional 5-second voice note ("hips caved on rep 4"). Post-session, scroll through a vertical timeline that overlays bar load, rest time, and your notes. Tap any past session to replay it. Becomes an irreplaceable training diary that compounds in value over years.</p>
+      <div class="meta-block">
+        <div class="meta-row"><span class="meta-label">Shows</span><span class="meta-value">Vertical timeline · waveform per voice note · rest-interval bars · tags</span></div>
+        <div class="meta-row"><span class="meta-label">Data</span><div class="meta-value tags"><span class="tag">workout log</span><span class="tag">MediaRecorder API</span><span class="tag">timestamps</span><span class="tag">localStorage blobs</span></div></div>
+        <div class="meta-row"><span class="meta-label">Why pay</span><span class="meta-value">"What did I cue last time I deadlifted heavy?" — currently unanswerable in any app. We make it answerable in 2 taps.</span></div>
+      </div>
+      <div class="footer-row">
+        <span class="complexity medium">Medium</span>
+        <span class="stars">★★★★<span class="empty">★</span></span>
+      </div>
+    </article>
+
+    <!-- 8 -->
+    <article class="feature">
+      <div class="feature-head">
+        <span class="feature-num">08</span>
+        <h3>Smart Rest Timer</h3>
+      </div>
+      <p class="value-prop">A rest timer that adapts to the set you just did — not a fixed 90 seconds for everything.</p>
+      <p class="desc">Auto-detects whether the set was strength (under 6 reps, RPE 8+) → 3:30 rest, hypertrophy (8-12 reps) → 90s, or accessory (12+ reps) → 60s. Shows the suggested rest as a ring countdown plus the recommended next-set load adjustment based on RPE input. Vibrates and plays a soft chime at 80% so you can re-rack on time. Tracks compliance — gym sessions get 14% shorter without losing volume.</p>
+      <div class="meta-block">
+        <div class="meta-row"><span class="meta-label">Shows</span><span class="meta-value">Adaptive ring timer · RPE input · next-set load suggestion · weekly compliance %</span></div>
+        <div class="meta-row"><span class="meta-label">Data</span><div class="meta-value tags"><span class="tag">current set log</span><span class="tag">RPE</span><span class="tag">exercise type</span><span class="tag">Vibration API</span></div></div>
+        <div class="meta-row"><span class="meta-label">Why pay</span><span class="meta-value">Generic rest timers are dumb. An adaptive one is the kind of polish people brag about — and it actually shortens sessions.</span></div>
+      </div>
+      <div class="footer-row">
+        <span class="complexity low">Low</span>
+        <span class="stars">★★★★<span class="empty">★</span></span>
+      </div>
+    </article>
+
+    <!-- 9 -->
+    <article class="feature">
+      <div class="feature-head">
+        <span class="feature-num">09</span>
+        <h3>Athlete Receipt</h3>
+      </div>
+      <p class="value-prop">A weekly auto-generated PDF/PNG that summarizes your training week — beautifully.</p>
+      <p class="desc">Every Sunday at 21:00 the app generates a single-page "receipt" with: total tonnage, top 3 lifts of the week, PRs hit, calories/macros adherence %, sleep average, and one auto-extracted highlight ("Squat 1RM ↑ 2.5kg"). Designed to be screenshot-shared on social. Builds streak psychology AND becomes free organic marketing every time it's posted.</p>
+      <div class="meta-block">
+        <div class="meta-row"><span class="meta-label">Shows</span><span class="meta-value">A4-style printable card · key metrics grid · highlight banner · share button</span></div>
+        <div class="meta-row"><span class="meta-label">Data</span><div class="meta-value tags"><span class="tag">all weekly logs</span><span class="tag">html2canvas</span><span class="tag">PRs</span><span class="tag">streaks</span></div></div>
+        <div class="meta-row"><span class="meta-label">Why pay</span><span class="meta-value">Recap content is currency on fitness Twitter/IG. Giving athletes a beautiful auto-recap is gift + viral loop in one.</span></div>
+      </div>
+      <div class="footer-row">
+        <span class="complexity low">Low</span>
+        <span class="stars">★★★★<span class="empty">★</span></span>
+      </div>
+    </article>
+
+    <!-- 10 -->
+    <article class="feature">
+      <div class="feature-head">
+        <span class="feature-num">10</span>
+        <h3>Cycle-Aware Periodization</h3>
+      </div>
+      <p class="value-prop">Auto-adjusts your weekly volume to your menstrual or sleep-deficit cycles — not a fixed template.</p>
+      <p class="desc">User logs cycle phase (or, for any athlete, accumulated sleep debt of the past 7 nights). The weekly planner re-shuffles top sets toward high-readiness days and pushes accessory/cardio toward low-readiness days — automatically. Color-coded calendar shows which days got promoted/demoted and why. Makes hard-coded mesocycles feel obsolete.</p>
+      <div class="meta-block">
+        <div class="meta-row"><span class="meta-label">Shows</span><span class="meta-value">Weekly planner with rebalanced days · phase indicator · readiness ribbon</span></div>
+        <div class="meta-row"><span class="meta-label">Data</span><div class="meta-value tags"><span class="tag">cycle log / sleep</span><span class="tag">routine</span><span class="tag">readiness</span><span class="tag">planner</span></div></div>
+        <div class="meta-row"><span class="meta-label">Why pay</span><span class="meta-value">Hyper-personalized periodization at €7.99/mo undercuts every coach app and speaks directly to women athletes — an underserved 50% of the market.</span></div>
+      </div>
+      <div class="footer-row">
+        <span class="complexity high">High</span>
+        <span class="stars">★★★★★</span>
+      </div>
+    </article>
+
+  </section>
+
+  <!-- MATRIX -->
+  <div class="section-title">
+    <h2>Priority Matrix</h2>
+    <p>Where to start. The sweet spot is high impact × low complexity — ship those first to validate willingness-to-pay.</p>
+  </div>
+
+  <section class="matrix-section">
+    <div class="matrix">
+      <div class="matrix-grid">
+        <span class="axis-y">Wow Factor →</span>
+
+        <span class="axis-label col-header">Low Complexity</span>
+        <span class="axis-label col-header">Medium Complexity</span>
+        <span class="axis-label col-header">High Complexity</span>
+
+        <!-- Row 1: 5-star -->
+        <div class="cell sweet">
+          <small style="color:var(--text-mute);font-size:10px;letter-spacing:1px;">★★★★★ · Low</small>
+          <!-- intentionally light -->
+        </div>
+        <div class="cell sweet">
+          <small style="color:var(--text-mute);font-size:10px;letter-spacing:1px;">★★★★★ · Medium</small>
+          <span class="chip"><span class="chip-num">01</span>Fatigue Heatmap</span>
+          <span class="chip"><span class="chip-num">02</span>Auto-Deload Detector</span>
+          <span class="chip"><span class="chip-num">05</span>Plateau Radar</span>
+        </div>
+        <div class="cell">
+          <small style="color:var(--text-mute);font-size:10px;letter-spacing:1px;">★★★★★ · High</small>
+          <span class="chip"><span class="chip-num">04</span>PR Probability Engine</span>
+          <span class="chip"><span class="chip-num">10</span>Cycle-Aware Periodization</span>
+        </div>
+
+        <!-- Row 2: 4-star -->
+        <div class="cell sweet">
+          <small style="color:var(--text-mute);font-size:10px;letter-spacing:1px;">★★★★ · Low</small>
+          <span class="chip"><span class="chip-num">03</span>Macro Autopilot</span>
+          <span class="chip"><span class="chip-num">08</span>Smart Rest Timer</span>
+          <span class="chip"><span class="chip-num">09</span>Athlete Receipt</span>
+        </div>
+        <div class="cell">
+          <small style="color:var(--text-mute);font-size:10px;letter-spacing:1px;">★★★★ · Medium</small>
+          <span class="chip"><span class="chip-num">06</span>Body-Comp Forecast</span>
+          <span class="chip"><span class="chip-num">07</span>Session Replay</span>
+        </div>
+        <div class="cell">
+          <small style="color:var(--text-mute);font-size:10px;letter-spacing:1px;">★★★★ · High</small>
+        </div>
+
+        <!-- Row 3: 3-star -->
+        <div class="cell">
+          <small style="color:var(--text-mute);font-size:10px;letter-spacing:1px;">★★★ · Low</small>
+        </div>
+        <div class="cell">
+          <small style="color:var(--text-mute);font-size:10px;letter-spacing:1px;">★★★ · Medium</small>
+        </div>
+        <div class="cell">
+          <small style="color:var(--text-mute);font-size:10px;letter-spacing:1px;">★★★ · High</small>
+        </div>
+
+        <span class="axis-x">Complexity →</span>
+      </div>
+    </div>
+
+    <div style="margin-top:32px;display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:16px;">
+      <div style="background:var(--bg-card);border:1px solid var(--border);border-radius:14px;padding:20px;">
+        <div style="font-size:10px;letter-spacing:2px;text-transform:uppercase;color:var(--accent);font-weight:600;margin-bottom:8px;">Ship First</div>
+        <div style="font-size:14px;color:var(--text-dim);">#03 Macro Autopilot · #08 Smart Rest Timer · #09 Athlete Receipt — low effort, high payoff, validates pricing.</div>
+      </div>
+      <div style="background:var(--bg-card);border:1px solid var(--border);border-radius:14px;padding:20px;">
+        <div style="font-size:10px;letter-spacing:2px;text-transform:uppercase;color:var(--accent);font-weight:600;margin-bottom:8px;">Headline Features</div>
+        <div style="font-size:14px;color:var(--text-dim);">#01 Fatigue Heatmap · #02 Auto-Deload · #05 Plateau Radar — the differentiators worth marketing.</div>
+      </div>
+      <div style="background:var(--bg-card);border:1px solid var(--border);border-radius:14px;padding:20px;">
+        <div style="font-size:10px;letter-spacing:2px;text-transform:uppercase;color:var(--accent);font-weight:600;margin-bottom:8px;">Long Bets</div>
+        <div style="font-size:14px;color:var(--text-dim);">#04 PR Probability · #10 Cycle-Aware — heavy lift, but moats. Build after the base subscriber count is real.</div>
+      </div>
+    </div>
+  </section>
+
+  <footer>
+    <span class="brand">HealthStack Pro</span>
+    Premium roadmap · prepared 2026-04-25 · all features ship-able with current frontend stack
+  </footer>
+</main>
+</body>
+</html>

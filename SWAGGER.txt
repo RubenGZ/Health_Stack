@@ -1,0 +1,118 @@
+CÓMO USAR SWAGGER — HealthStack Pro
+=====================================
+URL: http://localhost:8000/docs
+(El backend tiene que estar corriendo — ejecuta DEV.bat primero)
+
+
+═══════════════════════════════════════
+ PASO 1 — CREAR UNA CUENTA
+═══════════════════════════════════════
+1. Busca el apartado "identity" en la página
+2. Haz clic en "POST /api/v1/auth/register"
+3. Haz clic en el botón "Try it out" (aparece a la derecha)
+4. En el campo "Request body" escribe:
+
+   {
+     "email": "tu@email.com",
+     "password": "TuPassword123",
+     "username": "tunombre"
+   }
+
+5. Haz clic en "Execute"
+6. Si ves "201" en la respuesta, la cuenta se creó correctamente
+
+
+═══════════════════════════════════════
+ PASO 2 — INICIAR SESIÓN Y OBTENER TOKEN
+═══════════════════════════════════════
+1. Haz clic en "POST /api/v1/auth/login"
+2. Clic en "Try it out"
+3. En el Request body:
+
+   {
+     "email": "tu@email.com",
+     "password": "TuPassword123"
+   }
+
+4. Clic en "Execute"
+5. En la respuesta verás algo así:
+
+   {
+     "access_token": "eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9...",
+     "refresh_token": "...",
+     "token_type": "bearer"
+   }
+
+6. Copia el valor de "access_token" (todo el texto largo)
+
+
+═══════════════════════════════════════
+ PASO 3 — AUTENTICARTE EN SWAGGER
+═══════════════════════════════════════
+1. Haz clic en el botón "Authorize" (arriba a la derecha, tiene un candado)
+2. En el campo "Value" pega el access_token que copiaste
+3. Haz clic en "Authorize"
+4. Haz clic en "Close"
+
+A partir de aquí todos los endpoints con candado ya funcionan.
+El token dura 30 minutos — si expira repite el Paso 2 y 3.
+
+
+═══════════════════════════════════════
+ PASO 4 — USAR LOS ENDPOINTS
+═══════════════════════════════════════
+Cada apartado de color corresponde a un módulo:
+
+  identity      → registro, login, perfil
+  health        → registros de peso y biométricos
+  routines      → rutinas de ejercicio
+  community     → posts y likes
+  gamification  → XP, niveles, racha
+  nutrition     → suplementos e ingredientes
+
+Para usar cualquier endpoint:
+1. Haz clic en él para expandirlo
+2. Clic en "Try it out"
+3. Rellena los campos que pida
+4. Clic en "Execute"
+5. La respuesta aparece justo debajo
+
+
+═══════════════════════════════════════
+ CÓDIGOS DE RESPUESTA
+═══════════════════════════════════════
+  200  →  OK, operación correcta
+  201  →  Creado correctamente
+  400  →  Error en los datos que enviaste
+  401  →  No autenticado (repite Paso 2 y 3)
+  403  →  Sin permisos
+  404  →  No encontrado
+  422  →  Formato incorrecto en el JSON
+  429  →  Demasiadas peticiones, espera un momento
+  500  →  Error interno del servidor
+
+
+═══════════════════════════════════════
+ EJEMPLO COMPLETO — Registrar peso
+═══════════════════════════════════════
+1. Autentícate (Pasos 1-3)
+2. Ve al apartado "health"
+3. Haz clic en "POST /api/v1/health/records"
+4. Try it out → rellena:
+
+   {
+     "weight_kg": 75.5,
+     "notes": "Por la mañana en ayunas"
+   }
+
+5. Execute → deberías ver 201 con el registro creado
+6. Ahora ve a "GET /api/v1/health/records" → Execute
+   Verás el registro que acabas de crear
+
+
+═══════════════════════════════════════
+ OTRA URL ÚTIL
+═══════════════════════════════════════
+  http://localhost:8000/redoc
+  → Versión alternativa de la documentación, mejor para leer
+    los schemas con detalle, pero sin botón "Try it out"

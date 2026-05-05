@@ -1,0 +1,126 @@
+# =============================================================================
+# HealthStack Pro — Raspberry Pi (referencia)
+#
+# NOTA: El archivo canónico con soporte EXPOSE_MODE (quick/cloudflare/domain)
+# vive en: https://github.com/thiefjudge-prog/healthstack-pi-server
+# El script scripts/03-deploy.sh lo copia aquí automáticamente durante el deploy.
+# Este archivo se mantiene como referencia únicamente.
+#
+# Para desplegar en la Pi, usa el repo ops:
+#   git clone https://github.com/thiefjudge-prog/healthstack-pi-server.git
+#   bash healthstack-pi-server/scripts/03-deploy.sh
+# =============================================================================
+
+services:
+
+  # ---------------------------------------------------------------------------
+  # PostgreSQL 16 (ARM64 compatible)
+  # ---------------------------------------------------------------------------
+  postgres:
+    image: postgres:16-alpine
+    container_name: healthstack_postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: healthstack
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d healthstack"]
+      interval: 15s
+      timeout: 5s
+      retries: 5
+      start_period: 20s
+    networks:
+      - internal
+
+  # ---------------------------------------------------------------------------
+  # Redis 7 (ARM64 compatible)
+  # ---------------------------------------------------------------------------
+  redis:
+    image: redis:7-alpine
+    container_name: healthstack_redis
+    restart: unless-stopped
+    command: redis-server --requirepass ${REDIS_PASSWORD} --appendonly yes
+    volumes:
+      - redis_data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "-a", "${REDIS_PASSWORD}", "ping"]
+      interval: 15s
+      timeout: 5s
+      retries: 5
+    networks:
+      - internal
+
+  # ---------------------------------------------------------------------------
+  # FastAPI — construido localmente en la Pi
+  # ---------------------------------------------------------------------------
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: healthstack_backend
+    restart: unless-stopped
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    env_file:
+      - ./backend/.env
+    environment:
+      APP_ENV: production
+      DEBUG: "false"
+      DATABASE_URL: postgresql+asyncpg://postgres:${POSTGRES_PASSWORD}@postgres:5432/healthstack
+      DATABASE_SYNC_URL: postgresql://postgres:${POSTGRES_PASSWORD}@postgres:5432/healthstack
+      REDIS_URL: redis://:${REDIS_PASSWORD}@redis:6379/0
+    command: >
+      sh -c "alembic upgrade head && uvicorn app.main:app --host 0.0.0.0 --port 8000"
+    networks:
+      - internal
+
+  # ---------------------------------------------------------------------------
+  # Nginx — solo HTTP (Cloudflare Tunnel gestiona HTTPS externamente)
+  # Sirve los estáticos y hace proxy a la API.
+  # ---------------------------------------------------------------------------
+  nginx:
+    image: nginx:1.25-alpine
+    container_name: healthstack_nginx
+    restart: unless-stopped
+    depends_on:
+      - backend
+    ports:
+      - "80:80"
+    volumes:
+      - ./nginx/nginx.pi.conf:/etc/nginx/nginx.conf:ro
+      - ./frontend:/usr/share/nginx/html/app:ro
+      - ./landing/dist:/usr/share/nginx/html/landing:ro
+    networks:
+      - internal
+      - external
+
+  # ---------------------------------------------------------------------------
+  # Cloudflare Tunnel — expone el nginx al exterior sin abrir puertos
+  # Token generado en: https://one.dash.cloudflare.com/ → Zero Trust → Tunnels
+  # ---------------------------------------------------------------------------
+  cloudflared:
+    image: cloudflare/cloudflared:latest
+    container_name: healthstack_tunnel
+    restart: unless-stopped
+    command: tunnel --no-autoupdate run --token ${CLOUDFLARE_TUNNEL_TOKEN}
+    depends_on:
+      - nginx
+    networks:
+      - external
+
+networks:
+  internal:
+    driver: bridge
+    internal: true
+  external:
+    driver: bridge
+
+volumes:
+  postgres_data:
+  redis_data:

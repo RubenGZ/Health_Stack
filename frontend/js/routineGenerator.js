@@ -831,13 +831,14 @@ const RoutineGenerator = (function () {
             ${s.exercises.length === 0
               ? `<p class="no-exercises">Descanso activo — movilidad y stretching</p>`
               : s.exercises.map(ex => `
-                <div class="routine-ex">
+                <div class="routine-ex" data-exercise="${ex.name}" data-planned-reps="${ex.reps}">
                   <span class="rex-name">${ex.name}</span>
                   <span class="rex-meta">
                     <span class="rex-scheme">${ex.sets} × ${ex.reps}</span>
                     <span class="rex-rest">⏱ ${ex.rest}</span>
                     ${ex.sfr === 'high' ? '<span class="rex-sfr" title="Alto SFR — máxima relación estímulo/fatiga sistémica">⭐</span>' : ''}
                   </span>
+                  <button class="rex-log-btn" title="Registrar set completado" aria-label="Registrar set">🏋️</button>
                 </div>`).join('')
             }
           </div>

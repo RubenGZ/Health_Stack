@@ -1309,35 +1309,55 @@
 
   </main><!-- /main-content -->
 
-  <!-- ── CHATBOT FLOTANTE ──────────────────────────────────── -->
-  <button class="chatbot-btn" id="chatbot-btn" title="Asistente HealthStack">
-    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
-    <span class="chatbot-badge" id="chatbot-badge" style="display:none">1</span>
+  <!-- ── WIZARD AI ASSISTANT ──────────────────────────────── -->
+  <button class="wizard-btn" id="chatbot-btn" title="HealthStack AI">
+    <!-- Magic wand with sparkles — wizard icon -->
+    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <line x1="15" y1="9" x2="3" y2="21"/>
+      <path d="M17.8 3.2a2.5 2.5 0 0 1 3 3L15 9l-3-3 5.8-2.8z"/>
+      <line x1="7" y1="2" x2="7" y2="4"/>
+      <line x1="20" y1="11" x2="20" y2="13"/>
+      <line x1="6" y1="6" x2="4" y2="4"/>
+      <line x1="21" y1="8" x2="19" y2="10"/>
+      <line x1="19" y1="4" x2="21" y2="6"/>
+    </svg>
+    <span class="wizard-badge" id="chatbot-badge" style="display:none">1</span>
   </button>
 
-  <div class="chatbot-panel" id="chatbot-panel" style="display:none">
-    <div class="chatbot-header">
-      <div class="chatbot-avatar">🤖</div>
-      <div>
-        <div class="chatbot-name" data-i18n="chatbot.name">Asistente HealthStack</div>
-        <div class="chatbot-status" data-i18n="chatbot.status">En línea</div>
+  <div class="wizard-panel" id="chatbot-panel" style="display:none">
+    <!-- Header -->
+    <div class="wizard-header">
+      <div class="wizard-header-left">
+        <div class="wizard-logo">HS</div>
+        <div class="wizard-header-info">
+          <div class="wizard-name">HealthStack <span class="wizard-ai-tag">AI</span></div>
+          <div class="wizard-status"><span class="wizard-online-dot"></span> Powered by Grok</div>
+        </div>
       </div>
-      <button class="chatbot-close" id="chatbot-close">×</button>
+      <button class="wizard-close" id="chatbot-close" aria-label="Cerrar">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+      </button>
     </div>
-    <div class="chatbot-messages" id="chatbot-messages">
+
+    <!-- Messages -->
+    <div class="wizard-messages" id="chatbot-messages">
       <div class="chat-msg chat-msg--bot">
-        <div class="chat-bubble" data-i18n="chatbot.welcome">¡Hola! Soy tu asistente de fitness. Pregúntame sobre nutrición, ejercicio, pérdida de peso o cómo usar la app. 💪</div>
+        <div class="wizard-bot-avatar">HS</div>
+        <div class="chat-bubble">¡Hola! Soy el asistente IA de HealthStack. Puedo responder <strong>cualquier pregunta</strong> — fitness, nutrición, salud, ciencia, o lo que necesites. ¿En qué te ayudo? 💪</div>
       </div>
     </div>
-    <div class="chatbot-suggestions" id="chatbot-suggestions">
-      <button class="chat-suggestion" data-i18n="chatbot.q1">¿Cuánta proteína necesito?</button>
-      <button class="chat-suggestion" data-i18n="chatbot.q2">¿Cómo pierdo grasa?</button>
-      <button class="chat-suggestion" data-i18n="chatbot.q3">¿Qué es el TDEE?</button>
+
+    <!-- Suggestions -->
+    <div class="chatbot-suggestions" id="chatbot-suggestions"></div>
+
+    <!-- Input -->
+    <div class="wizard-input-wrap">
+      <input type="text" id="chatbot-input" class="wizard-input" placeholder="Pregúntame cualquier cosa..." autocomplete="off">
+      <button class="wizard-send-btn" id="chatbot-send" aria-label="Enviar">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
+      </button>
     </div>
-    <div class="chatbot-input-wrap">
-      <input type="text" id="chatbot-input" class="form-input" data-i18n="chatbot.placeholder" data-i18n-attr="placeholder" placeholder="Escribe tu pregunta...">
-      <button class="btn btn--primary btn--sm" id="chatbot-send" data-i18n="chatbot.send">Enviar</button>
-    </div>
+    <div class="wizard-disclaimer">Respuestas generadas por IA · No sustituyen consejo médico</div>
   </div>
 
   <!-- ── MODAL: AÑADIR/EDITAR PESO ────────────────────────────── -->
@@ -1390,6 +1410,7 @@
   <script defer src="js/macroCalc.js"></script>
   <script defer src="js/exercises.js"></script>
   <script defer src="js/routineGenerator.js"></script>
+  <script defer src="js/aiCoach.js"></script>
   <script defer src="js/planner.js?v=3"></script>
   <script defer src="js/gamification.js"></script>
   <script defer src="js/chatbot.js"></script>

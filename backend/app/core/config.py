@@ -69,6 +69,9 @@ class Settings(BaseSettings):
     # En prod: https://<domain>/api/v1/auth/google/callback
     google_redirect_uri: str = ""
 
+    # ── xAI Grok ─────────────────────────────────────────────
+    grok_api_key: str = ""
+
     # ── Sentry ────────────────────────────────────────────────
     sentry_dsn: str = ""  # Vacío → Sentry desactivado
 

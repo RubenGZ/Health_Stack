@@ -211,52 +211,105 @@ const Onboarding = (function () {
     return true;
   }
 
+  // ── Cálculo TDEE directo (evita depender del form i18n) ─────
+  const GOAL_DELTA = { deficit_hard:-500, deficit_soft:-250, maintain:0, surplus_soft:250, surplus_hard:500 };
+  const GOAL_TIPS  = {
+    deficit_soft: '✅ Déficit suave de 250 kcal — ideal para perder grasa sin perder músculo.',
+    maintain:     '⚖️ Mantenimiento — momento ideal para recomposición corporal.',
+    surplus_soft: '💪 Superávit de 250 kcal — minimiza grasa mientras maximiza músculo.',
+    surplus_hard: '📈 Superávit agresivo — máximas ganancias, algo más de grasa.',
+    deficit_hard: '⚠️ Déficit de 500 kcal — límite recomendado. Asegura ≥1.8 g proteína/kg.',
+  };
+
+  function calcTDEEFromAnswers(weight, height, age, goal, activity = 1.55) {
+    // Mifflin-St Jeor (asumimos male por defecto si no hay dato de sexo)
+    const bmr    = 10 * weight + 6.25 * height - 5 * age + 5;
+    const tdee   = Math.round(bmr * activity);
+    const delta  = GOAL_DELTA[goal] || 0;
+    const target = tdee + delta;
+    // Macros: proteína 2g/kg, grasa 25%, carbos el resto
+    const proteinG = Math.round(weight * 2.0);
+    const fatKcal  = Math.round(target * 0.25);
+    const fatG     = Math.round(fatKcal / 9);
+    const carbsG   = Math.round(Math.max(0, target - proteinG * 4 - fatKcal) / 4);
+    return { bmr, tdee, target, proteinG, fatG, carbsG };
+  }
+
   // ── Aplicar respuestas a los módulos existentes ───────────
   function applyAnswers() {
-    // 1. Pre-rellenar formulario TDEE
-    const goalEl     = document.getElementById('tdee-goal');
-    const weightEl   = document.getElementById('tdee-weight');
-    const heightEl   = document.getElementById('tdee-height');
-    const ageEl      = document.getElementById('tdee-age');
-    const activityEl = document.getElementById('tdee-activity');
+    const w = answers['ob-weight'];
+    const h = answers['ob-height'];
+    const a = answers['ob-age'];
+    const g = answers.goal;
 
-    if (goalEl   && answers.goal)      goalEl.value   = answers.goal;
-    if (weightEl && answers['ob-weight']) weightEl.value = answers['ob-weight'];
-    if (heightEl && answers['ob-height']) heightEl.value = answers['ob-height'];
-    if (ageEl    && answers['ob-age'])    ageEl.value    = answers['ob-age'];
-    // Actividad por defecto: moderada
-    if (activityEl) activityEl.value = '1.55';
-
-    // 2. Registrar el peso de hoy automáticamente
-    if (answers['ob-weight'] && typeof WeightTracker !== 'undefined') {
+    // 1. Registrar el peso de hoy automáticamente
+    if (w && typeof WeightTracker !== 'undefined') {
       const today = new Date().toISOString().split('T')[0];
-      WeightTracker.addEntry(today, answers['ob-weight'], 'Peso inicial — registrado en onboarding');
-      // Guardar altura para el dashboard IMC
-      if (answers['ob-height']) localStorage.setItem('hs_height_cm', String(answers['ob-height']));
+      WeightTracker.addEntry(today, w, 'Peso inicial — registrado en onboarding');
+      if (h) localStorage.setItem('hs_height_cm', String(h));
     }
 
-    // 3. Pre-configurar cuestionario de rutina si el módulo existe
+    // 2. Pre-configurar días de entrenamiento
     if (answers.schedule !== undefined) {
       localStorage.setItem('hs_onboarding_days', answers.schedule);
     }
 
-    // Guardar objetivo para el insight de progreso del dashboard
-    if (answers.goal) {
-      localStorage.setItem('hs_user_goal', answers.goal);
+    // 3. Guardar objetivo
+    if (g) localStorage.setItem('hs_user_goal', g);
+
+    // 4. Calcular y persistir TDEE directamente (sin pasar por el form HTML)
+    //    El form puede tener opciones i18n vacías en este momento; lo bypaseamos.
+    if (w && h && a && g) {
+      const result = calcTDEEFromAnswers(w, h, a, g);
+      const tdeeData = {
+        sex: 'male', age: a, weight: w, height: h,
+        activity: 1.55, goal: g,
+        bmr: result.bmr, tdee: result.tdee, target: result.target,
+        macros: {
+          proteinG: result.proteinG, proteinKcal: result.proteinG * 4,
+          fatG: result.fatG,         fatKcal: result.fatG * 9,
+          carbsG: result.carbsG,     carbsKcal: result.carbsG * 4,
+        },
+        ts: Date.now(),
+      };
+      localStorage.setItem('hs_tdee',      JSON.stringify(tdeeData));
+      localStorage.setItem('hs_last_tdee', String(result.target));
+      localStorage.setItem('hs_height_cm', String(h));
+
+      // Pre-rellenar el form TDEE para que esté listo cuando el usuario lo abra
+      setTimeout(() => {
+        const fld = (id, val) => { const el = document.getElementById(id); if (el) el.value = val; };
+        fld('tdee-age',      a);
+        fld('tdee-weight',   w);
+        fld('tdee-height',   h);
+        fld('tdee-activity', '1.55');
+        fld('tdee-goal',     g);
+        // Mostrar resultados en el panel de nutrición directamente
+        const setEl = (id, val) => { const el = document.getElementById(id); if (el) el.textContent = val; };
+        setEl('result-bmr',    Math.round(result.bmr));
+        setEl('result-tdee',   result.tdee);
+        setEl('result-target', result.target);
+        setEl('macro-protein-g',    `${result.proteinG} g`);
+        setEl('macro-fat-g',        `${result.fatG} g`);
+        setEl('macro-carbs-g',      `${result.carbsG} g`);
+        setEl('macro-protein-kcal', `${result.proteinG * 4} kcal`);
+        setEl('macro-fat-kcal',     `${result.fatG * 9} kcal`);
+        setEl('macro-carbs-kcal',   `${result.carbsG * 4} kcal`);
+        setEl('tip-text', GOAL_TIPS[g] || '');
+        const resEl = document.getElementById('nutrition-results');
+        if (resEl) resEl.style.display = 'block';
+        // Actualizar stat TDEE del dashboard
+        const statTdee = document.getElementById('stat-tdee');
+        if (statTdee) statTdee.textContent = `${result.target} kcal`;
+      }, 200);
+
+      // Notificar al resto de módulos
+      window.dispatchEvent(new CustomEvent('hs:tdee-calculated'));
     }
 
-    // 4. Calcular TDEE automáticamente si tenemos todos los datos
-    if (answers['ob-weight'] && answers['ob-height'] && answers['ob-age'] && answers.goal) {
-      const form = document.getElementById('tdee-form');
-      if (form) {
-        // Disparar el submit del formulario programáticamente
-        setTimeout(() => form.dispatchEvent(new Event('submit', { cancelable: true, bubbles: true })), 300);
-      }
-    }
-
-    // 5. XP de bienvenida a través de gamificación
+    // 5. XP de bienvenida
     if (typeof Gamification !== 'undefined') {
-      Gamification.addXP('login'); // Cuenta como sesión inaugural
+      Gamification.addXP('login');
     }
   }
 

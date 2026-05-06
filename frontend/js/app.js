@@ -664,10 +664,43 @@
     console.log('%c HealthStack Pro v2.0 ', 'background:#6c63ff;color:white;padding:4px 8px;border-radius:4px;font-weight:bold');
   }
 
+  // ── Google OAuth callback handler ────────────────────────
+  // El backend redirige a /?auth=google#access_token=...&refresh_token=...
+  // Leemos el hash, guardamos los tokens y limpiamos la URL
+  function handleOAuthCallback() {
+    const params = new URLSearchParams(window.location.hash.replace(/^#/, ''));
+    const access  = params.get('access_token');
+    const refresh = params.get('refresh_token');
+    if (!access || !refresh) return;
+
+    // Guardar tokens como lo haría un login normal
+    localStorage.setItem('hs_access_token',  access);
+    localStorage.setItem('hs_refresh_token', refresh);
+
+    // Obtener perfil del usuario y guardarlo
+    fetch(`${location.protocol}//${location.host}/api/v1/auth/me`, {
+      headers: { Authorization: `Bearer ${access}` },
+    })
+      .then(r => r.ok ? r.json() : null)
+      .then(user => {
+        if (user) localStorage.setItem('hs_user', JSON.stringify(user));
+      })
+      .catch(() => {})
+      .finally(() => {
+        // Limpiar hash y query string de la URL sin recargar
+        history.replaceState(null, '', '/');
+        // Recargar la UI de autenticación
+        if (typeof API !== 'undefined') API.checkBackend?.();
+        initUserChip();
+        updateWelcomeCard();
+      });
+  }
+
   // Arrancar cuando el DOM esté listo
   if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', init);
+    document.addEventListener('DOMContentLoaded', () => { handleOAuthCallback(); init(); });
   } else {
+    handleOAuthCallback();
     init();
   }
 

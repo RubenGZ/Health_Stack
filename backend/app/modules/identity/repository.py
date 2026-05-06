@@ -97,6 +97,26 @@ class UserRepository:
             await db.flush()
 
     @staticmethod
+    async def get_all(
+        db: AsyncSession,
+        *,
+        limit: int = 100,
+        offset: int = 0,
+    ) -> list[User]:
+        """
+        Devuelve todos los usuarios paginados. Solo para uso admin.
+        Ordenados por fecha de creación (más recientes primero).
+        """
+        from sqlalchemy import desc
+        result = await db.execute(
+            select(User)
+            .order_by(desc(User.created_at))
+            .limit(limit)
+            .offset(offset)
+        )
+        return list(result.scalars().all())
+
+    @staticmethod
     async def set_active(
         db: AsyncSession,
         user_id: str | uuid.UUID,

@@ -4,10 +4,15 @@ app/modules/identity/router.py
 Router FastAPI del módulo de identidad.
 
 Endpoints:
-    POST /api/v1/auth/register  — Registro de nuevo usuario
-    POST /api/v1/auth/login     — Login y emisión de tokens
-    GET  /api/v1/auth/me        — Perfil del usuario autenticado
-    POST /api/v1/auth/refresh   — Renovar access token con refresh token
+    POST /api/v1/auth/register           — Registro de nuevo usuario
+    POST /api/v1/auth/login              — Login y emisión de tokens
+    GET  /api/v1/auth/me                 — Perfil del usuario autenticado
+    POST /api/v1/auth/refresh            — Renovar access token con refresh token
+    POST /api/v1/auth/logout             — Cerrar sesión
+    GET  /api/v1/auth/google/redirect    — Iniciar OAuth Google (redirige al consent)
+    GET  /api/v1/auth/google/callback    — Callback OAuth Google (emite JWT)
+    GET  /api/v1/admin/users             — [Admin] Listar todos los usuarios
+    PATCH /api/v1/admin/users/{id}       — [Admin] Actualizar rol / estado de usuario
 
 Responsabilidades de esta capa:
 - Recibir y validar el body HTTP (Pydantic hace la validación de tipos)
@@ -20,12 +25,17 @@ NO hace:
 """
 
 
+import logging
 from datetime import UTC, datetime
 
-from fastapi import APIRouter, Depends, Request, status
+from fastapi import APIRouter, Depends, HTTPException, Query, Request, status
+from fastapi.responses import RedirectResponse
+from pydantic import BaseModel
 
 from app.core.security.cryptoservice import CryptoService, get_crypto_service
-from app.core.security.dependencies import CurrentUser
+from app.core.security.dependencies import CurrentUser, require_role
+from app.core.security.google_oauth import build_auth_url, get_user_from_google_code
+from app.core.security.hashing import hash_password
 from app.core.security.jwt_handler import (
     create_access_token,
     create_refresh_token,
@@ -43,6 +53,8 @@ from app.modules.identity.schemas import (
 from app.modules.identity.service import IdentityService
 from app.session import DBSession
 from app.shared.exceptions import TokenInvalidError, UserNotFoundError
+
+logger = logging.getLogger(__name__)
 
 router = APIRouter()
 
@@ -251,3 +263,202 @@ async def logout(
     jti = payload.get("jti")
     if jti:
         await RefreshTokenRepository.revoke(db, jti)  # No-op si ya revocado
+
+
+# ── GET /google/redirect ──────────────────────────────────────────────────────
+
+@router.get(
+    "/google/redirect",
+    summary="Iniciar login con Google",
+    description=(
+        "Redirige al usuario a la página de consentimiento de Google OAuth. "
+        "Una vez que el usuario autoriza, Google redirige a /google/callback con un code. "
+        "No requiere autenticación previa."
+    ),
+)
+async def google_redirect(request: Request) -> RedirectResponse:
+    """
+    Genera la URL de consentimiento de Google y redirige al usuario.
+    El parámetro `state` actúa como nonce CSRF — en producción con sesiones
+    se debería almacenar en la cookie de sesión para verificarlo en el callback.
+    """
+    try:
+        url, state = build_auth_url()
+    except ValueError as exc:
+        raise HTTPException(
+            status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
+            detail=f"Google OAuth no está configurado: {exc}",
+        )
+    # En producción: guardar state en cookie firmada y verificarlo en callback
+    return RedirectResponse(url=url, status_code=status.HTTP_302_FOUND)
+
+
+# ── GET /google/callback ──────────────────────────────────────────────────────
+
+@router.get(
+    "/google/callback",
+    summary="Callback de Google OAuth",
+    description=(
+        "Google llama a este endpoint tras el consentimiento del usuario. "
+        "Intercambia el código por tokens de Google, obtiene el perfil, "
+        "crea la cuenta si no existe (con consentimiento RGPD implícito en OAuth), "
+        "y emite un JWT HealthStack. Redirige al frontend con el token en el hash."
+    ),
+)
+async def google_callback(
+    request: Request,
+    db: DBSession,
+    crypto: CryptoService = Depends(get_crypto_service),
+    code: str = Query(..., description="Código de autorización de Google"),
+    state: str | None = Query(None),
+    error: str | None = Query(None),
+) -> RedirectResponse:
+    """
+    Flujo OAuth callback:
+    1. Verificar que no hay error de Google (ej. usuario canceló)
+    2. Obtener perfil de Google (email, nombre) usando el code
+    3. Buscar usuario por email — crear si no existe
+    4. Emitir JWT HealthStack
+    5. Redirigir al frontend con el token en el fragmento URL (#)
+    """
+    # 1. Error de Google (usuario canceló el consentimiento, etc.)
+    if error:
+        logger.warning(f"Google OAuth error: {error}")
+        return RedirectResponse(url="/?auth_error=google_denied", status_code=302)
+
+    if not code:
+        return RedirectResponse(url="/?auth_error=no_code", status_code=302)
+
+    # 2. Obtener perfil de Google
+    try:
+        google_user = await get_user_from_google_code(code)
+    except Exception as exc:
+        logger.error(f"Error obteniendo perfil de Google: {exc}")
+        return RedirectResponse(url="/?auth_error=google_failed", status_code=302)
+
+    # 3. Buscar o crear usuario
+    email        = google_user["email"]
+    display_name = google_user.get("display_name") or email.split("@")[0]
+
+    user = await UserRepository.get_by_email(db, email)
+
+    if user is None:
+        # Nuevo usuario vía Google — creamos la cuenta
+        # El consentimiento RGPD está implícito en el flujo OAuth de Google
+        # (el usuario acepta en la pantalla de consentimiento de Google)
+        password_hash = hash_password(f"google_oauth_{google_user['google_id']}_hs")
+        user = await UserRepository.create(
+            db=db,
+            email=email,
+            password_hash=password_hash,
+            display_name=display_name,
+            consent_gdpr=True,
+        )
+        # Crear llave de cruce (seudonimización AEPD)
+        await crypto.create_health_link_for_user(user_id=str(user.id), db=db)
+        logger.info(f"Nuevo usuario creado via Google OAuth: {str(user.id)[:8]}...")
+    else:
+        # Usuario existente — actualizar last_login
+        await UserRepository.update_last_login(db, str(user.id))
+        logger.info(f"Login via Google OAuth: {str(user.id)[:8]}...")
+
+    # 4. Emitir tokens JWT HealthStack
+    access_token  = create_access_token(
+        user_id=str(user.id),
+        email=user.email,
+        role=user.role,
+    )
+    refresh_token = create_refresh_token(user_id=str(user.id))
+
+    _rt_payload = decode_token(refresh_token)
+    await RefreshTokenRepository.create(
+        db=db,
+        jti=_rt_payload["jti"],
+        user_id=str(user.id),
+        expires_at=datetime.fromtimestamp(_rt_payload["exp"], tz=UTC),
+    )
+
+    # 5. Redirigir al frontend con los tokens en el fragmento (#)
+    #    El JS del frontend lee el hash y almacena los tokens en localStorage
+    from app.core.config import get_settings
+    settings = get_settings()
+
+    # Detectar la URL base a partir del request si no hay config explícita
+    base = str(request.base_url).rstrip("/")
+
+    redirect_url = (
+        f"{base}/"
+        f"?auth=google"
+        f"#access_token={access_token}"
+        f"&refresh_token={refresh_token}"
+        f"&token_type=bearer"
+    )
+    return RedirectResponse(url=redirect_url, status_code=302)
+
+
+# ── ADMIN ENDPOINTS ───────────────────────────────────────────────────────────
+
+class AdminUpdateUserRequest(BaseModel):
+    """Body para PATCH /admin/users/{user_id}."""
+    role: str | None = None       # "user" | "admin"
+    is_active: bool | None = None
+
+
+@router.get(
+    "/admin/users",
+    summary="[Admin] Listar todos los usuarios",
+    description="Devuelve la lista completa de usuarios. Solo accesible con rol 'admin'.",
+)
+async def admin_list_users(
+    db: DBSession,
+    _admin: dict = Depends(require_role("admin")),
+    limit: int = Query(default=100, ge=1, le=500),
+    offset: int = Query(default=0, ge=0),
+) -> list[UserPublicResponse]:
+    """Lista paginada de todos los usuarios del sistema."""
+    users = await UserRepository.get_all(db, limit=limit, offset=offset)
+    return [UserPublicResponse.model_validate(u) for u in users]
+
+
+@router.patch(
+    "/admin/users/{user_id}",
+    summary="[Admin] Actualizar rol o estado de un usuario",
+    description=(
+        "Permite al admin cambiar el rol ('user'/'admin') o activar/suspender "
+        "una cuenta (is_active). Solo accesible con rol 'admin'."
+    ),
+)
+async def admin_update_user(
+    user_id: str,
+    body: AdminUpdateUserRequest,
+    db: DBSession,
+    _admin: dict = Depends(require_role("admin")),
+) -> UserPublicResponse:
+    """
+    Actualiza rol o estado de un usuario. Ambos campos son opcionales.
+    """
+    user = await UserRepository.get_by_id(db, user_id)
+    if user is None:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail=f"Usuario {user_id} no encontrado.",
+        )
+
+    if body.role is not None:
+        if body.role not in ("user", "admin"):
+            raise HTTPException(
+                status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
+                detail="Rol inválido. Valores permitidos: 'user', 'admin'.",
+            )
+        user.role = body.role
+
+    if body.is_active is not None:
+        user.is_active = body.is_active
+
+    await db.flush()
+    await db.refresh(user)
+    logger.info(
+        f"Admin {_admin['user_id'][:8]} actualizó usuario {user_id[:8]}: "
+        f"role={body.role} is_active={body.is_active}"
+    )
+    return UserPublicResponse.model_validate(user)

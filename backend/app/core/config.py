@@ -62,6 +62,13 @@ class Settings(BaseSettings):
     # Vacío en dev (se usan localhost origins hardcodeados en main.py)
     allowed_origins: str = ""
 
+    # ── Google OAuth ─────────────────────────────────────────
+    google_client_id: str = ""
+    google_client_secret: str = ""
+    # URI de callback registrada en Google Cloud Console.
+    # En prod: https://<domain>/api/v1/auth/google/callback
+    google_redirect_uri: str = ""
+
     # ── Sentry ────────────────────────────────────────────────
     sentry_dsn: str = ""  # Vacío → Sentry desactivado
 

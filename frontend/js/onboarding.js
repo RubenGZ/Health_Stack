@@ -221,6 +221,9 @@ const Onboarding = (function () {
     deficit_hard: '⚠️ Déficit de 500 kcal — límite recomendado. Asegura ≥1.8 g proteína/kg.',
   };
 
+  // Activity multiplier mapped from training days per week
+  const ACTIVITY_MAP = { 2: 1.375, 3: 1.55, 4: 1.725, 5: 1.9 };
+
   function calcTDEEFromAnswers(weight, height, age, goal, activity = 1.55) {
     // Mifflin-St Jeor (asumimos male por defecto si no hay dato de sexo)
     const bmr    = 10 * weight + 6.25 * height - 5 * age + 5;
@@ -260,7 +263,8 @@ const Onboarding = (function () {
     // 4. Calcular y persistir TDEE directamente (sin pasar por el form HTML)
     //    El form puede tener opciones i18n vacías en este momento; lo bypaseamos.
     if (w && h && a && g) {
-      const result = calcTDEEFromAnswers(w, h, a, g);
+      const activity = ACTIVITY_MAP[answers.schedule] || 1.55;
+      const result = calcTDEEFromAnswers(w, h, a, g, activity);
       const tdeeData = {
         sex: 'male', age: a, weight: w, height: h,
         activity: 1.55, goal: g,
@@ -317,31 +321,32 @@ const Onboarding = (function () {
   function finish() {
     localStorage.setItem(LS_FLAG, '1');
     const modal = document.getElementById('onboarding-modal');
+    const hasTDEE = answers['ob-weight'] && answers.goal;
+
     if (modal) {
       modal.classList.add('ob-exit');
-      setTimeout(() => modal.remove(), 400);
+      setTimeout(() => {
+        modal.remove();
+
+        // Navigate to nutrición so the user sees their TDEE + macros immediately
+        if (hasTDEE) {
+          const nutriNav = document.querySelector('[data-section="nutricion"]');
+          if (nutriNav) nutriNav.click();
+        }
+      }, 420);
     }
 
-    // Mostrar mensaje de bienvenida en dashboard
+    // Mostrar mensaje de bienvenida en el stat del dashboard
+    const hour = new Date().getHours();
+    const sal  = hour < 13 ? 'Buenos días' : hour < 20 ? 'Buenas tardes' : 'Buenas noches';
     const greeting = document.getElementById('dashboard-greeting');
     if (greeting && answers['ob-weight']) {
-      const hour = new Date().getHours();
-      const sal  = hour < 13 ? 'Buenos días' : hour < 20 ? 'Buenas tardes' : 'Buenas noches';
       greeting.textContent = `${sal}, bienvenido/a a HealthStack 🎉`;
       setTimeout(() => {
         const user = typeof API !== 'undefined' ? API.getUser?.() : null;
         const name = user?.display_name || 'Atleta';
         greeting.textContent = `${sal}, ${name}`;
       }, 4000);
-    }
-
-    // Navegar a la sección nutrición si ya tenemos datos TDEE
-    if (answers['ob-weight'] && answers.goal) {
-      setTimeout(() => {
-        // Si hay datos de peso, mostrar sección peso con el primer registro
-        // Si tiene TDEE calculado, ir a nutrición
-        // Por defecto quedamos en dashboard para ver los datos ya rellenados
-      }, 500);
     }
   }
 

@@ -3661,6 +3661,128 @@ select.form-input option { background: var(--bg-surface); color: var(--text-prim
   line-height: 1;
 }
 
+/* ============================================================
+   AUTH MODAL — email/password login & register
+   ============================================================ */
+
+.auth-modal-inner { max-width: 420px; }
+
+/* Tabs */
+.auth-tabs {
+  display: flex;
+  border-bottom: 1px solid var(--glass-border);
+  background: var(--glass-bg);
+}
+.auth-tab {
+  flex: 1;
+  padding: 12px 0;
+  font-size: 0.88rem;
+  font-weight: 600;
+  color: var(--text-muted);
+  transition: var(--transition);
+  border-bottom: 2px solid transparent;
+}
+.auth-tab--active {
+  color: var(--primary);
+  border-bottom-color: var(--primary);
+}
+.auth-tab:hover:not(.auth-tab--active) {
+  color: var(--text-secondary);
+  background: var(--glass-bg);
+}
+
+/* Form body */
+.auth-form .ob-fields { grid-template-columns: 1fr; }
+
+/* GDPR consent */
+.auth-consent {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 12px 24px 0;
+  font-size: 0.8rem;
+  color: var(--text-muted);
+  cursor: pointer;
+}
+.auth-consent a { color: var(--primary); text-decoration: underline; }
+.auth-consent input[type="checkbox"] { width: 15px; height: 15px; cursor: pointer; flex-shrink: 0; }
+
+/* Error message */
+.auth-error {
+  margin-top: 8px;
+  padding: 8px 12px;
+  background: rgba(239, 68, 68, 0.12);
+  border: 1px solid rgba(239, 68, 68, 0.3);
+  border-radius: var(--radius);
+  color: #f87171;
+  font-size: 0.82rem;
+  line-height: 1.4;
+}
+.auth-error--shake { animation: shake 0.4s ease; }
+
+/* Logout popup menu */
+.auth-logout-menu {
+  background: var(--bg-surface);
+  border: 1px solid var(--glass-border);
+  border-radius: var(--radius-lg);
+  padding: 10px 0;
+  min-width: 200px;
+  box-shadow: 0 16px 48px rgba(0,0,0,0.5);
+  animation: obFadeIn 0.18s ease;
+}
+.auth-logout-info {
+  padding: 10px 16px 12px;
+  border-bottom: 1px solid var(--glass-border);
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+.auth-logout-email {
+  font-size: 0.8rem;
+  color: var(--text-secondary);
+  word-break: break-all;
+}
+.auth-logout-role {
+  font-size: 0.75rem;
+  color: #f59e0b;
+  font-weight: 600;
+}
+.auth-logout-btn {
+  width: 100%;
+  text-align: left;
+  padding: 10px 16px;
+  font-size: 0.85rem;
+  color: #f87171;
+  transition: var(--transition);
+}
+.auth-logout-btn:hover { background: rgba(239,68,68,0.08); }
+
+/* Toast notification */
+.auth-toast {
+  position: fixed;
+  bottom: 24px;
+  left: 50%;
+  transform: translateX(-50%) translateY(20px);
+  background: var(--bg-surface);
+  border: 1px solid var(--glass-border);
+  border-radius: 99px;
+  padding: 10px 22px;
+  font-size: 0.875rem;
+  font-weight: 500;
+  box-shadow: 0 8px 32px rgba(0,0,0,0.4);
+  z-index: 99999;
+  opacity: 0;
+  transition: opacity 0.3s ease, transform 0.3s ease;
+  pointer-events: none;
+  white-space: nowrap;
+}
+.auth-toast--visible {
+  opacity: 1;
+  transform: translateX(-50%) translateY(0);
+}
+.auth-toast--success { border-color: rgba(34,197,94,0.4); color: #4ade80; }
+.auth-toast--error   { border-color: rgba(239,68,68,0.4);  color: #f87171; }
+
 /* ── Locked stab tab ────────────────────────────────────────── */
 .stab--locked {
   opacity: 0.5;

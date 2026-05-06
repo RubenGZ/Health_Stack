@@ -292,6 +292,7 @@ async def validation_error_handler(request: Request, exc: ValidationError):
 
 # ── Routers ───────────────────────────────────────────────────────────────────
 from app.modules.ai_coach.router import router as ai_coach_router
+from app.modules.ai_insights.router import router as ai_insights_router
 from app.modules.chat.router import router as chat_router
 from app.modules.community.router import router as community_router
 from app.modules.geopricing.router import router as geopricing_router
@@ -353,6 +354,12 @@ app.include_router(
     ai_coach_router,
     prefix="/api/v1/ai-coach",
     tags=["AI Coach"],
+)
+
+app.include_router(
+    ai_insights_router,
+    prefix="/api/v1/ai-insights",
+    tags=["AI Insights"],
 )
 
 

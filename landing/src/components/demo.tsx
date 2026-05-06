@@ -11,6 +11,7 @@ const GOOGLE_URL = typeof window !== 'undefined'
   : '/api/v1/auth/google/redirect'
 const goToApp    = () => { window.location.href = APP_URL }
 const goToGoogle = () => { window.location.href = GOOGLE_URL }
+import { SplineScene }            from '@/components/ui/splite'
 import { Card }                   from '@/components/ui/card'
 import { Spotlight }              from '@/components/ui/spotlight'
 import { Button }                 from '@/components/ui/button'

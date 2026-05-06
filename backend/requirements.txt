@@ -36,6 +36,9 @@ httpx==0.27.0            # Cliente HTTP para tests de integración
 slowapi==0.1.9             # Wrapper de limits para FastAPI/Starlette (OWASP A07)
 limits==3.13.0             # Backend de límites (en memoria por defecto, Redis en prod)
 
+# --- Tareas programadas ---
+apscheduler==3.10.4          # Scheduler in-process (weekly AI insights jobs)
+
 # --- Observabilidad ---
 sentry-sdk[fastapi]==2.8.0
 prometheus-fastapi-instrumentator==7.0.0

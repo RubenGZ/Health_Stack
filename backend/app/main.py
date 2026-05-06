@@ -363,6 +363,18 @@ app.include_router(
 )
 
 
+# ── Scheduler lifecycle ───────────────────────────────────────────────────────
+from app.core.scheduler import start_scheduler, stop_scheduler
+
+@app.on_event("startup")
+async def startup_scheduler() -> None:
+    start_scheduler()
+
+@app.on_event("shutdown")
+async def shutdown_scheduler() -> None:
+    stop_scheduler()
+
+
 # ── Endpoints del sistema ─────────────────────────────────────────────────────
 
 @app.get(

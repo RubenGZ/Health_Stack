@@ -51,6 +51,9 @@
       mobileTitle.textContent = navItem ? navItem.textContent : sectionId;
     }
 
+    // Notify listeners (e.g. aiInsights, widgets) of section change
+    window.dispatchEvent(new CustomEvent('hs:section-changed', { detail: { section: sectionId } }));
+
     // Si es la sección de peso, re-renderizar el gráfico
     // (necesario si el canvas estaba oculto cuando se creó el chart)
     if (sectionId === 'peso' && typeof WeightTracker !== 'undefined') {

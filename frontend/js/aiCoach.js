@@ -15,7 +15,7 @@
   // ── Helpers ────────────────────────────────────────────────────────────────
 
   function getToken() {
-    return localStorage.getItem('access_token') || '';
+    return localStorage.getItem('hs_access_token') || '';
   }
 
   function createLogForm(exName, plannedReps) {

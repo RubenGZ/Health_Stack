@@ -12,7 +12,7 @@
   const CACHE_TTL = 6 * 60 * 60 * 1000; // 6 hours
 
   function getToken() {
-    return localStorage.getItem('access_token') || '';
+    return localStorage.getItem('hs_access_token') || '';
   }
 
   function isLoggedIn() {
@@ -176,7 +176,7 @@
 
   function init() {
     // Load on dashboard section activate
-    document.addEventListener('sectionChanged', e => {
+    window.addEventListener('hs:section-changed', e => {
       if (e.detail?.section === 'dashboard') loadInsights();
     });
 
@@ -195,7 +195,8 @@
     }
 
     // Re-load after login
-    document.addEventListener('userLoggedIn', () => loadInsights(true));
+    // Load when user logs in (storage event from same tab after saveAuth)
+    window.addEventListener('hs:login', () => loadInsights(true));
   }
 
   if (document.readyState === 'loading') {

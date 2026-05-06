@@ -37,6 +37,7 @@ const API = (function () {
     localStorage.setItem(TOKEN_KEY,   data.access_token);
     localStorage.setItem(REFRESH_KEY, data.refresh_token);
     localStorage.setItem(USER_KEY,    JSON.stringify(data.user));
+    window.dispatchEvent(new Event('hs:login'));
   }
 
   function clearAuth() {

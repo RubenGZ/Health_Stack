@@ -859,6 +859,7 @@ const RoutineGenerator = (function () {
     }
 
     if (typeof Gamification !== 'undefined') Gamification.addXP('routine');
+    document.dispatchEvent(new CustomEvent('routineGenerated', { detail: { routine } }));
     localStorage.setItem(LS_KEY, JSON.stringify({ routine, ts: Date.now() }));
     saveToHistory(routine);
     renderHistory();

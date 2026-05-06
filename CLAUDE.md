@@ -33,7 +33,7 @@ Cada módulo en `backend/app/modules/<nombre>/`:
 - `models.py` — tablas ORM
 - `schemas.py` — Pydantic in/out
 
-**6 módulos implementados:**
+**8 módulos implementados:**
 | Módulo        | Descripción                        | Auth          |
 |---------------|------------------------------------|---------------|
 | identity      | Registro, login, refresh, perfil   | JWT RS256     |
@@ -42,9 +42,17 @@ Cada módulo en `backend/app/modules/<nombre>/`:
 | routines      | Rutinas de ejercicio               | JWT           |
 | community     | Posts + likes                      | JWT           |
 | gamification  | XP, niveles, racha                 | JWT           |
+| ai_coach      | Coach intra-sesión (set feedback)  | JWT + Groq    |
+| ai_insights   | Narrador biomarcadores, riesgo, goals | JWT + Groq |
+| chat          | Chatbot wizard proxy Groq          | Público       |
 
 **IMPORTANTE — Nutrición usa localStorage UUID, no JWT.**
 Las recetas se identifican por `user_local_id` (query param), no por token.
+
+**IMPORTANTE — ai_coach + ai_insights usan `grok_api_key` (Groq, no xAI).**
+Key `gsk_...` en `backend/.env`. Modelo: `llama-3.3-70b-versatile`.
+Todos los endpoints tienen fallback graceful si la key no está configurada.
+`@limiter.limit()` NO se puede usar con `Depends()` en FastAPI — usar rate limit global.
 
 ---
 
@@ -60,10 +68,10 @@ Si se rota la MASTER_KEY hay que re-cifrar todos los `health_uuid_enc`. (TODO pe
 
 ## Tests — Estado actual
 
-**52/52 pasando.** Última ejecución: 2026-04-21, 35s.
+**90/90 pasando.** Última ejecución: 2026-05-06, 64s.
 
 ```
-tests/unit/                    9 tests  (JWT, hashing)
+tests/unit/                   16 tests  (JWT, hashing, scheduler)
 tests/integration/
   test_auth.py                10 tests
   test_health.py               9 tests
@@ -71,6 +79,8 @@ tests/integration/
   test_community.py            6 tests
   test_gamification.py         7 tests
   test_nutrition.py            5 tests
+  test_ai_coach.py             9 tests
+  test_ai_insights.py          9 tests
 ```
 
 **Configuración crítica en `pytest.ini`:**
@@ -170,16 +180,17 @@ Si se añaden features premium futuras, se agregan como índice 4+ en PLAN_OK.
 
 ## Pendientes prioritarios
 
-1. **GitHub Actions CI** — `.github/workflows/ci.yml` que corra los 52 tests en cada push
-2. **Prometheus** — 3 líneas en `backend/app/main.py`:
+1. **GitHub Actions CI** — `.github/workflows/ci.yml` que corra los 90 tests en cada push
+2. **Prometheus** — ya instalado, falta cablearlo en `main.py` (3 líneas):
    ```python
    from prometheus_fastapi_instrumentator import Instrumentator
    Instrumentator().instrument(app).expose(app)
    ```
-3. **ruff + mypy** — añadir a `requirements.txt`, configurar en `pyproject.toml`
+3. **ruff + mypy** — en `requirements.txt`, configurar en `pyproject.toml`
 4. **Rotación de MASTER_KEY** — documentar procedimiento y automatizarlo
 5. **TODO en `identity/router.py`** — revisar la nota de Fase 2 seguridad
 6. **AdSense IDs** — reemplazar placeholders antes de producción (ver sección Monetización)
+7. **AI Insights cache DB** — tabla `ai_insights_cache` para persistir resultados del scheduler semanal
 
 ---
 

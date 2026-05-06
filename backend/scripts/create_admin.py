@@ -52,7 +52,7 @@ async def create_or_promote_admin() -> None:
     cfg     = get_settings()
     engine  = create_async_engine(cfg.database_url, echo=False)
     Session = sessionmaker(engine, class_=AsyncSession, expire_on_commit=False)
-    crypto  = CryptoService(cfg)
+    crypto  = CryptoService()  # reads HEALTH_LINK_MASTER_KEY from env
 
     async with Session() as db:
         existing = await UserRepository.get_by_email(db, ADMIN_EMAIL)

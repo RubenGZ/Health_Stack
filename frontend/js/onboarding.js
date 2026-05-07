@@ -99,9 +99,12 @@ const Onboarding = (function () {
     `;
     document.body.appendChild(overlay);
 
-    document.getElementById('ob-skip-btn').addEventListener('click', finish);
-    document.getElementById('ob-prev-btn').addEventListener('click', prevStep);
-    document.getElementById('ob-next-btn').addEventListener('click', nextStep);
+    // Event delegation — works even after innerHTML re-renders inside the overlay
+    overlay.addEventListener('click', e => {
+      if (e.target.closest('#ob-skip-btn')) { finish(); return; }
+      if (e.target.closest('#ob-prev-btn')) { prevStep(); return; }
+      if (e.target.closest('#ob-next-btn')) { nextStep(); return; }
+    });
   }
 
   // ── Renderizar paso ───────────────────────────────────────
@@ -157,8 +160,18 @@ const Onboarding = (function () {
           const val = isNaN(btn.dataset.val) ? btn.dataset.val : parseFloat(btn.dataset.val);
           answers[step.id] = val;
           body.querySelectorAll('.ob-option').forEach(b => b.classList.toggle('selected', b.dataset.val == val));
-          // Auto-avanzar en 0.4s para opciones
-          setTimeout(nextStep, 400);
+          // En el último paso NO auto-avanzar — el usuario usa "¡Empezar!"
+          // En pasos intermedios sí auto-avanzar para fluidez
+          if (currentStep < STEPS.length - 1) {
+            setTimeout(nextStep, 340);
+          } else {
+            // Activar el botón para que el usuario sepa que puede continuar
+            const nextBtn = document.getElementById('ob-next-btn');
+            if (nextBtn) {
+              nextBtn.classList.add('ob-next--ready');
+              nextBtn.textContent = '¡Empezar! 🚀';
+            }
+          }
         });
       });
     }
@@ -186,11 +199,20 @@ const Onboarding = (function () {
 
     if (step.type === 'options') {
       if (answers[step.id] === undefined) {
-        // Shake visual
-        const body = document.getElementById('ob-body');
-        body?.classList.add('ob-shake');
-        setTimeout(() => body?.classList.remove('ob-shake'), 500);
-        return false;
+        // En el último paso: usar valor por defecto en lugar de bloquear
+        if (currentStep === STEPS.length - 1) {
+          answers[step.id] = step.options[1].value; // default: 3 días
+          const body = document.getElementById('ob-body');
+          body?.querySelectorAll('.ob-option').forEach(b =>
+            b.classList.toggle('selected', b.dataset.val == answers[step.id])
+          );
+        } else {
+          // Shake visual en pasos intermedios
+          const body = document.getElementById('ob-body');
+          body?.classList.add('ob-shake');
+          setTimeout(() => body?.classList.remove('ob-shake'), 500);
+          return false;
+        }
       }
     }
 

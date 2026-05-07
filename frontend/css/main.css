@@ -2152,6 +2152,17 @@ select.form-input option { background: var(--bg-surface); color: var(--text-prim
   background: var(--glass-bg);
 }
 
+/* ── Empezar button ready state ── */
+.ob-next--ready {
+  animation: ob-pulse 1.2s ease-in-out infinite;
+  box-shadow: 0 0 0 0 rgba(108, 99, 255, 0.6);
+}
+@keyframes ob-pulse {
+  0%   { box-shadow: 0 0 0 0 rgba(108, 99, 255, 0.6); }
+  70%  { box-shadow: 0 0 0 10px rgba(108, 99, 255, 0); }
+  100% { box-shadow: 0 0 0 0 rgba(108, 99, 255, 0); }
+}
+
 /* ── Responsive onboarding ── */
 @media (max-width: 480px) {
   .ob-options { grid-template-columns: 1fr; }

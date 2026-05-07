@@ -5,7 +5,10 @@
 const Chatbot = (function () {
   'use strict';
 
-  const API_URL = '/api/v1/chat/message';
+  const _IS_PROD = location.hostname !== 'localhost' && location.hostname !== '127.0.0.1';
+  const API_URL  = _IS_PROD
+    ? `https://${location.hostname}/api/v1/chat/message`
+    : 'http://localhost:8000/api/v1/chat/message';
 
   // Conversation history sent to backend for context
   let history = [];

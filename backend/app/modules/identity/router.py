@@ -34,7 +34,6 @@ from pydantic import BaseModel
 
 from app.core.security.cryptoservice import CryptoService, get_crypto_service
 from app.core.security.dependencies import CurrentUser, require_role
-from app.core.security.google_oauth import build_auth_url, get_user_from_google_code
 from app.core.security.hashing import hash_password
 from app.core.security.jwt_handler import (
     create_access_token,
@@ -283,6 +282,7 @@ async def google_redirect(request: Request) -> RedirectResponse:
     se debería almacenar en la cookie de sesión para verificarlo en el callback.
     """
     try:
+        from app.core.security.google_oauth import build_auth_url
         url, state = build_auth_url()
     except ValueError as exc:
         raise HTTPException(
@@ -331,6 +331,7 @@ async def google_callback(
 
     # 2. Obtener perfil de Google
     try:
+        from app.core.security.google_oauth import get_user_from_google_code
         google_user = await get_user_from_google_code(code)
     except Exception as exc:
         logger.error(f"Error obteniendo perfil de Google: {exc}")

@@ -134,15 +134,18 @@ class IdentityService:
         refresh_token = create_refresh_token(user_id=str(user.id))
 
         # 5b. Persistir JTI del refresh token en BD (ADR-001-B)
-        #     Permite logout global y rotación sin Redis.
-        _rt_payload = decode_token(refresh_token)
-        from datetime import datetime
-        await RefreshTokenRepository.create(
-            db=db,
-            jti=_rt_payload["jti"],
-            user_id=str(user.id),
-            expires_at=datetime.fromtimestamp(_rt_payload["exp"], tz=UTC),
-        )
+        try:
+            _rt_payload = decode_token(refresh_token)
+            from datetime import datetime
+            await RefreshTokenRepository.create(
+                db=db,
+                jti=_rt_payload["jti"],
+                user_id=str(user.id),
+                expires_at=datetime.fromtimestamp(_rt_payload["exp"], tz=UTC),
+            )
+        except Exception as _exc:
+            logger.warning(f"No se pudo persistir refresh token JTI en registro: {_exc}")
+            await db.rollback()
 
         # 6. Construir respuesta
         return RegisterResponse(
@@ -222,14 +225,21 @@ class IdentityService:
         refresh_token = create_refresh_token(user_id=str(user.id))
 
         # 6b. Persistir JTI del refresh token en BD (ADR-001-B)
-        _rt_payload = decode_token(refresh_token)
-        from datetime import datetime
-        await RefreshTokenRepository.create(
-            db=db,
-            jti=_rt_payload["jti"],
-            user_id=str(user.id),
-            expires_at=datetime.fromtimestamp(_rt_payload["exp"], tz=UTC),
-        )
+        try:
+            _rt_payload = decode_token(refresh_token)
+            from datetime import datetime
+            await RefreshTokenRepository.create(
+                db=db,
+                jti=_rt_payload["jti"],
+                user_id=str(user.id),
+                expires_at=datetime.fromtimestamp(_rt_payload["exp"], tz=UTC),
+            )
+        except Exception as _exc:
+            # La tabla refresh_tokens puede no existir si las migraciones no se han ejecutado.
+            # El login sigue siendo válido; el refresh token no podrá renovarse hasta que
+            # se ejecute `alembic upgrade head` en el servidor.
+            logger.warning(f"No se pudo persistir refresh token JTI: {_exc}")
+            await db.rollback()
 
         logger.info(f"Login exitoso: user={str(user.id)[:8]}...")
 

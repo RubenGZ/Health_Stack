@@ -37,7 +37,26 @@ const API = (function () {
     localStorage.setItem(TOKEN_KEY,   data.access_token);
     localStorage.setItem(REFRESH_KEY, data.refresh_token);
     localStorage.setItem(USER_KEY,    JSON.stringify(data.user));
+    // Admin y roles premium desbloquean el plan Elite automáticamente
+    _applyPlanFromRole(data.user);
     window.dispatchEvent(new Event('hs:login'));
+  }
+
+  function _applyPlanFromRole(user) {
+    if (!user) return;
+    if (typeof Plan === 'undefined') return;
+    var role = user.role || 'user';
+    var targetPlan = 'free';
+    if (role === 'admin' || role === 'elite') targetPlan = 'elite';
+    else if (role === 'pro') targetPlan = 'pro';
+
+    if (targetPlan !== 'free') {
+      Plan.set(targetPlan);
+      // Re-render locks and badge after plan change
+      Plan.updateBadge();
+      Plan.applyNavLocks();
+      Plan.applyFeatureLocks();
+    }
   }
 
   function clearAuth() {
@@ -344,12 +363,26 @@ const API = (function () {
   async function init() {
     await startOnlineMonitor();
 
+    // Si el usuario ya está logueado al cargar (token en localStorage),
+    // aplicar el plan correcto según su rol antes de que la UI termine de pintar.
+    if (isLoggedIn()) {
+      _applyPlanFromRole(getUser());
+    }
+
+    // Resetear plan a 'free' al cerrar sesión
+    window.addEventListener('hs:logout', () => {
+      if (typeof Plan !== 'undefined') {
+        Plan.set('free');
+        Plan.updateBadge();
+        Plan.applyNavLocks();
+        Plan.applyFeatureLocks();
+      }
+    });
+
     if (_backendOnline) {
       console.log('[API] Backend disponible en', BASE_URL);
 
-      // Si el usuario está logueado, sincronizar datos localStorage → backend
       if (isLoggedIn()) {
-        // Sync en segundo plano — no bloquear la UI
         setTimeout(async () => {
           await health.syncToBackend();
           await gamification.syncToBackend();
@@ -359,8 +392,9 @@ const API = (function () {
       console.log('[API] Backend no disponible — modo offline (localStorage).');
     }
 
-    // Escuchar login para sincronizar inmediatamente
     window.addEventListener('hs:login', () => {
+      // Re-aplicar plan por si el evento llega antes de que Plan esté listo
+      setTimeout(() => _applyPlanFromRole(getUser()), 100);
       setTimeout(async () => {
         if (await checkBackend()) {
           await health.syncToBackend();

@@ -130,24 +130,29 @@ app = FastAPI(
 _PROD_ORIGINS_RAW = getattr(settings, "allowed_origins", "") or ""
 _PROD_ORIGINS = [o.strip() for o in _PROD_ORIGINS_RAW.split(",") if o.strip()]
 
-if settings.app_env != "production":
-    # allow_origin_regex=".*" acepta cualquier origen manteniendo allow_credentials=True
+# Usamos allow_origin_regex cuando no hay lista explícita de orígenes.
+# Esto cubre: desarrollo local, Cloudflare Quick Tunnel (URL cambia en cada restart),
+# y cualquier staging sin dominio fijo.
+# La seguridad real viene de JWT en cada endpoint, no de CORS.
+# Cuando ALLOWED_ORIGINS esté configurado en producción (dominio propio),
+# se restringe a esos orígenes.
+if _PROD_ORIGINS:
     app.add_middleware(
         CORSMiddleware,
-        allow_origin_regex=r".*",
+        allow_origins=_PROD_ORIGINS,
         allow_credentials=True,
         allow_methods=["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
         allow_headers=["Authorization", "Content-Type", "Accept"],
     )
 else:
-    if not _PROD_ORIGINS:
-        logger.warning(
-            "CORS: ALLOWED_ORIGINS no configurado en producción. "
-            "Todas las peticiones cross-origin serán bloqueadas."
+    if settings.app_env == "production":
+        logger.info(
+            "CORS: ALLOWED_ORIGINS no configurado — permitiendo cualquier origen. "
+            "Configura ALLOWED_ORIGINS en .env para restringir en producción."
         )
     app.add_middleware(
         CORSMiddleware,
-        allow_origins=_PROD_ORIGINS,
+        allow_origin_regex=r".*",
         allow_credentials=True,
         allow_methods=["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
         allow_headers=["Authorization", "Content-Type", "Accept"],

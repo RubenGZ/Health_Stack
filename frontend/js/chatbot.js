@@ -1,17 +1,18 @@
 /* ============================================================
-   chatbot.js — Wizard AI powered by Grok via backend proxy
+   chatbot.js — Wizard AI powered by Groq via backend proxy
    ============================================================ */
 
 const Chatbot = (function () {
   'use strict';
 
   const _IS_PROD = location.hostname !== 'localhost' && location.hostname !== '127.0.0.1';
-  const API_URL  = _IS_PROD
-    ? `https://${location.hostname}/api/v1/chat/message`
-    : 'http://localhost:8000/api/v1/chat/message';
+  const _BASE    = _IS_PROD ? `https://${location.hostname}` : 'http://localhost:8000';
+  const API_URL  = `${_BASE}/api/v1/chat/message`;
+  const HEALTH_URL = `${_BASE}/health`;
 
   // Conversation history sent to backend for context
   let history = [];
+  let _online  = false;
 
   const SUGGESTIONS = [
     '¿Cuánta proteína necesito?',
@@ -25,6 +26,36 @@ const Chatbot = (function () {
     '¿Qué suplementos vale la pena tomar?',
     'Explícame la técnica de la sentadilla',
   ];
+
+  // ── Connection status ─────────────────────────────────────
+
+  function setDotStatus(online) {
+    _online = online;
+    const dot = document.querySelector('.wizard-online-dot');
+    if (!dot) return;
+    if (online) {
+      dot.style.background = '#22c55e';
+      dot.style.boxShadow  = '0 0 6px #22c55e';
+      dot.title = 'Conectado al servidor';
+    } else {
+      dot.style.background = '#ef4444';
+      dot.style.boxShadow  = '0 0 6px #ef4444';
+      dot.title = 'Sin conexión con el servidor';
+    }
+  }
+
+  async function checkConnection() {
+    try {
+      const res = await fetch(HEALTH_URL, {
+        signal: AbortSignal.timeout(4000),
+      });
+      setDotStatus(res.ok);
+      return res.ok;
+    } catch {
+      setDotStatus(false);
+      return false;
+    }
+  }
 
   // ── DOM helpers ───────────────────────────────────────────
 
@@ -83,13 +114,12 @@ const Chatbot = (function () {
     const trimmed = text.trim();
     if (!trimmed) return;
 
-    const input = document.getElementById('chatbot-input');
+    const input   = document.getElementById('chatbot-input');
     const sendBtn = document.getElementById('chatbot-send');
-    if (input) input.value = '';
+    if (input)   input.value = '';
     if (sendBtn) sendBtn.disabled = true;
 
     addMessage(trimmed, false);
-
     const typing = addTypingIndicator();
 
     try {
@@ -97,25 +127,38 @@ const Chatbot = (function () {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ message: trimmed, history }),
+        signal: AbortSignal.timeout(30000),
       });
 
-      const data = await res.json();
-      const reply = res.ok ? data.reply : (data.detail || 'Error al conectar con el asistente.');
-
       if (typing) typing.remove();
+
+      const data  = await res.json();
+      const reply = res.ok
+        ? data.reply
+        : (data.detail || 'Error al procesar tu mensaje. Inténtalo de nuevo.');
+
       addMessage(reply, true);
+      setDotStatus(true);
 
-      // Update history (keep last 10 turns)
-      history.push({ role: 'user', content: trimmed });
-      history.push({ role: 'assistant', content: reply });
-      if (history.length > 20) history = history.slice(-20);
+      if (res.ok) {
+        history.push({ role: 'user',      content: trimmed });
+        history.push({ role: 'assistant', content: reply });
+        if (history.length > 20) history = history.slice(-20);
+      }
 
-    } catch (_) {
+    } catch (err) {
       if (typing) typing.remove();
-      addMessage('No pude conectar con el asistente. Verifica tu conexión e inténtalo de nuevo.', true);
+      setDotStatus(false);
+
+      const isTimeout = err?.name === 'TimeoutError' || err?.name === 'AbortError';
+      const msg = isTimeout
+        ? 'El servidor tardó demasiado. Inténtalo de nuevo.'
+        : 'No se pudo conectar con el servidor. Verifica que el backend está activo en el puerto 8000.';
+      addMessage(msg, true);
+
     } finally {
       if (sendBtn) sendBtn.disabled = false;
-      if (input) input.focus();
+      if (input)   input.focus();
       renderSuggestions();
     }
   }
@@ -145,6 +188,8 @@ const Chatbot = (function () {
     if (opening) {
       if (badge) badge.style.display = 'none';
       document.getElementById('chatbot-input')?.focus();
+      // Recheck connection every time the panel opens
+      checkConnection();
     }
   }
 
@@ -166,6 +211,11 @@ const Chatbot = (function () {
     });
 
     renderSuggestions();
+
+    // Initial connection check — dot shows green/red immediately
+    checkConnection();
+    // Re-check every 30s to stay accurate
+    setInterval(checkConnection, 30_000);
 
     setTimeout(() => {
       const badge = document.getElementById('chatbot-badge');

@@ -17,6 +17,7 @@ NOTA: Los routers de módulos se añadirán conforme se implementen
 from __future__ import annotations
 
 import logging
+import os
 
 from fastapi import FastAPI, Request, Response, status
 from fastapi.middleware.cors import CORSMiddleware
@@ -392,32 +393,17 @@ async def health_check():
     }
 
 
-@app.get(
-    "/",
-    tags=["System"],
-    summary="Bienvenida",
-    description="Punto de entrada de la API. Devuelve información básica del servicio.",
+# ── Frontend SPA (StaticFiles) ────────────────────────────────────────────────
+# Montado DESPUÉS de todos los routers: FastAPI evalúa las rutas del router
+# primero, por lo que /api/v1/*, /health, /docs, etc. se resuelven antes
+# de que StaticFiles entre en juego.  html=True activa el fallback SPA:
+# cualquier path desconocido devuelve index.html (necesario para client-side routing).
+_FRONTEND_DIR = os.path.normpath(
+    os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "..", "frontend")
 )
-async def root():
-    return {
-        "welcome": "Bienvenido a HealthStack Pro API",
-        "version": "2.0.0",
-        "description": (
-            "Plataforma de salud personal con seguimiento biométrico, "
-            "nutrición, rutinas de ejercicio y comunidad."
-        ),
-        "endpoints": {
-            "health_check": "/health",
-            "docs": "/docs" if settings.debug else "No disponible en producción",
-            "redoc": "/redoc" if settings.debug else "No disponible en producción",
-        },
-        "modules": [
-            "auth",
-            "health",
-            "nutrition",
-            "routines",
-            "community",
-            "gamification",
-        ],
-        "environment": settings.app_env,
-    }
+if os.path.isdir(_FRONTEND_DIR):
+    from fastapi.staticfiles import StaticFiles
+    app.mount("/", StaticFiles(directory=_FRONTEND_DIR, html=True), name="frontend")
+    logger.info("Frontend SPA montado desde %s", _FRONTEND_DIR)
+else:
+    logger.warning("Directorio frontend no encontrado en %s — solo API activa.", _FRONTEND_DIR)

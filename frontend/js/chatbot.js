@@ -150,10 +150,7 @@ const Chatbot = (function () {
       if (typing) typing.remove();
       setDotStatus(false);
 
-      const isTimeout = err?.name === 'TimeoutError' || err?.name === 'AbortError';
-      const msg = isTimeout
-        ? 'El servidor tardó demasiado. Inténtalo de nuevo.'
-        : 'No se pudo conectar con el servidor. Verifica que el backend está activo en el puerto 8000.';
+      const msg = 'El asistente no está disponible en este momento. Inténtalo de nuevo más tarde.';
       addMessage(msg, true);
 
     } finally {

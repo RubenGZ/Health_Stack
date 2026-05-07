@@ -77,6 +77,11 @@ class Settings(BaseSettings):
 
     # ── VALIDADORES ───────────────────────────────────────────
 
+    @field_validator("jwt_private_key_pem", "jwt_public_key_pem")
+    @classmethod
+    def decode_pem_newlines(cls, v: str) -> str:
+        return v.replace('\\n', '\n')
+
     @field_validator("health_link_master_key")
     @classmethod
     def validate_master_key(cls, v: str) -> str:

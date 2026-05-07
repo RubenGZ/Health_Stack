@@ -124,36 +124,33 @@ app = FastAPI(
 )
 
 # ── CORS ──────────────────────────────────────────────────────────────────────
-_DEV_ORIGINS = [
-    "http://localhost:5173",   # Vite (puerto por defecto)
-    "http://localhost:5174",   # Vite (puerto configurado en este proyecto)
-    "http://localhost:3000",   # Frontend SPA
-    "http://127.0.0.1:5173",
-    "http://127.0.0.1:5174",
-    "http://127.0.0.1:3000",
-]
-
-# En producción, ALLOWED_ORIGINS se lee del entorno para no hardcodear dominios en código.
-# Formato: "https://healthstack.app,https://www.healthstack.app"
+# En desarrollo/staging permitimos cualquier origen (incluye Cloudflare tunnels,
+# IPs de LAN, etc.).  En producción solo los dominios explícitos en ALLOWED_ORIGINS.
 _PROD_ORIGINS_RAW = getattr(settings, "allowed_origins", "") or ""
 _PROD_ORIGINS = [o.strip() for o in _PROD_ORIGINS_RAW.split(",") if o.strip()]
 
-_ALLOWED_ORIGINS = _DEV_ORIGINS if settings.app_env == "development" else _PROD_ORIGINS
-
-if settings.app_env != "development" and not _ALLOWED_ORIGINS:
-    logger.warning(
-        "CORS: ALLOWED_ORIGINS no configurado en producción. "
-        "Todas las peticiones cross-origin serán bloqueadas. "
-        "Configura la variable de entorno ALLOWED_ORIGINS."
+if settings.app_env != "production":
+    # allow_origin_regex=".*" acepta cualquier origen manteniendo allow_credentials=True
+    app.add_middleware(
+        CORSMiddleware,
+        allow_origin_regex=r".*",
+        allow_credentials=True,
+        allow_methods=["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
+        allow_headers=["Authorization", "Content-Type", "Accept"],
     )
-
-app.add_middleware(
-    CORSMiddleware,
-    allow_origins=_ALLOWED_ORIGINS,
-    allow_credentials=True,
-    allow_methods=["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
-    allow_headers=["Authorization", "Content-Type", "Accept"],
-)
+else:
+    if not _PROD_ORIGINS:
+        logger.warning(
+            "CORS: ALLOWED_ORIGINS no configurado en producción. "
+            "Todas las peticiones cross-origin serán bloqueadas."
+        )
+    app.add_middleware(
+        CORSMiddleware,
+        allow_origins=_PROD_ORIGINS,
+        allow_credentials=True,
+        allow_methods=["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
+        allow_headers=["Authorization", "Content-Type", "Accept"],
+    )
 
 # ── Security Headers Middleware ───────────────────────────────────────────────
 # OWASP A05: Security Misconfiguration — headers defensivos en toda respuesta

@@ -17,7 +17,6 @@ from fastapi.responses import JSONResponse
 from pydantic import BaseModel, Field
 
 from app.core.config import get_settings
-from app.main import limiter
 
 logger = logging.getLogger(__name__)
 router = APIRouter()
@@ -50,7 +49,6 @@ class ChatRequest(BaseModel):
 
 
 @router.post("/message")
-@limiter.limit("10/minute")
 async def chat_message(request: Request, body: ChatRequest) -> JSONResponse:
     """
     Envía un mensaje al asistente IA (Grok) y devuelve la respuesta.

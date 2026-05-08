@@ -3665,6 +3665,31 @@ select.form-input option { background: var(--bg-surface); color: var(--text-prim
 }
 .nav-item--locked .nav-icon { filter: grayscale(1); }
 
+/* ── Admin nav separator + link ─────────────────────────────── */
+.nav-admin-separator {
+  height: 1px;
+  background: rgba(245, 158, 11, 0.2);
+  margin: 10px 4px;
+}
+
+.nav-item--admin {
+  color: #f59e0b;
+  margin-top: 2px;
+}
+
+.nav-item--admin .nav-icon svg {
+  stroke: #f59e0b;
+}
+
+.nav-item--admin:hover {
+  background: rgba(245, 158, 11, 0.1);
+  color: #fbbf24;
+}
+
+.nav-item--admin:hover .nav-icon svg {
+  stroke: #fbbf24;
+}
+
 .nav-lock-icon {
   font-size: 10px;
   margin-left: auto;

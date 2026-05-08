@@ -107,8 +107,9 @@
       }, true); // capture phase so it fires before the tab switcher
     }
 
-    // Leer hash inicial
+    // Leer hash inicial — si es 'admin' redirige a la SPA de admin
     const hash = window.location.hash.replace('#', '');
+    if (hash === 'admin') { location.href = '/admin'; return; }
     const initial = SECTIONS.includes(hash) ? hash : 'dashboard';
     navigateTo(initial);
   }
@@ -709,4 +710,29 @@
 
   // Re-render greeting when language changes
   document.addEventListener('languagechange', () => initDashboard());
+
+  // ── Admin nav visibility ──────────────────────────────────
+  // Muestra el link "Admin Panel" en el sidebar solo si el JWT
+  // contiene role === 'admin'. Se recalcula en login/logout.
+  function syncAdminNav() {
+    const link = document.getElementById('nav-admin-link');
+    const sep  = document.getElementById('nav-admin-separator');
+    if (!link || !sep) return;
+    let isAdmin = false;
+    try {
+      const raw = localStorage.getItem('hs_access_token');
+      if (raw) {
+        const payload = JSON.parse(atob(raw.split('.')[1].replace(/-/g, '+').replace(/_/g, '/')));
+        isAdmin = payload.role === 'admin';
+      }
+    } catch (e) { /* token malformado o ausente */ }
+    const display = isAdmin ? '' : 'none';
+    link.style.display = display;
+    sep.style.display  = display;
+  }
+
+  // Ejecutar en carga inicial y en cada cambio de sesión
+  syncAdminNav();
+  window.addEventListener('hs:login',  syncAdminNav);
+  window.addEventListener('hs:logout', syncAdminNav);
 })();

@@ -283,17 +283,11 @@
         }
       }
 
-      // Mostrar/ocultar enlace Admin Panel según role
-      const adminLink = document.getElementById('nav-admin-link');
-      if (adminLink) adminLink.style.display = user.role === 'admin' ? 'flex' : 'none';
-
     } else {
       if (nameEl)   nameEl.textContent   = 'Atleta';
       if (avatarEl) avatarEl.textContent = 'A';
       if (chip) chip.setAttribute('title', 'Iniciar sesión');
       if (levelEl) levelEl.style.color = '';
-      const adminLink = document.getElementById('nav-admin-link');
-      if (adminLink) adminLink.style.display = 'none';
     }
   }
 

@@ -185,6 +185,15 @@ canvas { display: block; }
 .nav-icon { width: 20px; flex-shrink: 0; opacity: 0.85; }
 .nav-label { font-size: 0.875rem; font-weight: 500; }
 .nav-item--soon { opacity: 0.45; cursor: default; }
+/* Admin Panel link — separador visual + color ámbar */
+.nav-item--admin {
+  margin-top: 8px;
+  border-top: 1px solid rgba(245,158,11,0.2);
+  padding-top: 10px;
+  color: #f59e0b !important;
+}
+.nav-item--admin .nav-icon svg { stroke: #f59e0b; }
+.nav-item--admin:hover { background: rgba(245,158,11,0.1); }
 /* Sub-ítem (Peso bajo Nutrición) */
 .nav-item--sub {
   padding-left: 40px;

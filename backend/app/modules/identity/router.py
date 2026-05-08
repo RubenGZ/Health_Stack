@@ -208,6 +208,7 @@ async def refresh_token(
         user_id=str(user.id),
         email=user.email,
         role=user.role,
+        plan=getattr(user, "plan", "free"),
     )
     new_refresh_token = create_refresh_token(user_id=str(user.id))
 
@@ -368,6 +369,7 @@ async def google_callback(
         user_id=str(user.id),
         email=user.email,
         role=user.role,
+        plan=getattr(user, "plan", "free"),
     )
     refresh_token = create_refresh_token(user_id=str(user.id))
 

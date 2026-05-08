@@ -37,22 +37,22 @@ const API = (function () {
     localStorage.setItem(TOKEN_KEY,   data.access_token);
     localStorage.setItem(REFRESH_KEY, data.refresh_token);
     localStorage.setItem(USER_KEY,    JSON.stringify(data.user));
-    // Admin y roles premium desbloquean el plan Elite automáticamente
-    _applyPlanFromRole(data.user);
+    _applyPlanFromUser(data.user);
     window.dispatchEvent(new Event('hs:login'));
   }
 
-  function _applyPlanFromRole(user) {
+  function _applyPlanFromUser(user) {
     if (!user) return;
     if (typeof Plan === 'undefined') return;
-    var role = user.role || 'user';
-    var targetPlan = 'free';
-    if (role === 'admin' || role === 'elite') targetPlan = 'elite';
-    else if (role === 'pro') targetPlan = 'pro';
-
+    // Plan from DB (via JWT) takes precedence; fallback to role-based derivation
+    var targetPlan = user.plan || 'free';
+    if (!targetPlan || targetPlan === 'free') {
+      var role = user.role || 'user';
+      if (role === 'admin') targetPlan = 'elite';
+    }
+    localStorage.setItem('hs_plan', targetPlan);
     if (targetPlan !== 'free') {
       Plan.set(targetPlan);
-      // Re-render locks and badge after plan change
       Plan.updateBadge();
       Plan.applyNavLocks();
       Plan.applyFeatureLocks();

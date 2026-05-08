@@ -130,6 +130,7 @@ class IdentityService:
             user_id=str(user.id),
             email=user.email,
             role=user.role,
+            plan=getattr(user, "plan", "free"),
         )
         refresh_token = create_refresh_token(user_id=str(user.id))
 
@@ -221,6 +222,7 @@ class IdentityService:
             user_id=str(user.id),
             email=user.email,
             role=user.role,
+            plan=getattr(user, "plan", "free"),
         )
         refresh_token = create_refresh_token(user_id=str(user.id))
 

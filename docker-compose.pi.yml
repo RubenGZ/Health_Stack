@@ -1,0 +1,99 @@
+# =============================================================================
+# HealthStack Pro — Raspberry Pi
+# Build local (no GHCR). TLS gestionado por Cloudflare Tunnel.
+# Uso: docker compose -f docker-compose.pi.yml up -d --build
+# =============================================================================
+
+services:
+
+  # ---------------------------------------------------------------------------
+  # PostgreSQL 16
+  # ---------------------------------------------------------------------------
+  postgres:
+    image: postgres:16-alpine
+    container_name: healthstack_postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: healthstack
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d healthstack"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 20s
+    networks:
+      - internal
+
+  # ---------------------------------------------------------------------------
+  # FastAPI Backend — compilado localmente en la Pi
+  # ---------------------------------------------------------------------------
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: healthstack_backend
+    restart: unless-stopped
+    env_file:
+      - ./backend/.env
+    environment:
+      APP_ENV: production
+      DEBUG: "false"
+      DATABASE_URL: postgresql+asyncpg://postgres:${POSTGRES_PASSWORD}@postgres:5432/healthstack
+      DATABASE_SYNC_URL: postgresql://postgres:${POSTGRES_PASSWORD}@postgres:5432/healthstack
+    depends_on:
+      postgres:
+        condition: service_healthy
+    command: >
+      sh -c "
+        alembic upgrade head &&
+        uvicorn app.main:app --host 0.0.0.0 --port 8000 --workers 2
+      "
+    networks:
+      - internal
+
+  # ---------------------------------------------------------------------------
+  # Nginx — HTTP only (Cloudflare Tunnel gestiona TLS externamente)
+  # ---------------------------------------------------------------------------
+  nginx:
+    image: nginx:1.25-alpine
+    container_name: healthstack_nginx
+    restart: unless-stopped
+    depends_on:
+      - backend
+    ports:
+      - "80:80"
+    volumes:
+      - ./nginx/nginx.pi.conf:/etc/nginx/nginx.conf:ro
+      - ./frontend:/usr/share/nginx/html/app:ro
+      - ./landing/dist:/usr/share/nginx/html/landing:ro
+    networks:
+      - internal
+      - external
+
+  # ---------------------------------------------------------------------------
+  # Cloudflare Tunnel — expone la Pi a internet sin abrir puertos en el router
+  # ---------------------------------------------------------------------------
+  cloudflared:
+    image: cloudflare/cloudflared:latest
+    container_name: healthstack_tunnel
+    restart: unless-stopped
+    command: tunnel --no-autoupdate run --token ${CLOUDFLARE_TUNNEL_TOKEN}
+    depends_on:
+      - nginx
+    networks:
+      - external
+
+networks:
+  internal:
+    driver: bridge
+    internal: true
+  external:
+    driver: bridge
+
+volumes:
+  postgres_data:
+    name: healthstack_pi_postgres

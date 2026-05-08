@@ -26,6 +26,8 @@ ENV/
 .env
 .env.*
 !.env.example
+!.env.pi.example
+!backend/.env.example
 !backend/env.example
 
 # ── Node / Frontend ───────────────────────────────────────────────────────────

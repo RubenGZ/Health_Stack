@@ -3,7 +3,16 @@ from datetime import UTC, datetime, timedelta
 from sqlalchemy import text
 from sqlalchemy.ext.asyncio import AsyncSession
 
-ALLOWED_TABLES = {"users", "health_records", "routines", "community_posts", "gamification_profiles", "page_views"}
+# Tablas accesibles desde el explorador de BD del admin.
+# Mapa tabla → schema PostgreSQL.
+# health_records excluido: datos de salud bajo RGPD Art. 9 — no se visualizan en admin.
+ALLOWED_TABLES: dict[str, str] = {
+    "users":               "public",
+    "saved_routines":      "public",
+    "community_posts":     "public",
+    "gamification_states": "public",
+    "page_views":          "public",
+}
 MASKED_COLUMNS = {"password_hash", "health_uuid_enc"}
 
 class AdminRepository:
@@ -39,10 +48,10 @@ class AdminRepository:
     async def get_module_activity(db: AsyncSession) -> list[dict]:
         results = []
         queries = {
-            "health":        "SELECT COUNT(*)::int FROM public.health_records",
-            "routines":      "SELECT COUNT(*)::int FROM public.routines",
+            "health":        "SELECT COUNT(*)::int FROM health.health_records",
+            "routines":      "SELECT COUNT(*)::int FROM public.saved_routines",
             "community":     "SELECT COUNT(*)::int FROM public.community_posts",
-            "gamification":  "SELECT COUNT(*)::int FROM public.gamification_profiles",
+            "gamification":  "SELECT COUNT(*)::int FROM public.gamification_states",
             "page_views":    "SELECT COUNT(*)::int FROM public.page_views WHERE is_admin = false",
         }
         for module, q in queries.items():
@@ -59,20 +68,20 @@ class AdminRepository:
         r = await db.execute(text("""
             SELECT relname AS table_name, n_live_tup::int AS approx_count
             FROM pg_stat_user_tables
-            WHERE schemaname = 'public'
-              AND relname = ANY(:tables)
+            WHERE relname = ANY(:tables)
             ORDER BY relname
-        """), {"tables": list(ALLOWED_TABLES)})
+        """), {"tables": list(ALLOWED_TABLES.keys())})
         return [{"table_name": row.table_name, "approx_count": row.approx_count} for row in r]
 
     @staticmethod
     async def get_table_data(db: AsyncSession, table_name: str, page: int, limit: int) -> list[dict]:
         if table_name not in ALLOWED_TABLES:
             return []
+        schema = ALLOWED_TABLES[table_name]   # schema correcto según la tabla
         safe_limit = min(limit, 100)
         offset = (page - 1) * safe_limit
         r = await db.execute(
-            text(f"SELECT * FROM public.{table_name} ORDER BY created_at DESC LIMIT :limit OFFSET :offset"),
+            text(f"SELECT * FROM {schema}.{table_name} ORDER BY created_at DESC LIMIT :limit OFFSET :offset"),
             {"limit": safe_limit, "offset": offset}
         )
         rows = []

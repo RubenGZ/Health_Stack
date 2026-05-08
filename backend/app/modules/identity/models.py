@@ -151,6 +151,16 @@ class User(UUIDPrimaryKeyMixin, TimestampMixin, Base):
         comment="Rol para RBAC: 'user' | 'admin'.",
     )
 
+    # ── Plan de monetización ──────────────────────────────────────────────────
+
+    plan: Mapped[str] = mapped_column(
+        String(10),
+        nullable=False,
+        default="free",
+        server_default="free",
+        comment="Plan activo: 'free' | 'pro' | 'elite'. Refleja la columna añadida en migración 0005.",
+    )
+
     is_active: Mapped[bool] = mapped_column(
         Boolean,
         nullable=False,

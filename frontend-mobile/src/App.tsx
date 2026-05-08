@@ -36,7 +36,7 @@ export default function App() {
   }, [setUser, clearUser, setLoading])
 
   return (
-    <BrowserRouter>
+    <BrowserRouter basename={import.meta.env.BASE_URL}>
       <Routes>
         {/* Auth — public */}
         <Route path="/auth/login"      element={<LoginScreen />} />

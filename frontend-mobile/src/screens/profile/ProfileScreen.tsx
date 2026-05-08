@@ -1,5 +1,5 @@
 import { useNavigate } from 'react-router-dom'
-import { LogOut, Settings, ChevronRight } from 'lucide-react'
+import { LogOut, Settings, ChevronRight, Monitor } from 'lucide-react'
 import { TopBar } from '@/components/layout/TopBar'
 import { PageContainer, ScrollArea } from '@/components/layout/PageContainer'
 import { useAuthStore } from '@/store/authStore'
@@ -90,6 +90,18 @@ export function ProfileScreen() {
         <MenuRow label="AI Coach" sub="Chat con tu entrenador IA" />
         <MenuRow label="AI Insights" sub="Análisis de tus biomarcadores" />
         <MenuRow label="Ajustes" sub="Cuenta, notificaciones, privacidad" />
+
+        {/* Versión escritorio */}
+        <button
+          onClick={() => {
+            localStorage.setItem('hs_prefer_desktop', 'true')
+            window.location.href = '/'
+          }}
+          className="w-full flex items-center justify-center gap-2 py-4 rounded-2xl border border-zinc-700 text-zinc-400 hover:bg-zinc-800 transition-colors min-h-[52px] text-sm font-medium"
+        >
+          <Monitor className="w-4 h-4" />
+          Ver versión escritorio
+        </button>
 
         {/* Logout */}
         <button

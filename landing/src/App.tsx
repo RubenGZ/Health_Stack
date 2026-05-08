@@ -7,7 +7,8 @@ function isMobile() {
 }
 
 export default function App() {
-  const mobile = typeof window !== 'undefined' && isMobile()
+  const prefersDesktop = typeof window !== 'undefined' && localStorage.getItem('hs_prefer_desktop') === 'true'
+  const mobile = typeof window !== 'undefined' && !prefersDesktop && isMobile()
 
   useEffect(() => {
     if (mobile) window.location.replace('/mobile/')

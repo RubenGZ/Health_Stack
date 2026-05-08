@@ -29,10 +29,12 @@ export function TrainScreen() {
 
       {/* Chips */}
       <div className="px-4 py-3 border-b border-zinc-800">
-        <div className="chips-scroll">
+        <div className="chips-scroll" role="tablist" aria-label="Secciones de entrenamiento">
           {CHIPS.map(c => (
             <button
               key={c}
+              role="tab"
+              aria-selected={chip === c}
               onClick={() => setChip(c)}
               className={cn(
                 'px-4 py-2 rounded-full text-sm font-semibold transition-all min-h-[44px] whitespace-nowrap',

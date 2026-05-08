@@ -5,7 +5,15 @@ import { cn } from '@/lib/utils'
 import { Plus, BarChart2 } from 'lucide-react'
 
 const CHIPS = ['Planner', 'Recetas', 'TDEE', 'Suplementos']
-const DAYS  = ['L', 'M', 'X', 'J', 'V', 'S', 'D']
+const DAYS = [
+  { short: 'L', full: 'Lunes' },
+  { short: 'M', full: 'Martes' },
+  { short: 'X', full: 'Miércoles' },
+  { short: 'J', full: 'Jueves' },
+  { short: 'V', full: 'Viernes' },
+  { short: 'S', full: 'Sábado' },
+  { short: 'D', full: 'Domingo' },
+]
 const MEALS = [
   { id: 'breakfast', label: '🌅 Desayuno',      recipe: 'Tortilla de claras', kcal: 320 },
   { id: 'mid',       label: '☀️ Media mañana',  recipe: null,                 kcal: null },
@@ -33,10 +41,12 @@ export function NutritionScreen() {
 
       {/* Chips */}
       <div className="px-4 py-3 border-b border-zinc-800">
-        <div className="chips-scroll">
+        <div className="chips-scroll" role="tablist" aria-label="Secciones de nutrición">
           {CHIPS.map(c => (
             <button
               key={c}
+              role="tab"
+              aria-selected={chip === c}
               onClick={() => setChip(c)}
               className={cn(
                 'px-4 py-2 rounded-full text-sm font-semibold transition-all min-h-[44px] whitespace-nowrap',
@@ -56,9 +66,10 @@ export function NutritionScreen() {
           {/* Day selector */}
           <div className="px-4 py-3 border-b border-zinc-800">
             <div className="flex gap-2 justify-between">
-              {DAYS.map((d, i) => (
+              {DAYS.map(({ short, full }, i) => (
                 <button
-                  key={d}
+                  key={short}
+                  aria-label={full}
                   onClick={() => setDay(i)}
                   className={cn(
                     'flex-1 py-2 rounded-xl text-sm font-bold transition-all min-h-[44px]',
@@ -67,7 +78,7 @@ export function NutritionScreen() {
                       : 'bg-zinc-900 text-zinc-500 hover:text-zinc-300'
                   )}
                 >
-                  {d}
+                  {short}
                 </button>
               ))}
             </div>

@@ -67,6 +67,8 @@ export function LoginScreen() {
             <button
               type="button"
               onClick={() => setShowPw(p => !p)}
+              aria-label={showPw ? 'Ocultar contraseña' : 'Mostrar contraseña'}
+              aria-pressed={showPw}
               className="absolute right-3 top-1/2 -translate-y-1/2 p-1.5 text-zinc-500 hover:text-zinc-300 min-h-[44px] min-w-[44px] flex items-center justify-center"
             >
               {showPw ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}

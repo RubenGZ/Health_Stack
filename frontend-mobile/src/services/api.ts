@@ -18,13 +18,11 @@ export function clearTokens() {
   localStorage.removeItem('hs_refresh_token')
 }
 
-let isRefreshing = false
+let refreshPromise: Promise<boolean> | null = null
 
-async function tryRefresh(): Promise<boolean> {
-  if (isRefreshing) return false
+async function doRefresh(): Promise<boolean> {
   const refreshToken = getRefreshToken()
   if (!refreshToken) return false
-  isRefreshing = true
   try {
     const res = await fetch(`${BASE_URL}/api/v1/auth/refresh`, {
       method: 'POST',
@@ -37,9 +35,14 @@ async function tryRefresh(): Promise<boolean> {
     return true
   } catch {
     return false
-  } finally {
-    isRefreshing = false
   }
+}
+
+function tryRefresh(): Promise<boolean> {
+  if (!refreshPromise) {
+    refreshPromise = doRefresh().finally(() => { refreshPromise = null })
+  }
+  return refreshPromise
 }
 
 async function request<T>(path: string, options: RequestInit = {}, retry = true): Promise<T> {

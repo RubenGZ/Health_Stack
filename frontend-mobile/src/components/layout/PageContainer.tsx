@@ -20,7 +20,7 @@ export function ScrollArea({ children, className }: PageContainerProps) {
       role="region"
       tabIndex={0}
       aria-label="Contenido desplazable"
-      className={cn('flex-1 scrollable px-4 py-4 space-y-4 focus:outline-none', className)}
+      className={cn('flex-1 scrollable px-4 py-4 space-y-4 focus-visible:ring-2 focus-visible:ring-cyan-500 focus-visible:outline-none focus:outline-none', className)}
     >
       {children}
     </div>

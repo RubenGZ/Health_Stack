@@ -593,5 +593,5 @@ const WeightTracker = (function () {
     URL.revokeObjectURL(url);
   }
 
-  return { init, renderAll, openEdit, confirmDelete, getAll, exportCSV };
+  return { init, renderAll, openEdit, confirmDelete, getAll, exportCSV, addEntry };
 })();

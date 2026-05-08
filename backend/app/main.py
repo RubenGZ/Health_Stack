@@ -294,6 +294,7 @@ async def validation_error_handler(request: Request, exc: ValidationError):
 
 
 # ── Routers ───────────────────────────────────────────────────────────────────
+from app.modules.admin.router import router as admin_router
 from app.modules.ai_coach.router import router as ai_coach_router
 from app.modules.ai_insights.router import router as ai_insights_router
 from app.modules.chat.router import router as chat_router
@@ -304,6 +305,7 @@ from app.modules.health.router import router as health_router
 from app.modules.identity.router import router as identity_router
 from app.modules.nutrition.router import router as nutrition_router
 from app.modules.routines.router import router as routines_router
+from app.modules.telemetry.router import router as telemetry_router
 
 app.include_router(
     identity_router,
@@ -345,6 +347,18 @@ app.include_router(
     geopricing_router,
     prefix="/api",
     tags=["Geo-Pricing"],
+)
+
+app.include_router(
+    admin_router,
+    prefix="/api/v1/admin",
+    tags=["Admin"],
+)
+
+app.include_router(
+    telemetry_router,
+    prefix="/api/v1/telemetry",
+    tags=["Telemetry"],
 )
 
 app.include_router(

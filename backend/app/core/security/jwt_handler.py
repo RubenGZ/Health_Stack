@@ -39,6 +39,7 @@ def create_access_token(
     user_id: str,
     email: str,
     role: str,
+    plan: str = "free",
 ) -> str:
     """
     Crea un JWT access token firmado con RS256.
@@ -47,6 +48,7 @@ def create_access_token(
     - sub: user_id (sujeto estándar JWT — RFC 7519)
     - email: para display en frontend (no usar para autorización)
     - role: para control de acceso basado en roles
+    - plan: tier del usuario ('free' | 'pro' | 'elite')
     - iat, exp: timestamps estándar
     - jti: JWT ID único → permite invalidación individual si es necesario
     - iss, aud: issuer/audience → previene reutilización de tokens entre servicios
@@ -58,6 +60,7 @@ def create_access_token(
         "sub":   user_id,
         "email": email,
         "role":  role,
+        "plan":  plan,
         "iat":   now,
         "exp":   now + timedelta(minutes=_settings.jwt_access_token_expire_minutes),
         "jti":   str(uuid.uuid4()),  # ID único por token

@@ -26,6 +26,7 @@ import app.modules.nutrition.models     # noqa: F401
 import app.modules.routines.models      # noqa: F401
 import app.modules.community.models     # noqa: F401
 import app.modules.gamification.models  # noqa: F401
+import app.modules.telemetry.models     # noqa: F401
 
 TEST_DB_URL = "postgresql+asyncpg://postgres:P%40ssw0rd@localhost:5432/healthstack_test"
 
@@ -40,6 +41,7 @@ TRUNCATE_TABLES = [
     "public.refresh_tokens",        # ADR-001-B — antes que users
     "public.saved_routines",
     "public.user_recipes",
+    "public.page_views",
     "public.users",
 ]
 
@@ -176,3 +178,37 @@ async def registered_user(client):
 async def auth_headers(registered_user):
     """Cabeceras Authorization: Bearer <token> para el usuario de prueba."""
     return {"Authorization": f"Bearer {registered_user['access_token']}"}
+
+
+@pytest_asyncio.fixture
+async def admin_user(client, db_session):
+    """Registra un usuario y lo promueve a admin directamente en BD."""
+    from sqlalchemy import text
+    resp = await client.post("/api/v1/auth/register", json={
+        "email": "admin@healthstack.com",
+        "password": "AdminPass123!",
+        "display_name": "Admin User",
+        "consent_gdpr": True,
+    })
+    assert resp.status_code == 201, resp.text
+    data = resp.json()
+    user_id = data["user"]["id"]
+    # Promote to admin directly in DB
+    await db_session.execute(
+        text("UPDATE public.users SET role = 'admin' WHERE id = :uid"),
+        {"uid": user_id},
+    )
+    await db_session.flush()
+    # Re-login to get a token with role=admin in JWT
+    login_resp = await client.post("/api/v1/auth/login", json={
+        "email": "admin@healthstack.com",
+        "password": "AdminPass123!",
+    })
+    assert login_resp.status_code == 200, login_resp.text
+    return login_resp.json()
+
+
+@pytest_asyncio.fixture
+async def admin_headers(admin_user):
+    """Cabeceras Authorization: Bearer <token> para el usuario admin."""
+    return {"Authorization": f"Bearer {admin_user['access_token']}"}

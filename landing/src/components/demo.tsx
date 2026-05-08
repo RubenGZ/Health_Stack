@@ -1,4 +1,5 @@
-import { useRef, useCallback, type ReactNode } from 'react'
+import { useRef, useCallback, useState, useEffect, type ReactNode } from 'react'
+import { AnimatePresence, motion } from 'framer-motion'
 import { useTranslation }        from 'react-i18next'
 import { useGeoPrice }           from '@/hooks/useGeoPrice'
 import { HeroOrbs }               from '@/components/ui/hero-orbs'
@@ -24,6 +25,19 @@ import {
   Zap, Dumbbell, Apple, Users, Trophy, Clock,
   Star, Check, X, ChevronRight, Menu,
 } from 'lucide-react'
+
+function useIsMobile() {
+  const [isMobile, setIsMobile] = useState(
+    () => typeof window !== 'undefined' && window.matchMedia('(max-width: 767px)').matches
+  )
+  useEffect(() => {
+    const mq = window.matchMedia('(max-width: 767px)')
+    const handler = (e: MediaQueryListEvent) => setIsMobile(e.matches)
+    mq.addEventListener('change', handler)
+    return () => mq.removeEventListener('change', handler)
+  }, [])
+  return isMobile
+}
 
 /* ── Static structural meta (no text → no translation needed) ─── */
 
@@ -80,9 +94,10 @@ function PricingCard({ children, className }: { children: ReactNode; className?:
     <div
       ref={ref}
       className={className}
+      onMouseEnter={() => { if (ref.current && !reduced) ref.current.style.willChange = 'transform' }}
       onMouseMove={onMove}
-      onMouseLeave={onLeave}
-      style={{ transition: 'transform 0.18s cubic-bezier(0.16, 1, 0.3, 1)', willChange: 'transform' }}
+      onMouseLeave={() => { onLeave(); if (ref.current) ref.current.style.willChange = 'auto' }}
+      style={{ transition: 'transform 0.18s cubic-bezier(0.16, 1, 0.3, 1)' }}
     >
       {children}
     </div>
@@ -237,6 +252,9 @@ export function SplineSceneBasic() {
   type TestimonialI18n = { name: string; role: string; quote: string }
   type PlanI18n        = { tier: string; period: string; desc: string; cta: string; features: string[] }
 
+  const [menuOpen, setMenuOpen] = useState(false)
+  const isMobile = useIsMobile()
+
   const featureI18n     = t('features.items', { returnObjects: true }) as FeatureI18n[]
   const testimonialI18n = t('testimonials.items', { returnObjects: true }) as TestimonialI18n[]
   const planI18n        = t('pricing.plans', { returnObjects: true }) as PlanI18n[]
@@ -254,6 +272,69 @@ export function SplineSceneBasic() {
 
   return (
     <div className="min-h-screen bg-[#050508] text-white overflow-x-hidden">
+
+      {/* ── MOBILE NAV DRAWER ────────────────────────────────── */}
+      <AnimatePresence>
+        {menuOpen && (
+          <>
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              transition={{ duration: 0.2 }}
+              className="fixed inset-0 bg-black/60 z-[60] md:hidden"
+              onClick={() => setMenuOpen(false)}
+            />
+            <motion.div
+              initial={{ x: '100%' }}
+              animate={{ x: 0 }}
+              exit={{ x: '100%' }}
+              transition={{ type: 'spring', damping: 28, stiffness: 220 }}
+              className="fixed top-0 right-0 bottom-0 w-72 max-w-[85vw] bg-[#080810] border-l border-white/[0.07] z-[70] flex flex-col p-6 md:hidden"
+            >
+              <div className="flex items-center justify-between mb-8">
+                <span className="text-base font-black uppercase tracking-widest bg-clip-text text-transparent bg-gradient-to-r from-cyan-400 to-teal-300" style={HEADING}>
+                  HEALTHSTACK PRO
+                </span>
+                <button
+                  onClick={() => setMenuOpen(false)}
+                  className="p-2 text-neutral-400 hover:text-white min-h-[44px] min-w-[44px] flex items-center justify-center"
+                  aria-label="Cerrar menú"
+                >
+                  <X className="w-5 h-5" />
+                </button>
+              </div>
+              <nav className="flex flex-col gap-1 flex-1">
+                {navLinks.map(l => (
+                  <a
+                    key={l}
+                    href="#"
+                    onClick={() => setMenuOpen(false)}
+                    className="text-sm font-bold uppercase tracking-widest text-neutral-300 hover:text-white transition-colors py-3 border-b border-white/[0.05]"
+                  >
+                    {l}
+                  </a>
+                ))}
+              </nav>
+              <div className="flex flex-col gap-3 mt-6">
+                <Button
+                  variant="outline"
+                  onClick={() => { goToGoogle(); setMenuOpen(false) }}
+                  className="w-full py-3 text-sm font-bold uppercase tracking-widest rounded-xl border-white/[0.14] text-white hover:bg-white/[0.06]"
+                >
+                  {t('nav.login')}
+                </Button>
+                <Button
+                  onClick={() => { goToApp(); setMenuOpen(false) }}
+                  className="w-full py-3 text-sm font-extrabold uppercase tracking-widest rounded-xl bg-gradient-to-r from-teal-500 to-cyan-400 text-white border-0 shadow-[0_4px_20px_rgba(8,145,178,0.35)]"
+                >
+                  {t('nav.cta')}
+                </Button>
+              </div>
+            </motion.div>
+          </>
+        )}
+      </AnimatePresence>
 
       {/* ── NAV ─────────────────────────────────────────────── */}
       <nav className="fixed top-0 left-0 right-0 z-50 flex items-center justify-between px-6 md:px-12 py-4
@@ -289,7 +370,11 @@ export function SplineSceneBasic() {
           >
             {t('nav.cta')}
           </Button>
-          <button className="md:hidden text-neutral-400 hover:text-white transition-colors ml-1">
+          <button
+            className="md:hidden text-neutral-400 hover:text-white transition-colors ml-1 p-2 min-h-[44px] min-w-[44px] flex items-center justify-center"
+            onClick={() => setMenuOpen(true)}
+            aria-label="Abrir menú"
+          >
             <Menu className="w-5 h-5" />
           </button>
         </div>
@@ -328,10 +413,10 @@ export function SplineSceneBasic() {
               {t('hero.body')}
             </p>
 
-            <div className="flex flex-wrap gap-3 mb-10">
+            <div className="flex flex-col sm:flex-row flex-wrap gap-3 mb-10">
               <Button
                 onClick={goToApp}
-                className="px-8 py-6 text-[0.82rem] font-extrabold uppercase tracking-widest rounded-xl bg-gradient-to-r from-teal-500 to-cyan-400 text-white shadow-[0_8px_32px_rgba(8,145,178,0.38)] hover:shadow-[0_14px_44px_rgba(8,145,178,0.55)] transition-all duration-200 hover:-translate-y-0.5 border-0"
+                className="w-full sm:w-auto px-8 py-6 text-[0.82rem] font-extrabold uppercase tracking-widest rounded-xl bg-gradient-to-r from-teal-500 to-cyan-400 text-white shadow-[0_8px_32px_rgba(8,145,178,0.38)] hover:shadow-[0_14px_44px_rgba(8,145,178,0.55)] transition-all duration-200 hover:-translate-y-0.5 border-0"
               >
                 <Zap className="w-4 h-4 mr-2" />
                 {t('hero.cta_primary')}
@@ -339,7 +424,7 @@ export function SplineSceneBasic() {
               <Button
                 variant="outline"
                 onClick={goToGoogle}
-                className="px-8 py-6 text-[0.82rem] font-bold uppercase tracking-wider rounded-xl border-white/[0.14] text-white hover:bg-white/[0.06] hover:border-white/30 transition-all duration-200 hover:-translate-y-0.5"
+                className="w-full sm:w-auto px-8 py-6 text-[0.82rem] font-bold uppercase tracking-wider rounded-xl border-white/[0.14] text-white hover:bg-white/[0.06] hover:border-white/30 transition-all duration-200 hover:-translate-y-0.5"
               >
                 <svg width="14" height="14" viewBox="0 0 24 24" fill="none" className="mr-2 flex-shrink-0">
                   <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"/>
@@ -444,26 +529,45 @@ export function SplineSceneBasic() {
         </div>
       </section>
 
-      {/* ── APP PREVIEW (ContainerScroll) ───────────────────── */}
-      <ContainerScroll
-        className="bg-[#050508]"
-        titleComponent={
-          <>
+      {/* ── APP PREVIEW ─────────────────────────────────────── */}
+      {isMobile ? (
+        <section className="py-16 px-6 bg-[#050508]">
+          <div className="text-center mb-8">
             <p className="text-[11px] font-bold uppercase tracking-[3px] text-teal-400 mb-4">{t('preview.label')}</p>
-            <h2 className="text-5xl md:text-6xl font-black uppercase tracking-widest leading-[0.94] text-white mb-4" style={HEADING}>
+            <h2 className="text-4xl font-black uppercase tracking-widest leading-[0.94] text-white mb-4" style={HEADING}>
               {t('preview.title_1')}<br />{t('preview.title_2')}
             </h2>
-            <p className="text-neutral-400 text-sm leading-relaxed max-w-md mx-auto">{t('preview.subtitle')}</p>
-          </>
-        }
-      >
-        <DashboardMockup />
-      </ContainerScroll>
+            <p className="text-neutral-400 text-sm leading-relaxed">{t('preview.subtitle')}</p>
+          </div>
+          <div className="rounded-2xl overflow-hidden border border-white/[0.08]">
+            <DashboardMockup />
+          </div>
+        </section>
+      ) : (
+        <ContainerScroll
+          className="bg-[#050508]"
+          titleComponent={
+            <>
+              <p className="text-[11px] font-bold uppercase tracking-[3px] text-teal-400 mb-4">{t('preview.label')}</p>
+              <h2 className="text-5xl md:text-6xl font-black uppercase tracking-widest leading-[0.94] text-white mb-4" style={HEADING}>
+                {t('preview.title_1')}<br />{t('preview.title_2')}
+              </h2>
+              <p className="text-neutral-400 text-sm leading-relaxed max-w-md mx-auto">{t('preview.subtitle')}</p>
+            </>
+          }
+        >
+          <DashboardMockup />
+        </ContainerScroll>
+      )}
 
       {/* ── SHADER INTERLUDE ────────────────────────────────── */}
       <section className="relative overflow-hidden h-[380px] flex items-center justify-center">
-        <ShaderAnimation className="absolute inset-0 w-full h-full opacity-70" />
-        <div aria-hidden className="absolute inset-0 pointer-events-none" style={{ background: 'radial-gradient(ellipse 70% 80% at 50% 50%, rgba(5,5,8,0.55) 0%, rgba(5,5,8,0.92) 100%)' }} />
+        {!isMobile && <ShaderAnimation className="absolute inset-0 w-full h-full opacity-70" />}
+        <div aria-hidden className="absolute inset-0 pointer-events-none" style={{
+          background: isMobile
+            ? 'radial-gradient(ellipse 80% 60% at 50% 50%, rgba(8,145,178,0.12) 0%, transparent 70%)'
+            : 'radial-gradient(ellipse 70% 80% at 50% 50%, rgba(5,5,8,0.55) 0%, rgba(5,5,8,0.92) 100%)',
+        }} />
         <div className="relative z-10 text-center px-6">
           <p className="text-[11px] font-bold uppercase tracking-[3px] text-teal-400 mb-4">{t('shader.label')}</p>
           <h2 className="text-5xl md:text-7xl font-black uppercase tracking-widest leading-[0.92] text-white mb-5" style={HEADING}>
@@ -554,7 +658,7 @@ export function SplineSceneBasic() {
 
       {/* ── FINAL CTA ───────────────────────────────────────── */}
       <section className="relative py-32 px-8 md:px-16 text-center overflow-hidden border-t border-white/[0.04]">
-        <ShaderAnimation className="absolute inset-0 w-full h-full opacity-30" />
+        {!isMobile && <ShaderAnimation className="absolute inset-0 w-full h-full opacity-30" />}
         <div aria-hidden className="absolute inset-0 pointer-events-none" style={{ background: 'radial-gradient(ellipse 65% 70% at 50% 50%, rgba(5,5,8,0.3) 0%, rgba(5,5,8,0.88) 100%)' }} />
         <div className="relative z-10">
           <p className="text-[11px] font-bold uppercase tracking-[3px] text-teal-400 mb-5">{t('cta.label')}</p>
@@ -565,12 +669,12 @@ export function SplineSceneBasic() {
             </span>
           </h2>
           <p className="text-neutral-400 max-w-md mx-auto mb-10 text-sm leading-relaxed">{t('cta.subtitle')}</p>
-          <div className="flex gap-4 justify-center flex-wrap">
-            <Button onClick={goToApp} className="px-10 py-6 text-[0.82rem] font-extrabold uppercase tracking-widest rounded-xl bg-gradient-to-r from-teal-500 to-cyan-400 text-white shadow-[0_8px_32px_rgba(8,145,178,0.4)] hover:shadow-[0_14px_44px_rgba(8,145,178,0.55)] hover:-translate-y-0.5 transition-all duration-200 border-0">
+          <div className="flex flex-col sm:flex-row gap-4 justify-center items-center flex-wrap">
+            <Button onClick={goToApp} className="w-full sm:w-auto px-10 py-6 text-[0.82rem] font-extrabold uppercase tracking-widest rounded-xl bg-gradient-to-r from-teal-500 to-cyan-400 text-white shadow-[0_8px_32px_rgba(8,145,178,0.4)] hover:shadow-[0_14px_44px_rgba(8,145,178,0.55)] hover:-translate-y-0.5 transition-all duration-200 border-0">
               <Zap className="w-4 h-4 mr-2" />
               {t('cta.primary')}
             </Button>
-            <Button onClick={goToGoogle} variant="outline" className="px-10 py-6 text-[0.82rem] font-bold uppercase tracking-wider rounded-xl border-white/[0.14] text-white hover:bg-white/[0.06] hover:border-white/30 hover:-translate-y-0.5 transition-all duration-200">
+            <Button onClick={goToGoogle} variant="outline" className="w-full sm:w-auto px-10 py-6 text-[0.82rem] font-bold uppercase tracking-wider rounded-xl border-white/[0.14] text-white hover:bg-white/[0.06] hover:border-white/30 hover:-translate-y-0.5 transition-all duration-200">
               <Users className="w-4 h-4 mr-2" />
               {t('cta.secondary')}
             </Button>

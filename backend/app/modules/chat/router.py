@@ -84,17 +84,42 @@ async def chat_message(request: Request, body: ChatRequest) -> JSONResponse:
             )
             resp.raise_for_status()
             data = resp.json()
-            reply = data["choices"][0]["message"]["content"]
+            choices = data.get("choices") or []
+            if not choices:
+                logger.error("Groq returned empty choices. Response: %s", str(data)[:200])
+                return JSONResponse(
+                    status_code=502,
+                    content={"detail": "El asistente no devolvió respuesta. Inténtalo de nuevo."},
+                )
+            reply = choices[0].get("message", {}).get("content", "")
+            if not reply:
+                logger.error("Groq returned empty content. choices[0]: %s", str(choices[0])[:200])
+                return JSONResponse(
+                    status_code=502,
+                    content={"detail": "El asistente devolvió una respuesta vacía. Inténtalo de nuevo."},
+                )
             return JSONResponse(content={"reply": reply})
 
+    except httpx.TimeoutException as exc:
+        logger.warning("Groq API timeout after 30s: %s", type(exc).__name__)
+        return JSONResponse(
+            status_code=504,
+            content={"detail": "El asistente tardó demasiado en responder. Inténtalo de nuevo."},
+        )
     except httpx.HTTPStatusError as exc:
-        logger.error("Grok API error %s: %s", exc.response.status_code, exc.response.text[:200])
+        logger.error("Groq API HTTP error %s: %s", exc.response.status_code, exc.response.text[:200])
         return JSONResponse(
             status_code=502,
             content={"detail": "Error al contactar el asistente IA. Inténtalo de nuevo."},
         )
+    except httpx.RequestError as exc:
+        logger.error("Groq API connection error (%s): %s", type(exc).__name__, exc)
+        return JSONResponse(
+            status_code=502,
+            content={"detail": "No se pudo conectar con el asistente IA. Inténtalo de nuevo."},
+        )
     except Exception as exc:
-        logger.error("Chat error: %s", exc)
+        logger.error("Chat unexpected error (%s): %s", type(exc).__name__, exc)
         return JSONResponse(
             status_code=500,
             content={"detail": "Error interno del asistente. Inténtalo de nuevo."},

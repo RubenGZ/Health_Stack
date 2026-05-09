@@ -206,6 +206,10 @@
     if (!email || !pwd) { showError(errEl, 'Completa email y contraseña.'); return; }
     if (!email.includes('@')) { showError(errEl, 'Email no válido.'); return; }
     if (pwd.length < 8) { showError(errEl, 'La contraseña debe tener al menos 8 caracteres.'); return; }
+    if (!/[A-Z]/.test(pwd)) { showError(errEl, 'La contraseña debe tener al menos una mayúscula (A-Z).'); return; }
+    if (!/[a-z]/.test(pwd)) { showError(errEl, 'La contraseña debe tener al menos una minúscula (a-z).'); return; }
+    if (!/[0-9]/.test(pwd)) { showError(errEl, 'La contraseña debe tener al menos un número (0-9).'); return; }
+    if (!/[!@#$%^&*()_+\-=\[\]{}|;':",./<>?]/.test(pwd)) { showError(errEl, 'La contraseña debe tener al menos un carácter especial (!@#$%...).'); return; }
     if (!gdpr) { showError(errEl, 'Debes aceptar la política de privacidad.'); return; }
 
     btn.disabled = true;

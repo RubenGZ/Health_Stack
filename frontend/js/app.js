@@ -654,6 +654,9 @@
     // Plan gating — must run after DOM is ready
     if (typeof Plan !== 'undefined') Plan.init();
 
+    // API backend monitor — after Plan so _applyPlanFromUser can access Plan methods
+    if (typeof API !== 'undefined') API.init();
+
     // Gate RestTimer FAB click directly (shows modal if not Pro)
     const fab = document.getElementById('rest-timer-fab');
     if (fab) {

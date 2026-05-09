@@ -64,8 +64,14 @@ async function request<T>(path: string, options: RequestInit = {}, retry = true)
   }
 
   if (!res.ok) {
-    const data = await res.json().catch(() => ({})) as { detail?: string }
-    throw new Error(data.detail ?? `HTTP ${res.status}`)
+    const data = await res.json().catch(() => ({})) as { detail?: string | Array<{ msg?: string }> }
+    let message: string
+    if (Array.isArray(data.detail)) {
+      message = data.detail.map(e => e.msg ?? String(e)).join('. ')
+    } else {
+      message = data.detail ?? `HTTP ${res.status}`
+    }
+    throw new Error(message)
   }
 
   if (res.status === 204) return undefined as T

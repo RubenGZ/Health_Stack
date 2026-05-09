@@ -110,7 +110,13 @@ const API = (function () {
 
     if (!res.ok) {
       const err = await res.json().catch(() => ({ detail: `Error ${res.status}` }));
-      throw new Error(err.detail || `HTTP ${res.status}`);
+      let message;
+      if (Array.isArray(err.detail)) {
+        message = err.detail.map(e => e.msg || String(e)).join('. ');
+      } else {
+        message = err.detail || `HTTP ${res.status}`;
+      }
+      throw new Error(message);
     }
 
     return res.status === 204 ? null : res.json();
@@ -366,7 +372,7 @@ const API = (function () {
     // Si el usuario ya está logueado al cargar (token en localStorage),
     // aplicar el plan correcto según su rol antes de que la UI termine de pintar.
     if (isLoggedIn()) {
-      _applyPlanFromRole(getUser());
+      _applyPlanFromUser(getUser());
     }
 
     // Resetear plan a 'free' al cerrar sesión
@@ -394,7 +400,7 @@ const API = (function () {
 
     window.addEventListener('hs:login', () => {
       // Re-aplicar plan por si el evento llega antes de que Plan esté listo
-      setTimeout(() => _applyPlanFromRole(getUser()), 100);
+      setTimeout(() => _applyPlanFromUser(getUser()), 100);
       setTimeout(async () => {
         if (await checkBackend()) {
           await health.syncToBackend();

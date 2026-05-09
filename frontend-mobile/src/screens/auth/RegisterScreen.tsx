@@ -14,6 +14,10 @@ export function RegisterScreen() {
   async function handleSubmit(e: FormEvent) {
     e.preventDefault()
     if (password.length < 8) { setError('La contraseña debe tener al menos 8 caracteres'); return }
+    if (!/[A-Z]/.test(password)) { setError('La contraseña debe tener al menos una mayúscula (A-Z)'); return }
+    if (!/[a-z]/.test(password)) { setError('La contraseña debe tener al menos una minúscula (a-z)'); return }
+    if (!/[0-9]/.test(password)) { setError('La contraseña debe tener al menos un número (0-9)'); return }
+    if (!/[!@#$%^&*()_+\-=[\]{}|;':",./<>?]/.test(password)) { setError('La contraseña debe tener al menos un carácter especial (!@#$%...)'); return }
     setError(null)
     setLoading(true)
     try {

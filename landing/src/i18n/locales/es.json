@@ -132,7 +132,23 @@
     "muscle_flag_body": "El IMC clásico te clasifica incorrectamente. Tu porcentaje de grasa corporal real indica una composición mucho más saludable. Esto ocurre porque el IMC no puede diferenciar músculo de grasa.",
     "modern_why_title": "Por qué esta fórmula es más precisa",
     "modern_why_body": "RFM (Relative Fat Mass) — Woolcott & Bergman, 2018, Nature — estima el % de grasa corporal real usando cintura y altura. Tiene mayor correlación con DEXA que el IMC clásico. Añade cuello para activar el método Navy (precisión ±3 %).",
-    "navy_active": "✓ Método Navy activo — usando cintura + cuello para mayor precisión"
+    "navy_active": "✓ Método Navy activo — usando cintura + cuello para mayor precisión",
+    "you_marker": "TÚ",
+    "input_method_label": "¿Cómo prefieres indicarlo?",
+    "method_visual": "Aspecto",
+    "method_pants": "Pantalón",
+    "method_tape": "Cinta métrica",
+    "pants_eu": "Europa (EU)",
+    "pants_us": "EE.UU. (in)",
+    "pants_size_label": "Tu talla de pantalón",
+    "inferred_waist": "Cintura estimada",
+    "body_types": [
+      { "label": "Muy delgado", "desc": "Sin grasa visible, costillas y venas marcadas. Sin grasa en el abdomen." },
+      { "label": "En forma", "desc": "Cintura bien definida, abdomen relativamente plano. Algo de músculo visible." },
+      { "label": "Normal", "desc": "Algo de barriga pero sin exceso notable. Cintura menos estrecha que hombros o caderas." },
+      { "label": "Con barriga", "desc": "Barriga notable, cintura poco marcada. La ropa ajustada aprieta en el abdomen." },
+      { "label": "Mucha barriga", "desc": "Abdomen prominente, cintura no visible. Los pantalones se llevan bajo la barriga." }
+    ]
   },
   "protein_calc": {
     "weight_label": "Peso (kg)",

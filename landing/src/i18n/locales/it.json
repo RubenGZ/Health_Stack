@@ -132,7 +132,23 @@
     "muscle_flag_body": "L'IMC classico ti classifica in modo errato. La tua percentuale reale di grasso corporeo indica una composizione molto più sana — l'IMC semplicemente non riesce a distinguere muscolo da grasso.",
     "modern_why_title": "Perché questa formula è più precisa",
     "modern_why_body": "RFM (Relative Fat Mass) — Woolcott & Bergman, 2018, Nature — stima il vero % di grasso usando vita e altezza. Maggiore correlazione con DEXA rispetto all'IMC classico. Aggiungi il collo per attivare il metodo Navy (precisione ±3 %).",
-    "navy_active": "✓ Metodo Navy attivo — usa vita + collo per maggiore precisione"
+    "navy_active": "✓ Metodo Navy attivo — usa vita + collo per maggiore precisione",
+    "you_marker": "TU",
+    "input_method_label": "Come preferisci indicarlo?",
+    "method_visual": "Aspetto",
+    "method_pants": "Taglia pantaloni",
+    "method_tape": "Metro a nastro",
+    "pants_eu": "Europa (EU)",
+    "pants_us": "US/UK (poll.)",
+    "pants_size_label": "La tua taglia di pantaloni",
+    "inferred_waist": "Vita stimata",
+    "body_types": [
+      { "label": "Molto magro", "desc": "Nessun grasso visibile, costole e vene in rilievo. Stomaco piatto senza grasso." },
+      { "label": "Atletico", "desc": "Vita ben definita, stomaco relativamente piatto. Un po' di muscolo visibile." },
+      { "label": "Normale", "desc": "Un po' di pancia ma senza eccessi. La vita è meno stretta di spalle o fianchi." },
+      { "label": "Pancetta", "desc": "Pancia evidente, vita poco marcata. I vestiti stretti stringono in vita." },
+      { "label": "Pancia pronunciata", "desc": "Addome prominente, vita non visibile. I pantaloni si portano sotto la pancia." }
+    ]
   },
   "protein_calc": {
     "weight_label": "Peso (kg)",

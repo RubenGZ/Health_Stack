@@ -132,7 +132,23 @@
     "muscle_flag_body": "Classic BMI is misclassifying you. Your actual body fat percentage indicates a much healthier composition — BMI simply cannot tell muscle from fat.",
     "modern_why_title": "Why this formula is more accurate",
     "modern_why_body": "RFM (Relative Fat Mass) — Woolcott & Bergman, 2018, Nature — estimates true body fat % using waist and height. It correlates more closely with DEXA scans than classic BMI. Add your neck to activate the Navy method (±3% accuracy).",
-    "navy_active": "✓ Navy method active — using waist + neck for higher precision"
+    "navy_active": "✓ Navy method active — using waist + neck for higher precision",
+    "you_marker": "YOU",
+    "input_method_label": "How do you want to measure?",
+    "method_visual": "By look",
+    "method_pants": "Pants size",
+    "method_tape": "Tape measure",
+    "pants_eu": "Europe (EU)",
+    "pants_us": "US/UK (in)",
+    "pants_size_label": "Your pants size",
+    "inferred_waist": "Estimated waist",
+    "body_types": [
+      { "label": "Very lean", "desc": "No visible fat, ribs and veins visible. Flat stomach with no fat." },
+      { "label": "Athletic", "desc": "Well-defined waist, relatively flat stomach. Some muscle visible." },
+      { "label": "Average", "desc": "Some belly but not excessive. Waist less narrow than shoulders or hips." },
+      { "label": "Some belly", "desc": "Noticeable belly, waist barely defined. Tight clothing is uncomfortable at the waist." },
+      { "label": "Big belly", "desc": "Prominent belly, waist not visible. Trousers worn below the belly." }
+    ]
   },
   "protein_calc": {
     "weight_label": "Weight (kg)",

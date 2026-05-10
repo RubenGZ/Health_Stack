@@ -132,7 +132,23 @@
     "muscle_flag_body": "Der klassische BMI stuft dich falsch ein. Dein tatsächlicher Körperfettanteil zeigt eine viel gesündere Zusammensetzung — der BMI kann Muskel einfach nicht von Fett unterscheiden.",
     "modern_why_title": "Warum diese Formel genauer ist",
     "modern_why_body": "RFM (Relative Fat Mass) — Woolcott & Bergman, 2018, Nature — schätzt den echten Körperfettanteil anhand von Taillen- und Körpergröße. Höhere Korrelation mit DEXA als klassischer BMI. Halsumfang eingeben für die Navy-Methode (±3 % Genauigkeit).",
-    "navy_active": "✓ Navy-Methode aktiv — verwendet Taille + Hals für höhere Präzision"
+    "navy_active": "✓ Navy-Methode aktiv — verwendet Taille + Hals für höhere Präzision",
+    "you_marker": "DU",
+    "input_method_label": "Wie möchtest du es angeben?",
+    "method_visual": "Optisch",
+    "method_pants": "Hosengröße",
+    "method_tape": "Maßband",
+    "pants_eu": "Europa (EU)",
+    "pants_us": "US/UK (Zoll)",
+    "pants_size_label": "Deine Hosengröße",
+    "inferred_waist": "Geschätzter Taillenumfang",
+    "body_types": [
+      { "label": "Sehr schlank", "desc": "Kein sichtbares Fett, Rippen und Venen sichtbar. Flacher Bauch ohne Fett." },
+      { "label": "Athletisch", "desc": "Gut definierte Taille, relativ flacher Bauch. Etwas Muskulatur sichtbar." },
+      { "label": "Normal", "desc": "Etwas Bauch, aber nicht übermäßig. Die Taille ist weniger schmal als Schultern oder Hüften." },
+      { "label": "Bauchansatz", "desc": "Merklicher Bauch, Taille kaum definiert. Enge Kleidung drückt an der Taille." },
+      { "label": "Deutlicher Bauch", "desc": "Markanter Bauch, Taille nicht sichtbar. Hose wird unter dem Bauch getragen." }
+    ]
   },
   "protein_calc": {
     "weight_label": "Gewicht (kg)",

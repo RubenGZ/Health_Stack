@@ -132,7 +132,23 @@
     "muscle_flag_body": "L'IMC classique te classe incorrectement. Ton pourcentage réel de graisse corporelle indique une composition bien plus saine — l'IMC ne peut tout simplement pas distinguer le muscle de la graisse.",
     "modern_why_title": "Pourquoi cette formule est plus précise",
     "modern_why_body": "RFM (Relative Fat Mass) — Woolcott & Bergman, 2018, Nature — estime le vrai % de graisse avec le tour de taille et la taille. Meilleure corrélation avec le DEXA que l'IMC. Ajoute le cou pour activer la méthode Navy (précision ±3 %).",
-    "navy_active": "✓ Méthode Navy active — utilise taille + cou pour plus de précision"
+    "navy_active": "✓ Méthode Navy active — utilise taille + cou pour plus de précision",
+    "you_marker": "TOI",
+    "input_method_label": "Comment veux-tu l'indiquer ?",
+    "method_visual": "Apparence",
+    "method_pants": "Taille pantalon",
+    "method_tape": "Mètre ruban",
+    "pants_eu": "Europe (EU)",
+    "pants_us": "US/UK (po)",
+    "pants_size_label": "Ta taille de pantalon",
+    "inferred_waist": "Tour de taille estimé",
+    "body_types": [
+      { "label": "Très mince", "desc": "Pas de graisse visible, côtes et veines apparentes. Ventre plat sans graisse." },
+      { "label": "Athlétique", "desc": "Taille bien définie, ventre relativement plat. Un peu de muscle visible." },
+      { "label": "Normal", "desc": "Un peu de ventre mais sans excès. La taille est moins fine que les épaules ou les hanches." },
+      { "label": "Bedaine", "desc": "Ventre notable, taille peu marquée. Les vêtements serrés serrent à la taille." },
+      { "label": "Gros ventre", "desc": "Ventre proéminent, taille non visible. Le pantalon est porté sous le ventre." }
+    ]
   },
   "protein_calc": {
     "weight_label": "Poids (kg)",

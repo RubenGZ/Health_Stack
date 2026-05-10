@@ -130,58 +130,135 @@ const ACTIVITY_VALUES = [1.2, 1.375, 1.55, 1.725, 1.9]
 const inputCls = "w-full bg-white/[0.05] border border-white/[0.1] rounded-xl px-4 py-3 text-white text-sm focus:outline-none focus:border-cyan-500/60 transition-colors"
 const labelCls = "text-[10px] font-bold uppercase tracking-widest text-neutral-500 mb-1.5 block"
 
+/* ── Body silhouette icon ───────────────────────────────────── */
+function BodySilhouette({ type, active }: { type: number; active: boolean }) {
+  // [shoulder_w, waist_w, hip_w] in px — wider middle = more fat
+  const widths = [[22,12,17],[24,16,20],[24,21,23],[24,28,25],[24,35,29]]
+  const [sh, ws, hp] = widths[type]
+  const c = active ? '#22d3ee' : '#374151'
+  return (
+    <div style={{ display:'flex', flexDirection:'column', alignItems:'center', gap:1 }}>
+      <div style={{ width:12, height:12, borderRadius:'50%', background:c }} />
+      <div style={{ width:sh, height:6, borderRadius:'3px 3px 0 0', background:c }} />
+      <div style={{ width:ws, height:14, background:c }} />
+      <div style={{ width:hp, height:6, borderRadius:'0 0 3px 3px', background:c }} />
+    </div>
+  )
+}
+
+/* Pants → waist cm lookup tables */
+const PANTS_M_EU: Record<string,number>  = {'36':71,'38':76,'40':81,'42':86,'44':91,'46':96,'48':101,'50':106,'52':111}
+const PANTS_M_US  = [28,30,32,34,36,38,40,42,44]
+const PANTS_F_EU: Record<string,number>  = {'32':62,'34':66,'36':70,'38':74,'40':78,'42':82,'44':87,'46':92,'48':97}
+
+/* WHtR mid-points per body type (sex-specific) → inferred waist = WHtR × height */
+const WHTR_M = [0.36, 0.41, 0.47, 0.54, 0.62]
+const WHTR_F = [0.34, 0.38, 0.43, 0.50, 0.58]
+
 /* ── IMC sub-calculator ─────────────────────────────────────── */
 function IMCCalc() {
   const { t } = useTranslation()
-  const [mode, setMode]     = useState<'classic' | 'modern'>('classic')
-  const [weight, setWeight] = useState(80)
-  const [height, setHeight] = useState(178)
-  const [waist, setWaist]   = useState(85)
-  const [neck, setNeck]     = useState('')
-  const [sex, setSex]       = useState<'m' | 'f'>('m')
+  const [mode, setMode]               = useState<'classic' | 'modern'>('classic')
+  const [weight, setWeight]           = useState(80)
+  const [height, setHeight]           = useState(178)
+  const [sex, setSex]                 = useState<'m' | 'f'>('m')
+  const [inputMethod, setInputMethod] = useState<'visual' | 'pants' | 'tape'>('visual')
+  const [bodyType, setBodyType]       = useState(2)
+  const [pantsSystem, setPantsSystem] = useState<'eu' | 'us'>('eu')
+  const [pantsSize, setPantsSize]     = useState('')
+  const [waist, setWaist]             = useState(85)
+  const [neck, setNeck]               = useState('')
 
   /* ── Classic BMI ── */
-  const bmi = weight / Math.pow(height / 100, 2)
+  const bmi       = weight / Math.pow(height / 100, 2)
   const cats      = t('imc.cats',       { returnObjects: true }) as string[]
   const fitCats   = t('imc.fit_cats',   { returnObjects: true }) as string[]
+  const bodyTypes = t('imc.body_types', { returnObjects: true }) as { label: string; desc: string }[]
   const thr       = t('imc.thresholds', { returnObjects: true }) as number[]
   const catIdx    = bmi < thr[0] ? 0 : bmi < thr[1] ? 1 : bmi < thr[2] ? 2 : 3
   const catColors = ['#38bdf8', '#22c55e', '#f59e0b', '#ef4444']
 
-  /* ── Modern: RFM (Woolcott & Bergman 2018, Nature) ──
-     Men:   RFM = 64 − (20 × height_cm / waist_cm)
-     Women: RFM = 76 − (20 × height_cm / waist_cm)
-     If neck is given → switch to US Navy formula (more precise)
-  */
-  const neckNum = parseFloat(neck)
-  let rfm: number
-  if (neck && !isNaN(neckNum) && neckNum > 0) {
-    /* Navy body fat % */
-    if (sex === 'm') {
-      rfm = 495 / (1.0324 - 0.19077 * Math.log10(waist - neckNum) + 0.15456 * Math.log10(height)) - 450
-    } else {
-      const hip = Math.round(waist * 1.13)  /* fallback: estimate hip as 1.13× waist for women */
-      rfm = 495 / (1.29579 - 0.35004 * Math.log10(waist + hip - neckNum) + 0.22100 * Math.log10(height)) - 450
+  /* ── Effective waist derived from chosen input method ── */
+  const effectiveWaist = (() => {
+    if (inputMethod === 'tape') return waist
+    if (inputMethod === 'pants' && pantsSize) {
+      if (sex === 'm')
+        return pantsSystem === 'eu'
+          ? (PANTS_M_EU[pantsSize] ?? waist)
+          : Math.round(Number(pantsSize) * 2.54)
+      return PANTS_F_EU[pantsSize] ?? waist
     }
+    /* visual: WHtR × height */
+    return Math.round((sex === 'm' ? WHTR_M : WHTR_F)[bodyType] * height)
+  })()
+
+  /* ── RFM (Woolcott & Bergman 2018) / Navy if neck given in tape mode ── */
+  const neckNum = parseFloat(neck)
+  const useNavy = inputMethod === 'tape' && neck && !isNaN(neckNum) && neckNum > 0
+  let rfm: number
+  if (useNavy) {
+    rfm = sex === 'm'
+      ? 495 / (1.0324 - 0.19077 * Math.log10(effectiveWaist - neckNum) + 0.15456 * Math.log10(height)) - 450
+      : 495 / (1.29579 - 0.35004 * Math.log10(effectiveWaist + Math.round(effectiveWaist * 1.13) - neckNum) + 0.22100 * Math.log10(height)) - 450
   } else {
     rfm = sex === 'm'
-      ? 64 - (20 * (height / waist))
-      : 76 - (20 * (height / waist))
+      ? 64 - (20 * (height / effectiveWaist))
+      : 76 - (20 * (height / effectiveWaist))
   }
   rfm = Math.max(3, Math.round(rfm * 10) / 10)
 
-  /* Body fat categories by sex */
-  const fitThresholds = sex === 'm'
-    ? [6, 14, 18, 25]   /* essential, athletic, fitness, average, obese */
-    : [14, 21, 26, 32]
-  const fitCatIdx = rfm < fitThresholds[0] ? 0
-    : rfm < fitThresholds[1] ? 1
-    : rfm < fitThresholds[2] ? 2
-    : rfm < fitThresholds[3] ? 3 : 4
+  const fitThresholds = sex === 'm' ? [6, 14, 18, 25] : [14, 21, 26, 32]
+  const fitCatIdx = rfm < fitThresholds[0] ? 0 : rfm < fitThresholds[1] ? 1 : rfm < fitThresholds[2] ? 2 : rfm < fitThresholds[3] ? 3 : 4
   const fitColors = ['#818cf8', '#22c55e', '#38bdf8', '#f59e0b', '#ef4444']
-
-  /* Muscle overestimation flag: classic says overweight/obese but modern says athletic/fit */
   const muscleFlag = catIdx >= 2 && fitCatIdx <= 2
+
+  /* ── Pants size lists ── */
+  const pantsOptions = sex === 'm'
+    ? (pantsSystem === 'eu' ? Object.keys(PANTS_M_EU) : PANTS_M_US.map(String))
+    : Object.keys(PANTS_F_EU)
+
+  /* ── Shared results block ── */
+  const ModernResults = (
+    <>
+      {muscleFlag && (
+        <div className="bg-purple-500/[0.08] border border-purple-500/30 rounded-2xl p-5">
+          <p className="text-[11px] font-bold uppercase tracking-widest text-purple-400 mb-1">{t('imc.muscle_flag_title')}</p>
+          <p className="text-[11px] text-neutral-400 leading-relaxed">{t('imc.muscle_flag_body')}</p>
+        </div>
+      )}
+      <div className="grid grid-cols-2 gap-3">
+        <div className="bg-white/[0.025] border border-white/[0.065] rounded-2xl p-5 opacity-60">
+          <div className="text-[9px] font-bold uppercase tracking-widest text-neutral-500 mb-1">{t('imc.classic_label')}</div>
+          <div className="text-3xl font-black text-neutral-400 mb-0.5" style={HEADING}>{bmi.toFixed(1)}</div>
+          <div className="text-[10px] font-bold" style={{ color: catColors[catIdx] }}>{cats[catIdx]}</div>
+        </div>
+        <div className="bg-gradient-to-br from-teal-500/10 to-cyan-500/5 border border-teal-500/30 rounded-2xl p-5">
+          <div className="text-[9px] font-bold uppercase tracking-widest text-teal-400 mb-1">{t('imc.rfm_label')}</div>
+          <div className="text-3xl font-black text-white mb-0.5" style={HEADING}>{rfm.toFixed(1)}%</div>
+          <div className="text-[10px] font-bold" style={{ color: fitColors[fitCatIdx] }}>{fitCats[fitCatIdx]}</div>
+        </div>
+      </div>
+      <div className="bg-white/[0.025] border border-white/[0.065] rounded-2xl p-6">
+        <div className="space-y-3">
+          {fitCats.map((c, i) => (
+            <div key={c} className="flex items-center gap-3">
+              <div className="w-2 h-2 rounded-full flex-shrink-0" style={{ background: fitColors[i] }} />
+              <div className="text-[10px] font-bold uppercase tracking-wider flex-1" style={{ color: fitColors[i] }}>{c}</div>
+              <div className="text-[10px] text-neutral-500">
+                {(sex === 'm' ? ['<6%','6–13%','14–17%','18–24%','≥25%'] : ['<14%','14–20%','21–25%','26–31%','≥32%'])[i]}
+              </div>
+              {fitCatIdx === i && <div className="text-[9px] font-black text-white bg-white/10 px-2 py-0.5 rounded-full">{t('imc.you_marker')}</div>}
+            </div>
+          ))}
+        </div>
+      </div>
+      <div className="bg-teal-500/[0.05] border border-teal-500/20 rounded-2xl p-5">
+        <p className="text-[11px] font-bold uppercase tracking-widest text-teal-400 mb-1.5">{t('imc.modern_why_title')}</p>
+        <p className="text-[11px] text-neutral-400 leading-relaxed">{t('imc.modern_why_body')}</p>
+        {useNavy && <p className="text-[11px] text-cyan-400 mt-2 font-bold">{t('imc.navy_active')}</p>}
+      </div>
+    </>
+  )
 
   return (
     <div className="space-y-5">
@@ -198,17 +275,20 @@ function IMCCalc() {
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        {/* Inputs */}
+        {/* ── Inputs ── */}
         <div className="bg-white/[0.025] border border-white/[0.065] rounded-2xl p-8 space-y-5">
-          <div>
-            <label className={labelCls}>{t('imc.weight_label')}</label>
-            <input type="number" value={weight} min={30} max={300}
-              onChange={e => setWeight(Number(e.target.value))} className={inputCls} />
-          </div>
-          <div>
-            <label className={labelCls}>{t('imc.height_label')}</label>
-            <input type="number" value={height} min={100} max={250}
-              onChange={e => setHeight(Number(e.target.value))} className={inputCls} />
+          {/* Weight + Height always visible */}
+          <div className="grid grid-cols-2 gap-4">
+            <div>
+              <label className={labelCls}>{t('imc.weight_label')}</label>
+              <input type="number" value={weight} min={30} max={300}
+                onChange={e => setWeight(Number(e.target.value))} className={inputCls} />
+            </div>
+            <div>
+              <label className={labelCls}>{t('imc.height_label')}</label>
+              <input type="number" value={height} min={100} max={250}
+                onChange={e => setHeight(Number(e.target.value))} className={inputCls} />
+            </div>
           </div>
 
           {mode === 'modern' && (
@@ -218,8 +298,8 @@ function IMCCalc() {
                 <label className={labelCls}>{t('imc.sex_label')}</label>
                 <div className="flex gap-2">
                   {(['m', 'f'] as const).map(s => (
-                    <button key={s} onClick={() => setSex(s)}
-                      className={`flex-1 py-3 rounded-xl text-sm font-bold transition-all border ${
+                    <button key={s} onClick={() => { setSex(s); setPantsSize('') }}
+                      className={`flex-1 py-2.5 rounded-xl text-sm font-bold transition-all border ${
                         sex === s ? 'bg-cyan-500/20 border-cyan-500/60 text-cyan-400' : 'bg-white/[0.04] border-white/10 text-neutral-400 hover:border-white/20'
                       }`}>
                       {s === 'm' ? t('imc.male') : t('imc.female')}
@@ -227,32 +307,110 @@ function IMCCalc() {
                   ))}
                 </div>
               </div>
-              {/* Waist */}
+
+              {/* Input method selector */}
               <div>
-                <label className={labelCls}>{t('imc.waist_label')}</label>
-                <input type="number" value={waist} min={50} max={200}
-                  onChange={e => setWaist(Number(e.target.value))} className={inputCls} />
+                <label className={labelCls}>{t('imc.input_method_label')}</label>
+                <div className="flex gap-1.5">
+                  {(['visual', 'pants', 'tape'] as const).map(m => (
+                    <button key={m} onClick={() => setInputMethod(m)}
+                      className={`flex-1 py-2.5 px-1 rounded-xl text-[10px] font-extrabold uppercase tracking-wider border transition-all ${
+                        inputMethod === m
+                          ? 'bg-cyan-500/20 border-cyan-500/60 text-cyan-400'
+                          : 'bg-white/[0.04] border-white/10 text-neutral-400 hover:border-white/20 hover:text-white'
+                      }`}>
+                      {t(`imc.method_${m}`)}
+                    </button>
+                  ))}
+                </div>
               </div>
-              {/* Neck (optional) */}
-              <div>
-                <label className={labelCls}>{t('imc.neck_label')} <span className="normal-case font-normal text-neutral-600">{t('imc.optional')}</span></label>
-                <input type="number" value={neck} min={25} max={60} placeholder="—"
-                  onChange={e => setNeck(e.target.value)} className={inputCls} />
-                <p className="text-[10px] text-neutral-600 mt-1.5">{t('imc.neck_hint')}</p>
-              </div>
+
+              {/* ── Visual body type selector ── */}
+              {inputMethod === 'visual' && (
+                <div className="space-y-3">
+                  <div className="grid grid-cols-5 gap-2">
+                    {bodyTypes.map((bt, i) => (
+                      <button key={i} onClick={() => setBodyType(i)}
+                        className={`py-3 px-1 rounded-xl border transition-all text-center ${
+                          bodyType === i ? 'border-cyan-500/60 bg-cyan-500/10' : 'border-white/[0.08] bg-white/[0.02] hover:border-white/20'
+                        }`}>
+                        <BodySilhouette type={i} active={bodyType === i} />
+                        <div className={`text-[8px] font-bold uppercase tracking-wider mt-2 leading-tight ${bodyType === i ? 'text-cyan-400' : 'text-neutral-500'}`}>
+                          {bt.label}
+                        </div>
+                      </button>
+                    ))}
+                  </div>
+                  <p className="text-[10px] text-neutral-500 leading-relaxed">{bodyTypes[bodyType].desc}</p>
+                </div>
+              )}
+
+              {/* ── Pants size selector ── */}
+              {inputMethod === 'pants' && (
+                <div className="space-y-3">
+                  {sex === 'm' && (
+                    <div className="flex gap-2">
+                      {(['eu', 'us'] as const).map(sys => (
+                        <button key={sys} onClick={() => { setPantsSystem(sys); setPantsSize('') }}
+                          className={`flex-1 py-2 rounded-xl text-[10px] font-extrabold uppercase tracking-wider border transition-all ${
+                            pantsSystem === sys ? 'bg-cyan-500/20 border-cyan-500/60 text-cyan-400' : 'bg-white/[0.04] border-white/10 text-neutral-400 hover:border-white/20'
+                          }`}>
+                          {sys === 'eu' ? t('imc.pants_eu') : t('imc.pants_us')}
+                        </button>
+                      ))}
+                    </div>
+                  )}
+                  <label className={labelCls}>{t('imc.pants_size_label')}</label>
+                  <div className="flex flex-wrap gap-2">
+                    {pantsOptions.map(size => (
+                      <button key={size} onClick={() => setPantsSize(size)}
+                        className={`px-3.5 py-2 rounded-lg text-xs font-black border transition-all ${
+                          pantsSize === size
+                            ? 'bg-cyan-500/20 border-cyan-500/60 text-cyan-400'
+                            : 'bg-white/[0.04] border-white/10 text-neutral-400 hover:border-white/20 hover:text-white'
+                        }`}>
+                        {size}{sex === 'm' && pantsSystem === 'us' ? '"' : ''}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {/* ── Tape measure (precision) ── */}
+              {inputMethod === 'tape' && (
+                <div className="space-y-4">
+                  <div>
+                    <label className={labelCls}>{t('imc.waist_label')}</label>
+                    <input type="number" value={waist} min={50} max={200}
+                      onChange={e => setWaist(Number(e.target.value))} className={inputCls} />
+                  </div>
+                  <div>
+                    <label className={labelCls}>{t('imc.neck_label')} <span className="normal-case font-normal text-neutral-600">{t('imc.optional')}</span></label>
+                    <input type="number" value={neck} min={25} max={60} placeholder="—"
+                      onChange={e => setNeck(e.target.value)} className={inputCls} />
+                    <p className="text-[10px] text-neutral-600 mt-1.5">{t('imc.neck_hint')}</p>
+                  </div>
+                </div>
+              )}
+
+              {/* Inferred waist feedback (visual + pants modes) */}
+              {inputMethod !== 'tape' && effectiveWaist > 50 && (
+                <div className="flex items-center justify-between bg-white/[0.03] border border-white/[0.08] rounded-xl px-4 py-2.5">
+                  <span className="text-[10px] text-neutral-500">{t('imc.inferred_waist')}</span>
+                  <span className="text-sm font-black text-white">~{effectiveWaist} cm</span>
+                </div>
+              )}
             </>
           )}
         </div>
 
-        {/* Results */}
+        {/* ── Results ── */}
         <div className="space-y-4">
           {mode === 'classic' ? (
             <>
               <div className="bg-gradient-to-br from-cyan-500/10 to-teal-500/5 border border-cyan-500/25 rounded-2xl p-8">
                 <div className="text-[11px] font-bold uppercase tracking-widest text-neutral-400 mb-2">{t('imc.result_label')}</div>
-                <div className="text-6xl font-black tracking-wide mb-1" style={{ ...HEADING, color: catColors[catIdx] }}>
-                  {bmi.toFixed(1)}
-                </div>
+                <div className="text-6xl font-black tracking-wide mb-1" style={{ ...HEADING, color: catColors[catIdx] }}>{bmi.toFixed(1)}</div>
                 <div className="text-sm font-bold mb-4" style={{ color: catColors[catIdx] }}>{cats[catIdx]}</div>
                 <div className="h-2 bg-white/[0.06] rounded-full overflow-hidden">
                   <div className="h-full rounded-full transition-all duration-500"
@@ -260,7 +418,6 @@ function IMCCalc() {
                 </div>
                 <div className="mt-2 text-[10px] text-neutral-500">{t('imc.healthy')}</div>
               </div>
-              {/* Classic formula note */}
               <div className="bg-amber-500/[0.06] border border-amber-500/20 rounded-2xl p-5">
                 <p className="text-[11px] font-bold uppercase tracking-widest text-amber-400 mb-1.5">{t('imc.classic_warning_title')}</p>
                 <p className="text-[11px] text-neutral-400 leading-relaxed">{t('imc.classic_warning_body')}</p>
@@ -277,54 +434,7 @@ function IMCCalc() {
                 ))}
               </div>
             </>
-          ) : (
-            <>
-              {/* Muscle flag alert */}
-              {muscleFlag && (
-                <div className="bg-purple-500/[0.08] border border-purple-500/30 rounded-2xl p-5">
-                  <p className="text-[11px] font-bold uppercase tracking-widest text-purple-400 mb-1">{t('imc.muscle_flag_title')}</p>
-                  <p className="text-[11px] text-neutral-400 leading-relaxed">{t('imc.muscle_flag_body')}</p>
-                </div>
-              )}
-              {/* BMI vs RFM side by side */}
-              <div className="grid grid-cols-2 gap-3">
-                <div className="bg-white/[0.025] border border-white/[0.065] rounded-2xl p-5 opacity-60">
-                  <div className="text-[9px] font-bold uppercase tracking-widest text-neutral-500 mb-1">{t('imc.classic_label')}</div>
-                  <div className="text-3xl font-black text-neutral-400 mb-0.5" style={HEADING}>{bmi.toFixed(1)}</div>
-                  <div className="text-[10px] font-bold" style={{ color: catColors[catIdx] }}>{cats[catIdx]}</div>
-                </div>
-                <div className="bg-gradient-to-br from-teal-500/10 to-cyan-500/5 border border-teal-500/30 rounded-2xl p-5">
-                  <div className="text-[9px] font-bold uppercase tracking-widest text-teal-400 mb-1">{t('imc.rfm_label')}</div>
-                  <div className="text-3xl font-black text-white mb-0.5" style={HEADING}>{rfm.toFixed(1)}%</div>
-                  <div className="text-[10px] font-bold" style={{ color: fitColors[fitCatIdx] }}>{fitCats[fitCatIdx]}</div>
-                </div>
-              </div>
-              {/* Fitness category bar */}
-              <div className="bg-white/[0.025] border border-white/[0.065] rounded-2xl p-6">
-                <div className="space-y-3">
-                  {fitCats.map((c, i) => (
-                    <div key={c} className="flex items-center gap-3">
-                      <div className="w-2 h-2 rounded-full flex-shrink-0" style={{ background: fitColors[i] }} />
-                      <div className="text-[10px] font-bold uppercase tracking-wider flex-1" style={{ color: fitColors[i] }}>{c}</div>
-                      <div className="text-[10px] text-neutral-500">
-                        {sex === 'm'
-                          ? ['<6%','6–13%','14–17%','18–24%','≥25%'][i]
-                          : ['<14%','14–20%','21–25%','26–31%','≥32%'][i]
-                        }
-                      </div>
-                      {fitCatIdx === i && <div className="text-[9px] font-black text-white bg-white/10 px-2 py-0.5 rounded-full">TÚ</div>}
-                    </div>
-                  ))}
-                </div>
-              </div>
-              {/* Why modern is better */}
-              <div className="bg-teal-500/[0.05] border border-teal-500/20 rounded-2xl p-5">
-                <p className="text-[11px] font-bold uppercase tracking-widest text-teal-400 mb-1.5">{t('imc.modern_why_title')}</p>
-                <p className="text-[11px] text-neutral-400 leading-relaxed">{t('imc.modern_why_body')}</p>
-                {neck && <p className="text-[11px] text-cyan-400 mt-2 font-bold">{t('imc.navy_active')}</p>}
-              </div>
-            </>
-          )}
+          ) : ModernResults}
         </div>
       </div>
     </div>

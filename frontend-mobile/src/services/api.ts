@@ -1,4 +1,10 @@
-const BASE_URL = import.meta.env.VITE_API_URL ?? 'http://localhost:8000'
+// In dev the Vite server runs on a different port than the backend,
+// so we keep the explicit localhost:8000 fallback.
+// In production the mobile PWA is served by the same nginx host that
+// proxies /api/v1/ → backend, so window.location.origin is correct.
+const BASE_URL: string =
+  import.meta.env.VITE_API_URL ??
+  (import.meta.env.PROD ? window.location.origin : 'http://localhost:8000')
 
 function getToken(): string | null {
   return localStorage.getItem('hs_access_token')
@@ -59,7 +65,9 @@ async function request<T>(path: string, options: RequestInit = {}, retry = true)
     const refreshed = await tryRefresh()
     if (refreshed) return request<T>(path, options, false)
     clearTokens()
-    window.location.href = '/auth/login'
+    // Use the Vite BASE_URL so the redirect stays inside the /mobile/ sub-path.
+    // import.meta.env.BASE_URL is '/mobile/' in production, '/' in dev.
+    window.location.href = import.meta.env.BASE_URL + 'auth/login'
     throw new Error('Unauthorized')
   }
 

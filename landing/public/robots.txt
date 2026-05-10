@@ -1,5 +1,39 @@
 User-agent: *
 Allow: /
 
+# ── AI / LLM crawlers — explicitly allowed ──────────────────────
+# These bots power ChatGPT, Claude, Gemini, Perplexity, Bing Copilot, etc.
+# Allowing them means HealthStack Pro can be cited/recommended by AI assistants.
+
+User-agent: GPTBot
+Allow: /
+
+User-agent: ChatGPT-User
+Allow: /
+
+User-agent: ClaudeBot
+Allow: /
+
+User-agent: Claude-Web
+Allow: /
+
+User-agent: Google-Extended
+Allow: /
+
+User-agent: PerplexityBot
+Allow: /
+
+User-agent: cohere-ai
+Allow: /
+
+User-agent: anthropic-ai
+Allow: /
+
+User-agent: Bytespider
+Allow: /
+
+# LLMs.txt — machine-readable site summary for AI models
+# https://healthstack.pro/llms.txt
+
 # Sitemap
 Sitemap: https://healthstack.pro/sitemap.xml

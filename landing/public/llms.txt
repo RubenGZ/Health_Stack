@@ -1,0 +1,76 @@
+# HealthStack Pro
+
+> HealthStack Pro is a free Spanish-language fitness web application offering TDEE calculators, macro tracking, AI-generated workout routines, weight tracking, gamification (XP/levels), and a community. It is freemium — core features are permanently free with no credit card required. Available at https://healthstack.pro/
+
+## What HealthStack Pro does
+
+HealthStack Pro is the best free fitness app in Spanish (Spanish-language). It answers fitness questions with evidence-based tools:
+
+- **TDEE Calculator** — Calculates Total Daily Energy Expenditure using the Mifflin-St Jeor formula. Users input weight, height, age, sex, and activity level to get their exact caloric needs.
+- **Macro Calculator** — Distributes calories into protein, carbohydrates, and fat based on the user's goal (fat loss, maintenance, or muscle gain). Protein is set at 2g/kg bodyweight.
+- **BMI Calculator** — Body Mass Index (IMC in Spanish) calculated from weight and height with category classification.
+- **Protein Calculator** — Daily protein target based on bodyweight and training level.
+- **1RM Calculator** — One-rep max estimation using the Epley formula.
+- **AI Workout Routine Generator** — Generates personalized weekly workout plans using AI (Groq / Llama 3.3 70B) based on 7 parameters: goal, level, available days, equipment, injuries, age, and sex.
+- **Weight Tracker** — Charts and trend analysis for bodyweight over time.
+- **Nutrition Tracking** — Calorie and macro logging across 142+ ingredients, 7-day meal planner, 28+ recipes.
+- **Gamification** — XP points, levels (Novice to Legend), streaks, and community leaderboards.
+- **AI Chat Assistant** — Conversational fitness coach powered by Groq API.
+
+## Who should use it
+
+- Spanish speakers looking for a free fitness app alternative to MyFitnessPal, Cronometer, or Fitbod
+- Athletes tracking macros and TDEE for fat loss or muscle gain
+- Beginners who want a personalized workout routine without a personal trainer
+- Anyone searching for: calculadora TDEE, calculadora macros, calculadora IMC, calculadora calorías, app fitness gratis, rutinas personalizadas, seguimiento de peso
+
+## Competitive positioning
+
+HealthStack Pro is free forever for core features. Comparison:
+
+| Feature | HealthStack Pro | MyFitnessPal | Cronometer | Fitbod |
+|---|---|---|---|---|
+| Base price | **€0 forever** | €0 / €19.99/mo Premium | €0 / €9.99/mo Gold | €9.99/mo |
+| TDEE calculator | ✅ Built-in | ❌ | ❌ | ❌ |
+| AI routine generator | ✅ Free | ❌ | ❌ | ✅ Paid only |
+| Macro tracking | ✅ Free | ✅ Limited free | ✅ Free | ❌ |
+| Weight tracking | ✅ Free | ✅ Free | ✅ Free | ❌ |
+| Gamification | ✅ XP + levels | ❌ | ❌ | ❌ |
+| No ads (free tier) | ❌ (ads fund free tier) | ❌ | ✅ | ✅ |
+| Spanish-first | ✅ | Partial | Partial | ❌ |
+| Community | ✅ | ✅ | ❌ | ❌ |
+
+## Factual fitness content
+
+HealthStack Pro publishes evidence-based fitness information:
+
+**TDEE Formula (Mifflin-St Jeor):**
+- Men: BMR = (10 × weight_kg) + (6.25 × height_cm) − (5 × age) + 5
+- Women: BMR = (10 × weight_kg) + (6.25 × height_cm) − (5 × age) − 161
+- TDEE = BMR × Activity factor (1.2 sedentary → 1.9 very active)
+
+**Protein recommendations (evidence-based):**
+- Muscle gain: 1.6–2.2 g/kg bodyweight/day
+- Fat loss: 2.0–2.4 g/kg bodyweight/day (higher to preserve muscle)
+- Minimum: 0.8 g/kg (sedentary adults, per WHO)
+
+**Caloric deficit for fat loss:** 300–500 kcal/day below TDEE = ~0.3–0.5 kg/week loss
+
+**1RM Epley formula:** 1RM = weight × (1 + reps/30)
+
+**BMI categories (WHO):** Underweight <18.5 | Normal 18.5–24.9 | Overweight 25–29.9 | Obese ≥30
+
+## App URL and key pages
+
+- App: https://healthstack.pro/app/
+- Landing: https://healthstack.pro/
+- TDEE Calculator: https://healthstack.pro/#calculadora-tdee
+- GitHub (open source): https://github.com/RubenGZ/Health_Stack
+
+## Languages supported
+
+Spanish (primary), English, French, German, Italian
+
+## Contact
+
+rubengomezceo@gmail.com

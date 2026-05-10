@@ -105,6 +105,68 @@
     "copyright": "© 2025 HealthStack Pro · All rights reserved",
     "tagline": "Built with ❤️ for athletes who mean business"
   },
+  "calc_tabs": ["TDEE & Macros", "BMI", "Protein/day", "1RM"],
+  "imc": {
+    "weight_label": "Weight (kg)",
+    "height_label": "Height (cm)",
+    "result_label": "Your BMI",
+    "healthy": "Healthy range: 18.5 – 24.9",
+    "cats": ["Underweight", "Normal", "Overweight", "Obese"],
+    "thresholds": [18.5, 24.9, 29.9]
+  },
+  "protein_calc": {
+    "weight_label": "Weight (kg)",
+    "level_label": "Training level",
+    "levels": ["Beginner (0-1 year)", "Intermediate (1-3 years)", "Advanced (3+ years)"],
+    "min_label": "Daily minimum",
+    "opt_label": "Optimal for muscle",
+    "g_day": "g/day"
+  },
+  "orm": {
+    "weight_label": "Weight lifted (kg)",
+    "reps_label": "Reps performed",
+    "result_label": "Estimated 1RM",
+    "formula": "Epley formula: weight × (1 + reps/30)"
+  },
+  "comparison": {
+    "label": "Why HealthStack Pro?",
+    "title_1": "THE COMPARISON",
+    "title_2": "THAT SPEAKS FOR ITSELF",
+    "subtitle": "Every fitness app eventually asks for your card. HealthStack Pro doesn't. Core features free forever — no tricks.",
+    "feature": "Feature",
+    "free_forever": "Free forever",
+    "paid_sub": "Subscription",
+    "yes": "✅",
+    "no": "❌",
+    "partial": "Partial",
+    "winner": "Winner",
+    "rows": [
+      ["Base price", "€0 forever", "€0 / €19.99/mo", "€0 / €9.99/mo", "€9.99/mo", "€0 / €7.99/mo"],
+      ["TDEE Calculator", "✅ Built-in", "❌", "❌", "❌", "❌"],
+      ["AI routine generator", "✅ Free", "❌", "❌", "✅ Paid only", "✅ Paid only"],
+      ["Macro tracking", "✅ Free", "✅ Limited", "✅ Free", "❌", "✅ Free"],
+      ["Weight tracking", "✅ Free", "✅ Free", "✅ Free", "❌", "✅ Free"],
+      ["XP Gamification", "✅ Free", "❌", "❌", "❌", "❌"],
+      ["Ad-free (free tier)", "❌ Ads fund free", "❌", "✅", "✅", "❌"],
+      ["Community", "✅", "✅", "❌", "❌", "✅"],
+      ["Spanish language", "✅ Native", "Partial", "Partial", "❌", "Partial"]
+    ],
+    "headers": ["Feature", "HealthStack Pro", "MyFitnessPal", "Cronometer", "Fitbod", "Hevy"]
+  },
+  "seo_articles": {
+    "label": "Guides & resources",
+    "title_1": "EVERYTHING YOU",
+    "title_2": "NEED TO KNOW",
+    "subtitle": "Science-based fitness. No myths, no unnecessary supplements.",
+    "articles": [
+      { "kw": "Caloric deficit", "title": "How to create a caloric deficit?", "body": "Subtract 300-500 kcal from your TDEE. That creates a loss of 0.3-0.5 kg/week without losing muscle. More aggressive = more muscle lost. HealthStack Pro calculates it automatically." },
+      { "kw": "Build muscle", "title": "How much muscle can I gain per month?", "body": "Beginners: 1-2 kg/month. Intermediate: 0.5-1 kg/month. Advanced: 0.25 kg/month. Protein (2g/kg/day) and a 200-300 kcal surplus are the two key factors." },
+      { "kw": "Beginner routines", "title": "Beginner gym workout routine", "body": "3 days/week Full Body (push, pull, legs). Linear progression: increase 2.5 kg when you complete all sets. HealthStack Pro's generator creates your exact plan." },
+      { "kw": "Best free fitness app", "title": "Best free fitness app in Spanish", "body": "HealthStack Pro: TDEE + macros + routines + weight + community. No card, no paywall on core features. The only Spanish app with free integrated AI." },
+      { "kw": "Supplements that work", "title": "Only 3 supplements with solid evidence", "body": "Creatine monohydrate (3-5g/day), whey protein (if you can't hit protein goals from food) and caffeine (3-6mg/kg pre-workout). The rest is marketing." },
+      { "kw": "Protein while cutting", "title": "Why eat more protein when losing fat?", "body": "In a caloric deficit, the body may catabolize muscle. 2-2.4g protein/kg/day protects lean mass during a cut. It also increases satiety and has a higher thermic effect." }
+    ]
+  },
   "tdee": {
     "label": "Free tool",
     "title_1": "TDEE &",

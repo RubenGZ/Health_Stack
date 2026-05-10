@@ -105,6 +105,68 @@
     "copyright": "© 2025 HealthStack Pro · Todos los derechos reservados",
     "tagline": "Construido con ❤️ para atletas que van en serio"
   },
+  "calc_tabs": ["TDEE y Macros", "IMC", "Proteína/día", "1RM"],
+  "imc": {
+    "weight_label": "Peso (kg)",
+    "height_label": "Altura (cm)",
+    "result_label": "Tu IMC",
+    "healthy": "Rango saludable: 18.5 – 24.9",
+    "cats": ["Bajo peso", "Normal", "Sobrepeso", "Obesidad"],
+    "thresholds": [18.5, 24.9, 29.9]
+  },
+  "protein_calc": {
+    "weight_label": "Peso (kg)",
+    "level_label": "Nivel de entrenamiento",
+    "levels": ["Principiante (0-1 año)", "Intermedio (1-3 años)", "Avanzado (3+ años)"],
+    "min_label": "Mínimo diario",
+    "opt_label": "Óptimo para músculo",
+    "g_day": "g/día"
+  },
+  "orm": {
+    "weight_label": "Peso levantado (kg)",
+    "reps_label": "Repeticiones realizadas",
+    "result_label": "1RM estimado",
+    "formula": "Fórmula de Epley: peso × (1 + reps/30)"
+  },
+  "comparison": {
+    "label": "¿Por qué HealthStack Pro?",
+    "title_1": "LA COMPARATIVA",
+    "title_2": "QUE HABLA SOLA",
+    "subtitle": "Todas las apps de fitness piden tu tarjeta tarde o temprano. HealthStack Pro no. Funciones core gratis para siempre, sin trampas.",
+    "feature": "Función",
+    "free_forever": "Gratis para siempre",
+    "paid_sub": "Suscripción",
+    "yes": "✅",
+    "no": "❌",
+    "partial": "Parcial",
+    "winner": "Ganador",
+    "rows": [
+      ["Precio base", "€0 para siempre", "€0 / €19.99/mes", "€0 / €9.99/mes", "€9.99/mes", "€0 / €7.99/mes"],
+      ["Calculadora TDEE", "✅ Integrada", "❌", "❌", "❌", "❌"],
+      ["Generador rutinas IA", "✅ Gratis", "❌", "❌", "✅ Solo pago", "✅ Solo pago"],
+      ["Seguimiento de macros", "✅ Gratis", "✅ Limitado", "✅ Gratis", "❌", "✅ Gratis"],
+      ["Seguimiento de peso", "✅ Gratis", "✅ Gratis", "✅ Gratis", "❌", "✅ Gratis"],
+      ["Gamificación XP", "✅ Gratis", "❌", "❌", "❌", "❌"],
+      ["Sin anuncios (gratis)", "❌ Ads financian gratis", "❌", "✅", "✅", "❌"],
+      ["Comunidad", "✅", "✅", "❌", "❌", "✅"],
+      ["Idioma español", "✅ Nativo", "Parcial", "Parcial", "❌", "Parcial"]
+    ],
+    "headers": ["Función", "HealthStack Pro", "MyFitnessPal", "Cronometer", "Fitbod", "Hevy"]
+  },
+  "seo_articles": {
+    "label": "Guías y recursos",
+    "title_1": "TODO LO QUE",
+    "title_2": "NECESITAS SABER",
+    "subtitle": "Evidencia científica aplicada al fitness real. Sin mitos, sin suplementos innecesarios.",
+    "articles": [
+      { "kw": "Déficit calórico", "title": "¿Cómo crear un déficit calórico?", "body": "Resta 300-500 kcal de tu TDEE. Eso genera una pérdida de 0.3-0.5 kg/semana sin perder músculo. Más agresivo = más músculo perdido. HealthStack Pro lo calcula automáticamente." },
+      { "kw": "Ganar músculo", "title": "¿Cuánto músculo puedo ganar al mes?", "body": "Principiantes: 1-2 kg/mes. Intermedios: 0.5-1 kg/mes. Avanzados: 0.25 kg/mes. La proteína (2g/kg/día) y el superávit de 200-300 kcal son los dos factores clave." },
+      { "kw": "Rutinas principiantes", "title": "Rutina para principiantes en el gym", "body": "3 días/semana Full Body (push, pull, piernas). Progresión lineal: sube 2.5 kg cuando completes todas las series. El generador de HealthStack Pro crea tu plan exacto." },
+      { "kw": "App fitness gratis", "title": "La mejor app fitness gratis en español", "body": "HealthStack Pro: TDEE + macros + rutinas + peso + comunidad. Sin tarjeta, sin paywall en funciones core. La única app española con IA integrada de forma gratuita." },
+      { "kw": "Suplementos que funcionan", "title": "Solo 3 suplementos con evidencia sólida", "body": "Creatina monohidrato (3-5g/día), proteína whey (si no llegas a tu objetivo proteico por comida) y cafeína (3-6mg/kg antes de entrenar). El resto es marketing." },
+      { "kw": "Proteína para perder grasa", "title": "¿Por qué comer más proteína al perder peso?", "body": "Con déficit calórico, el cuerpo puede catabolizar músculo. 2-2.4g proteína/kg/día protege la masa muscular durante el corte. Además aumenta la saciedad y el efecto térmico." }
+    ]
+  },
   "tdee": {
     "label": "Herramienta gratuita",
     "title_1": "CALCULADORA",

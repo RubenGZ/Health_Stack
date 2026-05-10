@@ -105,6 +105,65 @@
     "copyright": "© 2025 HealthStack Pro · Tous droits réservés",
     "tagline": "Construit avec ❤️ pour les athlètes qui jouent pour de vrai"
   },
+  "calc_tabs": ["TDEE & Macros", "IMC", "Protéines/jour", "1RM"],
+  "imc": {
+    "weight_label": "Poids (kg)",
+    "height_label": "Taille (cm)",
+    "result_label": "Ton IMC",
+    "healthy": "Plage saine: 18.5 – 24.9",
+    "cats": ["Insuffisance pondérale", "Normal", "Surpoids", "Obésité"],
+    "thresholds": [18.5, 24.9, 29.9]
+  },
+  "protein_calc": {
+    "weight_label": "Poids (kg)",
+    "level_label": "Niveau d'entraînement",
+    "levels": ["Débutant (0-1 an)", "Intermédiaire (1-3 ans)", "Avancé (3+ ans)"],
+    "min_label": "Minimum quotidien",
+    "opt_label": "Optimal pour le muscle",
+    "g_day": "g/jour"
+  },
+  "orm": {
+    "weight_label": "Poids soulevé (kg)",
+    "reps_label": "Répétitions effectuées",
+    "result_label": "1RM estimé",
+    "formula": "Formule d'Epley: poids × (1 + reps/30)"
+  },
+  "comparison": {
+    "label": "Pourquoi HealthStack Pro?",
+    "title_1": "LA COMPARAISON",
+    "title_2": "QUI PARLE D'ELLE-MÊME",
+    "subtitle": "Chaque app fitness finit par demander ta carte. HealthStack Pro non. Fonctionnalités core gratuites pour toujours — sans arnaque.",
+    "feature": "Fonctionnalité",
+    "free_forever": "Gratuit pour toujours",
+    "paid_sub": "Abonnement",
+    "yes": "✅", "no": "❌", "partial": "Partiel", "winner": "Gagnant",
+    "rows": [
+      ["Prix de base", "€0 pour toujours", "€0 / €19.99/mois", "€0 / €9.99/mois", "€9.99/mois", "€0 / €7.99/mois"],
+      ["Calculateur TDEE", "✅ Intégré", "❌", "❌", "❌", "❌"],
+      ["Générateur routines IA", "✅ Gratuit", "❌", "❌", "✅ Payant", "✅ Payant"],
+      ["Suivi des macros", "✅ Gratuit", "✅ Limité", "✅ Gratuit", "❌", "✅ Gratuit"],
+      ["Suivi du poids", "✅ Gratuit", "✅ Gratuit", "✅ Gratuit", "❌", "✅ Gratuit"],
+      ["Gamification XP", "✅ Gratuit", "❌", "❌", "❌", "❌"],
+      ["Sans pub (gratuit)", "❌ Pubs financent", "❌", "✅", "✅", "❌"],
+      ["Communauté", "✅", "✅", "❌", "❌", "✅"],
+      ["Langue espagnole", "✅ Natif", "Partiel", "Partiel", "❌", "Partiel"]
+    ],
+    "headers": ["Fonctionnalité", "HealthStack Pro", "MyFitnessPal", "Cronometer", "Fitbod", "Hevy"]
+  },
+  "seo_articles": {
+    "label": "Guides & ressources",
+    "title_1": "TOUT CE QUE TU",
+    "title_2": "AS BESOIN DE SAVOIR",
+    "subtitle": "Fitness basé sur la science. Sans mythes, sans suppléments inutiles.",
+    "articles": [
+      { "kw": "Déficit calorique", "title": "Comment créer un déficit calorique?", "body": "Soustrais 300-500 kcal de ton TDEE. Cela crée une perte de 0.3-0.5 kg/semaine sans perdre de muscle. HealthStack Pro le calcule automatiquement." },
+      { "kw": "Gagner du muscle", "title": "Combien de muscle puis-je gagner par mois?", "body": "Débutants: 1-2 kg/mois. Intermédiaires: 0.5-1 kg/mois. Avancés: 0.25 kg/mois. Les protéines (2g/kg/jour) et un surplus de 200-300 kcal sont les deux facteurs clés." },
+      { "kw": "Routines débutants", "title": "Programme gym pour débutants", "body": "3 jours/semaine Full Body. Progression linéaire: augmente 2.5 kg quand tu complètes toutes les séries. Le générateur de HealthStack Pro crée ton plan exact." },
+      { "kw": "Meilleure app fitness gratuite", "title": "Meilleure app fitness gratuite en espagnol", "body": "HealthStack Pro: TDEE + macros + routines + poids + communauté. Sans carte, sans paywall sur les fonctions core." },
+      { "kw": "Suppléments efficaces", "title": "Seulement 3 suppléments avec des preuves solides", "body": "Créatine monohydrate (3-5g/jour), protéines whey et caféine (3-6mg/kg avant l'entraînement). Le reste, c'est du marketing." },
+      { "kw": "Protéines en sèche", "title": "Pourquoi manger plus de protéines en perte de poids?", "body": "Avec un déficit calorique, le corps peut cataboliser le muscle. 2-2.4g protéines/kg/jour protège la masse maigre. Augmente aussi la satiété." }
+    ]
+  },
   "tdee": {
     "label": "Outil gratuit",
     "title_1": "CALCULATEUR",

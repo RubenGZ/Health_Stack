@@ -1,4 +1,4 @@
-import { useRef, useCallback, useState, useEffect, type ReactNode } from 'react'
+import { useRef, useCallback, useState, useEffect, type ReactNode, Component, type ErrorInfo } from 'react'
 import { AnimatePresence, motion } from 'framer-motion'
 import { useTranslation }        from 'react-i18next'
 import { useGeoPrice }           from '@/hooks/useGeoPrice'
@@ -25,6 +25,16 @@ import {
   Zap, Dumbbell, Apple, Users, Trophy, Clock,
   Star, Check, X, ChevronRight, Menu, Calculator, Target, Flame,
 } from 'lucide-react'
+
+class SplineErrorBoundary extends Component<{ children: ReactNode }, { crashed: boolean }> {
+  state = { crashed: false }
+  componentDidCatch(_: Error, __: ErrorInfo) { this.setState({ crashed: true }) }
+  static getDerivedStateFromError() { return { crashed: true } }
+  render() {
+    if (this.state.crashed) return <div className="w-full h-full bg-gradient-to-br from-cyan-950/30 to-purple-950/20 rounded-xl" />
+    return this.props.children
+  }
+}
 
 function useIsMobile() {
   const [isMobile, setIsMobile] = useState(
@@ -112,11 +122,158 @@ const STAT_VALUES = [
 
 const BAND_VALUES = ['50K+', '300+', '142', '100%']
 
-/* ── TDEE Calculator ──────────────────────────────────────────── */
+/* ── Calculator Hub (TDEE · IMC · Proteína · 1RM) ────────────── */
 
 const ACTIVITY_VALUES = [1.2, 1.375, 1.55, 1.725, 1.9]
 
-function TDEECalculator() {
+/* shared input styles */
+const inputCls = "w-full bg-white/[0.05] border border-white/[0.1] rounded-xl px-4 py-3 text-white text-sm focus:outline-none focus:border-cyan-500/60 transition-colors"
+const labelCls = "text-[10px] font-bold uppercase tracking-widest text-neutral-500 mb-1.5 block"
+
+/* ── IMC sub-calculator ─────────────────────────────────────── */
+function IMCCalc() {
+  const { t } = useTranslation()
+  const [weight, setWeight] = useState(75)
+  const [height, setHeight] = useState(175)
+
+  const imc = weight / Math.pow(height / 100, 2)
+  const cats  = t('imc.cats', { returnObjects: true }) as string[]
+  const thr   = t('imc.thresholds', { returnObjects: true }) as number[]
+  const catIdx = imc < thr[0] ? 0 : imc < thr[1] ? 1 : imc < thr[2] ? 2 : 3
+  const catColors = ['#38bdf8', '#22c55e', '#f59e0b', '#ef4444']
+
+  return (
+    <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+      <div className="bg-white/[0.025] border border-white/[0.065] rounded-2xl p-8 space-y-5">
+        <div>
+          <label className={labelCls}>{t('imc.weight_label')}</label>
+          <input type="number" value={weight} min={30} max={300}
+            onChange={e => setWeight(Number(e.target.value))} className={inputCls} />
+        </div>
+        <div>
+          <label className={labelCls}>{t('imc.height_label')}</label>
+          <input type="number" value={height} min={100} max={250}
+            onChange={e => setHeight(Number(e.target.value))} className={inputCls} />
+        </div>
+      </div>
+      <div className="space-y-4">
+        <div className="bg-gradient-to-br from-cyan-500/10 to-teal-500/5 border border-cyan-500/25 rounded-2xl p-8">
+          <div className="text-[11px] font-bold uppercase tracking-widest text-neutral-400 mb-2">{t('imc.result_label')}</div>
+          <div className="text-6xl font-black tracking-wide mb-1" style={{ ...HEADING, color: catColors[catIdx] }}>
+            {imc.toFixed(1)}
+          </div>
+          <div className="text-sm font-bold" style={{ color: catColors[catIdx] }}>{cats[catIdx]}</div>
+          <div className="mt-4 h-2 bg-white/[0.06] rounded-full overflow-hidden">
+            <div className="h-full rounded-full transition-all duration-500"
+              style={{ width: `${Math.min(100, (imc / 40) * 100)}%`, background: catColors[catIdx] }} />
+          </div>
+          <div className="mt-2 text-[10px] text-neutral-500">{t('imc.healthy')}</div>
+        </div>
+        <div className="grid grid-cols-4 gap-2">
+          {cats.map((c, i) => (
+            <div key={c} className={`rounded-xl p-3 text-center border transition-all ${catIdx === i ? 'border-white/20 bg-white/[0.06]' : 'border-white/[0.06]'}`}>
+              <div className="text-[9px] font-bold uppercase tracking-wider" style={{ color: catColors[i] }}>{c}</div>
+            </div>
+          ))}
+        </div>
+      </div>
+    </div>
+  )
+}
+
+/* ── Protein sub-calculator ─────────────────────────────────── */
+function ProteinCalc() {
+  const { t } = useTranslation()
+  const [weight, setWeight] = useState(75)
+  const [level, setLevel]   = useState(0)
+
+  const multipliers = [[1.4, 1.8], [1.6, 2.0], [1.8, 2.2]]
+  const [minM, optM] = multipliers[level]
+  const minG  = Math.round(weight * minM)
+  const optG  = Math.round(weight * optM)
+  const levels = t('protein_calc.levels', { returnObjects: true }) as string[]
+
+  return (
+    <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+      <div className="bg-white/[0.025] border border-white/[0.065] rounded-2xl p-8 space-y-5">
+        <div>
+          <label className={labelCls}>{t('protein_calc.weight_label')}</label>
+          <input type="number" value={weight} min={30} max={300}
+            onChange={e => setWeight(Number(e.target.value))} className={inputCls} />
+        </div>
+        <div>
+          <label className={labelCls}>{t('protein_calc.level_label')}</label>
+          <div className="space-y-2">
+            {levels.map((l, i) => (
+              <button key={i} onClick={() => setLevel(i)}
+                className={`w-full text-left py-3 px-4 rounded-xl text-sm font-bold transition-all border ${level === i ? 'bg-cyan-500/20 border-cyan-500/60 text-cyan-400' : 'bg-white/[0.04] border-white/10 text-neutral-400 hover:border-white/20'}`}>
+                {l}
+              </button>
+            ))}
+          </div>
+        </div>
+      </div>
+      <div className="space-y-4">
+        <div className="bg-gradient-to-br from-cyan-500/10 to-teal-500/5 border border-cyan-500/25 rounded-2xl p-8">
+          <div className="text-[11px] font-bold uppercase tracking-widest text-neutral-400 mb-4">{t('protein_calc.min_label')}</div>
+          <div className="text-5xl font-black text-white mb-1" style={HEADING}>{minG}g</div>
+          <div className="text-sm text-neutral-400">{t('protein_calc.g_day')} · {minM}g/kg</div>
+        </div>
+        <div className="bg-gradient-to-br from-teal-500/10 to-cyan-500/5 border border-teal-500/25 rounded-2xl p-6">
+          <div className="text-[11px] font-bold uppercase tracking-widest text-neutral-400 mb-4">{t('protein_calc.opt_label')}</div>
+          <div className="text-5xl font-black text-white mb-1" style={HEADING}>{optG}g</div>
+          <div className="text-sm text-neutral-400">{t('protein_calc.g_day')} · {optM}g/kg</div>
+        </div>
+      </div>
+    </div>
+  )
+}
+
+/* ── 1RM sub-calculator ─────────────────────────────────────── */
+function ORMCalc() {
+  const { t } = useTranslation()
+  const [lifted, setLifted] = useState(100)
+  const [reps, setReps]     = useState(5)
+
+  const orm = Math.round(lifted * (1 + reps / 30))
+  const percentages = [100, 95, 90, 85, 80, 75, 70]
+
+  return (
+    <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+      <div className="bg-white/[0.025] border border-white/[0.065] rounded-2xl p-8 space-y-5">
+        <div>
+          <label className={labelCls}>{t('orm.weight_label')}</label>
+          <input type="number" value={lifted} min={1} max={500}
+            onChange={e => setLifted(Number(e.target.value))} className={inputCls} />
+        </div>
+        <div>
+          <label className={labelCls}>{t('orm.reps_label')}</label>
+          <input type="number" value={reps} min={1} max={20}
+            onChange={e => setReps(Number(e.target.value))} className={inputCls} />
+        </div>
+        <div className="text-[10px] text-neutral-600 leading-relaxed">{t('orm.formula')}</div>
+      </div>
+      <div className="bg-white/[0.025] border border-white/[0.065] rounded-2xl p-8">
+        <div className="text-[11px] font-bold uppercase tracking-widest text-neutral-400 mb-2">{t('orm.result_label')}</div>
+        <div className="text-6xl font-black text-white mb-6" style={HEADING}>{orm} kg</div>
+        <div className="space-y-2">
+          {percentages.map(pct => (
+            <div key={pct} className="flex items-center justify-between">
+              <span className="text-[10px] font-bold text-neutral-500 uppercase tracking-wider">{pct}%</span>
+              <div className="flex-1 mx-3 h-1.5 bg-white/[0.06] rounded-full overflow-hidden">
+                <div className="h-full rounded-full bg-gradient-to-r from-teal-500 to-cyan-400" style={{ width: `${pct}%` }} />
+              </div>
+              <span className="text-sm font-black text-white w-16 text-right" style={HEADING}>{Math.round(orm * pct / 100)} kg</span>
+            </div>
+          ))}
+        </div>
+      </div>
+    </div>
+  )
+}
+
+/* ── TDEE sub-calculator (extracted from old TDEECalculator) ── */
+function TDEECalc() {
   const { t } = useTranslation()
   const [weight, setWeight]     = useState(75)
   const [height, setHeight]     = useState(175)
@@ -146,146 +303,263 @@ function TDEECalculator() {
       : t('tdee.goal_maintain')
 
   return (
+    <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+      {/* Inputs */}
+      <div className="bg-white/[0.025] border border-white/[0.065] rounded-2xl p-8 space-y-5">
+        <div className="grid grid-cols-2 gap-4">
+          <div>
+            <label className={labelCls}>{t('tdee.weight_label')}</label>
+            <input type="number" value={weight} min={30} max={250}
+              onChange={e => setWeight(Number(e.target.value))} className={inputCls} />
+          </div>
+          <div>
+            <label className={labelCls}>{t('tdee.height_label')}</label>
+            <input type="number" value={height} min={100} max={250}
+              onChange={e => setHeight(Number(e.target.value))} className={inputCls} />
+          </div>
+        </div>
+        <div className="grid grid-cols-2 gap-4">
+          <div>
+            <label className={labelCls}>{t('tdee.age_label')}</label>
+            <input type="number" value={age} min={14} max={100}
+              onChange={e => setAge(Number(e.target.value))} className={inputCls} />
+          </div>
+          <div>
+            <label className={labelCls}>{t('tdee.sex_label')}</label>
+            <div className="flex gap-2">
+              {([['m', t('tdee.male')], ['f', t('tdee.female')]] as const).map(([v, l]) => (
+                <button key={v} onClick={() => setSex(v)}
+                  className={`flex-1 py-3 rounded-xl text-sm font-bold transition-all border ${sex === v ? 'bg-cyan-500/20 border-cyan-500/60 text-cyan-400' : 'bg-white/[0.04] border-white/10 text-neutral-400 hover:border-white/20'}`}>
+                  {l}
+                </button>
+              ))}
+            </div>
+          </div>
+        </div>
+        <div>
+          <label className={labelCls}>{t('tdee.activity_label')}</label>
+          <select value={activity} onChange={e => setActivity(Number(e.target.value))}
+            className={inputCls + " cursor-pointer"}>
+            {ACTIVITY_VALUES.map((val, i) => (
+              <option key={val} value={val} className="bg-[#0a0a14]">{activityLabels[i]}</option>
+            ))}
+          </select>
+        </div>
+        <div>
+          <label className={labelCls}>{t('tdee.goal_label')}</label>
+          <div className="flex gap-2">
+            {([
+              ['cut',      t('tdee.cut'),      'text-red-400',   'border-red-500/60 bg-red-500/10'],
+              ['maintain', t('tdee.maintain'),  'text-cyan-400',  'border-cyan-500/60 bg-cyan-500/10'],
+              ['bulk',     t('tdee.bulk'),      'text-green-400', 'border-green-500/60 bg-green-500/10'],
+            ] as const).map(([v, l, tc, ac]) => (
+              <button key={v} onClick={() => setGoal(v)}
+                className={`flex-1 py-2.5 rounded-xl text-xs font-bold transition-all border ${goal === v ? `${ac} ${tc}` : 'bg-white/[0.04] border-white/10 text-neutral-400 hover:border-white/20'}`}>
+                {l}
+              </button>
+            ))}
+          </div>
+        </div>
+      </div>
+
+      {/* Results */}
+      <div className="space-y-4">
+        <div className="bg-gradient-to-br from-cyan-500/10 to-teal-500/5 border border-cyan-500/25 rounded-2xl p-8">
+          <div className="flex items-center gap-3 mb-2">
+            <Flame className="w-5 h-5 text-cyan-400" />
+            <span className="text-[11px] font-bold uppercase tracking-widest text-neutral-400">{t('tdee.your_tdee')}</span>
+          </div>
+          <div className="text-6xl font-black text-white tracking-wide mb-1" style={HEADING}>{tdee.toLocaleString()}</div>
+          <div className="text-sm text-neutral-400">{t('tdee.cal_day')}</div>
+        </div>
+        <div className="bg-gradient-to-br from-teal-500/10 to-cyan-500/5 border border-teal-500/25 rounded-2xl p-6">
+          <div className="flex items-center gap-3 mb-4">
+            <Target className="w-5 h-5 text-teal-400" />
+            <span className="text-[11px] font-bold uppercase tracking-widest text-neutral-400">{goalLabel}</span>
+          </div>
+          <div className="text-4xl font-black text-white mb-4" style={HEADING}>
+            {target.toLocaleString()} <span className="text-lg text-neutral-400 font-normal">kcal/día</span>
+          </div>
+          <div className="grid grid-cols-3 gap-3">
+            {[
+              { labelKey: 'tdee.protein', g: protein, color: '#38bdf8', pct: Math.round(protein * 4 / target * 100) },
+              { labelKey: 'tdee.carbs',   g: carbs,   color: '#0891b2', pct: Math.round(carbs * 4 / target * 100) },
+              { labelKey: 'tdee.fats',    g: fat,     color: '#a855f7', pct: Math.round(fat * 9 / target * 100) },
+            ].map(m => (
+              <div key={m.labelKey} className="text-center">
+                <div className="text-2xl font-black text-white" style={HEADING}>{m.g}g</div>
+                <div className="text-[10px] text-neutral-500 uppercase tracking-wider">{t(m.labelKey)}</div>
+                <div className="mt-2 h-1.5 bg-white/[0.06] rounded-full overflow-hidden">
+                  <div className="h-full rounded-full" style={{ width: `${m.pct}%`, background: m.color }} />
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+        <button onClick={() => { window.location.href = window.location.origin + '/' }}
+          className="w-full py-4 rounded-xl bg-gradient-to-r from-teal-500 to-cyan-400 text-white font-extrabold uppercase tracking-widest text-sm shadow-[0_8px_32px_rgba(8,145,178,0.35)] hover:shadow-[0_14px_44px_rgba(8,145,178,0.5)] hover:-translate-y-0.5 transition-all flex items-center justify-center gap-2">
+          <Calculator className="w-4 h-4" />
+          {t('tdee.cta')}
+        </button>
+      </div>
+    </div>
+  )
+}
+
+/* ── Calculator Hub (tabbed wrapper) ─────────────────────────── */
+function CalculatorHub() {
+  const { t } = useTranslation()
+  const [tab, setTab] = useState(0)
+  const tabs = t('calc_tabs', { returnObjects: true }) as string[]
+
+  return (
     <section id="calculadora-tdee" className="py-24 px-8 md:px-16 bg-[#080810] border-t border-white/[0.035]">
       <div className="max-w-5xl mx-auto">
-        <div className="mb-12">
-          <p className="text-[11px] font-bold uppercase tracking-[3px] text-teal-400 mb-3">
-            {t('tdee.label')}
-          </p>
+        <div className="mb-10">
+          <p className="text-[11px] font-bold uppercase tracking-[3px] text-teal-400 mb-3">{t('tdee.label')}</p>
           <h2 className="text-5xl md:text-6xl font-black uppercase tracking-widest leading-[0.94] text-white mb-4" style={HEADING}>
             {t('tdee.title_1')}<br />
             <span className="bg-clip-text text-transparent bg-gradient-to-r from-cyan-500 to-teal-400">{t('tdee.title_2')}</span>
           </h2>
-          <p className="text-neutral-400 max-w-md text-sm leading-relaxed">{t('tdee.subtitle')}</p>
+          <p className="text-neutral-400 max-w-lg text-sm leading-relaxed">{t('tdee.subtitle')}</p>
         </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-          {/* Inputs */}
-          <div className="bg-white/[0.025] border border-white/[0.065] rounded-2xl p-8 space-y-5">
-            <div className="grid grid-cols-2 gap-4">
-              <div>
-                <label className={labelCls}>{t('tdee.weight_label')}</label>
-                <input type="number" value={weight} min={30} max={250}
-                  onChange={e => setWeight(Number(e.target.value))}
-                  className={inputCls} />
-              </div>
-              <div>
-                <label className={labelCls}>{t('tdee.height_label')}</label>
-                <input type="number" value={height} min={100} max={250}
-                  onChange={e => setHeight(Number(e.target.value))}
-                  className={inputCls} />
-              </div>
-            </div>
-
-            <div className="grid grid-cols-2 gap-4">
-              <div>
-                <label className={labelCls}>{t('tdee.age_label')}</label>
-                <input type="number" value={age} min={14} max={100}
-                  onChange={e => setAge(Number(e.target.value))}
-                  className={inputCls} />
-              </div>
-              <div>
-                <label className={labelCls}>{t('tdee.sex_label')}</label>
-                <div className="flex gap-2">
-                  {([['m', t('tdee.male')], ['f', t('tdee.female')]] as const).map(([v, l]) => (
-                    <button key={v} onClick={() => setSex(v)}
-                      className={`flex-1 py-3 rounded-xl text-sm font-bold transition-all border ${sex === v ? 'bg-cyan-500/20 border-cyan-500/60 text-cyan-400' : 'bg-white/[0.04] border-white/10 text-neutral-400 hover:border-white/20'}`}>
-                      {l}
-                    </button>
-                  ))}
-                </div>
-              </div>
-            </div>
-
-            <div>
-              <label className={labelCls}>{t('tdee.activity_label')}</label>
-              <select value={activity} onChange={e => setActivity(Number(e.target.value))}
-                className={inputCls + " cursor-pointer"}>
-                {ACTIVITY_VALUES.map((val, i) => (
-                  <option key={val} value={val} className="bg-[#0a0a14]">{activityLabels[i]}</option>
-                ))}
-              </select>
-            </div>
-
-            <div>
-              <label className={labelCls}>{t('tdee.goal_label')}</label>
-              <div className="flex gap-2">
-                {([
-                  ['cut',      t('tdee.cut'),      'text-red-400',   'border-red-500/60 bg-red-500/10'],
-                  ['maintain', t('tdee.maintain'),  'text-cyan-400',  'border-cyan-500/60 bg-cyan-500/10'],
-                  ['bulk',     t('tdee.bulk'),      'text-green-400', 'border-green-500/60 bg-green-500/10'],
-                ] as const).map(([v, l, tc, ac]) => (
-                  <button key={v} onClick={() => setGoal(v)}
-                    className={`flex-1 py-2.5 rounded-xl text-xs font-bold transition-all border ${goal === v ? `${ac} ${tc}` : 'bg-white/[0.04] border-white/10 text-neutral-400 hover:border-white/20'}`}>
-                    {l}
-                  </button>
-                ))}
-              </div>
-            </div>
-          </div>
-
-          {/* Results */}
-          <div className="space-y-4">
-            <div className="bg-gradient-to-br from-cyan-500/10 to-teal-500/5 border border-cyan-500/25 rounded-2xl p-8">
-              <div className="flex items-center gap-3 mb-2">
-                <Flame className="w-5 h-5 text-cyan-400" />
-                <span className="text-[11px] font-bold uppercase tracking-widest text-neutral-400">{t('tdee.your_tdee')}</span>
-              </div>
-              <div className="text-6xl font-black text-white tracking-wide mb-1" style={HEADING}>
-                {tdee.toLocaleString()}
-              </div>
-              <div className="text-sm text-neutral-400">{t('tdee.cal_day')}</div>
-            </div>
-
-            <div className="bg-gradient-to-br from-teal-500/10 to-cyan-500/5 border border-teal-500/25 rounded-2xl p-6">
-              <div className="flex items-center gap-3 mb-4">
-                <Target className="w-5 h-5 text-teal-400" />
-                <span className="text-[11px] font-bold uppercase tracking-widest text-neutral-400">
-                  {goalLabel}
-                </span>
-              </div>
-              <div className="text-4xl font-black text-white mb-4" style={HEADING}>
-                {target.toLocaleString()} <span className="text-lg text-neutral-400 font-normal">kcal/día</span>
-              </div>
-              <div className="grid grid-cols-3 gap-3">
-                {[
-                  { labelKey: 'tdee.protein', g: protein, color: '#38bdf8', pct: Math.round(protein * 4 / target * 100) },
-                  { labelKey: 'tdee.carbs',   g: carbs,   color: '#0891b2', pct: Math.round(carbs * 4 / target * 100) },
-                  { labelKey: 'tdee.fats',    g: fat,     color: '#a855f7', pct: Math.round(fat * 9 / target * 100) },
-                ].map(m => (
-                  <div key={m.labelKey} className="text-center">
-                    <div className="text-2xl font-black text-white" style={HEADING}>{m.g}g</div>
-                    <div className="text-[10px] text-neutral-500 uppercase tracking-wider">{t(m.labelKey)}</div>
-                    <div className="mt-2 h-1.5 bg-white/[0.06] rounded-full overflow-hidden">
-                      <div className="h-full rounded-full" style={{ width: `${m.pct}%`, background: m.color }} />
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </div>
-
-            <button onClick={() => { window.location.href = window.location.origin + '/' }}
-              className="w-full py-4 rounded-xl bg-gradient-to-r from-teal-500 to-cyan-400 text-white font-extrabold uppercase tracking-widest text-sm shadow-[0_8px_32px_rgba(8,145,178,0.35)] hover:shadow-[0_14px_44px_rgba(8,145,178,0.5)] hover:-translate-y-0.5 transition-all flex items-center justify-center gap-2">
-              <Calculator className="w-4 h-4" />
-              {t('tdee.cta')}
+        {/* Tabs */}
+        <div className="flex gap-2 mb-8 flex-wrap">
+          {tabs.map((label, i) => (
+            <button key={i} onClick={() => setTab(i)}
+              className={`px-5 py-2.5 rounded-xl text-xs font-extrabold uppercase tracking-widest transition-all border ${
+                tab === i
+                  ? 'bg-cyan-500/20 border-cyan-500/60 text-cyan-400'
+                  : 'bg-white/[0.04] border-white/10 text-neutral-400 hover:border-white/20 hover:text-white'
+              }`}>
+              {label}
             </button>
-          </div>
+          ))}
         </div>
 
-        {/* SEO text */}
-        <div className="mt-12 grid grid-cols-1 md:grid-cols-3 gap-6 text-sm text-neutral-500 leading-relaxed">
-          <div>
-            <h3 className="text-white font-bold mb-2 text-[13px]">{t('tdee.seo1_title')}</h3>
-            <p>{t('tdee.seo1_body')}</p>
+        {/* Tab content */}
+        {tab === 0 && <TDEECalc />}
+        {tab === 1 && <IMCCalc />}
+        {tab === 2 && <ProteinCalc />}
+        {tab === 3 && <ORMCalc />}
+
+        {/* SEO text — only show for TDEE tab */}
+        {tab === 0 && (
+          <div className="mt-12 grid grid-cols-1 md:grid-cols-3 gap-6 text-sm text-neutral-500 leading-relaxed">
+            <div>
+              <h3 className="text-white font-bold mb-2 text-[13px]">{t('tdee.seo1_title')}</h3>
+              <p>{t('tdee.seo1_body')}</p>
+            </div>
+            <div>
+              <h3 className="text-white font-bold mb-2 text-[13px]">{t('tdee.seo2_title')}</h3>
+              <p>{t('tdee.seo2_body')}</p>
+            </div>
+            <div>
+              <h3 className="text-white font-bold mb-2 text-[13px]">{t('tdee.seo3_title')}</h3>
+              <p>{t('tdee.seo3_body')}</p>
+            </div>
           </div>
-          <div>
-            <h3 className="text-white font-bold mb-2 text-[13px]">{t('tdee.seo2_title')}</h3>
-            <p>{t('tdee.seo2_body')}</p>
-          </div>
-          <div>
-            <h3 className="text-white font-bold mb-2 text-[13px]">{t('tdee.seo3_title')}</h3>
-            <p>{t('tdee.seo3_body')}</p>
-          </div>
+        )}
+      </div>
+    </section>
+  )
+}
+
+/* ── Competitor Comparison ────────────────────────────────────── */
+function AppComparison() {
+  const { t } = useTranslation()
+  const headers = t('comparison.headers', { returnObjects: true }) as string[]
+  const rows    = t('comparison.rows',    { returnObjects: true }) as string[][]
+
+  return (
+    <section className="py-24 px-8 md:px-16 bg-[#080810] border-t border-white/[0.035]">
+      <div className="max-w-5xl mx-auto">
+        <div className="mb-14">
+          <p className="text-[11px] font-bold uppercase tracking-[3px] text-teal-400 mb-3">{t('comparison.label')}</p>
+          <h2 className="text-5xl md:text-6xl font-black uppercase tracking-widest leading-[0.94] text-white mb-4" style={HEADING}>
+            {t('comparison.title_1')}<br />
+            <span className="bg-clip-text text-transparent bg-gradient-to-r from-cyan-500 to-teal-400">
+              {t('comparison.title_2')}
+            </span>
+          </h2>
+          <p className="text-neutral-400 max-w-lg text-sm leading-relaxed">{t('comparison.subtitle')}</p>
+        </div>
+
+        <div className="overflow-x-auto rounded-2xl border border-white/[0.065]">
+          <table className="w-full text-sm">
+            <thead>
+              <tr className="border-b border-white/[0.065]">
+                {headers.map((h, i) => (
+                  <th key={h}
+                    className={`px-5 py-4 text-left text-[10px] font-black uppercase tracking-widest whitespace-nowrap
+                      ${i === 0 ? 'text-neutral-500 w-48' : i === 1 ? 'text-cyan-400 bg-cyan-500/[0.04]' : 'text-neutral-500'}`}>
+                    {i === 1 && <span className="mr-1">⭐</span>}{h}
+                  </th>
+                ))}
+              </tr>
+            </thead>
+            <tbody>
+              {rows.map((row, ri) => (
+                <tr key={ri} className={`border-b border-white/[0.03] ${ri % 2 === 0 ? '' : 'bg-white/[0.015]'}`}>
+                  {row.map((cell, ci) => (
+                    <td key={ci}
+                      className={`px-5 py-3.5 ${
+                        ci === 0
+                          ? 'text-neutral-300 font-bold text-[11px]'
+                          : ci === 1
+                            ? 'text-white font-bold text-[11px] bg-cyan-500/[0.04]'
+                            : 'text-neutral-500 text-[11px]'
+                      }`}>
+                      {cell}
+                    </td>
+                  ))}
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+  )
+}
+
+/* ── SEO Article Cards ────────────────────────────────────────── */
+function SEOArticles() {
+  const { t } = useTranslation()
+  const articles = t('seo_articles.articles', { returnObjects: true }) as Array<{ kw: string; title: string; body: string }>
+
+  return (
+    <section className="py-24 px-8 md:px-16 bg-[#050508] border-t border-white/[0.035]">
+      <div className="max-w-5xl mx-auto">
+        <div className="mb-14">
+          <p className="text-[11px] font-bold uppercase tracking-[3px] text-teal-400 mb-3">{t('seo_articles.label')}</p>
+          <h2 className="text-5xl md:text-6xl font-black uppercase tracking-widest leading-[0.94] text-white mb-4" style={HEADING}>
+            {t('seo_articles.title_1')}<br />
+            <span className="bg-clip-text text-transparent bg-gradient-to-r from-cyan-500 to-teal-400">
+              {t('seo_articles.title_2')}
+            </span>
+          </h2>
+          <p className="text-neutral-400 max-w-lg text-sm leading-relaxed">{t('seo_articles.subtitle')}</p>
+        </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
+          {articles.map((a, i) => (
+            <article key={i}
+              className="bg-white/[0.025] border border-white/[0.065] rounded-2xl p-7 hover:border-teal-500/25 hover:bg-teal-500/[0.02] transition-all duration-300 hover:-translate-y-1 cursor-default">
+              <span className="text-[9px] font-black uppercase tracking-[3px] text-teal-400 mb-3 block">{a.kw}</span>
+              <h3 className="text-[0.95rem] font-bold text-white mb-3 leading-snug">{a.title}</h3>
+              <p className="text-[13px] text-neutral-400 leading-relaxed">{a.body}</p>
+            </article>
+          ))}
+        </div>
+
+        <div className="mt-10 text-center">
+          <button onClick={goToApp}
+            className="inline-flex items-center gap-2 px-8 py-4 rounded-xl bg-gradient-to-r from-teal-500 to-cyan-400 text-white font-extrabold uppercase tracking-widest text-sm shadow-[0_8px_32px_rgba(8,145,178,0.35)] hover:shadow-[0_14px_44px_rgba(8,145,178,0.5)] hover:-translate-y-0.5 transition-all">
+            <Calculator className="w-4 h-4" />
+            {t('tdee.cta')}
+          </button>
         </div>
       </div>
     </section>
@@ -727,7 +1001,9 @@ export function SplineSceneBasic() {
                 <p className="text-[10px] text-neutral-500">{t('hero.tag2_sub')}</p>
               </div>
             </div>
-            <SplineScene scene="https://prod.spline.design/kZDDjO5HuC9GJUM2/scene.splinecode" className="w-full h-full" />
+            <SplineErrorBoundary>
+              <SplineScene scene="https://prod.spline.design/kZDDjO5HuC9GJUM2/scene.splinecode" className="w-full h-full" />
+            </SplineErrorBoundary>
           </div>
         </div>
       </Card>
@@ -782,24 +1058,22 @@ export function SplineSceneBasic() {
         </div>
       </section>
 
-<<<<<<< HEAD
-      {/* ── APP PREVIEW ─────────────────────────────────────── */}
-      {isMobile ? (
-        <section className="py-16 px-6 bg-[#050508]">
-          <div className="text-center mb-8">
-=======
-      {/* ── TDEE CALCULATOR ─────────────────────────────────── */}
-      <TDEECalculator />
+      {/* ── CALCULATOR HUB (TDEE · IMC · Proteína · 1RM) ───── */}
+      <CalculatorHub />
+
+      {/* ── COMPETITOR COMPARISON ───────────────────────────── */}
+      <AppComparison />
+
+      {/* ── SEO ARTICLE CARDS ───────────────────────────────── */}
+      <SEOArticles />
 
       {/* ── APP INTEGRATIONS ────────────────────────────────── */}
       <AppIntegrations />
 
-      {/* ── APP PREVIEW (ContainerScroll) ───────────────────── */}
-      <ContainerScroll
-        className="bg-[#050508]"
-        titleComponent={
-          <>
->>>>>>> 5b83f4b (feat(landing): SEO rewrite + multilingual TDEE calc + app integrations)
+      {/* ── APP PREVIEW ─────────────────────────────────────── */}
+      {isMobile ? (
+        <section className="py-16 px-6 bg-[#050508]">
+          <div className="text-center mb-8">
             <p className="text-[11px] font-bold uppercase tracking-[3px] text-teal-400 mb-4">{t('preview.label')}</p>
             <h2 className="text-4xl font-black uppercase tracking-widest leading-[0.94] text-white mb-4" style={HEADING}>
               {t('preview.title_1')}<br />{t('preview.title_2')}

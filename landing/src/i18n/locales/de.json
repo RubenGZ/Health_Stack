@@ -105,6 +105,65 @@
     "copyright": "© 2025 HealthStack Pro · Alle Rechte vorbehalten",
     "tagline": "Mit ❤️ für Athleten gebaut, die es ernst meinen"
   },
+  "calc_tabs": ["TDEE & Makros", "BMI", "Protein/Tag", "1WM"],
+  "imc": {
+    "weight_label": "Gewicht (kg)",
+    "height_label": "Größe (cm)",
+    "result_label": "Dein BMI",
+    "healthy": "Gesunder Bereich: 18.5 – 24.9",
+    "cats": ["Untergewicht", "Normal", "Übergewicht", "Adipositas"],
+    "thresholds": [18.5, 24.9, 29.9]
+  },
+  "protein_calc": {
+    "weight_label": "Gewicht (kg)",
+    "level_label": "Trainingsniveau",
+    "levels": ["Anfänger (0-1 Jahr)", "Fortgeschritten (1-3 Jahre)", "Erfahren (3+ Jahre)"],
+    "min_label": "Tägliches Minimum",
+    "opt_label": "Optimal für Muskel",
+    "g_day": "g/Tag"
+  },
+  "orm": {
+    "weight_label": "Gehobenes Gewicht (kg)",
+    "reps_label": "Durchgeführte Wiederholungen",
+    "result_label": "Geschätztes 1WM",
+    "formula": "Epley-Formel: Gewicht × (1 + Wdh/30)"
+  },
+  "comparison": {
+    "label": "Warum HealthStack Pro?",
+    "title_1": "DER VERGLEICH",
+    "title_2": "DER FÜR SICH SPRICHT",
+    "subtitle": "Jede Fitness-App fragt irgendwann nach deiner Karte. HealthStack Pro nicht. Kernfunktionen dauerhaft kostenlos — ohne Tricks.",
+    "feature": "Funktion",
+    "free_forever": "Dauerhaft kostenlos",
+    "paid_sub": "Abo",
+    "yes": "✅", "no": "❌", "partial": "Teilweise", "winner": "Sieger",
+    "rows": [
+      ["Grundpreis", "€0 für immer", "€0 / €19,99/Mo", "€0 / €9,99/Mo", "€9,99/Mo", "€0 / €7,99/Mo"],
+      ["TDEE-Rechner", "✅ Integriert", "❌", "❌", "❌", "❌"],
+      ["KI-Routine-Generator", "✅ Kostenlos", "❌", "❌", "✅ Nur bezahlt", "✅ Nur bezahlt"],
+      ["Makro-Tracking", "✅ Kostenlos", "✅ Begrenzt", "✅ Kostenlos", "❌", "✅ Kostenlos"],
+      ["Gewichtstracking", "✅ Kostenlos", "✅ Kostenlos", "✅ Kostenlos", "❌", "✅ Kostenlos"],
+      ["XP-Gamification", "✅ Kostenlos", "❌", "❌", "❌", "❌"],
+      ["Werbefrei (kostenlos)", "❌ Werbung finanziert", "❌", "✅", "✅", "❌"],
+      ["Community", "✅", "✅", "❌", "❌", "✅"],
+      ["Spanische Sprache", "✅ Nativ", "Teilweise", "Teilweise", "❌", "Teilweise"]
+    ],
+    "headers": ["Funktion", "HealthStack Pro", "MyFitnessPal", "Cronometer", "Fitbod", "Hevy"]
+  },
+  "seo_articles": {
+    "label": "Guides & Ressourcen",
+    "title_1": "ALLES WAS DU",
+    "title_2": "WISSEN MUSST",
+    "subtitle": "Wissenschaftsbasiertes Fitness. Keine Mythen, keine unnötigen Supplements.",
+    "articles": [
+      { "kw": "Kaloriendefizit", "title": "Wie erstelle ich ein Kaloriendefizit?", "body": "Subtrahiere 300-500 kcal von deinem TDEE. Das erzeugt einen Verlust von 0,3-0,5 kg/Woche ohne Muskelverlust. HealthStack Pro berechnet es automatisch." },
+      { "kw": "Muskeln aufbauen", "title": "Wie viel Muskeln kann ich pro Monat aufbauen?", "body": "Anfänger: 1-2 kg/Monat. Fortgeschrittene: 0,5-1 kg/Monat. Erfahrene: 0,25 kg/Monat. Protein (2g/kg/Tag) und 200-300 kcal Überschuss sind die zwei Schlüsselfaktoren." },
+      { "kw": "Anfänger Routinen", "title": "Gym-Routine für Anfänger", "body": "3 Tage/Woche Ganzkörper. Lineare Progression: erhöhe 2,5 kg wenn du alle Sätze abschließt. Der Generator von HealthStack Pro erstellt deinen genauen Plan." },
+      { "kw": "Beste kostenlose Fitness-App", "title": "Beste kostenlose Fitness-App auf Spanisch", "body": "HealthStack Pro: TDEE + Makros + Routinen + Gewicht + Community. Keine Karte, kein Paywall für Kernfunktionen." },
+      { "kw": "Wirksame Supplements", "title": "Nur 3 Supplements mit solider Evidenz", "body": "Kreatin-Monohydrat (3-5g/Tag), Whey-Protein und Koffein (3-6mg/kg vor dem Training). Der Rest ist Marketing." },
+      { "kw": "Protein beim Abnehmen", "title": "Warum mehr Protein beim Abnehmen?", "body": "Mit Kaloriendefizit kann der Körper Muskeln katabolisieren. 2-2,4g Protein/kg/Tag schützt die Muskelmasse beim Schneiden und erhöht die Sättigung." }
+    ]
+  },
   "tdee": {
     "label": "Kostenloses Tool",
     "title_1": "TDEE &",

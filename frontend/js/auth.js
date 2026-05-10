@@ -85,6 +85,7 @@
                 <input type="password" id="auth-reg-pwd" class="form-input"
                        placeholder="Mín. 8 caracteres" autocomplete="new-password">
               </div>
+              <p class="auth-pwd-hint">Mín. 8 caracteres · mayúscula · minúscula · número · carácter especial (!@#…)</p>
             </div>
           </div>
           <label class="auth-consent">

@@ -3756,6 +3756,14 @@ select.form-input option { background: var(--bg-surface); color: var(--text-prim
 }
 .auth-error--shake { animation: shake 0.4s ease; }
 
+/* Password requirements hint */
+.auth-pwd-hint {
+  margin-top: 5px;
+  font-size: 0.75rem;
+  color: var(--text-muted, #64748b);
+  line-height: 1.4;
+}
+
 /* Logout popup menu */
 .auth-logout-menu {
   background: var(--bg-surface);

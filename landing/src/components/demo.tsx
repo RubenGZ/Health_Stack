@@ -23,7 +23,7 @@ import { ScrollExpandMedia }      from '@/components/blocks/scroll-expansion-her
 import { LanguageSelector }       from '@/components/ui/language-selector'
 import {
   Zap, Dumbbell, Apple, Users, Trophy, Clock,
-  Star, Check, X, ChevronRight, Menu,
+  Star, Check, X, ChevronRight, Menu, Calculator, Target, Flame,
 } from 'lucide-react'
 
 function useIsMobile() {
@@ -111,6 +111,259 @@ const STAT_VALUES = [
 ]
 
 const BAND_VALUES = ['50K+', '300+', '142', '100%']
+
+/* ── TDEE Calculator ──────────────────────────────────────────── */
+
+const ACTIVITY_VALUES = [1.2, 1.375, 1.55, 1.725, 1.9]
+
+function TDEECalculator() {
+  const { t } = useTranslation()
+  const [weight, setWeight]     = useState(75)
+  const [height, setHeight]     = useState(175)
+  const [age, setAge]           = useState(28)
+  const [sex, setSex]           = useState<'m' | 'f'>('m')
+  const [activity, setActivity] = useState(1.55)
+  const [goal, setGoal]         = useState<'cut' | 'maintain' | 'bulk'>('maintain')
+
+  const tmb  = sex === 'm'
+    ? 10 * weight + 6.25 * height - 5 * age + 5
+    : 10 * weight + 6.25 * height - 5 * age - 161
+  const tdee  = Math.round(tmb * activity)
+  const target = goal === 'cut' ? tdee - 400 : goal === 'bulk' ? tdee + 250 : tdee
+  const protein = Math.round(weight * 2)
+  const fat     = Math.round((target * 0.25) / 9)
+  const carbs   = Math.round((target - protein * 4 - fat * 9) / 4)
+
+  const activityLabels = t('tdee.activity_opts', { returnObjects: true }) as string[]
+
+  const inputCls = "w-full bg-white/[0.05] border border-white/[0.1] rounded-xl px-4 py-3 text-white text-sm focus:outline-none focus:border-cyan-500/60 transition-colors"
+  const labelCls = "text-[10px] font-bold uppercase tracking-widest text-neutral-500 mb-1.5 block"
+
+  const goalLabel = goal === 'cut'
+    ? t('tdee.goal_cut')
+    : goal === 'bulk'
+      ? t('tdee.goal_bulk')
+      : t('tdee.goal_maintain')
+
+  return (
+    <section id="calculadora-tdee" className="py-24 px-8 md:px-16 bg-[#080810] border-t border-white/[0.035]">
+      <div className="max-w-5xl mx-auto">
+        <div className="mb-12">
+          <p className="text-[11px] font-bold uppercase tracking-[3px] text-teal-400 mb-3">
+            {t('tdee.label')}
+          </p>
+          <h2 className="text-5xl md:text-6xl font-black uppercase tracking-widest leading-[0.94] text-white mb-4" style={HEADING}>
+            {t('tdee.title_1')}<br />
+            <span className="bg-clip-text text-transparent bg-gradient-to-r from-cyan-500 to-teal-400">{t('tdee.title_2')}</span>
+          </h2>
+          <p className="text-neutral-400 max-w-md text-sm leading-relaxed">{t('tdee.subtitle')}</p>
+        </div>
+
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          {/* Inputs */}
+          <div className="bg-white/[0.025] border border-white/[0.065] rounded-2xl p-8 space-y-5">
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <label className={labelCls}>{t('tdee.weight_label')}</label>
+                <input type="number" value={weight} min={30} max={250}
+                  onChange={e => setWeight(Number(e.target.value))}
+                  className={inputCls} />
+              </div>
+              <div>
+                <label className={labelCls}>{t('tdee.height_label')}</label>
+                <input type="number" value={height} min={100} max={250}
+                  onChange={e => setHeight(Number(e.target.value))}
+                  className={inputCls} />
+              </div>
+            </div>
+
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <label className={labelCls}>{t('tdee.age_label')}</label>
+                <input type="number" value={age} min={14} max={100}
+                  onChange={e => setAge(Number(e.target.value))}
+                  className={inputCls} />
+              </div>
+              <div>
+                <label className={labelCls}>{t('tdee.sex_label')}</label>
+                <div className="flex gap-2">
+                  {([['m', t('tdee.male')], ['f', t('tdee.female')]] as const).map(([v, l]) => (
+                    <button key={v} onClick={() => setSex(v)}
+                      className={`flex-1 py-3 rounded-xl text-sm font-bold transition-all border ${sex === v ? 'bg-cyan-500/20 border-cyan-500/60 text-cyan-400' : 'bg-white/[0.04] border-white/10 text-neutral-400 hover:border-white/20'}`}>
+                      {l}
+                    </button>
+                  ))}
+                </div>
+              </div>
+            </div>
+
+            <div>
+              <label className={labelCls}>{t('tdee.activity_label')}</label>
+              <select value={activity} onChange={e => setActivity(Number(e.target.value))}
+                className={inputCls + " cursor-pointer"}>
+                {ACTIVITY_VALUES.map((val, i) => (
+                  <option key={val} value={val} className="bg-[#0a0a14]">{activityLabels[i]}</option>
+                ))}
+              </select>
+            </div>
+
+            <div>
+              <label className={labelCls}>{t('tdee.goal_label')}</label>
+              <div className="flex gap-2">
+                {([
+                  ['cut',      t('tdee.cut'),      'text-red-400',   'border-red-500/60 bg-red-500/10'],
+                  ['maintain', t('tdee.maintain'),  'text-cyan-400',  'border-cyan-500/60 bg-cyan-500/10'],
+                  ['bulk',     t('tdee.bulk'),      'text-green-400', 'border-green-500/60 bg-green-500/10'],
+                ] as const).map(([v, l, tc, ac]) => (
+                  <button key={v} onClick={() => setGoal(v)}
+                    className={`flex-1 py-2.5 rounded-xl text-xs font-bold transition-all border ${goal === v ? `${ac} ${tc}` : 'bg-white/[0.04] border-white/10 text-neutral-400 hover:border-white/20'}`}>
+                    {l}
+                  </button>
+                ))}
+              </div>
+            </div>
+          </div>
+
+          {/* Results */}
+          <div className="space-y-4">
+            <div className="bg-gradient-to-br from-cyan-500/10 to-teal-500/5 border border-cyan-500/25 rounded-2xl p-8">
+              <div className="flex items-center gap-3 mb-2">
+                <Flame className="w-5 h-5 text-cyan-400" />
+                <span className="text-[11px] font-bold uppercase tracking-widest text-neutral-400">{t('tdee.your_tdee')}</span>
+              </div>
+              <div className="text-6xl font-black text-white tracking-wide mb-1" style={HEADING}>
+                {tdee.toLocaleString()}
+              </div>
+              <div className="text-sm text-neutral-400">{t('tdee.cal_day')}</div>
+            </div>
+
+            <div className="bg-gradient-to-br from-teal-500/10 to-cyan-500/5 border border-teal-500/25 rounded-2xl p-6">
+              <div className="flex items-center gap-3 mb-4">
+                <Target className="w-5 h-5 text-teal-400" />
+                <span className="text-[11px] font-bold uppercase tracking-widest text-neutral-400">
+                  {goalLabel}
+                </span>
+              </div>
+              <div className="text-4xl font-black text-white mb-4" style={HEADING}>
+                {target.toLocaleString()} <span className="text-lg text-neutral-400 font-normal">kcal/día</span>
+              </div>
+              <div className="grid grid-cols-3 gap-3">
+                {[
+                  { labelKey: 'tdee.protein', g: protein, color: '#38bdf8', pct: Math.round(protein * 4 / target * 100) },
+                  { labelKey: 'tdee.carbs',   g: carbs,   color: '#0891b2', pct: Math.round(carbs * 4 / target * 100) },
+                  { labelKey: 'tdee.fats',    g: fat,     color: '#a855f7', pct: Math.round(fat * 9 / target * 100) },
+                ].map(m => (
+                  <div key={m.labelKey} className="text-center">
+                    <div className="text-2xl font-black text-white" style={HEADING}>{m.g}g</div>
+                    <div className="text-[10px] text-neutral-500 uppercase tracking-wider">{t(m.labelKey)}</div>
+                    <div className="mt-2 h-1.5 bg-white/[0.06] rounded-full overflow-hidden">
+                      <div className="h-full rounded-full" style={{ width: `${m.pct}%`, background: m.color }} />
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            <button onClick={() => { window.location.href = window.location.origin + '/' }}
+              className="w-full py-4 rounded-xl bg-gradient-to-r from-teal-500 to-cyan-400 text-white font-extrabold uppercase tracking-widest text-sm shadow-[0_8px_32px_rgba(8,145,178,0.35)] hover:shadow-[0_14px_44px_rgba(8,145,178,0.5)] hover:-translate-y-0.5 transition-all flex items-center justify-center gap-2">
+              <Calculator className="w-4 h-4" />
+              {t('tdee.cta')}
+            </button>
+          </div>
+        </div>
+
+        {/* SEO text */}
+        <div className="mt-12 grid grid-cols-1 md:grid-cols-3 gap-6 text-sm text-neutral-500 leading-relaxed">
+          <div>
+            <h3 className="text-white font-bold mb-2 text-[13px]">{t('tdee.seo1_title')}</h3>
+            <p>{t('tdee.seo1_body')}</p>
+          </div>
+          <div>
+            <h3 className="text-white font-bold mb-2 text-[13px]">{t('tdee.seo2_title')}</h3>
+            <p>{t('tdee.seo2_body')}</p>
+          </div>
+          <div>
+            <h3 className="text-white font-bold mb-2 text-[13px]">{t('tdee.seo3_title')}</h3>
+            <p>{t('tdee.seo3_body')}</p>
+          </div>
+        </div>
+      </div>
+    </section>
+  )
+}
+
+/* ── App Integrations ─────────────────────────────────────────── */
+
+const INTEGRATIONS = [
+  { name: 'Apple Health',    icon: '🍎', bg: '#1c1c1e', border: '#3a3a3c', color: '#f2f2f7',  status: 'live'    },
+  { name: 'Google Fit',      icon: '❤️', bg: '#0d2137', border: '#1a4a6b', color: '#4285f4',  status: 'live'    },
+  { name: 'MyFitnessPal',    icon: '🥦', bg: '#001f0d', border: '#00491c', color: '#00a651',  status: 'live'    },
+  { name: 'Strava',          icon: '🚴', bg: '#1a0d00', border: '#7a3500', color: '#fc4c02',  status: 'coming'  },
+  { name: 'Garmin Connect',  icon: '⌚', bg: '#000f1a', border: '#003d6b', color: '#009ddc',  status: 'coming'  },
+  { name: 'Fitbit',          icon: '💙', bg: '#001a26', border: '#005a80', color: '#00b0b9',  status: 'coming'  },
+  { name: 'Samsung Health',  icon: '💜', bg: '#100020', border: '#3d006b', color: '#a259e0',  status: 'coming'  },
+  { name: 'Wahoo',           icon: '⚡', bg: '#1a0000', border: '#6b0000', color: '#e00000',  status: 'coming'  },
+]
+
+function AppIntegrations() {
+  const { t } = useTranslation()
+
+  return (
+    <section className="py-24 px-8 md:px-16 bg-[#050508] border-t border-white/[0.035]">
+      <div className="max-w-5xl mx-auto">
+        <div className="mb-14">
+          <p className="text-[11px] font-bold uppercase tracking-[3px] text-teal-400 mb-3">
+            {t('integrations.label')}
+          </p>
+          <h2 className="text-5xl md:text-6xl font-black uppercase tracking-widest leading-[0.94] text-white mb-4" style={HEADING}>
+            {t('integrations.title_1')}<br />
+            <span className="bg-clip-text text-transparent bg-gradient-to-r from-cyan-500 to-teal-400">
+              {t('integrations.title_2')}
+            </span>
+          </h2>
+          <p className="text-neutral-400 max-w-lg text-sm leading-relaxed">{t('integrations.subtitle')}</p>
+        </div>
+
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
+          {INTEGRATIONS.map(app => (
+            <div
+              key={app.name}
+              className="group relative rounded-2xl p-6 flex flex-col items-center gap-3 transition-all duration-300 hover:-translate-y-1 cursor-default"
+              style={{ background: app.bg, border: `1px solid ${app.border}` }}
+            >
+              {/* Live / Coming-soon badge */}
+              <span className={`absolute top-3 right-3 text-[9px] font-black uppercase tracking-widest px-2 py-0.5 rounded-full ${
+                app.status === 'live'
+                  ? 'bg-green-500/20 text-green-400 border border-green-500/30'
+                  : 'bg-white/[0.06] text-neutral-500 border border-white/[0.08]'
+              }`}>
+                {app.status === 'live' ? t('integrations.live') : t('integrations.coming_soon')}
+              </span>
+
+              {/* Icon */}
+              <div className="text-4xl leading-none mt-1">{app.icon}</div>
+
+              {/* Name */}
+              <span className="text-[11px] font-bold text-center leading-tight" style={{ color: app.color }}>
+                {app.name}
+              </span>
+
+              {/* Subtle glow on hover */}
+              <div
+                className="absolute inset-0 rounded-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none"
+                style={{ boxShadow: `inset 0 0 30px ${app.color}18` }}
+              />
+            </div>
+          ))}
+        </div>
+
+        <p className="mt-8 text-center text-[11px] text-neutral-600 uppercase tracking-widest">
+          + Garmin, Polar, Suunto, WHOOP · via API abierta
+        </p>
+      </div>
+    </section>
+  )
+}
 
 /* ── Dashboard Mockup ─────────────────────────────────────────── */
 
@@ -529,10 +782,24 @@ export function SplineSceneBasic() {
         </div>
       </section>
 
+<<<<<<< HEAD
       {/* ── APP PREVIEW ─────────────────────────────────────── */}
       {isMobile ? (
         <section className="py-16 px-6 bg-[#050508]">
           <div className="text-center mb-8">
+=======
+      {/* ── TDEE CALCULATOR ─────────────────────────────────── */}
+      <TDEECalculator />
+
+      {/* ── APP INTEGRATIONS ────────────────────────────────── */}
+      <AppIntegrations />
+
+      {/* ── APP PREVIEW (ContainerScroll) ───────────────────── */}
+      <ContainerScroll
+        className="bg-[#050508]"
+        titleComponent={
+          <>
+>>>>>>> 5b83f4b (feat(landing): SEO rewrite + multilingual TDEE calc + app integrations)
             <p className="text-[11px] font-bold uppercase tracking-[3px] text-teal-400 mb-4">{t('preview.label')}</p>
             <h2 className="text-4xl font-black uppercase tracking-widest leading-[0.94] text-white mb-4" style={HEADING}>
               {t('preview.title_1')}<br />{t('preview.title_2')}

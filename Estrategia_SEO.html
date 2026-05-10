@@ -200,7 +200,7 @@
     <h1>SEO &amp; Posicionamiento<br><span>Orgánico</span></h1>
     <p class="page-sub">Modelo de negocio freemium, estrategia de monetización, auditoría SEO, análisis de competidores, keyword research y plan de acción de 90 días para posicionar HealthStack Pro como la app fitness freemium de referencia en español.</p>
     <div style="margin-top:20px;display:flex;gap:12px;flex-wrap:wrap">
-      <span class="badge badge--amber">⚠ Audit: Abril 2026</span>
+      <span class="badge badge--green">✓ Actualizado: Mayo 2026</span>
       <span class="badge badge--green">✓ Implementación activa</span>
       <span class="badge badge--purple">Mercado primario: España + LATAM</span>
     </div>
@@ -1332,16 +1332,16 @@ Gratis para siempre — sin tarjeta. Pro sin anuncios." /&gt;</code></pre>
     <h3 style="margin-top:32px">Mes 2 — Contenido y Autoridad (Semanas 5-8)</h3>
     <div class="roadmap">
       <div class="rm-item">
-        <div class="rm-dot rm-dot--todo">○</div>
-        <div class="rm-title">Landing page calculadora TDEE standalone</div>
-        <div class="rm-desc">Página /calculadora-tdee con H1 "Calculadora TDEE Gratis", schema HowTo, FAQ schema. Target: "calculadora TDEE gratis" 8K/mes.</div>
-        <div class="rm-week">Semana 5</div>
+        <div class="rm-dot rm-dot--done">✓</div>
+        <div class="rm-title">Calculadoras embebidas en landing (TDEE, IMC, Proteína, 1RM)</div>
+        <div class="rm-desc">4 calculadoras gratuitas en la landing con schema HowTo + FAQ. Target: "calculadora TDEE gratis" 8K/mes, "calculadora macros" 9K/mes. IMC con modo clásico OMS + modo Fitness RFM.</div>
+        <div class="rm-week">Semana 5 · COMPLETADO Mayo 2026</div>
       </div>
       <div class="rm-item">
-        <div class="rm-dot rm-dot--todo">○</div>
-        <div class="rm-title">Primer artículo blog: "Cómo calcular tus macros"</div>
-        <div class="rm-desc">2000+ palabras, schema Article, internal link a calculadora. Target: "calculadora macros gratis" 9K/mes.</div>
-        <div class="rm-week">Semana 6</div>
+        <div class="rm-dot rm-dot--done">✓</div>
+        <div class="rm-title">6 artículos SEO embebidos en landing</div>
+        <div class="rm-desc">Déficit calórico, ganancia muscular, rutinas principiante, mejor app fitness español, suplementos, proteína en déficit. Contenido indexable directamente.</div>
+        <div class="rm-week">Semana 6 · COMPLETADO Mayo 2026</div>
       </div>
       <div class="rm-item">
         <div class="rm-dot rm-dot--todo">○</div>
@@ -1360,10 +1360,10 @@ Gratis para siempre — sin tarjeta. Pro sin anuncios." /&gt;</code></pre>
     <h3 style="margin-top:32px">Mes 3 — Escala y Medición (Semanas 9-12)</h3>
     <div class="roadmap">
       <div class="rm-item">
-        <div class="rm-dot rm-dot--todo">○</div>
-        <div class="rm-title">Página comparación "vs MyFitnessPal"</div>
-        <div class="rm-desc">Tabla de comparativa honesta. Target: "alternativa myfitnesspal gratis" 8K/mes.</div>
-        <div class="rm-week">Semana 9</div>
+        <div class="rm-dot rm-dot--done">✓</div>
+        <div class="rm-title">Tabla comparativa vs MyFitnessPal, Cronometer, Fitbod, Hevy</div>
+        <div class="rm-desc">Sección AppComparison embebida en landing. 9 filas de features, 5 competidores. Target: "alternativa myfitnesspal gratis" 8K/mes.</div>
+        <div class="rm-week">Semana 9 · COMPLETADO Mayo 2026</div>
       </div>
       <div class="rm-item">
         <div class="rm-dot rm-dot--todo">○</div>
@@ -1458,13 +1458,14 @@ Gratis para siempre — sin tarjeta. Pro sin anuncios." /&gt;</code></pre>
        16. LO IMPLEMENTADO EN ESTE COMMIT
        ═══════════════════════════════════════════════════════ -->
   <section id="implemented">
-    <h2><span class="section-num">16</span> Implementado en Este Commit ✓</h2>
+    <h2><span class="section-num">16</span> Implementado ✓</h2>
 
     <div class="alert alert--green">
       <span class="alert-icon">✅</span>
-      <div>Todos los cambios técnicos de Mes 1 están implementados en el código fuente. Listos para producción.</div>
+      <div>Mes 1 completado al 100%. Mayo 2026: se han añadido calculadoras avanzadas, tabla de comparativa, sección de artículos SEO, soporte i18n completo y despliegue en Raspberry Pi con Cloudflare Tunnel.</div>
     </div>
 
+    <h3>Mes 1 — Fundamentos técnicos (Abril 2026)</h3>
     <ul class="checklist">
       <li>
         <span class="check-icon check-icon--done">✓</span>
@@ -1472,23 +1473,55 @@ Gratis para siempre — sin tarjeta. Pro sin anuncios." /&gt;</code></pre>
       </li>
       <li>
         <span class="check-icon check-icon--done">✓</span>
-        <span><strong>frontend/index.html</strong> — Title con keywords, meta description optimizada, OG completo (url, site_name, locale, image dims), Twitter Cards completos, JSON-LD WebApplication, canonical</span>
+        <span><strong>frontend/index.html</strong> — Title con keywords, meta description optimizada, OG completo, Twitter Cards completos, JSON-LD WebApplication, canonical</span>
       </li>
       <li>
         <span class="check-icon check-icon--done">✓</span>
-        <span><strong>frontend/robots.txt</strong> (NUEVO) — Allow all crawlers, referencia a sitemap.xml, bloqueo de rutas internas innecesarias</span>
+        <span><strong>robots.txt + sitemap.xml</strong> — Ambos entornos (frontend y landing/public). Allow all crawlers, referencia a sitemap.</span>
       </li>
       <li>
         <span class="check-icon check-icon--done">✓</span>
-        <span><strong>frontend/sitemap.xml</strong> (NUEVO) — Landing + App con lastmod, changefreq, priority</span>
+        <span><strong>hreflang ×5 idiomas</strong> — es, en, de, fr, it + x-default en landing y frontend.</span>
+      </li>
+    </ul>
+
+    <h3 style="margin-top:24px">Mayo 2026 — Contenido SEO + Calculadoras</h3>
+    <ul class="checklist">
+      <li>
+        <span class="check-icon check-icon--done">✓</span>
+        <span><strong>CalculatorHub en landing</strong> — 4 calculadoras gratuitas embebidas: TDEE &amp; Macros, IMC dual-mode, Proteína/día y 1RM. Schema HowTo + FAQ añadidos. Target keywords: "calculadora TDEE gratis" (8K/mes), "calculadora macros" (9K/mes), "calcular 1RM" (3K/mes).</span>
       </li>
       <li>
         <span class="check-icon check-icon--done">✓</span>
-        <span><strong>landing/public/robots.txt</strong> (NUEVO) — Mismo contenido para el build de Vite</span>
+        <span><strong>IMC calculadora dual-mode</strong> — Modo clásico OMS + modo Fitness (RFM, Woolcott &amp; Bergman 2018, Nature). Tres métodos de input: selector visual de silueta (sin medidas), talla de pantalón (EU/US), cinta métrica (precisión, activa el método Navy ±3%). Elimina la barrera de "no sé mi cintura en cm".</span>
       </li>
       <li>
         <span class="check-icon check-icon--done">✓</span>
-        <span><strong>landing/public/sitemap.xml</strong> (NUEVO) — Sitemap para la landing React</span>
+        <span><strong>AppComparison — tabla de comparativa</strong> — HealthStack Pro vs MyFitnessPal, Cronometer, Fitbod y Hevy. 9 filas de features. Target: "alternativa myfitnesspal gratis" (8K/mes), "mejor app fitness gratis" (5K/mes).</span>
+      </li>
+      <li>
+        <span class="check-icon check-icon--done">✓</span>
+        <span><strong>SEOArticles — 6 artículos embebidos</strong> — Déficit calórico, ganancia muscular, rutinas principiante, mejor app fitness en español, suplementos con evidencia, proteína en déficit. Contenido indexable directamente en la landing.</span>
+      </li>
+      <li>
+        <span class="check-icon check-icon--done">✓</span>
+        <span><strong>AppIntegrations + Dashboard preview</strong> — Secciones visuales de integraciones y preview del dashboard de la app.</span>
+      </li>
+      <li>
+        <span class="check-icon check-icon--done">✓</span>
+        <span><strong>llms.txt</strong> (NUEVO) — Archivo para crawlers de IA (ChatGPT, Claude, Perplexity). Describe el producto en lenguaje natural para indexación semántica.</span>
+      </li>
+      <li>
+        <span class="check-icon check-icon--done">✓</span>
+        <span><strong>robots.txt actualizado para IA</strong> — GPTBot, ClaudeBot, PerplexityBot, Googlebot-Extended incluidos como bots permitidos explícitamente.</span>
+      </li>
+      <li>
+        <span class="check-icon check-icon--done">✓</span>
+        <span><strong>i18n 5 idiomas completo</strong> — ES/EN/FR/DE/IT con todos los textos de las nuevas secciones (calculadoras, comparativa, artículos, dashboard, integraciones). JSON estructurado con returnObjects para arrays.</span>
+      </li>
+      <li>
+        <span class="check-icon check-icon--done">✓</span>
+        <span><strong>Despliegue Raspberry Pi</strong> — Servidor propio con Docker Compose, Nginx, PostgreSQL 16 y Cloudflare Tunnel (HTTPS sin abrir puertos). Landing accesible públicamente vía trycloudflare.com.</span>
       </li>
       <li>
         <span class="check-icon check-icon--wip">→</span>
@@ -1496,22 +1529,22 @@ Gratis para siempre — sin tarjeta. Pro sin anuncios." /&gt;</code></pre>
       </li>
       <li>
         <span class="check-icon check-icon--wip">→</span>
-        <span><strong>Google Search Console</strong> — Verificar dominio y enviar sitemap manualmente cuando se haga el deploy.</span>
-      </li>
-      <li>
-        <span class="check-icon check-icon--todo">○</span>
-        <span><strong>Blog / calculadoras standalone</strong> — Pendiente. Mayor palanca SEO a largo plazo.</span>
+        <span><strong>Google Search Console</strong> — Verificar dominio y enviar sitemap cuando se active el dominio definitivo.</span>
       </li>
       <li>
         <span class="check-icon check-icon--todo">○</span>
         <span><strong>Product Hunt launch</strong> — Pendiente. Coordinar con lanzamiento de dominio en producción.</span>
       </li>
+      <li>
+        <span class="check-icon check-icon--todo">○</span>
+        <span><strong>AlternativeTo listing</strong> — Registrar HSP como alternativa a MyFitnessPal, Hevy, Strong. Backlink DA medio.</span>
+      </li>
     </ul>
   </section>
 
   <div class="doc-footer">
-    <p>HealthStack Pro · Estrategia SEO · Abril 2026</p>
-    <p style="margin-top:6px">Documento generado automáticamente como parte del análisis SEO integral del proyecto.</p>
+    <p>HealthStack Pro · Estrategia SEO · Mayo 2026</p>
+    <p style="margin-top:6px">Documento actualizado con las implementaciones de Mayo 2026.</p>
   </div>
 
 </main>

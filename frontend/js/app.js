@@ -600,7 +600,7 @@
       <a class="sponsor-card" href="${sp.url}" target="_blank" rel="sponsored noopener">
         <span class="sponsor-logo">${sp.logo}</span>
         <div class="sponsor-info">
-          <span class="sponsor-label">Colaborador oficial</span>
+          <span class="sponsor-label">Recomendado por HealthStack</span>
           <strong>${sp.name}</strong>
           <small>${sp.tagline}</small>
         </div>

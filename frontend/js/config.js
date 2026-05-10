@@ -38,7 +38,7 @@ window.HS_CONFIG = (function () {
     tagline: 'Nutrición deportiva de calidad',
     url:     'https://www.myprotein.es/?affil=healthstackpro',
     logo:    '💪',   // Sustituir por <img> si se dispone de logo
-    active:  true,   // false = oculta el banner
+    active:  true,   // Cambiar a false para ocultar el banner
   };
 
   // ── Datos de suplementos (fallback si la API no responde) ──────────────────

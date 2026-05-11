@@ -43,3 +43,57 @@ class RoutineListResponse(BaseModel):
 
     routines: list[RoutineResponse]
     total: int
+
+
+# ── AI Generation ─────────────────────────────────────────────────────────────
+
+class AIRoutineRequest(BaseModel):
+    """Parámetros del wizard para generar rutina con IA."""
+
+    goal: str = Field(
+        ...,
+        description="Objetivo: strength | hypertrophy | fat_loss | endurance",
+    )
+    level: str = Field(
+        ...,
+        description="Nivel: beginner | intermediate | advanced",
+    )
+    days_per_week: int = Field(
+        ...,
+        ge=2,
+        le=6,
+        description="Días de entrenamiento por semana.",
+    )
+    equipment: str = Field(
+        ...,
+        description="Equipamiento: full_gym | home_weights | bodyweight",
+    )
+
+
+class AIRoutineExercise(BaseModel):
+    """Ejercicio dentro de una rutina generada."""
+
+    name: str
+    muscle_group: str
+    sets: int
+    reps: str
+    rest_sec: int
+    notes: str = ""
+
+
+class AIRoutineDay(BaseModel):
+    """Día de entrenamiento."""
+
+    day_label: str
+    focus: str
+    exercises: list[AIRoutineExercise]
+
+
+class AIRoutineResponse(BaseModel):
+    """Respuesta de la generación de rutina por IA."""
+
+    label: str
+    description: str
+    days_per_week: int
+    focus_area: str
+    days: list[AIRoutineDay]

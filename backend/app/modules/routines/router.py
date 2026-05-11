@@ -7,16 +7,23 @@ Prefijo: /api/v1/routines
 Todos requieren autenticación.
 
 Endpoints:
-    GET    /        → Listar rutinas del usuario
-    POST   /        → Guardar rutina
-    DELETE /{id}    → Eliminar rutina
+    GET    /              → Listar rutinas del usuario
+    POST   /              → Guardar rutina
+    DELETE /{id}          → Eliminar rutina
+    POST   /ai-generate   → Generar rutina personalizada con IA (Groq)
 """
 
 
 from fastapi import APIRouter, Query, status
 
 from app.core.security.dependencies import CurrentUser
-from app.modules.routines.schemas import RoutineCreate, RoutineListResponse, RoutineResponse
+from app.modules.routines.schemas import (
+    AIRoutineRequest,
+    AIRoutineResponse,
+    RoutineCreate,
+    RoutineListResponse,
+    RoutineResponse,
+)
 from app.modules.routines.service import RoutineService
 from app.session import DBSession
 
@@ -75,3 +82,20 @@ async def delete_routine(
         user_id=current_user["user_id"],
         routine_id=routine_id,
     )
+
+
+@router.post(
+    "/ai-generate",
+    response_model=AIRoutineResponse,
+    summary="Generar rutina personalizada con IA",
+)
+async def ai_generate_routine(
+    body: AIRoutineRequest,
+    current_user: CurrentUser,
+):
+    """
+    Genera una rutina de entrenamiento personalizada usando Groq/Llama.
+    No requiere DB. Requiere JWT.
+    Con fallback graceful si la API key no está configurada.
+    """
+    return await RoutineService.generate_ai_routine(body)

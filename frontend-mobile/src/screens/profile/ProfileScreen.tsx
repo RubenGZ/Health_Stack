@@ -1,5 +1,5 @@
 import { useNavigate } from 'react-router-dom'
-import { LogOut, Settings, ChevronRight, Monitor } from 'lucide-react'
+import { LogOut, Settings, ChevronRight, Monitor, MessageSquare } from 'lucide-react'
 import { TopBar } from '@/components/layout/TopBar'
 import { PageContainer, ScrollArea } from '@/components/layout/PageContainer'
 import { useAuthStore } from '@/store/authStore'
@@ -7,15 +7,34 @@ import { logout } from '@/services/auth'
 
 const BADGES = ['🥇', '🏃', '💪', '🎯', '🔥', '⚡']
 
-function MenuRow({ label, sub, onClick }: { label: string; sub?: string; onClick?: () => void }) {
+function MenuRow({
+  label,
+  sub,
+  icon,
+  onClick,
+  variant = 'default',
+}: {
+  label: string
+  sub?: string
+  icon?: React.ReactNode
+  onClick?: () => void
+  variant?: 'default' | 'highlight'
+}) {
   return (
     <button
       onClick={onClick}
-      className="w-full flex items-center justify-between px-4 py-4 bg-zinc-900 border border-zinc-800 rounded-2xl hover:border-zinc-700 transition-colors min-h-[56px]"
+      className={`w-full flex items-center justify-between px-4 py-4 border rounded-2xl transition-colors min-h-[56px] ${
+        variant === 'highlight'
+          ? 'bg-violet-500/10 border-violet-500/30 hover:border-violet-500/50'
+          : 'bg-zinc-900 border-zinc-800 hover:border-zinc-700'
+      }`}
     >
-      <div className="text-left">
-        <p className="text-sm font-semibold text-white">{label}</p>
-        {sub && <p className="text-xs text-zinc-500 mt-0.5">{sub}</p>}
+      <div className="flex items-center gap-3 text-left">
+        {icon && <span className="text-zinc-400">{icon}</span>}
+        <div>
+          <p className={`text-sm font-semibold ${variant === 'highlight' ? 'text-violet-300' : 'text-white'}`}>{label}</p>
+          {sub && <p className="text-xs text-zinc-500 mt-0.5">{sub}</p>}
+        </div>
       </div>
       <ChevronRight className="w-4 h-4 text-zinc-600 flex-shrink-0" />
     </button>
@@ -23,9 +42,9 @@ function MenuRow({ label, sub, onClick }: { label: string; sub?: string; onClick
 }
 
 export function ProfileScreen() {
-  const user     = useAuthStore(s => s.user)
+  const user      = useAuthStore(s => s.user)
   const clearUser = useAuthStore(s => s.clearUser)
-  const navigate = useNavigate()
+  const navigate  = useNavigate()
 
   function handleLogout() {
     logout()
@@ -34,6 +53,7 @@ export function ProfileScreen() {
   }
 
   const displayName = user?.display_name ?? user?.email?.split('@')[0] ?? 'Atleta'
+  const isAdmin = user?.role === 'admin'
 
   return (
     <PageContainer>
@@ -47,13 +67,15 @@ export function ProfileScreen() {
       />
       <ScrollArea>
         {/* Avatar + nivel */}
-        <div className="bg-gradient-to-br from-zinc-900 to-zinc-900 border border-zinc-800 rounded-2xl p-5 flex items-center gap-4">
-          <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-teal-500 to-cyan-400 flex items-center justify-center text-white text-2xl font-bold flex-shrink-0">
+        <div className="bg-zinc-900 border border-zinc-800 rounded-2xl p-5 flex items-center gap-4">
+          <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-teal-500 to-cyan-400 flex items-center justify-center text-white text-2xl font-bold flex-shrink-0 shadow-[0_4px_14px_rgba(8,145,178,0.35)]">
             {displayName[0].toUpperCase()}
           </div>
           <div className="flex-1 min-w-0">
             <p className="font-bold text-white text-lg truncate">{displayName}</p>
-            <p className="text-xs text-zinc-500">Nivel 4 · Atleta en Forma</p>
+            <p className="text-xs text-zinc-500">
+              {isAdmin ? '👑 Administrador' : 'Nivel 4 · Atleta en Forma'}
+            </p>
             <p className="text-xs text-orange-400 mt-0.5">🔥 7 días de racha</p>
           </div>
         </div>
@@ -86,10 +108,16 @@ export function ProfileScreen() {
         </div>
 
         {/* Menú */}
-        <MenuRow label="Comunidad" sub="Posts y leaderboard" />
-        <MenuRow label="AI Coach" sub="Chat con tu entrenador IA" />
+        <MenuRow
+          label="Asistente IA"
+          sub="Chat con tu entrenador personal IA"
+          icon={<MessageSquare className="w-4 h-4" />}
+          onClick={() => navigate('/app/chat')}
+          variant="highlight"
+        />
+        <MenuRow label="Comunidad"   sub="Posts y leaderboard" />
         <MenuRow label="AI Insights" sub="Análisis de tus biomarcadores" />
-        <MenuRow label="Ajustes" sub="Cuenta, notificaciones, privacidad" />
+        <MenuRow label="Ajustes"     sub="Cuenta, notificaciones, privacidad" />
 
         {/* Versión escritorio */}
         <button

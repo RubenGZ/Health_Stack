@@ -30,7 +30,7 @@ export function LoginScreen() {
   }
 
   return (
-    <div className="min-h-full bg-zinc-950 flex flex-col justify-center px-6 py-12" style={{ paddingTop: 'env(safe-area-inset-top)' }}>
+    <div className="min-h-full auth-gradient-bg flex flex-col justify-center px-6 py-12" style={{ paddingTop: 'env(safe-area-inset-top)' }}>
       <div className="mb-10 text-center">
         <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-cyan-500 to-teal-400 flex items-center justify-center mx-auto mb-4">
           <Zap className="w-7 h-7 text-white" />

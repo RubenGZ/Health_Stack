@@ -1,12 +1,13 @@
 import { NavLink, useLocation } from 'react-router-dom'
-import { Home, Dumbbell, Utensils, User } from 'lucide-react'
+import { Home, Dumbbell, Utensils, MessageSquare, User } from 'lucide-react'
 import { cn } from '@/lib/utils'
 
 const tabs = [
-  { to: '/app/today',     label: 'Hoy',    Icon: Home      },
-  { to: '/app/train',     label: 'Gym',    Icon: Dumbbell  },
-  { to: '/app/nutrition', label: 'Comida', Icon: Utensils  },
-  { to: '/app/profile',   label: 'Perfil', Icon: User      },
+  { to: '/app/today',     label: 'Hoy',    Icon: Home           },
+  { to: '/app/train',     label: 'Gym',    Icon: Dumbbell       },
+  { to: '/app/nutrition', label: 'Comida', Icon: Utensils       },
+  { to: '/app/chat',      label: 'IA',     Icon: MessageSquare  },
+  { to: '/app/profile',   label: 'Perfil', Icon: User           },
 ]
 
 export function BottomTabBar() {
@@ -31,15 +32,16 @@ export function BottomTabBar() {
                 active ? 'text-primary' : 'text-zinc-500 hover:text-zinc-300'
               )}
             >
+              {/* Active pill indicator */}
+              {active && (
+                <span className="absolute top-0 left-1/2 -translate-x-1/2 w-6 h-0.5 rounded-full bg-primary" aria-hidden />
+              )}
               <Icon
-                className="w-6 h-6"
+                className="w-5 h-5"
                 strokeWidth={active ? 2.5 : 1.75}
                 fill={active ? 'currentColor' : 'none'}
               />
-              <span className="text-[11px] font-medium leading-none">{label}</span>
-              {active && (
-                <span className="absolute bottom-1.5 w-1 h-1 rounded-full bg-primary" aria-hidden />
-              )}
+              <span className={cn('text-[10px] font-semibold leading-none', active && 'text-primary')}>{label}</span>
             </NavLink>
           )
         })}

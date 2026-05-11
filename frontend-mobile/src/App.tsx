@@ -10,6 +10,7 @@ import { OnboardingScreen }  from '@/screens/auth/OnboardingScreen'
 import { TodayScreen }       from '@/screens/today/TodayScreen'
 import { TrainScreen }       from '@/screens/train/TrainScreen'
 import { NutritionScreen }   from '@/screens/nutrition/NutritionScreen'
+import { ChatScreen }        from '@/screens/chat/ChatScreen'
 import { ProfileScreen }     from '@/screens/profile/ProfileScreen'
 
 function AuthGuard({ children }: { children: React.ReactNode }) {
@@ -36,7 +37,10 @@ export default function App() {
   }, [setUser, clearUser, setLoading])
 
   return (
-    <BrowserRouter basename={import.meta.env.BASE_URL}>
+    <BrowserRouter
+      basename={import.meta.env.BASE_URL}
+      future={{ v7_startTransition: true, v7_relativeSplatPath: true }}
+    >
       <Routes>
         {/* Auth — public */}
         <Route path="/auth/login"      element={<LoginScreen />} />
@@ -51,6 +55,7 @@ export default function App() {
           <Route path="today"     element={<TodayScreen />} />
           <Route path="train"     element={<TrainScreen />} />
           <Route path="nutrition" element={<NutritionScreen />} />
+          <Route path="chat"      element={<ChatScreen />} />
           <Route path="profile"   element={<ProfileScreen />} />
         </Route>
 

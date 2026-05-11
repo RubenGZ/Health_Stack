@@ -6,6 +6,13 @@
   :root {
     --tab-bar-height: 64px;
     --top-bar-height: 56px;
+    --color-primary: #0891b2;
+    --color-primary-light: #22d3ee;
+    --color-primary-glow: rgba(8, 145, 178, 0.35);
+    --color-surface: #09090b;
+    --color-card: #111113;
+    --color-border: #27272a;
+    --color-muted: #71717a;
   }
 
   * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
@@ -18,7 +25,7 @@
   body {
     height: 100%;
     overflow: hidden;
-    background: #09090b;
+    background: var(--color-surface);
     color: #f4f4f5;
     font-family: 'Raleway', -apple-system, BlinkMacSystemFont, sans-serif;
     -webkit-font-smoothing: antialiased;
@@ -50,7 +57,7 @@
   .pt-safe { padding-top: env(safe-area-inset-top); }
 }
 
-/* Chip scroll horizontal sin scrollbar */
+/* ── Chip scroll horizontal sin scrollbar ─────────────────────────── */
 .chips-scroll {
   display: flex;
   gap: 0.5rem;
@@ -61,6 +68,42 @@
 }
 .chips-scroll::-webkit-scrollbar { display: none; }
 .chips-scroll > * { scroll-snap-align: start; flex-shrink: 0; }
+
+/* ── Card glow variants ───────────────────────────────────────────── */
+.card-glow-cyan {
+  box-shadow: 0 0 0 1px rgba(8,145,178,0.25), 0 4px 24px rgba(8,145,178,0.12);
+}
+.card-glow-violet {
+  box-shadow: 0 0 0 1px rgba(139,92,246,0.25), 0 4px 24px rgba(139,92,246,0.12);
+}
+.card-glow-orange {
+  box-shadow: 0 0 0 1px rgba(251,146,60,0.25), 0 4px 24px rgba(251,146,60,0.10);
+}
+
+/* ── Distinctive scrollbar on web ────────────────────────────────── */
+.scrollable::-webkit-scrollbar { width: 3px; }
+.scrollable::-webkit-scrollbar-track { background: transparent; }
+.scrollable::-webkit-scrollbar-thumb { background: #27272a; border-radius: 999px; }
+.scrollable::-webkit-scrollbar-thumb:hover { background: #3f3f46; }
+
+/* ── Auth screen decorative gradient ─────────────────────────────── */
+.auth-gradient-bg {
+  background:
+    radial-gradient(ellipse 60% 40% at 50% -10%, rgba(8,145,178,0.14) 0%, transparent 70%),
+    radial-gradient(ellipse 40% 30% at 80% 100%, rgba(20,184,166,0.10) 0%, transparent 60%),
+    #09090b;
+}
+
+/* ── Chat message bubble transitions ─────────────────────────────── */
+.chat-bubble-enter {
+  animation: bubble-in 0.18s ease-out;
+}
+@keyframes bubble-in {
+  from { opacity: 0; transform: translateY(6px) scale(0.97); }
+  to   { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+/* ── Bottom tab active dot → replaced by top pill ────────────────── */
 
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after { animation-duration: 0.01ms !important; transition-duration: 0.01ms !important; }

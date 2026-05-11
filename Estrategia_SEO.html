@@ -183,6 +183,7 @@
 
   <div class="nav-section">Contenido</div>
   <a class="nav-link" href="#content">Estrategia Contenido</a>
+  <a class="nav-link" href="#ai-seo">AI SEO — llms.txt ✓</a>
   <a class="nav-link" href="#linkbuilding">Link Building</a>
 
   <div class="nav-section">Hoja de Ruta</div>
@@ -330,7 +331,21 @@
           <td><span class="badge badge--red">Ausente</span></td>
           <td>Sin páginas de contenido para keywords long-tail</td>
           <td><span class="badge badge--red">Crítico (largo plazo)</span></td>
-          <td><span class="badge badge--amber">Pendiente</span></td>
+          <td><span class="badge badge--blue">✓ Parcial — 6 artículos embebidos + 4 calculadoras en landing</span></td>
+        </tr>
+        <tr>
+          <td><strong>llms.txt / AI SEO</strong></td>
+          <td><span class="badge badge--red">Ausente</span></td>
+          <td>Crawlers de IA (GPT, Claude, Perplexity) sin indexar</td>
+          <td><span class="badge badge--amber">Alto — creciente</span></td>
+          <td><span class="badge badge--green">✓ Implementado</span></td>
+        </tr>
+        <tr>
+          <td><strong>Tabla comparativa vs competidores</strong></td>
+          <td><span class="badge badge--red">Ausente</span></td>
+          <td>Sin content para keywords "alternativa a X"</td>
+          <td><span class="badge badge--amber">Alto</span></td>
+          <td><span class="badge badge--green">✓ AppComparison en landing</span></td>
         </tr>
         <tr>
           <td><strong>Core Web Vitals</strong></td>
@@ -354,20 +369,20 @@
 
       <div class="card">
         <div class="score-ring">
-          <div class="score-circle score-circle--amber">6</div>
+          <div class="score-circle score-circle--amber">7</div>
           <div>
             <strong>SEO Técnico</strong>
-            <p style="margin:4px 0 0">Title, meta, schema, robots, sitemap implementados. Pendiente: blog, PWA install-url en schema.</p>
+            <p style="margin:4px 0 0">Title, meta, schema, robots, sitemap, hreflang ×5, llms.txt y crawlers IA implementados. Pendiente: og:image y Google Search Console.</p>
           </div>
         </div>
       </div>
 
       <div class="card">
         <div class="score-ring">
-          <div class="score-circle score-circle--red">2</div>
+          <div class="score-circle score-circle--amber">5</div>
           <div>
             <strong>SEO de Contenido</strong>
-            <p style="margin:4px 0 0">Sin blog, sin landing pages por keyword, sin FAQ page. Mayor oportunidad de crecimiento.</p>
+            <p style="margin:4px 0 0">6 artículos SEO embebidos + 4 calculadoras en landing + tabla de comparativa vs 4 competidores. Sin blog independiente aún — mayor palanca pendiente.</p>
           </div>
         </div>
       </div>
@@ -1177,52 +1192,140 @@ Gratis para siempre — sin tarjeta. Pro sin anuncios." /&gt;</code></pre>
   <section id="content">
     <h2><span class="section-num">12</span> Estrategia de Contenido</h2>
 
-    <div class="alert alert--amber">
-      <span class="alert-icon">⚡</span>
-      <div><strong>La mayor oportunidad SEO de HSP es el contenido.</strong> Hevy tiene un blog activo con artículos como "Best Workout Tracker Apps 2026" que rankean muy alto. MyFitnessPal tiene miles de artículos de nutrición. HSP no tiene ninguno todavía.</div>
+    <div class="alert alert--green">
+      <span class="alert-icon">✅</span>
+      <div><strong>Mayo 2026 — Contenido base implementado.</strong> La landing ya tiene calculadoras, artículos SEO y tabla de comparativa. El siguiente nivel es un blog independiente con URLs propias por keyword.</div>
     </div>
 
-    <h3>Pilares de contenido recomendados</h3>
+    <h3>Pilares de contenido — Estado actual</h3>
     <div class="card-grid">
       <div class="card">
         <div style="font-size:24px;margin-bottom:8px">🧮</div>
-        <h3 style="margin-top:0">Calculadoras (Landing Pages)</h3>
-        <p>Páginas dedicadas a cada calculadora: TDEE, macros, 1RM, IMC, BMR. Atraen tráfico de herramienta con alta intención de uso.</p>
-        <strong>Urgencia: Alta</strong>
-      </div>
-      <div class="card">
-        <div style="font-size:24px;margin-bottom:8px">📝</div>
-        <h3 style="margin-top:0">Blog Técnico Fitness</h3>
-        <p>Artículos basados en evidencia: "Cómo calcular tu TDEE", "Qué es el 1RM", "Push Pull Legs explicado", "Semana de descarga: cuándo y cómo".</p>
-        <strong>Urgencia: Alta</strong>
+        <h3 style="margin-top:0">Calculadoras <span class="badge badge--green" style="font-size:10px;vertical-align:middle">✓ Implementado</span></h3>
+        <p>4 calculadoras embebidas en la landing: TDEE &amp; Macros, IMC dual-mode (OMS + RFM), Proteína/día y 1RM (Epley). Schema HowTo + FAQ añadidos.</p>
+        <div class="tag-list">
+          <span class="tag tag--cyan">calculadora TDEE gratis · 8K/mes</span>
+          <span class="tag tag--cyan">calculadora macros · 9K/mes</span>
+          <span class="tag tag--cyan">calcular 1RM · 3K/mes</span>
+          <span class="tag tag--cyan">calculadora IMC fitness · 5K/mes</span>
+        </div>
       </div>
       <div class="card">
         <div style="font-size:24px;margin-bottom:8px">⚖️</div>
-        <h3 style="margin-top:0">Páginas de Comparación</h3>
-        <p>"HealthStack Pro vs MyFitnessPal", "Alternativa gratuita a Hevy", "Mejor app fitness gratis 2026".</p>
-        <strong>Urgencia: Media</strong>
+        <h3 style="margin-top:0">Comparativas <span class="badge badge--green" style="font-size:10px;vertical-align:middle">✓ Implementado</span></h3>
+        <p>Tabla AppComparison en landing: HealthStack Pro vs MyFitnessPal, Cronometer, Fitbod y Hevy. 9 filas de features. Indexable por Google directamente.</p>
+        <div class="tag-list">
+          <span class="tag">alternativa myfitnesspal gratis · 8K/mes</span>
+          <span class="tag">mejor app fitness gratis · 5K/mes</span>
+        </div>
+      </div>
+      <div class="card">
+        <div style="font-size:24px;margin-bottom:8px">📝</div>
+        <h3 style="margin-top:0">Artículos SEO <span class="badge badge--green" style="font-size:10px;vertical-align:middle">✓ Implementado</span></h3>
+        <p>6 artículos embebidos en la landing — contenido indexable basado en evidencia científica.</p>
+        <div class="tag-list">
+          <span class="tag tag--emerald">déficit calórico</span>
+          <span class="tag tag--emerald">ganar músculo por mes</span>
+          <span class="tag tag--emerald">rutina gym principiante</span>
+          <span class="tag tag--emerald">mejor app fitness español</span>
+          <span class="tag tag--emerald">suplementos que funcionan</span>
+          <span class="tag tag--emerald">proteína en déficit</span>
+        </div>
       </div>
       <div class="card">
         <div style="font-size:24px;margin-bottom:8px">🗺️</div>
-        <h3 style="margin-top:0">Guías de Entrenamiento</h3>
-        <p>Guías PDF descargables: "Rutina PPL 6 días", "Bulk limpio: protocolo de 12 semanas", "Pérdida de grasa sin perder músculo".</p>
-        <strong>Urgencia: Baja</strong>
+        <h3 style="margin-top:0">Blog independiente <span class="badge badge--amber" style="font-size:10px;vertical-align:middle">Pendiente</span></h3>
+        <p>URLs propias por keyword (/blog/calculadora-tdee, /blog/rutina-ppl). Mayor palanca SEO a largo plazo — artículos de 2000+ palabras con schema Article.</p>
+        <strong>Urgencia: Alta — siguiente paso</strong>
       </div>
     </div>
 
-    <h3>Calendario editorial sugerido (primeros 3 meses)</h3>
+    <h3>IMC dual-mode — Diferenciación de contenido única</h3>
+    <div class="card">
+      <p>La calculadora IMC es la más buscada del mercado fitness. HSP ofrece dos modos:</p>
+      <table class="audit-table">
+        <thead><tr><th>Modo</th><th>Fórmula</th><th>Ventaja SEO</th><th>Target usuario</th></tr></thead>
+        <tbody>
+          <tr>
+            <td><strong>Clásico OMS</strong></td>
+            <td>Peso(kg) / Altura(m)²</td>
+            <td>Cubre búsquedas generalistas "calculadora IMC"</td>
+            <td>Usuario casual, médicos, coaches</td>
+          </tr>
+          <tr>
+            <td><strong>Fitness RFM</strong> <span class="badge badge--blue">Diferenciador</span></td>
+            <td>RFM = 64 − (20 × altura/cintura) · Woolcott &amp; Bergman, Nature 2018</td>
+            <td>Único en el mercado en español. Target: "calculadora grasa corporal atletas"</td>
+            <td>Deportistas, powerlifters, culturistas</td>
+          </tr>
+        </tbody>
+      </table>
+      <div class="alert alert--blue" style="margin-top:12px">
+        <span class="alert-icon">💡</span>
+        <div>El modo RFM incluye 3 métodos de input: <strong>selector visual de silueta</strong> (sin medidas), <strong>talla de pantalón</strong> (EU/US) y <strong>cinta métrica</strong> (activa el método US Navy ±3%). Elimina la barrera de "no sé mi cintura en cm" que tiene el resto de calculadoras del mercado.</div>
+      </div>
+    </div>
+
+    <h3>Calendario editorial — Próximos pasos</h3>
     <table class="audit-table">
-      <thead><tr><th>Semana</th><th>Contenido</th><th>Keyword objetivo</th><th>Tipo</th></tr></thead>
+      <thead><tr><th>Semana</th><th>Contenido</th><th>Keyword objetivo</th><th>Tipo</th><th>Estado</th></tr></thead>
       <tbody>
-        <tr><td>1-2</td><td>Calculadora TDEE standalone page</td><td>calculadora TDEE gratis</td><td>Landing</td></tr>
-        <tr><td>3-4</td><td>"Cómo calcular tus macros (proteína, carbs, grasas)"</td><td>calculadora macros gratis</td><td>Blog</td></tr>
-        <tr><td>5-6</td><td>Calculadora 1RM standalone page</td><td>calculadora 1RM</td><td>Landing</td></tr>
-        <tr><td>7-8</td><td>"HealthStack Pro vs MyFitnessPal: comparativa 2026"</td><td>alternativa myfitnesspal gratis</td><td>Comparación</td></tr>
-        <tr><td>9-10</td><td>"Rutina Push Pull Legs: guía completa"</td><td>rutina push pull legs</td><td>Blog</td></tr>
-        <tr><td>11-12</td><td>"Qué es el deload y cuándo hacerlo"</td><td>semana de deload fitness</td><td>Blog</td></tr>
+        <tr><td>✓ Hecho</td><td>Calculadoras TDEE, IMC, Proteína, 1RM en landing</td><td>calculadora TDEE gratis, calculadora macros</td><td>Landing embebida</td><td><span class="badge badge--green">✓</span></td></tr>
+        <tr><td>✓ Hecho</td><td>6 artículos SEO embebidos en landing</td><td>déficit calórico, ganar músculo, etc.</td><td>Artículo embebido</td><td><span class="badge badge--green">✓</span></td></tr>
+        <tr><td>✓ Hecho</td><td>Tabla comparativa vs MyFitnessPal, Cronometer, Fitbod, Hevy</td><td>alternativa myfitnesspal gratis</td><td>Comparativa</td><td><span class="badge badge--green">✓</span></td></tr>
+        <tr><td>Próximo</td><td>"Cómo calcular tus macros" — página dedicada /blog/</td><td>calculadora macros gratis · 9K/mes</td><td>Blog</td><td><span class="badge badge--amber">Pendiente</span></td></tr>
+        <tr><td>Próximo</td><td>"HealthStack Pro vs MyFitnessPal: comparativa 2026"</td><td>alternativa myfitnesspal gratis · 8K/mes</td><td>Blog</td><td><span class="badge badge--amber">Pendiente</span></td></tr>
+        <tr><td>Futuro</td><td>"Rutina Push Pull Legs: guía completa"</td><td>rutina push pull legs · 12K/mes</td><td>Blog</td><td><span class="badge badge--amber">Pendiente</span></td></tr>
+        <tr><td>Futuro</td><td>"Qué es el deload y cuándo hacerlo"</td><td>semana de deload fitness · 4K/mes</td><td>Blog</td><td><span class="badge badge--amber">Pendiente</span></td></tr>
       </tbody>
     </table>
   </section>
+
+  <!-- ═══════════════════════════════════════════════════════
+       12b. AI SEO — llms.txt + crawlers IA
+       ═══════════════════════════════════════════════════════ -->
+  <section id="ai-seo">
+    <h2><span class="section-num" style="background:var(--cyan);color:#07070f">🤖</span> AI SEO — Indexación por Crawlers de IA <span class="badge badge--green" style="margin-left:8px">✓ Implementado</span></h2>
+
+    <div class="alert alert--blue">
+      <span class="alert-icon">🧠</span>
+      <div><strong>Nueva frontera SEO 2025-2026:</strong> ChatGPT, Claude, Perplexity y Gemini responden a millones de preguntas fitness diarias. Si no apareces en sus fuentes, no existes para ese tráfico. <code>llms.txt</code> es el estándar emergente para que los LLMs entiendan tu producto.</div>
+    </div>
+
+    <h3>llms.txt — Implementado en landing/public/</h3>
+    <div class="card">
+      <p>El archivo <code>landing/public/llms.txt</code> describe HealthStack Pro en lenguaje natural estructurado para que los modelos de lenguaje lo indexen correctamente. Sigue el estándar propuesto por Answer.AI.</p>
+      <table class="audit-table">
+        <thead><tr><th>Sección</th><th>Contenido</th></tr></thead>
+        <tbody>
+          <tr><td><strong>Producto</strong></td><td>Nombre, descripción, modelo freemium, idiomas (ES/EN/DE/FR/IT)</td></tr>
+          <tr><td><strong>Features</strong></td><td>Lista completa de funcionalidades con contexto de uso</td></tr>
+          <tr><td><strong>Precios</strong></td><td>Starter €0, Pro €9/mes, Elite €24/mes con features por tier</td></tr>
+          <tr><td><strong>Diferenciadores</strong></td><td>Free tier más generoso, IMC dual-mode RFM, sin trackers</td></tr>
+          <tr><td><strong>Keywords</strong></td><td>Términos de búsqueda relevantes en ES/EN para matching semántico</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <h3>robots.txt actualizado para crawlers de IA</h3>
+    <div class="card">
+      <p>Todos los crawlers de IA conocidos están explícitamente permitidos en <code>robots.txt</code>:</p>
+      <div class="tag-list">
+        <span class="tag tag--cyan">GPTBot (OpenAI)</span>
+        <span class="tag tag--cyan">ClaudeBot (Anthropic)</span>
+        <span class="tag tag--cyan">PerplexityBot</span>
+        <span class="tag tag--cyan">Googlebot-Extended (Gemini)</span>
+        <span class="tag tag--cyan">OAI-SearchBot</span>
+        <span class="tag tag--cyan">Meta-ExternalAgent</span>
+      </div>
+      <div class="alert alert--green" style="margin-top:12px">
+        <span class="alert-icon">📊</span>
+        <div>Estimación: Perplexity sirve ~10M consultas/día. Si HSP aparece como fuente en el 0.01% de consultas fitness en español, son ~100 visitas referidas/día desde IA. Sin coste.</div>
+      </div>
+    </div>
+  </section>
+
+  <div class="section-divider"></div>
 
   <!-- ═══════════════════════════════════════════════════════
        13. LINK BUILDING
@@ -1543,8 +1646,8 @@ Gratis para siempre — sin tarjeta. Pro sin anuncios." /&gt;</code></pre>
   </section>
 
   <div class="doc-footer">
-    <p>HealthStack Pro · Estrategia SEO · Mayo 2026</p>
-    <p style="margin-top:6px">Documento actualizado con las implementaciones de Mayo 2026.</p>
+    <p>HealthStack Pro · Estrategia SEO v2 · Mayo 2026</p>
+    <p style="margin-top:6px">Implementado: SEO técnico completo · 4 calculadoras · 6 artículos · tabla comparativa · llms.txt · i18n ×5 · Raspberry Pi + Cloudflare Tunnel</p>
   </div>
 
 </main>

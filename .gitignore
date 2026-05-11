@@ -69,3 +69,4 @@ backend/tmp_openapi.json
 
 # ── Claude Code ───────────────────────────────────────────────────────────────
 .claude/
+.gstack/

@@ -1,12 +1,45 @@
+import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { LogOut, Settings, ChevronRight, Monitor, MessageSquare, Users, Sparkles } from 'lucide-react'
+import { LogOut, Settings, ChevronRight, Monitor, MessageSquare, Users, Sparkles, Loader2 } from 'lucide-react'
 import { TopBar } from '@/components/layout/TopBar'
 import { PageContainer, ScrollArea } from '@/components/layout/PageContainer'
 import { useAuthStore } from '@/store/authStore'
 import { logout } from '@/services/auth'
+import { api } from '@/services/api'
 
-const BADGES = ['🥇', '🏃', '💪', '🎯', '🔥', '⚡']
+/* ── Types ──────────────────────────────────────────────────── */
+interface GamificationState {
+  xp_total: number
+  level: number
+  streak_days: number
+  badge_latest: string | null
+  xp_to_next_level: number
+  level_progress_pct: number
+}
 
+/* ── Helpers ────────────────────────────────────────────────── */
+function levelTitle(level: number): string {
+  if (level <= 2)  return 'Principiante'
+  if (level <= 5)  return 'Atleta en Forma'
+  if (level <= 9)  return 'Atleta Avanzado'
+  if (level <= 14) return 'Élite'
+  return 'Leyenda'
+}
+
+/* ── ProgressBar ────────────────────────────────────────────── */
+function ProgressBar({ pct }: { pct: number }) {
+  const clamped = Math.min(100, Math.max(0, pct))
+  return (
+    <div className="h-2.5 bg-zinc-800 rounded-full overflow-hidden">
+      <div
+        className="h-full bg-gradient-to-r from-purple-500 to-violet-400 rounded-full transition-all duration-500"
+        style={{ width: `${clamped}%` }}
+      />
+    </div>
+  )
+}
+
+/* ── MenuRow ────────────────────────────────────────────────── */
 function MenuRow({
   label,
   sub,
@@ -41,10 +74,21 @@ function MenuRow({
   )
 }
 
+/* ── Main screen ────────────────────────────────────────────── */
 export function ProfileScreen() {
   const user      = useAuthStore(s => s.user)
   const clearUser = useAuthStore(s => s.clearUser)
   const navigate  = useNavigate()
+
+  const [gami, setGami]       = useState<GamificationState | null>(null)
+  const [gamiLoad, setGamiLoad] = useState(true)
+
+  useEffect(() => {
+    api.get<GamificationState>('/api/v1/gamification/state')
+      .then(setGami)
+      .catch(() => setGami(null))
+      .finally(() => setGamiLoad(false))
+  }, [])
 
   function handleLogout() {
     logout()
@@ -54,6 +98,14 @@ export function ProfileScreen() {
 
   const displayName = user?.display_name ?? user?.email?.split('@')[0] ?? 'Atleta'
   const isAdmin = user?.role === 'admin'
+
+  /* Gamification display values — safe defaults while loading */
+  const level      = gami?.level ?? 1
+  const streakDays = gami?.streak_days ?? 0
+  const xpTotal    = gami?.xp_total ?? 0
+  const xpToNext   = gami?.xp_to_next_level ?? 100
+  const progressPct = gami?.level_progress_pct ?? 0
+  const badgeLatest = gami?.badge_latest ?? null
 
   return (
     <PageContainer>
@@ -70,7 +122,7 @@ export function ProfileScreen() {
         }
       />
       <ScrollArea>
-        {/* Avatar + nivel */}
+        {/* Avatar + level */}
         <div className="bg-zinc-900 border border-zinc-800 rounded-2xl p-5 flex items-center gap-4">
           <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-teal-500 to-cyan-400 flex items-center justify-center text-white text-2xl font-bold flex-shrink-0 shadow-[0_4px_14px_rgba(8,145,178,0.35)]">
             {displayName[0].toUpperCase()}
@@ -78,38 +130,55 @@ export function ProfileScreen() {
           <div className="flex-1 min-w-0">
             <p className="font-bold text-white text-lg truncate">{displayName}</p>
             <p className="text-xs text-zinc-500">
-              {isAdmin ? '👑 Administrador' : 'Nivel 4 · Atleta en Forma'}
+              {isAdmin
+                ? '👑 Administrador'
+                : gamiLoad
+                  ? '…'
+                  : `Nivel ${level} · ${levelTitle(level)}`}
             </p>
-            <p className="text-xs text-orange-400 mt-0.5">🔥 7 días de racha</p>
+            {!gamiLoad && streakDays > 0 && (
+              <p className="text-xs text-orange-400 mt-0.5">
+                🔥 {streakDays} {streakDays === 1 ? 'día' : 'días'} de racha
+              </p>
+            )}
           </div>
         </div>
 
         {/* XP bar */}
-        <div className="bg-zinc-900 border border-zinc-800 rounded-2xl p-4">
-          <div className="flex justify-between text-xs mb-2">
-            <span className="text-zinc-400">XP Total</span>
-            <span className="text-zinc-300 font-medium">340 / 500</span>
+        {gamiLoad ? (
+          <div className="bg-zinc-900 border border-zinc-800 rounded-2xl p-4 flex items-center justify-center py-8">
+            <Loader2 className="w-5 h-5 text-zinc-600 animate-spin" />
           </div>
-          <div className="h-2.5 bg-zinc-800 rounded-full overflow-hidden">
-            <div className="h-full w-[68%] bg-gradient-to-r from-purple-500 to-violet-400 rounded-full" />
+        ) : (
+          <div className="bg-zinc-900 border border-zinc-800 rounded-2xl p-4">
+            <div className="flex justify-between text-xs mb-2">
+              <span className="text-zinc-400">XP Total</span>
+              <span className="text-zinc-300 font-medium">{xpTotal} / {xpTotal + xpToNext}</span>
+            </div>
+            <ProgressBar pct={progressPct} />
+            <p className="text-[10px] text-zinc-600 mt-1.5">{xpToNext} XP para nivel {level + 1}</p>
           </div>
-          <p className="text-[10px] text-zinc-600 mt-1.5">160 XP para nivel 5</p>
-        </div>
+        )}
 
         {/* Badges */}
-        <div className="bg-zinc-900 border border-zinc-800 rounded-2xl p-4">
-          <div className="flex items-center justify-between mb-3">
-            <p className="text-[10px] font-bold uppercase tracking-widest text-zinc-500">Badges</p>
-            <button className="text-xs text-cyan-400 hover:underline">Ver todos</button>
-          </div>
-          <div className="flex gap-3 flex-wrap">
-            {BADGES.map((b, i) => (
-              <div key={i} className="w-11 h-11 bg-zinc-800 rounded-xl flex items-center justify-center text-xl">
-                {b}
+        {!gamiLoad && (
+          <div className="bg-zinc-900 border border-zinc-800 rounded-2xl p-4">
+            <div className="flex items-center justify-between mb-3">
+              <p className="text-[10px] font-bold uppercase tracking-widest text-zinc-500">Badges</p>
+            </div>
+            {badgeLatest ? (
+              <div className="flex gap-3 flex-wrap">
+                <div className="w-11 h-11 bg-zinc-800 rounded-xl flex items-center justify-center text-xl" title={badgeLatest}>
+                  {badgeLatest}
+                </div>
               </div>
-            ))}
+            ) : (
+              <p className="text-xs text-zinc-600">
+                Completa acciones para ganar tu primer badge
+              </p>
+            )}
           </div>
-        </div>
+        )}
 
         {/* Menú */}
         <MenuRow

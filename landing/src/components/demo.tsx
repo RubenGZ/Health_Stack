@@ -161,19 +161,29 @@ const ACTIVITY_VALUES = [1.2, 1.375, 1.55, 1.725, 1.9]
 const inputCls = "w-full bg-white/[0.05] border border-white/[0.1] rounded-xl px-4 py-3 text-white text-sm focus:outline-none focus:border-cyan-500/60 transition-colors"
 const labelCls = "text-[10px] font-bold uppercase tracking-widest text-neutral-500 mb-1.5 block"
 
-/* ── Body silhouette icon ───────────────────────────────────── */
+/* ── Body silhouette icon (SVG progressive) ─────────────────── */
 function BodySilhouette({ type, active }: { type: number; active: boolean }) {
-  // [shoulder_w, waist_w, hip_w] in px — wider middle = more fat
-  const widths = [[22,12,17],[24,16,20],[24,21,23],[24,28,25],[24,35,29]]
-  const [sh, ws, hp] = widths[type]
-  const c = active ? '#22d3ee' : '#374151'
+  const fill = active ? '#22d3ee' : '#374151'
+  // [shoulderHW, waistHW, hipHW] half-widths from center (cx=20)
+  const shapes: [number, number, number][] = [
+    [7,   5,   7 ],  // muy delgado
+    [9,   6,   9 ],  // en forma
+    [9,   8.5, 10],  // normal
+    [9,   13,  10],  // con barriga
+    [9,   18,  11],  // mucha barriga
+  ]
+  const [sw, ww, hw] = shapes[type]
+  const cx = 20
+  const body = `M ${cx-sw} 22 Q ${cx-sw} 40 ${cx-ww} 44 Q ${cx-ww} 50 ${cx-hw} 54 L ${cx+hw} 54 Q ${cx+ww} 50 ${cx+ww} 44 Q ${cx+sw} 40 ${cx+sw} 22 Z`
+
   return (
-    <div style={{ display:'flex', flexDirection:'column', alignItems:'center', gap:1 }}>
-      <div style={{ width:12, height:12, borderRadius:'50%', background:c }} />
-      <div style={{ width:sh, height:6, borderRadius:'3px 3px 0 0', background:c }} />
-      <div style={{ width:ws, height:14, background:c }} />
-      <div style={{ width:hp, height:6, borderRadius:'0 0 3px 3px', background:c }} />
-    </div>
+    <svg viewBox="0 0 40 80" width="32" height="52" aria-hidden="true" style={{ overflow: 'visible' }}>
+      <circle cx={cx} cy={8} r={5} fill={fill} />
+      <rect x={cx - 2.5} y={13} width={5} height={8} fill={fill} rx={1} />
+      <path d={body} fill={fill} />
+      <rect x={14} y={54} width={4.5} height={22} rx={2} fill={fill} />
+      <rect x={21.5} y={54} width={4.5} height={22} rx={2} fill={fill} />
+    </svg>
   )
 }
 
@@ -888,15 +898,17 @@ function SEOArticles() {
 
 /* ── App Integrations ─────────────────────────────────────────── */
 
-const INTEGRATIONS = [
-  { name: 'Apple Health',    icon: '🍎', bg: '#1c1c1e', border: '#3a3a3c', color: '#f2f2f7',  status: 'coming'    },
-  { name: 'Google Fit',      icon: '❤️', bg: '#0d2137', border: '#1a4a6b', color: '#4285f4',  status: 'coming'    },
-  { name: 'MyFitnessPal',    icon: '🥦', bg: '#001f0d', border: '#00491c', color: '#00a651',  status: 'coming'    },
-  { name: 'Strava',          icon: '🚴', bg: '#1a0d00', border: '#7a3500', color: '#fc4c02',  status: 'coming'  },
-  { name: 'Garmin Connect',  icon: '⌚', bg: '#000f1a', border: '#003d6b', color: '#009ddc',  status: 'coming'  },
-  { name: 'Fitbit',          icon: '💙', bg: '#001a26', border: '#005a80', color: '#00b0b9',  status: 'coming'  },
-  { name: 'Samsung Health',  icon: '💜', bg: '#100020', border: '#3d006b', color: '#a259e0',  status: 'coming'  },
-  { name: 'Wahoo',           icon: '⚡', bg: '#1a0000', border: '#6b0000', color: '#e00000',  status: 'coming'  },
+const INTEGRATIONS_LIVE = [
+  { name: 'Google Fit',  icon: '❤️',  color: '#4285f4', glow: '#4285f420' },
+  { name: 'Strava',      icon: '🚴',  color: '#fc4c02', glow: '#fc4c0220' },
+  { name: 'Fitbit',      icon: '💙',  color: '#00b0b9', glow: '#00b0b920' },
+]
+
+const INTEGRATIONS_COMING = [
+  { name: 'MyFitnessPal',   icon: '🥦', color: '#00a651' },
+  { name: 'Garmin Connect', icon: '⌚', color: '#009ddc' },
+  { name: 'Samsung Health', icon: '💜', color: '#a259e0' },
+  { name: 'Wahoo',          icon: '⚡', color: '#e00000' },
 ]
 
 function AppIntegrations() {
@@ -905,6 +917,8 @@ function AppIntegrations() {
   return (
     <section className="py-24 px-8 md:px-16 bg-[#050508] border-t border-white/[0.035]">
       <div className="max-w-5xl mx-auto">
+
+        {/* Header */}
         <div className="mb-14">
           <p className="text-[11px] font-bold uppercase tracking-[3px] text-teal-400 mb-3">
             {t('integrations.label')}
@@ -918,41 +932,127 @@ function AppIntegrations() {
           <p className="text-neutral-400 max-w-lg text-sm leading-relaxed">{t('integrations.subtitle')}</p>
         </div>
 
-        <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
-          {INTEGRATIONS.map(app => (
+        {/* ── Row 1: Live integrations ── */}
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-4">
+          {INTEGRATIONS_LIVE.map(app => (
             <div
               key={app.name}
-              className="group relative rounded-2xl p-6 flex flex-col items-center gap-3 transition-all duration-300 hover:-translate-y-1 cursor-default"
-              style={{ background: app.bg, border: `1px solid ${app.border}` }}
+              className="group relative rounded-2xl p-6 flex flex-col items-center gap-3 transition-all duration-300 hover:-translate-y-1 overflow-hidden cursor-pointer"
+              style={{
+                background: 'rgba(255,255,255,0.04)',
+                backdropFilter: 'blur(12px)',
+                border: `1px solid ${app.color}35`,
+              }}
             >
-              {/* Live / Coming-soon badge */}
-              <span className={`absolute top-3 right-3 text-[9px] font-black uppercase tracking-widest px-2 py-0.5 rounded-full ${
-                app.status === 'live'
-                  ? 'bg-green-500/20 text-green-400 border border-green-500/30'
-                  : 'bg-white/[0.06] text-neutral-500 border border-white/[0.08]'
-              }`}>
-                {app.status === 'live' ? t('integrations.live') : t('integrations.coming_soon')}
+              {/* Shimmer top bar */}
+              <div
+                className="absolute top-0 left-0 right-0 h-[2px] rounded-t-2xl"
+                style={{ background: `linear-gradient(90deg, transparent, ${app.color}, transparent)` }}
+              />
+
+              {/* Live badge */}
+              <span className="absolute top-3 right-3 text-[9px] font-black uppercase tracking-widest px-2 py-0.5 rounded-full bg-green-500/15 text-green-400 border border-green-500/25">
+                {t('integrations.live')}
               </span>
 
               {/* Icon */}
-              <div className="text-4xl leading-none mt-1">{app.icon}</div>
+              <div className="text-4xl leading-none mt-2 transition-transform duration-300 group-hover:scale-110">
+                {app.icon}
+              </div>
 
               {/* Name */}
-              <span className="text-[11px] font-bold text-center leading-tight" style={{ color: app.color }}>
+              <span className="text-[12px] font-bold text-center leading-tight text-white/90">
                 {app.name}
               </span>
 
-              {/* Subtle glow on hover */}
+              {/* Connect button */}
+              <button
+                className="mt-1 w-full text-[11px] font-bold uppercase tracking-widest py-1.5 rounded-lg transition-all duration-200"
+                style={{
+                  background: `${app.color}20`,
+                  color: app.color,
+                  border: `1px solid ${app.color}40`,
+                }}
+                onMouseEnter={e => { (e.currentTarget as HTMLButtonElement).style.background = `${app.color}35` }}
+                onMouseLeave={e => { (e.currentTarget as HTMLButtonElement).style.background = `${app.color}20` }}
+              >
+                {t('integrations.connect')}
+              </button>
+
+              {/* Hover glow */}
               <div
-                className="absolute inset-0 rounded-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none"
-                style={{ boxShadow: `inset 0 0 30px ${app.color}18` }}
+                className="absolute inset-0 rounded-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-400 pointer-events-none"
+                style={{ boxShadow: `inset 0 0 40px ${app.glow}` }}
               />
             </div>
           ))}
         </div>
 
-        <p className="mt-8 text-center text-[11px] text-neutral-600 uppercase tracking-widest">
-          + Garmin, Polar, Suunto, WHOOP · via API abierta
+        {/* ── Row 2: Apple Health (special) + Coming soon grid ── */}
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-8">
+
+          {/* Apple Health card — spans 1 col, taller feel */}
+          <div
+            className="relative rounded-2xl p-6 flex flex-col items-center gap-3 overflow-hidden"
+            style={{
+              background: 'rgba(242,242,247,0.04)',
+              backdropFilter: 'blur(12px)',
+              border: '1px solid rgba(242,242,247,0.12)',
+            }}
+          >
+            {/* Shimmer top */}
+            <div className="absolute top-0 left-0 right-0 h-[2px] rounded-t-2xl bg-gradient-to-r from-transparent via-white/30 to-transparent" />
+
+            {/* Apple icon */}
+            <div className="text-4xl leading-none mt-2">🍎</div>
+            <span className="text-[12px] font-bold text-white/90">Apple Health</span>
+
+            {/* iOS coming soon badge */}
+            <span className="text-[9px] font-bold uppercase tracking-widest px-2.5 py-1 rounded-full bg-white/[0.07] text-white/40 border border-white/[0.10] text-center leading-tight">
+              {t('integrations.apple_ios')}
+            </span>
+
+            {/* CSV import button */}
+            <button
+              className="mt-1 w-full text-[11px] font-bold uppercase tracking-widest py-1.5 rounded-lg transition-all duration-200 bg-white/[0.07] text-white/60 border border-white/[0.12] hover:bg-white/[0.12] hover:text-white/80"
+            >
+              {t('integrations.apple_csv')}
+            </button>
+
+            <p className="text-[10px] text-neutral-600 text-center leading-relaxed">
+              {t('integrations.apple_desc')}
+            </p>
+          </div>
+
+          {/* Coming soon: 2×2 grid inside remaining 2 cols */}
+          <div className="sm:col-span-2 grid grid-cols-2 gap-4">
+            {INTEGRATIONS_COMING.map(app => (
+              <div
+                key={app.name}
+                className="group relative rounded-2xl p-5 flex flex-col items-center gap-2.5 transition-all duration-300 hover:-translate-y-0.5 cursor-default overflow-hidden"
+                style={{
+                  background: 'rgba(255,255,255,0.025)',
+                  border: '1px solid rgba(255,255,255,0.07)',
+                }}
+              >
+                {/* Soon badge */}
+                <span className="absolute top-2.5 right-2.5 text-[8px] font-black uppercase tracking-widest px-1.5 py-0.5 rounded-full bg-white/[0.05] text-neutral-600 border border-white/[0.07]">
+                  {t('integrations.coming_soon')}
+                </span>
+
+                <div className="text-3xl leading-none mt-1 opacity-60 transition-opacity duration-300 group-hover:opacity-90">
+                  {app.icon}
+                </div>
+                <span className="text-[11px] font-semibold text-neutral-600 group-hover:text-neutral-400 transition-colors duration-300 text-center">
+                  {app.name}
+                </span>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        <p className="text-center text-[11px] text-neutral-700 uppercase tracking-widest">
+          + Polar · Suunto · WHOOP · via open API
         </p>
       </div>
     </section>

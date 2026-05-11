@@ -161,15 +161,19 @@ const WHTR_F = [0.34, 0.38, 0.43, 0.50, 0.58]
 function IMCCalc() {
   const { t } = useTranslation()
   const [mode, setMode]               = useState<'classic' | 'modern'>('classic')
-  const [weight, setWeight]           = useState(80)
-  const [height, setHeight]           = useState(178)
+  const [weightStr, setWeightStr]     = useState('80')
+  const [heightStr, setHeightStr]     = useState('178')
   const [sex, setSex]                 = useState<'m' | 'f'>('m')
   const [inputMethod, setInputMethod] = useState<'visual' | 'pants' | 'tape'>('visual')
   const [bodyType, setBodyType]       = useState(2)
   const [pantsSystem, setPantsSystem] = useState<'eu' | 'us'>('eu')
   const [pantsSize, setPantsSize]     = useState('')
-  const [waist, setWaist]             = useState(85)
+  const [waistStr, setWaistStr]       = useState('85')
   const [neck, setNeck]               = useState('')
+
+  const weight = Math.max(30,  Math.min(300, Number(weightStr) || 80))
+  const height = Math.max(100, Math.min(250, Number(heightStr) || 178))
+  const waist  = Math.max(50,  Math.min(200, Number(waistStr)  || 85))
 
   /* ── Classic BMI ── */
   const bmi       = weight / Math.pow(height / 100, 2)
@@ -283,13 +287,17 @@ function IMCCalc() {
           <div className="grid grid-cols-2 gap-4">
             <div>
               <label className={labelCls}>{t('imc.weight_label')}</label>
-              <input type="number" value={weight} min={30} max={300}
-                onChange={e => setWeight(Number(e.target.value))} className={inputCls} />
+              <input type="number" value={weightStr} min={30} max={300}
+                onChange={e => setWeightStr(e.target.value)}
+                onBlur={() => setWeightStr(String(Math.max(30, Math.min(300, Number(weightStr) || 80))))}
+                className={inputCls} />
             </div>
             <div>
               <label className={labelCls}>{t('imc.height_label')}</label>
-              <input type="number" value={height} min={100} max={250}
-                onChange={e => setHeight(Number(e.target.value))} className={inputCls} />
+              <input type="number" value={heightStr} min={100} max={250}
+                onChange={e => setHeightStr(e.target.value)}
+                onBlur={() => setHeightStr(String(Math.max(100, Math.min(250, Number(heightStr) || 178))))}
+                className={inputCls} />
             </div>
           </div>
 
@@ -383,8 +391,10 @@ function IMCCalc() {
                 <div className="space-y-4">
                   <div>
                     <label className={labelCls}>{t('imc.waist_label')}</label>
-                    <input type="number" value={waist} min={50} max={200}
-                      onChange={e => setWaist(Number(e.target.value))} className={inputCls} />
+                    <input type="number" value={waistStr} min={50} max={200}
+                      onChange={e => setWaistStr(e.target.value)}
+                      onBlur={() => setWaistStr(String(Math.max(50, Math.min(200, Number(waistStr) || 85))))}
+                      className={inputCls} />
                   </div>
                   <div>
                     <label className={labelCls}>{t('imc.neck_label')} <span className="normal-case font-normal text-neutral-600">{t('imc.optional')}</span></label>
@@ -446,8 +456,9 @@ function IMCCalc() {
 /* ── Protein sub-calculator ─────────────────────────────────── */
 function ProteinCalc() {
   const { t } = useTranslation()
-  const [weight, setWeight] = useState(75)
-  const [level, setLevel]   = useState(0)
+  const [weightStr, setWeightStr] = useState('75')
+  const [level, setLevel]         = useState(0)
+  const weight = Math.max(30, Math.min(300, Number(weightStr) || 75))
 
   const multipliers = [[1.4, 1.8], [1.6, 2.0], [1.8, 2.2]]
   const [minM, optM] = multipliers[level]
@@ -460,8 +471,10 @@ function ProteinCalc() {
       <div className="bg-white/[0.025] border border-white/[0.065] rounded-2xl p-8 space-y-5">
         <div>
           <label className={labelCls}>{t('protein_calc.weight_label')}</label>
-          <input type="number" value={weight} min={30} max={300}
-            onChange={e => setWeight(Number(e.target.value))} className={inputCls} />
+          <input type="number" value={weightStr} min={30} max={300}
+            onChange={e => setWeightStr(e.target.value)}
+            onBlur={() => setWeightStr(String(Math.max(30, Math.min(300, Number(weightStr) || 75))))}
+            className={inputCls} />
         </div>
         <div>
           <label className={labelCls}>{t('protein_calc.level_label')}</label>
@@ -494,8 +507,10 @@ function ProteinCalc() {
 /* ── 1RM sub-calculator ─────────────────────────────────────── */
 function ORMCalc() {
   const { t } = useTranslation()
-  const [lifted, setLifted] = useState(100)
-  const [reps, setReps]     = useState(5)
+  const [liftedStr, setLiftedStr] = useState('100')
+  const [repsStr, setRepsStr]     = useState('5')
+  const lifted = Math.max(1,  Math.min(500, Number(liftedStr) || 100))
+  const reps   = Math.max(1,  Math.min(20,  Number(repsStr)   || 5))
 
   const orm = Math.round(lifted * (1 + reps / 30))
   const percentages = [100, 95, 90, 85, 80, 75, 70]
@@ -505,13 +520,17 @@ function ORMCalc() {
       <div className="bg-white/[0.025] border border-white/[0.065] rounded-2xl p-8 space-y-5">
         <div>
           <label className={labelCls}>{t('orm.weight_label')}</label>
-          <input type="number" value={lifted} min={1} max={500}
-            onChange={e => setLifted(Number(e.target.value))} className={inputCls} />
+          <input type="number" value={liftedStr} min={1} max={500}
+            onChange={e => setLiftedStr(e.target.value)}
+            onBlur={() => setLiftedStr(String(Math.max(1, Math.min(500, Number(liftedStr) || 100))))}
+            className={inputCls} />
         </div>
         <div>
           <label className={labelCls}>{t('orm.reps_label')}</label>
-          <input type="number" value={reps} min={1} max={20}
-            onChange={e => setReps(Number(e.target.value))} className={inputCls} />
+          <input type="number" value={repsStr} min={1} max={20}
+            onChange={e => setRepsStr(e.target.value)}
+            onBlur={() => setRepsStr(String(Math.max(1, Math.min(20, Number(repsStr) || 5))))}
+            className={inputCls} />
         </div>
         <div className="text-[10px] text-neutral-600 leading-relaxed">{t('orm.formula')}</div>
       </div>
@@ -537,12 +556,16 @@ function ORMCalc() {
 /* ── TDEE sub-calculator (extracted from old TDEECalculator) ── */
 function TDEECalc() {
   const { t } = useTranslation()
-  const [weight, setWeight]     = useState(75)
-  const [height, setHeight]     = useState(175)
-  const [age, setAge]           = useState(28)
+  const [weightStr, setWeightStr] = useState('75')
+  const [heightStr, setHeightStr] = useState('175')
+  const [ageStr, setAgeStr]       = useState('28')
   const [sex, setSex]           = useState<'m' | 'f'>('m')
   const [activity, setActivity] = useState(1.55)
   const [goal, setGoal]         = useState<'cut' | 'maintain' | 'bulk'>('maintain')
+
+  const weight = Math.max(30,  Math.min(250, Number(weightStr) || 75))
+  const height = Math.max(100, Math.min(250, Number(heightStr) || 175))
+  const age    = Math.max(14,  Math.min(100, Number(ageStr)    || 28))
 
   const tmb  = sex === 'm'
     ? 10 * weight + 6.25 * height - 5 * age + 5
@@ -571,20 +594,26 @@ function TDEECalc() {
         <div className="grid grid-cols-2 gap-4">
           <div>
             <label className={labelCls}>{t('tdee.weight_label')}</label>
-            <input type="number" value={weight} min={30} max={250}
-              onChange={e => setWeight(Number(e.target.value))} className={inputCls} />
+            <input type="number" value={weightStr} min={30} max={250}
+              onChange={e => setWeightStr(e.target.value)}
+              onBlur={() => setWeightStr(String(Math.max(30, Math.min(250, Number(weightStr) || 75))))}
+              className={inputCls} />
           </div>
           <div>
             <label className={labelCls}>{t('tdee.height_label')}</label>
-            <input type="number" value={height} min={100} max={250}
-              onChange={e => setHeight(Number(e.target.value))} className={inputCls} />
+            <input type="number" value={heightStr} min={100} max={250}
+              onChange={e => setHeightStr(e.target.value)}
+              onBlur={() => setHeightStr(String(Math.max(100, Math.min(250, Number(heightStr) || 175))))}
+              className={inputCls} />
           </div>
         </div>
         <div className="grid grid-cols-2 gap-4">
           <div>
             <label className={labelCls}>{t('tdee.age_label')}</label>
-            <input type="number" value={age} min={14} max={100}
-              onChange={e => setAge(Number(e.target.value))} className={inputCls} />
+            <input type="number" value={ageStr} min={14} max={100}
+              onChange={e => setAgeStr(e.target.value)}
+              onBlur={() => setAgeStr(String(Math.max(14, Math.min(100, Number(ageStr) || 28))))}
+              className={inputCls} />
           </div>
           <div>
             <label className={labelCls}>{t('tdee.sex_label')}</label>
@@ -831,9 +860,9 @@ function SEOArticles() {
 /* ── App Integrations ─────────────────────────────────────────── */
 
 const INTEGRATIONS = [
-  { name: 'Apple Health',    icon: '🍎', bg: '#1c1c1e', border: '#3a3a3c', color: '#f2f2f7',  status: 'live'    },
-  { name: 'Google Fit',      icon: '❤️', bg: '#0d2137', border: '#1a4a6b', color: '#4285f4',  status: 'live'    },
-  { name: 'MyFitnessPal',    icon: '🥦', bg: '#001f0d', border: '#00491c', color: '#00a651',  status: 'live'    },
+  { name: 'Apple Health',    icon: '🍎', bg: '#1c1c1e', border: '#3a3a3c', color: '#f2f2f7',  status: 'coming'    },
+  { name: 'Google Fit',      icon: '❤️', bg: '#0d2137', border: '#1a4a6b', color: '#4285f4',  status: 'coming'    },
+  { name: 'MyFitnessPal',    icon: '🥦', bg: '#001f0d', border: '#00491c', color: '#00a651',  status: 'coming'    },
   { name: 'Strava',          icon: '🚴', bg: '#1a0d00', border: '#7a3500', color: '#fc4c02',  status: 'coming'  },
   { name: 'Garmin Connect',  icon: '⌚', bg: '#000f1a', border: '#003d6b', color: '#009ddc',  status: 'coming'  },
   { name: 'Fitbit',          icon: '💙', bg: '#001a26', border: '#005a80', color: '#00b0b9',  status: 'coming'  },

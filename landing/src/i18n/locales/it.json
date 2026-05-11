@@ -146,8 +146,8 @@
       { "label": "Molto magro", "desc": "Nessun grasso visibile, costole e vene in rilievo. Stomaco piatto senza grasso." },
       { "label": "Atletico", "desc": "Vita ben definita, stomaco relativamente piatto. Un po' di muscolo visibile." },
       { "label": "Normale", "desc": "Un po' di pancia ma senza eccessi. La vita è meno stretta di spalle o fianchi." },
-      { "label": "Pancetta", "desc": "Pancia evidente, vita poco marcata. I vestiti stretti stringono in vita." },
-      { "label": "Pancia pronunciata", "desc": "Addome prominente, vita non visibile. I pantaloni si portano sotto la pancia." }
+      { "label": "Corporatura morbida", "desc": "Pancia evidente, vita poco marcata. I vestiti stretti stringono in vita." },
+      { "label": "Corporatura robusta", "desc": "Addome prominente, vita non visibile. I pantaloni si portano sotto la pancia." }
     ]
   },
   "protein_calc": {

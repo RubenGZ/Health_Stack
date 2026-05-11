@@ -146,8 +146,8 @@
       { "label": "Sehr schlank", "desc": "Kein sichtbares Fett, Rippen und Venen sichtbar. Flacher Bauch ohne Fett." },
       { "label": "Athletisch", "desc": "Gut definierte Taille, relativ flacher Bauch. Etwas Muskulatur sichtbar." },
       { "label": "Normal", "desc": "Etwas Bauch, aber nicht übermäßig. Die Taille ist weniger schmal als Schultern oder Hüften." },
-      { "label": "Bauchansatz", "desc": "Merklicher Bauch, Taille kaum definiert. Enge Kleidung drückt an der Taille." },
-      { "label": "Deutlicher Bauch", "desc": "Markanter Bauch, Taille nicht sichtbar. Hose wird unter dem Bauch getragen." }
+      { "label": "Weichere Mitte", "desc": "Merklicher Bauch, Taille kaum definiert. Enge Kleidung drückt an der Taille." },
+      { "label": "Kräftigere Statur", "desc": "Markanter Bauch, Taille nicht sichtbar. Hose wird unter dem Bauch getragen." }
     ]
   },
   "protein_calc": {

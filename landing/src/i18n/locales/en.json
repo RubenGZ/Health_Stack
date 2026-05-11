@@ -146,8 +146,8 @@
       { "label": "Very lean", "desc": "No visible fat, ribs and veins visible. Flat stomach with no fat." },
       { "label": "Athletic", "desc": "Well-defined waist, relatively flat stomach. Some muscle visible." },
       { "label": "Average", "desc": "Some belly but not excessive. Waist less narrow than shoulders or hips." },
-      { "label": "Some belly", "desc": "Noticeable belly, waist barely defined. Tight clothing is uncomfortable at the waist." },
-      { "label": "Big belly", "desc": "Prominent belly, waist not visible. Trousers worn below the belly." }
+      { "label": "Soft build", "desc": "Noticeable belly, waist barely defined. Tight clothing is uncomfortable at the waist." },
+      { "label": "Fuller build", "desc": "Prominent belly, waist not visible. Trousers worn below the belly." }
     ]
   },
   "protein_calc": {

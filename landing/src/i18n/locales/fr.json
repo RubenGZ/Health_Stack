@@ -146,8 +146,8 @@
       { "label": "Très mince", "desc": "Pas de graisse visible, côtes et veines apparentes. Ventre plat sans graisse." },
       { "label": "Athlétique", "desc": "Taille bien définie, ventre relativement plat. Un peu de muscle visible." },
       { "label": "Normal", "desc": "Un peu de ventre mais sans excès. La taille est moins fine que les épaules ou les hanches." },
-      { "label": "Bedaine", "desc": "Ventre notable, taille peu marquée. Les vêtements serrés serrent à la taille." },
-      { "label": "Gros ventre", "desc": "Ventre proéminent, taille non visible. Le pantalon est porté sous le ventre." }
+      { "label": "Silhouette douce", "desc": "Ventre notable, taille peu marquée. Les vêtements serrés serrent à la taille." },
+      { "label": "Silhouette généreuse", "desc": "Ventre proéminent, taille non visible. Le pantalon est porté sous le ventre." }
     ]
   },
   "protein_calc": {

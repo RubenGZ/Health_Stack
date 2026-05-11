@@ -146,8 +146,8 @@
       { "label": "Muy delgado", "desc": "Sin grasa visible, costillas y venas marcadas. Sin grasa en el abdomen." },
       { "label": "En forma", "desc": "Cintura bien definida, abdomen relativamente plano. Algo de músculo visible." },
       { "label": "Normal", "desc": "Algo de barriga pero sin exceso notable. Cintura menos estrecha que hombros o caderas." },
-      { "label": "Con barriga", "desc": "Barriga notable, cintura poco marcada. La ropa ajustada aprieta en el abdomen." },
-      { "label": "Mucha barriga", "desc": "Abdomen prominente, cintura no visible. Los pantalones se llevan bajo la barriga." }
+      { "label": "Complexión suave", "desc": "Barriga notable, cintura poco marcada. La ropa ajustada aprieta en el abdomen." },
+      { "label": "Complexión robusta", "desc": "Abdomen prominente, cintura no visible. Los pantalones se llevan bajo la barriga." }
     ]
   },
   "protein_calc": {

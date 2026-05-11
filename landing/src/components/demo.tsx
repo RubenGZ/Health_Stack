@@ -51,6 +51,35 @@ function useIsMobile() {
   return isMobile
 }
 
+// Section IDs — order matches t('nav.links') array
+const NAV_IDS = ['features', 'preview', 'testimonials', 'pricing'] as const
+
+function scrollTo(id: string) {
+  document.getElementById(id)?.scrollIntoView({ behavior: 'smooth', block: 'start' })
+}
+
+// Defer rendering until the element is ~400px from the viewport — zero initial cost
+function useLazyMount() {
+  const ref = useRef<HTMLDivElement>(null)
+  const [mounted, setMounted] = useState(false)
+  useEffect(() => {
+    const el = ref.current
+    if (!el) return
+    const obs = new IntersectionObserver(
+      ([entry]) => { if (entry.isIntersecting) { setMounted(true); obs.disconnect() } },
+      { rootMargin: '400px 0px' }
+    )
+    obs.observe(el)
+    return () => obs.disconnect()
+  }, [])
+  return { ref, mounted }
+}
+
+function LazySection({ children, minH = '200px' }: { children: ReactNode; minH?: string }) {
+  const { ref, mounted } = useLazyMount()
+  return <div ref={ref} style={mounted ? undefined : { minHeight: minH }}>{mounted && children}</div>
+}
+
 /* ── Static structural meta (no text → no translation needed) ─── */
 
 const HEADING = { fontFamily: "'Lora', Georgia, serif" }
@@ -1140,11 +1169,11 @@ export function SplineSceneBasic() {
                 </button>
               </div>
               <nav className="flex flex-col gap-1 flex-1">
-                {navLinks.map(l => (
+                {navLinks.map((l, i) => (
                   <a
                     key={l}
-                    href="#"
-                    onClick={() => setMenuOpen(false)}
+                    href={`#${NAV_IDS[i]}`}
+                    onClick={e => { e.preventDefault(); scrollTo(NAV_IDS[i]); setMenuOpen(false) }}
                     className="text-sm font-bold uppercase tracking-widest text-neutral-300 hover:text-white transition-colors py-3 border-b border-white/[0.05]"
                   >
                     {l}
@@ -1178,8 +1207,8 @@ export function SplineSceneBasic() {
           HEALTHSTACK PRO
         </span>
         <div className="hidden md:flex items-center gap-8">
-          {navLinks.map(l => (
-            <a key={l} href="#" className="text-[11px] font-bold uppercase tracking-widest text-neutral-400 hover:text-white transition-colors">{l}</a>
+          {navLinks.map((l, i) => (
+            <a key={l} href={`#${NAV_IDS[i]}`} onClick={e => { e.preventDefault(); scrollTo(NAV_IDS[i]) }} className="text-[11px] font-bold uppercase tracking-widest text-neutral-400 hover:text-white transition-colors">{l}</a>
           ))}
         </div>
         <div className="flex items-center gap-2">
@@ -1349,7 +1378,7 @@ export function SplineSceneBasic() {
       />
 
       {/* ── FEATURES ────────────────────────────────────────── */}
-      <section className="py-24 px-8 md:px-16 bg-[#080810]">
+      <section id="features" className="py-24 px-8 md:px-16 bg-[#080810]">
         <div className="mb-16">
           <p className="text-[11px] font-bold uppercase tracking-[3px] text-teal-400 mb-3">{t('features.label')}</p>
           <h2 className="text-5xl md:text-6xl font-black uppercase tracking-widest leading-[0.94] text-white mb-4" style={HEADING}>
@@ -1373,15 +1402,16 @@ export function SplineSceneBasic() {
       <CalculatorHub />
 
       {/* ── COMPETITOR COMPARISON ───────────────────────────── */}
-      <AppComparison />
+      <LazySection minH="600px"><AppComparison /></LazySection>
 
       {/* ── SEO ARTICLE CARDS ───────────────────────────────── */}
-      <SEOArticles />
+      <LazySection minH="400px"><SEOArticles /></LazySection>
 
       {/* ── APP INTEGRATIONS ────────────────────────────────── */}
-      <AppIntegrations />
+      <LazySection minH="500px"><AppIntegrations /></LazySection>
 
       {/* ── APP PREVIEW ─────────────────────────────────────── */}
+      <div id="preview">
       {isMobile ? (
         <section className="py-16 px-6 bg-[#050508]">
           <div className="text-center mb-8">
@@ -1411,8 +1441,10 @@ export function SplineSceneBasic() {
           <DashboardMockup />
         </ContainerScroll>
       )}
+      </div>{/* end #preview */}
 
       {/* ── SHADER INTERLUDE ────────────────────────────────── */}
+      <LazySection minH="380px">
       <section className="relative overflow-hidden h-[380px] flex items-center justify-center">
         {!isMobile && <ShaderAnimation className="absolute inset-0 w-full h-full opacity-70" />}
         <div aria-hidden className="absolute inset-0 pointer-events-none" style={{
@@ -1431,9 +1463,11 @@ export function SplineSceneBasic() {
           <p className="text-neutral-300 text-sm leading-relaxed max-w-lg mx-auto">{t('shader.subtitle')}</p>
         </div>
       </section>
+      </LazySection>
 
       {/* ── TESTIMONIALS ────────────────────────────────────── */}
-      <section className="py-24 px-8 md:px-16 bg-[#050508]">
+      <LazySection minH="500px">
+      <section id="testimonials" className="py-24 px-8 md:px-16 bg-[#050508]">
         <div className="mb-16">
           <p className="text-[11px] font-bold uppercase tracking-[3px] text-teal-400 mb-3">{t('testimonials.label')}</p>
           <h2 className="text-5xl md:text-6xl font-black uppercase tracking-widest leading-[0.94] text-white mb-4" style={HEADING}>
@@ -1461,9 +1495,11 @@ export function SplineSceneBasic() {
           ))}
         </div>
       </section>
+      </LazySection>
 
       {/* ── PRICING ─────────────────────────────────────────── */}
-      <section className="py-24 px-8 md:px-16 bg-[#080810] border-t border-white/[0.035]">
+      <LazySection minH="600px">
+      <section id="pricing" className="py-24 px-8 md:px-16 bg-[#080810] border-t border-white/[0.035]">
         <div className="mb-16 text-center">
           <p className="text-[11px] font-bold uppercase tracking-[3px] text-teal-400 mb-3">{t('pricing.label')}</p>
           <h2 className="text-5xl md:text-6xl font-black uppercase tracking-widest leading-[0.94] text-white mb-4" style={HEADING}>
@@ -1507,8 +1543,10 @@ export function SplineSceneBasic() {
           ))}
         </div>
       </section>
+      </LazySection>
 
       {/* ── FINAL CTA ───────────────────────────────────────── */}
+      <LazySection minH="400px">
       <section className="relative py-32 px-8 md:px-16 text-center overflow-hidden border-t border-white/[0.04]">
         {!isMobile && <ShaderAnimation className="absolute inset-0 w-full h-full opacity-30" />}
         <div aria-hidden className="absolute inset-0 pointer-events-none" style={{ background: 'radial-gradient(ellipse 65% 70% at 50% 50%, rgba(5,5,8,0.3) 0%, rgba(5,5,8,0.88) 100%)' }} />
@@ -1533,6 +1571,7 @@ export function SplineSceneBasic() {
           </div>
         </div>
       </section>
+      </LazySection>
 
       {/* ── FOOTER ──────────────────────────────────────────── */}
       <footer className="py-8 px-8 md:px-16 bg-[#080810] border-t border-white/[0.05]">

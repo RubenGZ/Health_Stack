@@ -222,7 +222,7 @@ function BodySilhouette({ type, active }: { type: number; active: boolean }) {
   ].join(' ')
 
   return (
-    <svg viewBox="0 0 60 112" width="34" height="60" aria-hidden="true" style={{ display: 'block', margin: '0 auto' }}>
+    <svg viewBox="0 0 60 112" width="48" height="84" aria-hidden="true" style={{ display: 'block', margin: '0 auto' }}>
       <ellipse cx={cx} cy={headCY} rx={7.5} ry={headR} fill={fill} stroke={stroke} strokeWidth="0.5" />
       <path d={d} fill={fill} stroke={stroke} strokeWidth="0.5" strokeLinejoin="round" />
     </svg>

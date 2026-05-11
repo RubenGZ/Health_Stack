@@ -163,26 +163,68 @@ const labelCls = "text-[10px] font-bold uppercase tracking-widest text-neutral-5
 
 /* ── Body silhouette icon (SVG progressive) ─────────────────── */
 function BodySilhouette({ type, active }: { type: number; active: boolean }) {
-  const fill = active ? '#22d3ee' : '#374151'
-  // [shoulderHW, waistHW, hipHW] half-widths from center (cx=20)
-  const shapes: [number, number, number][] = [
-    [7,   5,   7 ],  // muy delgado
-    [9,   6,   9 ],  // en forma
-    [9,   8.5, 10],  // normal
-    [9,   13,  10],  // con barriga
-    [9,   18,  11],  // mucha barriga
-  ]
-  const [sw, ww, hw] = shapes[type]
-  const cx = 20
-  const body = `M ${cx-sw} 22 Q ${cx-sw} 40 ${cx-ww} 44 Q ${cx-ww} 50 ${cx-hw} 54 L ${cx+hw} 54 Q ${cx+ww} 50 ${cx+ww} 44 Q ${cx+sw} 40 ${cx+sw} 22 Z`
+  const fill   = active ? '#22d3ee' : '#4B5563'
+  const stroke = active ? '#67e8f9' : '#6B7280'
+  const cx = 30
+
+  // [shoulderHW, waistHW, hipHW, legOuter, legInner]  — all half-widths from cx
+  const cfg = [
+    { sh:  8, w:  6, h:  7, lo: 4.0, li: 1.5 },  // muy delgado
+    { sh: 13, w:  8, h: 10, lo: 6.0, li: 1.5 },  // en forma (V-taper)
+    { sh: 11, w: 10, h: 12, lo: 6.5, li: 1.5 },  // normal
+    { sh: 11, w: 13, h: 13, lo: 7.0, li: 2.0 },  // complexión suave
+    { sh: 12, w: 15, h: 14, lo: 8.0, li: 2.0 },  // complexión robusta
+  ][type]
+
+  const { sh, w, h, lo, li } = cfg
+  const nw = 2.8   // neck half-width
+
+  // Y anchor points
+  const headR  = 8.5;  const headCY = 9
+  const neckT  = 18;   const neckB  = 25
+  const shlY   = 27;   const midY   = 43
+  const waistY = 56;   const hipY   = 65
+  const groinY = 73;   const footY  = 105
+
+  const d = [
+    `M ${cx - nw} ${neckB}`,
+    // left neck → shoulder
+    `C ${cx - nw} ${neckB + 3} ${cx - sh + 3} ${shlY} ${cx - sh} ${shlY + 1}`,
+    // left shoulder → waist (outer edge — concave curve inward)
+    `C ${cx - sh - 2} ${midY} ${cx - w - 2} ${waistY - 7} ${cx - w} ${waistY}`,
+    // left waist → hip (convex curve outward)
+    `C ${cx - w} ${waistY + 7} ${cx - h - 1} ${hipY - 2} ${cx - h} ${hipY}`,
+    // left hip → leg outer (natural inner-thigh curve)
+    `Q ${cx - h + 3} ${hipY + 6} ${cx - lo} ${groinY}`,
+    // left leg outer down
+    `L ${cx - lo} ${footY}`,
+    `L ${cx - li} ${footY}`,
+    // left leg inner up
+    `L ${cx - li} ${groinY}`,
+    // crotch gap
+    `L ${cx + li} ${groinY}`,
+    // right leg inner down
+    `L ${cx + li} ${footY}`,
+    `L ${cx + lo} ${footY}`,
+    // right leg outer up
+    `L ${cx + lo} ${groinY}`,
+    // right hip
+    `Q ${cx + h - 3} ${hipY + 6} ${cx + h} ${hipY}`,
+    // right hip → waist
+    `C ${cx + h + 1} ${hipY - 2} ${cx + w} ${waistY + 7} ${cx + w} ${waistY}`,
+    // right waist → shoulder
+    `C ${cx + w + 2} ${waistY - 7} ${cx + sh + 2} ${midY} ${cx + sh} ${shlY + 1}`,
+    // right shoulder → neck
+    `C ${cx + sh - 3} ${shlY} ${cx + nw} ${neckB + 3} ${cx + nw} ${neckB}`,
+    `L ${cx + nw} ${neckT}`,
+    `L ${cx - nw} ${neckT}`,
+    `Z`,
+  ].join(' ')
 
   return (
-    <svg viewBox="0 0 40 80" width="32" height="52" aria-hidden="true" style={{ overflow: 'visible' }}>
-      <circle cx={cx} cy={8} r={5} fill={fill} />
-      <rect x={cx - 2.5} y={13} width={5} height={8} fill={fill} rx={1} />
-      <path d={body} fill={fill} />
-      <rect x={14} y={54} width={4.5} height={22} rx={2} fill={fill} />
-      <rect x={21.5} y={54} width={4.5} height={22} rx={2} fill={fill} />
+    <svg viewBox="0 0 60 112" width="34" height="60" aria-hidden="true" style={{ display: 'block', margin: '0 auto' }}>
+      <ellipse cx={cx} cy={headCY} rx={7.5} ry={headR} fill={fill} stroke={stroke} strokeWidth="0.5" />
+      <path d={d} fill={fill} stroke={stroke} strokeWidth="0.5" strokeLinejoin="round" />
     </svg>
   )
 }
@@ -899,9 +941,9 @@ function SEOArticles() {
 /* ── App Integrations ─────────────────────────────────────────── */
 
 const INTEGRATIONS_LIVE = [
-  { name: 'Google Fit',  icon: '❤️',  color: '#4285f4', glow: '#4285f420' },
-  { name: 'Strava',      icon: '🚴',  color: '#fc4c02', glow: '#fc4c0220' },
-  { name: 'Fitbit',      icon: '💙',  color: '#00b0b9', glow: '#00b0b920' },
+  { name: 'Google Fit', platform: 'google_fit', icon: '❤️', color: '#4285f4', glow: '#4285f420' },
+  { name: 'Strava',     platform: 'strava',     icon: '🚴', color: '#fc4c02', glow: '#fc4c0220' },
+  { name: 'Fitbit',     platform: 'fitbit',     icon: '💙', color: '#00b0b9', glow: '#00b0b920' },
 ]
 
 const INTEGRATIONS_COMING = [
@@ -975,6 +1017,7 @@ function AppIntegrations() {
                 }}
                 onMouseEnter={e => { (e.currentTarget as HTMLButtonElement).style.background = `${app.color}35` }}
                 onMouseLeave={e => { (e.currentTarget as HTMLButtonElement).style.background = `${app.color}20` }}
+                onClick={() => scrollTo('pricing')}
               >
                 {t('integrations.connect')}
               </button>

@@ -12,6 +12,9 @@ import { TrainScreen }       from '@/screens/train/TrainScreen'
 import { NutritionScreen }   from '@/screens/nutrition/NutritionScreen'
 import { ChatScreen }        from '@/screens/chat/ChatScreen'
 import { ProfileScreen }     from '@/screens/profile/ProfileScreen'
+import { CommunityScreen }   from '@/screens/community/CommunityScreen'
+import { InsightsScreen }    from '@/screens/insights/InsightsScreen'
+import { SettingsScreen }    from '@/screens/settings/SettingsScreen'
 
 function AuthGuard({ children }: { children: React.ReactNode }) {
   const { isAuthenticated, isLoading } = useAuthStore()
@@ -56,6 +59,9 @@ export default function App() {
           <Route path="train"     element={<TrainScreen />} />
           <Route path="nutrition" element={<NutritionScreen />} />
           <Route path="chat"      element={<ChatScreen />} />
+          <Route path="community" element={<CommunityScreen />} />
+          <Route path="insights"  element={<InsightsScreen />} />
+          <Route path="settings"  element={<SettingsScreen />} />
           <Route path="profile"   element={<ProfileScreen />} />
         </Route>
 

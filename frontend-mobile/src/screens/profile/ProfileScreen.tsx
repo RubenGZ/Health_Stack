@@ -1,5 +1,5 @@
 import { useNavigate } from 'react-router-dom'
-import { LogOut, Settings, ChevronRight, Monitor, MessageSquare } from 'lucide-react'
+import { LogOut, Settings, ChevronRight, Monitor, MessageSquare, Users, Sparkles } from 'lucide-react'
 import { TopBar } from '@/components/layout/TopBar'
 import { PageContainer, ScrollArea } from '@/components/layout/PageContainer'
 import { useAuthStore } from '@/store/authStore'
@@ -60,7 +60,11 @@ export function ProfileScreen() {
       <TopBar
         title="Perfil"
         right={
-          <button aria-label="Ajustes" className="p-2 text-zinc-400 hover:text-white min-h-[44px] min-w-[44px] flex items-center justify-center">
+          <button
+            aria-label="Ajustes"
+            onClick={() => navigate('/app/settings')}
+            className="p-2 text-zinc-400 hover:text-white min-h-[44px] min-w-[44px] flex items-center justify-center"
+          >
             <Settings className="w-5 h-5" />
           </button>
         }
@@ -115,9 +119,24 @@ export function ProfileScreen() {
           onClick={() => navigate('/app/chat')}
           variant="highlight"
         />
-        <MenuRow label="Comunidad"   sub="Posts y leaderboard" />
-        <MenuRow label="AI Insights" sub="Análisis de tus biomarcadores" />
-        <MenuRow label="Ajustes"     sub="Cuenta, notificaciones, privacidad" />
+        <MenuRow
+          label="Comunidad"
+          sub="Posts y leaderboard"
+          icon={<Users className="w-4 h-4" />}
+          onClick={() => navigate('/app/community')}
+        />
+        <MenuRow
+          label="AI Insights"
+          sub="Análisis de tus biomarcadores"
+          icon={<Sparkles className="w-4 h-4" />}
+          onClick={() => navigate('/app/insights')}
+        />
+        <MenuRow
+          label="Ajustes"
+          sub="Cuenta, notificaciones, privacidad"
+          icon={<Settings className="w-4 h-4" />}
+          onClick={() => navigate('/app/settings')}
+        />
 
         {/* Versión escritorio */}
         <button

@@ -48,9 +48,12 @@ function InsightCard({
   return (
     <div className={`bg-zinc-900 border rounded-2xl overflow-hidden ${color}`}>
       {/* Header */}
-      <button
-        className="w-full flex items-center justify-between px-4 py-4"
+      <div
+        role="button"
+        tabIndex={0}
+        className="w-full flex items-center justify-between px-4 py-4 cursor-pointer"
         onClick={() => setExpanded(e => !e)}
+        onKeyDown={e => e.key === 'Enter' && setExpanded(x => !x)}
       >
         <div className="flex items-center gap-3">
           <span>{icon}</span>
@@ -72,7 +75,7 @@ function InsightCard({
             <ChevronDown className="w-4 h-4 text-zinc-500" />
           )}
         </div>
-      </button>
+      </div>
 
       {/* Body */}
       {expanded && (

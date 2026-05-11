@@ -223,10 +223,11 @@ export function TodayScreen() {
   const [steps, setStepsState]  = useState(loadSteps)
   const [showStepsModal, setShowStepsModal] = useState(false)
 
-  const KCAL_TARGET    = 2100
-  const PROTEIN_TARGET = 160
-  const WATER_TARGET   = 2.5
-  const STEPS_TARGET   = 10000
+  // Read personalised targets saved by the TDEE calculator; fall back to sensible defaults
+  const KCAL_TARGET    = parseInt(localStorage.getItem('hs_kcal_target')    ?? '2100',  10) || 2100
+  const PROTEIN_TARGET = parseInt(localStorage.getItem('hs_protein_target') ?? '160',   10) || 160
+  const WATER_TARGET   = parseFloat(localStorage.getItem('hs_water_target') ?? '2.5')  || 2.5
+  const STEPS_TARGET   = parseInt(localStorage.getItem('hs_steps_target')   ?? '10000', 10) || 10000
 
   /* ── Fetch all API data in parallel ── */
   const fetchAll = useCallback(async () => {
@@ -241,8 +242,9 @@ export function TodayScreen() {
         .then(d => setGami(d))
         .finally(() => setGamiLoading(false)),
 
-      // Latest 2 health records
-      api.get<{ records: HealthRecord[] }>('/api/v1/health/records?limit=2')
+      // Latest 10 health records — need enough to find one with weight_kg set
+      // (limit=2 could miss weight if recent records are sleep-only)
+      api.get<{ records: HealthRecord[] }>('/api/v1/health/records?limit=10')
         .then(d => setRecords(d.records))
         .finally(() => setRecLoading(false)),
 
@@ -251,13 +253,15 @@ export function TodayScreen() {
         .then(d => setInsight(d))
         .finally(() => setInsightLoading(false)),
 
-      // Active routine
+      // Active routine — use explicitly activated one, or fall back to most recent
+      // (backend orders routines by created_at DESC, so index 0 = most recent)
       (async () => {
-        const activeId = localStorage.getItem('hs_active_routine_id')
-        if (!activeId) { setRoutineLoading(false); return }
         try {
           const data = await api.get<{ routines: SavedRoutine[] }>('/api/v1/routines/')
-          const found = data.routines.find(r => r.id === activeId)
+          const activeId = localStorage.getItem('hs_active_routine_id')
+          const found = (activeId ? data.routines.find(r => r.id === activeId) : null)
+            ?? data.routines[0]
+            ?? null
           if (found) {
             const parsed: AIRoutine = JSON.parse(found.routine_json)
             const totalExercises = parsed.days.reduce((s, d) => s + d.exercises.length, 0)
@@ -304,7 +308,7 @@ export function TodayScreen() {
     setShowWeightModal(false)
     setRecLoading(true)
     try {
-      const data = await api.get<{ records: HealthRecord[] }>('/api/v1/health/records?limit=2')
+      const data = await api.get<{ records: HealthRecord[] }>('/api/v1/health/records?limit=10')
       setRecords(data.records)
     } finally {
       setRecLoading(false)
@@ -329,9 +333,12 @@ export function TodayScreen() {
   }
 
   /* ── Derived weight data ── */
-  const latestWeight = records.find(r => r.weight_kg != null)?.weight_kg ?? null
-  const prevWeight   = records.filter(r => r.weight_kg != null)[1]?.weight_kg ?? null
-  const weightDelta  = latestWeight != null && prevWeight != null ? latestWeight - prevWeight : null
+  const weightRecords  = records.filter(r => r.weight_kg != null)
+  const latestWeight   = weightRecords[0]?.weight_kg ?? null
+  const latestWeightDate = weightRecords[0]?.recorded_date ?? null
+  const prevWeight     = weightRecords[1]?.weight_kg ?? null
+  const weightDelta    = latestWeight != null && prevWeight != null ? latestWeight - prevWeight : null
+  const weightIsToday  = latestWeightDate === today
 
   return (
     <PageContainer>
@@ -394,10 +401,13 @@ export function TodayScreen() {
                     <p className="text-3xl font-bold text-white tracking-tight">
                       {latestWeight.toFixed(1)} <span className="text-base text-zinc-500 font-normal">kg</span>
                     </p>
+                    {!weightIsToday && latestWeightDate && (
+                      <p className="text-[10px] text-amber-500 mt-0.5">Último registro: {latestWeightDate}</p>
+                    )}
                     {weightDelta != null && (
                       <p className={`text-xs mt-1 flex items-center gap-1 ${weightDelta < 0 ? 'text-green-400' : weightDelta > 0 ? 'text-red-400' : 'text-zinc-500'}`}>
                         {weightDelta < 0 ? <TrendingDown className="w-3 h-3" /> : weightDelta > 0 ? <TrendingUp className="w-3 h-3" /> : null}
-                        {weightDelta === 0 ? 'Sin cambio' : `${weightDelta > 0 ? '+' : ''}${weightDelta.toFixed(1)} kg respecto al registro anterior`}
+                        {weightDelta === 0 ? 'Sin cambio' : `${weightDelta > 0 ? '+' : ''}${weightDelta.toFixed(1)} kg respecto al anterior`}
                       </p>
                     )}
                     {weightDelta === null && <p className="text-xs text-zinc-600 mt-1">Solo un registro disponible</p>}

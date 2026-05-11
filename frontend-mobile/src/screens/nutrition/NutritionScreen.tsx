@@ -565,7 +565,13 @@ function TDEETab() {
       : 10 * w + 6.25 * h - 5 * a - 161
     const tdee = bmr * activity
     const delta = goal === 'cut' ? -400 : goal === 'bulk' ? 300 : 0
-    setResult({ bmr: Math.round(bmr), tdee: Math.round(tdee), target: Math.round(tdee + delta) })
+    const targetKcal    = Math.round(tdee + delta)
+    // Protein target: ~30% of calories from protein (4 kcal/g)
+    const targetProtein = Math.round(targetKcal * 0.30 / 4)
+    // Persist so TodayScreen shows the right macro progress bars
+    localStorage.setItem('hs_kcal_target',    String(targetKcal))
+    localStorage.setItem('hs_protein_target', String(targetProtein))
+    setResult({ bmr: Math.round(bmr), tdee: Math.round(tdee), target: targetKcal })
   }
 
   return (
@@ -669,6 +675,12 @@ function TDEETab() {
           <p className="text-xs text-zinc-500 leading-relaxed">
             Basado en la fórmula Mifflin-St Jeor. Ajusta ±100–200 kcal según tu progreso real en las primeras 2 semanas.
           </p>
+          <div className="flex items-center gap-2 bg-cyan-500/10 border border-cyan-500/20 rounded-xl px-3 py-2">
+            <span className="text-cyan-400 text-xs">✓</span>
+            <p className="text-xs text-cyan-300 font-semibold">
+              Objetivo guardado: {result.target} kcal · {Math.round(result.target * 0.30 / 4)} g proteína — ya visible en Hoy
+            </p>
+          </div>
         </div>
       )}
     </ScrollArea>

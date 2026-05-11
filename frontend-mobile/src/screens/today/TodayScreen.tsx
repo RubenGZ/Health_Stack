@@ -279,15 +279,39 @@ export function TodayScreen() {
 
   /* ── Weight save ── */
   async function handleSaveWeight(kg: number) {
-    await api.post('/api/v1/health/records', { recorded_date: today, weight_kg: kg })
-    await api.post('/api/v1/gamification/action', { action: 'weight' })
+    // Backend returns 409 when a record already exists for today.
+    // In that case we PATCH the existing record instead of POSTing a new one.
+    try {
+      await api.post('/api/v1/health/records', { recorded_date: today, weight_kg: kg })
+    } catch (err) {
+      const msg = err instanceof Error ? err.message : ''
+      if (msg.includes('409') || msg.toLowerCase().includes('ya existe')) {
+        // Find today's record id and PATCH it
+        const existing = await api.get<{ records: HealthRecord[] }>(
+          `/api/v1/health/records?limit=10`
+        )
+        const todayRecord = existing.records.find(r => r.recorded_date === today)
+        if (todayRecord) {
+          await api.patch(`/api/v1/health/records/${todayRecord.id}`, { weight_kg: kg })
+        } else {
+          throw err   // unexpected — re-throw so the modal shows the error
+        }
+      } else {
+        throw err
+      }
+    }
+    await api.post('/api/v1/gamification/action', { action: 'weight' }).catch(() => {/* non-critical */})
     setShowWeightModal(false)
     setRecLoading(true)
-    const data = await api.get<{ records: HealthRecord[] }>('/api/v1/health/records?limit=2')
-    setRecords(data.records)
-    setRecLoading(false)
-    const g = await api.get<GamificationState>('/api/v1/gamification/state')
-    setGami(g)
+    try {
+      const data = await api.get<{ records: HealthRecord[] }>('/api/v1/health/records?limit=2')
+      setRecords(data.records)
+    } finally {
+      setRecLoading(false)
+    }
+    api.get<GamificationState>('/api/v1/gamification/state')
+      .then(g => setGami(g))
+      .catch(() => {/* non-critical */})
   }
 
   /* ── Water controls ── */

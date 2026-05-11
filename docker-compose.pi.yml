@@ -70,6 +70,7 @@ services:
       - ./nginx/nginx.pi.conf:/etc/nginx/nginx.conf:ro
       - ./frontend:/usr/share/nginx/html/app:ro
       - ./landing/dist:/usr/share/nginx/html/landing:ro
+      - ./frontend-mobile/dist:/usr/share/nginx/html/mobile:ro
     networks:
       - internal
       - external

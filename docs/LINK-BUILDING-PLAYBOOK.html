@@ -1,0 +1,975 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Link Building Playbook — HealthStack Pro</title>
+  <style>
+    :root {
+      --bg: #07070f; --surface: #0f0f1a; --card: #141428; --border: rgba(255,255,255,0.07);
+      --accent: #6c63ff; --cyan: #22d3ee; --emerald: #34d399; --amber: #f59e0b;
+      --red: #f87171; --text: #e2e8f0; --muted: #94a3b8; --dim: #475569;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: 'Segoe UI', system-ui, sans-serif; background: var(--bg); color: var(--text); line-height: 1.6; font-size: 15px; }
+    .sidebar { position: fixed; top: 0; left: 0; width: 240px; height: 100vh; background: var(--surface); border-right: 1px solid var(--border); overflow-y: auto; padding: 24px 16px; z-index: 100; }
+    .main { margin-left: 240px; padding: 40px 48px; max-width: 1100px; }
+    @media (max-width: 900px) { .sidebar { display: none; } .main { margin-left: 0; padding: 24px 20px; } }
+    .nav-logo { font-size: 17px; font-weight: 800; color: var(--accent); margin-bottom: 24px; display: flex; align-items: center; gap: 8px; }
+    .nav-section { font-size: 10px; font-weight: 700; letter-spacing: 1.5px; text-transform: uppercase; color: var(--dim); margin: 18px 0 6px 8px; }
+    .nav-link { display: block; padding: 7px 10px; border-radius: 8px; color: var(--muted); text-decoration: none; font-size: 13px; transition: background 0.15s, color 0.15s; }
+    .nav-link:hover { background: rgba(108,99,255,0.12); color: var(--text); }
+    .page-header { margin-bottom: 48px; padding-bottom: 32px; border-bottom: 1px solid var(--border); }
+    .page-tag { font-size: 11px; font-weight: 700; letter-spacing: 2px; text-transform: uppercase; color: var(--accent); margin-bottom: 12px; }
+    h1 { font-size: 36px; font-weight: 800; line-height: 1.2; margin-bottom: 12px; }
+    h1 span { color: var(--accent); }
+    .page-sub { font-size: 16px; color: var(--muted); max-width: 640px; }
+    h2 { font-size: 22px; font-weight: 700; margin: 40px 0 16px; display: flex; align-items: center; gap: 10px; }
+    h2 .num { font-size: 12px; font-weight: 700; background: var(--accent); color: white; width: 24px; height: 24px; border-radius: 50%; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+    h3 { font-size: 16px; font-weight: 600; margin: 24px 0 10px; color: var(--cyan); }
+    p { margin-bottom: 12px; color: var(--muted); }
+    strong { color: var(--text); }
+    a { color: var(--accent); }
+    section { margin-bottom: 56px; scroll-margin-top: 80px; }
+    .section-divider { height: 1px; background: var(--border); margin: 48px 0; }
+    .card { background: var(--card); border: 1px solid var(--border); border-radius: 14px; padding: 24px; margin-bottom: 16px; }
+    .card-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 16px; margin-bottom: 24px; }
+    .badge { display: inline-flex; align-items: center; gap: 5px; font-size: 11px; font-weight: 700; padding: 3px 9px; border-radius: 20px; }
+    .badge--red    { background: rgba(248,113,113,0.15); color: var(--red); }
+    .badge--amber  { background: rgba(245,158,11,0.15);  color: var(--amber); }
+    .badge--green  { background: rgba(52,211,153,0.15);  color: var(--emerald); }
+    .badge--blue   { background: rgba(34,211,238,0.15);  color: var(--cyan); }
+    .badge--purple { background: rgba(108,99,255,0.15);  color: var(--accent); }
+    .alert { border-radius: 10px; padding: 14px 18px; font-size: 13px; margin: 16px 0; display: flex; gap: 12px; align-items: flex-start; }
+    .alert--red    { background: rgba(248,113,113,0.08); border: 1px solid rgba(248,113,113,0.25); }
+    .alert--amber  { background: rgba(245,158,11,0.08);  border: 1px solid rgba(245,158,11,0.25); }
+    .alert--green  { background: rgba(52,211,153,0.08);  border: 1px solid rgba(52,211,153,0.25); }
+    .alert--blue   { background: rgba(34,211,238,0.08);  border: 1px solid rgba(34,211,238,0.25); }
+    .alert-icon { font-size: 18px; flex-shrink: 0; margin-top: -1px; }
+    .table { width: 100%; border-collapse: collapse; font-size: 13px; }
+    .table th { text-align: left; padding: 10px 14px; font-size: 11px; font-weight: 700; letter-spacing: 1px; text-transform: uppercase; color: var(--dim); border-bottom: 2px solid var(--border); }
+    .table td { padding: 12px 14px; border-bottom: 1px solid var(--border); vertical-align: top; }
+    .table tr:last-child td { border-bottom: none; }
+    .table tr:hover td { background: rgba(255,255,255,0.02); }
+    .checklist { list-style: none; }
+    .checklist li { display: flex; align-items: flex-start; gap: 10px; padding: 10px 0; border-bottom: 1px solid var(--border); font-size: 13px; color: var(--muted); }
+    .checklist li:last-child { border-bottom: none; }
+    .check { flex-shrink: 0; width: 20px; height: 20px; border-radius: 5px; display: flex; align-items: center; justify-content: center; font-size: 11px; margin-top: 1px; font-weight: 800; }
+    .check--done  { background: var(--emerald); color: #07070f; }
+    .check--todo  { background: var(--surface); border: 1px solid var(--border); color: var(--dim); }
+    .check--hot   { background: rgba(245,158,11,0.2); border: 1px solid var(--amber); color: var(--amber); }
+    .tag-list { display: flex; flex-wrap: wrap; gap: 8px; margin: 10px 0; }
+    .tag { font-size: 12px; background: rgba(108,99,255,0.12); color: var(--accent); border: 1px solid rgba(108,99,255,0.25); padding: 4px 10px; border-radius: 20px; }
+    .tag--cyan    { background: rgba(34,211,238,0.1); color: var(--cyan); border-color: rgba(34,211,238,0.2); }
+    .tag--emerald { background: rgba(52,211,153,0.1); color: var(--emerald); border-color: rgba(52,211,153,0.2); }
+    .tag--amber   { background: rgba(245,158,11,0.1); color: var(--amber); border-color: rgba(245,158,11,0.2); }
+    .stat-card { background: var(--card); border: 1px solid var(--border); border-radius: 12px; padding: 20px; }
+    .stat-val { font-size: 28px; font-weight: 800; color: var(--accent); }
+    .stat-lbl { font-size: 12px; color: var(--muted); margin-top: 4px; }
+    .roadmap { position: relative; }
+    .roadmap::before { content: ''; position: absolute; left: 15px; top: 0; bottom: 0; width: 2px; background: var(--border); }
+    .rm-item { position: relative; padding-left: 44px; margin-bottom: 20px; }
+    .rm-dot { position: absolute; left: 7px; top: 4px; width: 18px; height: 18px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 9px; font-weight: 800; }
+    .rm-dot--done   { background: var(--emerald); color: #07070f; }
+    .rm-dot--hot    { background: var(--amber); color: #07070f; }
+    .rm-dot--todo   { background: var(--surface); border: 2px solid var(--border); color: var(--dim); }
+    .rm-title { font-size: 15px; font-weight: 600; color: var(--text); margin-bottom: 3px; }
+    .rm-desc  { font-size: 13px; color: var(--muted); }
+    .rm-meta  { font-size: 11px; font-weight: 700; color: var(--dim); margin-top: 4px; }
+    .score-bar { height: 8px; border-radius: 4px; background: rgba(255,255,255,0.06); margin-top: 8px; overflow: hidden; }
+    .score-fill { height: 100%; border-radius: 4px; }
+    .template { background: #0a0a18; border: 1px solid var(--border); border-radius: 10px; padding: 20px; font-size: 13px; line-height: 1.8; color: var(--muted); margin: 12px 0; white-space: pre-wrap; }
+    .template strong { color: var(--cyan); }
+    .doc-footer { margin-top: 64px; padding-top: 32px; border-top: 1px solid var(--border); text-align: center; font-size: 13px; color: var(--dim); }
+    .priority-high   { border-left: 3px solid var(--red); padding-left: 12px; }
+    .priority-medium { border-left: 3px solid var(--amber); padding-left: 12px; }
+    .priority-low    { border-left: 3px solid var(--emerald); padding-left: 12px; }
+  </style>
+</head>
+<body>
+
+<nav class="sidebar">
+  <div class="nav-logo">🔗 Link Building</div>
+  <div class="nav-section">Estrategia</div>
+  <a class="nav-link" href="#intro">Por qué link building</a>
+  <a class="nav-link" href="#score">Camino al 10/10</a>
+  <div class="nav-section">Acciones Rápidas</div>
+  <a class="nav-link" href="#directories">Directorios de Apps</a>
+  <a class="nav-link" href="#github">GitHub Optimization</a>
+  <a class="nav-link" href="#reddit">Reddit &amp; Comunidades</a>
+  <div class="nav-section">Medio Plazo</div>
+  <a class="nav-link" href="#producthunt">Product Hunt Launch</a>
+  <a class="nav-link" href="#alternativeto">AlternativeTo</a>
+  <a class="nav-link" href="#press">Prensa &amp; Blogs</a>
+  <div class="nav-section">Largo Plazo</div>
+  <a class="nav-link" href="#influencers">Influencers Fitness</a>
+  <a class="nav-link" href="#guestpost">Guest Posting</a>
+  <a class="nav-link" href="#content-links">Links por Contenido</a>
+  <div class="nav-section">Ejecución</div>
+  <a class="nav-link" href="#templates">Plantillas de Outreach</a>
+  <a class="nav-link" href="#tracking">Seguimiento</a>
+  <a class="nav-link" href="#timeline">Cronograma 90 días</a>
+</nav>
+
+<main class="main">
+
+  <div class="page-header">
+    <div class="page-tag">HealthStack Pro · Link Building Playbook 2026</div>
+    <h1>De 1 a <span>10/10</span><br>en Link Building</h1>
+    <p class="page-sub">Plan completo, paso a paso, para construir autoridad de dominio y llegar al score máximo. Cada acción tiene un propietario, un plazo y un impacto estimado en DA.</p>
+    <div style="margin-top:20px;display:flex;gap:12px;flex-wrap:wrap">
+      <span class="badge badge--red">Score actual: 1/10</span>
+      <span class="badge badge--amber">Target: 10/10 en 6 meses</span>
+      <span class="badge badge--blue">~150 backlinks objetivo</span>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════════════════════════════
+       POR QUÉ IMPORTA
+       ══════════════════════════════════════════════════════════ -->
+  <section id="intro">
+    <h2><span class="num">0</span> Por Qué el Link Building Es Decisivo</h2>
+
+    <div class="alert alert--blue">
+      <span class="alert-icon">📊</span>
+      <div><strong>El link building es el factor de ranking más potente de Google después del contenido.</strong> Con DA baja, aunque tu SEO técnico sea perfecto (7/10), no rankearás para keywords competitivas. Una app fitness desconocida con DA 5 vs MyFitnessPal con DA 90 — sin backlinks, eres invisible en búsquedas genéricas.</div>
+    </div>
+
+    <div class="card-grid">
+      <div class="stat-card">
+        <div class="stat-val" style="color:var(--red)">~0</div>
+        <div class="stat-lbl">Backlinks externos hoy</div>
+        <div class="score-bar"><div class="score-fill" style="width:5%;background:var(--red)"></div></div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-val" style="color:var(--amber)">DA 5-10</div>
+        <div class="stat-lbl">Domain Authority estimada hoy</div>
+        <div class="score-bar"><div class="score-fill" style="width:10%;background:var(--amber)"></div></div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-val" style="color:var(--emerald)">DA 35+</div>
+        <div class="stat-lbl">Target a 6 meses</div>
+        <div class="score-bar"><div class="score-fill" style="width:35%;background:var(--emerald)"></div></div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-val" style="color:var(--accent)">150+</div>
+        <div class="stat-lbl">Backlinks objetivo</div>
+        <div class="score-bar"><div class="score-fill" style="width:60%;background:var(--accent)"></div></div>
+      </div>
+    </div>
+
+    <div class="alert alert--amber">
+      <span class="alert-icon">⚡</span>
+      <div><strong>Regla de oro:</strong> 10 backlinks de DA 40+ valen más que 1.000 de DA 5. Prioriza calidad sobre cantidad. Un artículo en Vitonica.com o una mención en Product Hunt Day 1 vale meses de spam de directorios.</div>
+    </div>
+  </section>
+
+  <div class="section-divider"></div>
+
+  <!-- ══════════════════════════════════════════════════════════
+       SCORE BREAKDOWN
+       ══════════════════════════════════════════════════════════ -->
+  <section id="score">
+    <h2><span class="num">1</span> Cómo Llegar al 10/10</h2>
+
+    <table class="table">
+      <thead>
+        <tr><th>Fase</th><th>Acción</th><th>Backlinks estimados</th><th>DA media</th><th>Score aproximado</th><th>Plazo</th></tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><strong>0 — Hoy</strong></td>
+          <td>GitHub repo</td>
+          <td>0-3</td>
+          <td>DA 90 (GitHub)</td>
+          <td><span class="badge badge--red">1/10</span></td>
+          <td>Ya</td>
+        </tr>
+        <tr>
+          <td><strong>1 — Semana 1</strong></td>
+          <td>15 directorios de apps + AlternativeTo + SaaSHub</td>
+          <td>+20</td>
+          <td>DA 30-50</td>
+          <td><span class="badge badge--red">3/10</span></td>
+          <td>Semana 1</td>
+        </tr>
+        <tr>
+          <td><strong>2 — Semana 2-3</strong></td>
+          <td>Reddit mentions + comunidades fitness ES</td>
+          <td>+15</td>
+          <td>DA 80 (Reddit)</td>
+          <td><span class="badge badge--amber">4/10</span></td>
+          <td>Semana 2-3</td>
+        </tr>
+        <tr>
+          <td><strong>3 — Mes 2</strong></td>
+          <td>Product Hunt launch + Hacker News Show HN</td>
+          <td>+30</td>
+          <td>DA 70-90</td>
+          <td><span class="badge badge--amber">6/10</span></td>
+          <td>Mes 2</td>
+        </tr>
+        <tr>
+          <td><strong>4 — Mes 2-3</strong></td>
+          <td>3-5 reviews en blogs fitness ES + 2 guest posts</td>
+          <td>+20</td>
+          <td>DA 25-45</td>
+          <td><span class="badge badge--amber">7/10</span></td>
+          <td>Mes 2-3</td>
+        </tr>
+        <tr>
+          <td><strong>5 — Mes 3-4</strong></td>
+          <td>5 influencers fitness con review + YouTube</td>
+          <td>+25</td>
+          <td>DA 20-60</td>
+          <td><span class="badge badge--green">8/10</span></td>
+          <td>Mes 3-4</td>
+        </tr>
+        <tr>
+          <td><strong>6 — Mes 4-6</strong></td>
+          <td>Content links (artículos citados), prensa digital</td>
+          <td>+40</td>
+          <td>DA 40-70</td>
+          <td><span class="badge badge--green">10/10</span></td>
+          <td>Mes 4-6</td>
+        </tr>
+      </tbody>
+    </table>
+  </section>
+
+  <div class="section-divider"></div>
+
+  <!-- ══════════════════════════════════════════════════════════
+       FASE 1: DIRECTORIOS
+       ══════════════════════════════════════════════════════════ -->
+  <section id="directories">
+    <h2><span class="num">2</span> Fase 1 — Directorios de Apps <span class="badge badge--amber" style="margin-left:8px">Semana 1 · Máxima prioridad</span></h2>
+
+    <div class="alert alert--green">
+      <span class="alert-icon">✅</span>
+      <div><strong>El trabajo de 3-4 horas con mayor retorno SEO.</strong> Cada listing en estos directorios genera un backlink permanente de DA media-alta. Son gratuitos y no requieren aprobación editorial.</div>
+    </div>
+
+    <h3>Directorios Tier 1 — Hacer primero (DA 40-80)</h3>
+    <ul class="checklist">
+      <li>
+        <span class="check check--hot">!</span>
+        <div>
+          <strong>AlternativeTo.net</strong> — DA 72<br>
+          <span style="color:var(--muted);font-size:12px">Listar HSP como alternativa a: MyFitnessPal, Hevy, Strong, Cronometer, Fitbod. Cada "alternative to" genera tráfico de intención alta. URL: alternativeto.net/software/add</span>
+          <div class="tag-list"><span class="tag tag--amber">Alta prioridad</span><span class="tag">Gratis</span><span class="tag">DA 72</span></div>
+        </div>
+      </li>
+      <li>
+        <span class="check check--hot">!</span>
+        <div>
+          <strong>SaaSHub.com</strong> — DA 65<br>
+          <span style="color:var(--muted);font-size:12px">Crear perfil de producto completo con screenshots, descripción, precios y categorías. saashub.com/submit</span>
+          <div class="tag-list"><span class="tag tag--amber">Alta prioridad</span><span class="tag">Gratis</span><span class="tag">DA 65</span></div>
+        </div>
+      </li>
+      <li>
+        <span class="check check--hot">!</span>
+        <div>
+          <strong>GetApp.com</strong> — DA 78<br>
+          <span style="color:var(--muted);font-size:12px">Categorías: Health & Fitness, Personal Training, Nutrition. getapp.es/listing/submit</span>
+          <div class="tag-list"><span class="tag tag--amber">Alta prioridad</span><span class="tag">Plan gratuito</span><span class="tag">DA 78</span></div>
+        </div>
+      </li>
+      <li>
+        <span class="check check--hot">!</span>
+        <div>
+          <strong>G2.com</strong> — DA 90<br>
+          <span style="color:var(--muted);font-size:12px">La referencia en reviews de software. Categoría: Health & Wellness Software. g2.com/products/new</span>
+          <div class="tag-list"><span class="tag tag--amber">Máxima prioridad</span><span class="tag">Gratis</span><span class="tag">DA 90</span></div>
+        </div>
+      </li>
+      <li>
+        <span class="check check--todo">○</span>
+        <div>
+          <strong>Capterra.com</strong> — DA 87<br>
+          <span style="color:var(--muted);font-size:12px">Hermano de GetApp. Perfil gratuito en categoría Fitness. capterra.es/vendors</span>
+          <div class="tag-list"><span class="tag">Alta prioridad</span><span class="tag">Gratis</span><span class="tag">DA 87</span></div>
+        </div>
+      </li>
+      <li>
+        <span class="check check--todo">○</span>
+        <div>
+          <strong>Slant.co</strong> — DA 60<br>
+          <span style="color:var(--muted);font-size:12px">Plataforma de comparativas. Añadir HSP en threads "Best fitness tracking app", "MyFitnessPal alternatives". slant.co</span>
+          <div class="tag-list"><span class="tag">Media prioridad</span><span class="tag">Gratis</span><span class="tag">DA 60</span></div>
+        </div>
+      </li>
+      <li>
+        <span class="check check--todo">○</span>
+        <div>
+          <strong>SourceForge.net</strong> — DA 85<br>
+          <span style="color:var(--muted);font-size:12px">Para proyectos open source / freemium. Perfil gratuito. sourceforge.net/register</span>
+          <div class="tag-list"><span class="tag">Media prioridad</span><span class="tag">Gratis</span><span class="tag">DA 85</span></div>
+        </div>
+      </li>
+    </ul>
+
+    <h3>Directorios Tier 2 — Fitness específicos</h3>
+    <ul class="checklist">
+      <li>
+        <span class="check check--todo">○</span>
+        <div><strong>AppAdvice.com</strong> — DA 55 · Directorio de apps móviles. Categoría Health & Fitness.</div>
+      </li>
+      <li>
+        <span class="check check--todo">○</span>
+        <div><strong>AppGrooves.com</strong> — DA 47 · Ranking de apps por categoría. Añadir en "Best Fitness Apps".</div>
+      </li>
+      <li>
+        <span class="check check--todo">○</span>
+        <div><strong>Trustpilot.com</strong> — DA 91 · Perfil gratuito. Pedir reviews a usuarios tempranos. Backlink permanente.</div>
+      </li>
+      <li>
+        <span class="check check--todo">○</span>
+        <div><strong>Alternativas.me</strong> — DA 42 · Versión española de AlternativeTo. Listar HSP como alternativa a apps en español.</div>
+      </li>
+      <li>
+        <span class="check check--todo">○</span>
+        <div><strong>FitnessTech.io</strong> — DA 35 · Directorio de apps fitness. Submit gratuito.</div>
+      </li>
+      <li>
+        <span class="check check--todo">○</span>
+        <div><strong>Welltodo.global</strong> — DA 40 · Directorio wellness tech. Muy relevante para audiencia fitness premium.</div>
+      </li>
+      <li>
+        <span class="check check--todo">○</span>
+        <div><strong>HealthTech Magazine Listings</strong> — DA 45 · Listing en su base de datos de apps salud.</div>
+      </li>
+    </ul>
+
+    <h3>Directorios de Startups (DA alta, backlink fuerte)</h3>
+    <ul class="checklist">
+      <li>
+        <span class="check check--hot">!</span>
+        <div><strong>BetaList.com</strong> — DA 68 · Para apps en fase beta/early access. Backlink + usuarios early adopters.</div>
+      </li>
+      <li>
+        <span class="check check--todo">○</span>
+        <div><strong>StartupStash.com</strong> — DA 52 · Directorio de herramientas para startups. Categoría: Productivity + Health.</div>
+      </li>
+      <li>
+        <span class="check check--todo">○</span>
+        <div><strong>LaunchingNext.com</strong> — DA 44 · Submit de producto. Visibilidad entre inversores y early adopters.</div>
+      </li>
+      <li>
+        <span class="check check--todo">○</span>
+        <div><strong>Crunchbase.com</strong> — DA 91 · Crear perfil de empresa. Backlink permanente de DA muy alta.</div>
+      </li>
+    </ul>
+  </section>
+
+  <div class="section-divider"></div>
+
+  <!-- ══════════════════════════════════════════════════════════
+       GITHUB
+       ══════════════════════════════════════════════════════════ -->
+  <section id="github">
+    <h2><span class="num">3</span> GitHub Optimization <span class="badge badge--blue" style="margin-left:8px">DA 90 · Ya tienes el repo</span></h2>
+
+    <div class="alert alert--blue">
+      <span class="alert-icon">💡</span>
+      <div>GitHub.com tiene DA 90. El repo ya existe — optimizarlo lleva 2 horas y genera backlinks naturales cuando otros lo citan.</div>
+    </div>
+
+    <ul class="checklist">
+      <li>
+        <span class="check check--hot">!</span>
+        <div>
+          <strong>README.md con keywords SEO</strong><br>
+          <span style="color:var(--muted);font-size:12px">Incluir en el README: "app fitness gratuita", "calculadora TDEE", "seguimiento de macros", "generador de rutinas IA". Google indexa READMEs.</span>
+        </div>
+      </li>
+      <li>
+        <span class="check check--hot">!</span>
+        <div>
+          <strong>Topics del repositorio</strong><br>
+          <span style="color:var(--muted);font-size:12px">Añadir en GitHub Settings → Topics: fitness, health, workout-tracker, calorie-counter, macro-tracking, tdee-calculator, fastapi, react, freemium</span>
+        </div>
+      </li>
+      <li>
+        <span class="check check--todo">○</span>
+        <div>
+          <strong>Description + Website URL</strong><br>
+          <span style="color:var(--muted);font-size:12px">En el repo: Description = "App fitness freemium — rutinas IA, TDEE, macros, tracking de peso. Gratis para siempre." + URL del dominio en producción.</span>
+        </div>
+      </li>
+      <li>
+        <span class="check check--todo">○</span>
+        <div>
+          <strong>Awesome Lists</strong><br>
+          <span style="color:var(--muted);font-size:12px">Hacer PR para añadir HSP en: awesome-health (DA 60+), awesome-fitness-apps, awesome-selfhosted (si aplica). Cada merge = backlink permanente.</span>
+        </div>
+      </li>
+      <li>
+        <span class="check check--todo">○</span>
+        <div>
+          <strong>GitHub Sponsors perfil</strong><br>
+          <span style="color:var(--muted);font-size:12px">Activar GitHub Sponsors. Genera un backlink adicional desde github.com/sponsors.</span>
+        </div>
+      </li>
+    </ul>
+  </section>
+
+  <div class="section-divider"></div>
+
+  <!-- ══════════════════════════════════════════════════════════
+       REDDIT Y COMUNIDADES
+       ══════════════════════════════════════════════════════════ -->
+  <section id="reddit">
+    <h2><span class="num">4</span> Reddit &amp; Comunidades Fitness <span class="badge badge--blue" style="margin-left:8px">DA 80+ · Tráfico + backlinks</span></h2>
+
+    <div class="alert alert--amber">
+      <span class="alert-icon">⚠</span>
+      <div><strong>Regla crítica:</strong> No hagas spam. Participa genuinamente durante 2-3 semanas antes de mencionar HSP. Los moderadores banean cuentas nuevas que solo promocionan. Reddit nofollow los links, pero el tráfico referido y las menciones naturales valen mucho.</div>
+    </div>
+
+    <h3>Subreddits objetivo (español e inglés)</h3>
+    <table class="table">
+      <thead><tr><th>Subreddit</th><th>Miembros</th><th>Táctica</th><th>Timing</th></tr></thead>
+      <tbody>
+        <tr>
+          <td><strong>r/Fitness</strong></td>
+          <td>10M+</td>
+          <td>Responder preguntas sobre TDEE, macros, rutinas. Mencionar HSP cuando sea la respuesta natural.</td>
+          <td>Semana 2-3</td>
+        </tr>
+        <tr>
+          <td><strong>r/loseit</strong></td>
+          <td>3.5M</td>
+          <td>Target: usuarios que buscan apps para trackear calorías. Thread "What app do you use?"</td>
+          <td>Semana 2-3</td>
+        </tr>
+        <tr>
+          <td><strong>r/bodyweightfitness</strong></td>
+          <td>2.5M</td>
+          <td>HSP funciona sin equipo — ideal para este subreddit. Responder threads de rutinas.</td>
+          <td>Semana 3</td>
+        </tr>
+        <tr>
+          <td><strong>r/naturalbodybuilding</strong></td>
+          <td>900K</td>
+          <td>Audiencia avanzada. Mencionar las calculadoras de 1RM y el tracker de macros de precisión.</td>
+          <td>Semana 3</td>
+        </tr>
+        <tr>
+          <td><strong>r/spain + r/es</strong></td>
+          <td>500K+</td>
+          <td>App en español — ventaja competitiva clara. Post de lanzamiento en r/spain.</td>
+          <td>Mes 2</td>
+        </tr>
+        <tr>
+          <td><strong>r/FitnessApps</strong></td>
+          <td>50K</td>
+          <td>Subreddit específico de apps fitness. Post de presentación directo del fundador.</td>
+          <td>Semana 1</td>
+        </tr>
+        <tr>
+          <td><strong>r/SideProject</strong></td>
+          <td>200K</td>
+          <td>"I built a free fitness app in Spanish — here's what I learned". Dev story + backlink.</td>
+          <td>Mes 2</td>
+        </tr>
+        <tr>
+          <td><strong>r/learnprogramming</strong></td>
+          <td>4M</td>
+          <td>Post técnico sobre FastAPI + React stack. Linkear al repo. Backlink orgánico.</td>
+          <td>Mes 2-3</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <h3>Foros y comunidades en español</h3>
+    <ul class="checklist">
+      <li><span class="check check--hot">!</span><div><strong>Forocoches (subforo Deporte)</strong> — DA 65 · Mayor foro en español. Post de presentación + link.</div></li>
+      <li><span class="check check--todo">○</span><div><strong>Mediavida.com (subforo Salud)</strong> — DA 55 · Comunidad española activa en temas de salud y fitness.</div></li>
+      <li><span class="check check--todo">○</span><div><strong>Gymtopics.com</strong> — DA 40 · Foro de culturismo y fitness en español. Presentación del proyecto.</div></li>
+      <li><span class="check check--todo">○</span><div><strong>Discord servers de fitness ES</strong> — No genera backlinks directos pero genera tráfico y word-of-mouth que lleva a menciones.</div></li>
+    </ul>
+  </section>
+
+  <div class="section-divider"></div>
+
+  <!-- ══════════════════════════════════════════════════════════
+       PRODUCT HUNT
+       ══════════════════════════════════════════════════════════ -->
+  <section id="producthunt">
+    <h2><span class="num">5</span> Product Hunt Launch <span class="badge badge--amber" style="margin-left:8px">Mes 2 · Máximo impacto en 24h</span></h2>
+
+    <div class="alert alert--blue">
+      <span class="alert-icon">🚀</span>
+      <div><strong>Un buen launch en Product Hunt puede generar 500-2.000 visitas en 24h</strong> y backlinks desde los blogs que cubren PH diariamente (DA 40-70). Top 5 del día = mención en el newsletter de PH (600K suscriptores).</div>
+    </div>
+
+    <h3>Preparación (2-3 semanas antes)</h3>
+    <ul class="checklist">
+      <li><span class="check check--todo">○</span><div><strong>Crear cuenta en Product Hunt</strong> y ser activo 2-3 semanas antes. Votar, comentar, seguir a makers relevantes.</div></li>
+      <li><span class="check check--todo">○</span><div><strong>Encontrar un Hunter</strong> — un usuario con muchos seguidores en PH que haga el post por ti. Aumenta el alcance inicial un 3x. Buscar en hunters.dev por categoría Fitness/Health.</div></li>
+      <li><span class="check check--todo">○</span><div><strong>Tagline</strong> (60 chars max): <em>"La app fitness gratuita más completa en español"</em></div></li>
+      <li><span class="check check--todo">○</span><div><strong>Screenshots</strong> — 5-7 imágenes de alta calidad: dashboard, calculadoras, rutinas, gamificación. Tamaño: 1270×952px.</div></li>
+      <li><span class="check check--todo">○</span><div><strong>Video demo</strong> (opcional pero +40% engagement) — 60-90 segundos. Muestra el flujo: registro → calculadora → rutina generada → dashboard.</div></li>
+      <li><span class="check check--todo">○</span><div><strong>Texto del maker</strong> — Tu historia como fundador. Por qué construiste HSP. Honesto y personal convierte mejor que marketing corporativo.</div></li>
+      <li><span class="check check--todo">○</span><div><strong>Lista de upvoters</strong> — Reunir 50-100 personas (amigos, usuarios beta, comunidad) que voten el día del launch. El algoritmo de PH favorece velocidad de votos en las primeras 2 horas.</div></li>
+    </ul>
+
+    <h3>El día del launch</h3>
+    <ul class="checklist">
+      <li><span class="check check--todo">○</span><div><strong>Hora de publicar: 00:01 PST</strong> (09:01 España hora peninsular). PH resetea el contador a medianoche PST — los primeros en publicar tienen todo el día.</div></li>
+      <li><span class="check check--todo">○</span><div><strong>Notificar a tu lista</strong> — Email, WhatsApp, Discord, Twitter. Pedir que voten Y comenten (los comentarios aumentan visibilidad).</div></li>
+      <li><span class="check check--todo">○</span><div><strong>Responder TODOS los comentarios</strong> en las primeras 6 horas. PH premia el engagement del maker.</div></li>
+      <li><span class="check check--todo">○</span><div><strong>Post en Hacker News</strong> simultáneo: "Show HN: I built a free fitness app with AI-generated routines". DA 90, backlink de alta autoridad.</div></li>
+    </ul>
+
+    <h3>Blogs que cubren Product Hunt (backlinks automáticos si eres Top 5)</h3>
+    <div class="card-grid">
+      <div class="card" style="margin:0"><strong style="font-size:13px">KillerStartups.com</strong><br><span style="font-size:12px;color:var(--muted)">DA 52 · Cubre lanzamientos PH diariamente</span></div>
+      <div class="card" style="margin:0"><strong style="font-size:13px">StartupBeat.com</strong><br><span style="font-size:12px;color:var(--muted)">DA 45 · Newsletter + web con Top PH</span></div>
+      <div class="card" style="margin:0"><strong style="font-size:13px">Startup Stash weekly</strong><br><span style="font-size:12px;color:var(--muted)">DA 52 · Roundup semanal de PH</span></div>
+      <div class="card" style="margin:0"><strong style="font-size:13px">SaaSworthy.com</strong><br><span style="font-size:12px;color:var(--muted)">DA 55 · Indexa automáticamente apps de PH</span></div>
+    </div>
+  </section>
+
+  <div class="section-divider"></div>
+
+  <!-- ══════════════════════════════════════════════════════════
+       PRENSA Y BLOGS FITNESS
+       ══════════════════════════════════════════════════════════ -->
+  <section id="press">
+    <h2><span class="num">6</span> Prensa Digital &amp; Blogs Fitness <span class="badge badge--amber" style="margin-left:8px">Mes 2-3 · Backlinks DA 35-70</span></h2>
+
+    <h3>Medios en español — Target prioritario</h3>
+    <table class="table">
+      <thead><tr><th>Medio</th><th>DA</th><th>Contacto</th><th>Ángulo</th></tr></thead>
+      <tbody>
+        <tr>
+          <td><strong>Vitonica.com</strong></td>
+          <td>DA 62</td>
+          <td>redaccion@vitonica.com</td>
+          <td>"App fitness gratuita española desafía a MyFitnessPal con IA integrada"</td>
+        </tr>
+        <tr>
+          <td><strong>Sport.es</strong></td>
+          <td>DA 68</td>
+          <td>digital@sport.es</td>
+          <td>"La app española que da rutinas de IA gratis sin suscripción"</td>
+        </tr>
+        <tr>
+          <td><strong>Mundo Deportivo (salud)</strong></td>
+          <td>DA 72</td>
+          <td>redaccion@mundodeportivo.com</td>
+          <td>Herramienta gratuita para calcular TDEE y macros — ángulo nutricional</td>
+        </tr>
+        <tr>
+          <td><strong>As.com (fitness)</strong></td>
+          <td>DA 78</td>
+          <td>redaccion@as.com</td>
+          <td>"Las mejores apps fitness gratuitas 2026" — pedir inclusión</td>
+        </tr>
+        <tr>
+          <td><strong>Noticias.com</strong></td>
+          <td>DA 55</td>
+          <td>prensa@noticias.com</td>
+          <td>Nota de prensa de lanzamiento estándar</td>
+        </tr>
+        <tr>
+          <td><strong>ApplesApps.es</strong></td>
+          <td>DA 38</td>
+          <td>Formulario web</td>
+          <td>Review de app fitness en español — enviar acceso Pro</td>
+        </tr>
+        <tr>
+          <td><strong>iPhoneate.com</strong></td>
+          <td>DA 40</td>
+          <td>info@iphoneate.com</td>
+          <td>Review de PWA / app web fitness</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <h3>Blogs internacionales fitness (en inglés)</h3>
+    <table class="table">
+      <thead><tr><th>Blog</th><th>DA</th><th>Ángulo</th></tr></thead>
+      <tbody>
+        <tr><td><strong>BarBend.com</strong></td><td>DA 65</td><td>"Best free fitness apps 2026" — enviar kit de prensa</td></tr>
+        <tr><td><strong>HealthLine.com</strong></td><td>DA 91</td><td>Muy difícil, pero una mención = jackpot. Ángulo: calculadoras basadas en evidencia (citar estudios RFM)</td></tr>
+        <tr><td><strong>BreakingMuscle.com</strong></td><td>DA 60</td><td>Review técnica de la app — enviar acceso Pro gratis</td></tr>
+        <tr><td><strong>GymJunkies.com</strong></td><td>DA 50</td><td>"MyFitnessPal alternatives" — solicitar inclusión</td></tr>
+        <tr><td><strong>FitnessBlog.com</strong></td><td>DA 45</td><td>Guest post sobre "How to calculate your TDEE accurately"</td></tr>
+      </tbody>
+    </table>
+
+    <h3>Kit de prensa — preparar antes de contactar</h3>
+    <ul class="checklist">
+      <li><span class="check check--todo">○</span><div><strong>One-pager</strong> — PDF de 1 página con datos clave: descripción, features, modelo freemium, capturas de pantalla, estadísticas de usuario.</div></li>
+      <li><span class="check check--todo">○</span><div><strong>Press release</strong> — Nota de prensa en español e inglés. Formato estándar: titular + 3 párrafos + citas del fundador + datos de contacto.</div></li>
+      <li><span class="check check--todo">○</span><div><strong>Pack de imágenes</strong> — Screenshots en alta resolución (1270×952), logo en PNG/SVG, foto del fundador.</div></li>
+      <li><span class="check check--todo">○</span><div><strong>Acceso Pro gratuito</strong> — Ofrecer cuenta Pro de por vida a cambio de review honesta.</div></li>
+    </ul>
+  </section>
+
+  <div class="section-divider"></div>
+
+  <!-- ══════════════════════════════════════════════════════════
+       INFLUENCERS
+       ══════════════════════════════════════════════════════════ -->
+  <section id="influencers">
+    <h2><span class="num">7</span> Influencers Fitness <span class="badge badge--amber" style="margin-left:8px">Mes 3-4</span></h2>
+
+    <div class="alert alert--blue">
+      <span class="alert-icon">📱</span>
+      <div>Los influencers fitness generan backlinks desde sus webs (si tienen blog), tráfico referido desde sus redes y señales sociales que Google usa indirectamente. <strong>Priorizar: los que tienen web propia con DA 20+ y/o canal YouTube.</strong> Un vídeo de YouTube con link en descripción = backlink de DA 100.</div>
+    </div>
+
+    <h3>Perfil objetivo de influencer</h3>
+    <div class="card-grid">
+      <div class="card" style="margin:0">
+        <strong>Audiencia</strong><br>
+        <span style="font-size:13px;color:var(--muted)">10K-500K seguidores. Micro-influencers (10K-100K) tienen mayor engagement y aceptan mejor colaboraciones con proyectos indie.</span>
+      </div>
+      <div class="card" style="margin:0">
+        <strong>Plataforma</strong><br>
+        <span style="font-size:13px;color:var(--muted)">YouTube > Instagram > TikTok (en términos de backlinks y tráfico sostenido). YouTube genera tráfico durante años, TikTok durante días.</span>
+      </div>
+      <div class="card" style="margin:0">
+        <strong>Idioma</strong><br>
+        <span style="font-size:13px;color:var(--muted)">Español primero (Spain + LATAM). Audiencia en ES/MX/AR/CO. Inglés como segunda fase.</span>
+      </div>
+    </div>
+
+    <h3>Canales YouTube fitness ES — objetivo</h3>
+    <table class="table">
+      <thead><tr><th>Canal</th><th>Suscriptores</th><th>Relevancia</th><th>Propuesta</th></tr></thead>
+      <tbody>
+        <tr><td><strong>Sergio Peinado</strong></td><td>3M+</td><td>Muy alta</td><td>Difícil pero impacto máximo. Acceso Elite + revenue share si escala.</td></tr>
+        <tr><td><strong>Entrena con Sergio</strong></td><td>800K</td><td>Alta</td><td>Review de la app + calculadoras. Ofrecer link de afiliado con comisión.</td></tr>
+        <tr><td><strong>Hola Sonia! (nutrición)</strong></td><td>500K</td><td>Nutrición</td><td>Calculadora TDEE + macros como herramienta. Encaja perfectamente.</td></tr>
+        <tr><td><strong>El Culturista Natural</strong></td><td>200K</td><td>Alta</td><td>Review técnica — audiencia avanzada, valoran el 1RM y macros de precisión.</td></tr>
+        <tr><td><strong>Roser Amills Fitness</strong></td><td>150K</td><td>Media-alta</td><td>Audiencia femenina. IMC dual-mode RFM es diferenciador clave aquí.</td></tr>
+        <tr><td><strong>Canales 10K-50K</strong></td><td>~30 canales</td><td>Media</td><td>Más fáciles de contactar. Acceso Pro gratis + menciones naturales. Mayor conversión.</td></tr>
+      </tbody>
+    </table>
+
+    <h3>Propuesta de colaboración (sin presupuesto inicial)</h3>
+    <div class="card">
+      <p style="margin-bottom:8px"><strong>Para micro-influencers (10K-100K):</strong></p>
+      <ul style="color:var(--muted);font-size:13px;padding-left:20px;line-height:2">
+        <li>Acceso Pro/Elite gratis de por vida</li>
+        <li>Mención honesta en 1 vídeo o 2-3 stories</li>
+        <li>Link en descripción del vídeo (YouTube)</li>
+        <li>Código de descuento personalizado para su comunidad (tracking de conversión)</li>
+      </ul>
+      <p style="margin-top:12px;margin-bottom:8px"><strong>Para macro-influencers (100K+):</strong></p>
+      <ul style="color:var(--muted);font-size:13px;padding-left:20px;line-height:2">
+        <li>Programa de afiliados: 20-30% de comisión por suscripciones Pro referidas</li>
+        <li>Co-creación de contenido (rutina personalizada en la app)</li>
+        <li>Badge "Recomendado por [nombre]" en la landing</li>
+      </ul>
+    </div>
+  </section>
+
+  <div class="section-divider"></div>
+
+  <!-- ══════════════════════════════════════════════════════════
+       GUEST POSTING
+       ══════════════════════════════════════════════════════════ -->
+  <section id="guestpost">
+    <h2><span class="num">8</span> Guest Posting <span class="badge badge--amber" style="margin-left:8px">Mes 3-4 · Backlinks editoriales</span></h2>
+
+    <p>Los guest posts son artículos que escribes para otros blogs a cambio de un backlink editorial (el más valioso, seguido por Google). La clave: ofrecer <strong>contenido genuinamente bueno</strong> que beneficie al blog anfitrión, no artículos de relleno con link spam.</p>
+
+    <h3>Temas que funcionan (tienes autoridad real)</h3>
+    <div class="card-grid">
+      <div class="card" style="margin:0">
+        <h3 style="margin-top:0;color:var(--amber)">🧮 Calculadoras y ciencia</h3>
+        <p style="font-size:13px">"Por qué el IMC clásico clasifica mal a los atletas — y qué usar en su lugar (RFM, Nature 2018)"</p>
+        <div class="tag-list"><span class="tag">Vitonica</span><span class="tag">Sport.es</span></div>
+      </div>
+      <div class="card" style="margin:0">
+        <h3 style="margin-top:0;color:var(--cyan)">💪 Nutrición deportiva</h3>
+        <p style="font-size:13px">"Cómo calcular tus macros para ganar músculo sin suplementos caros"</p>
+        <div class="tag-list"><span class="tag">Hola Sonia blog</span><span class="tag">FitnessBlog.com</span></div>
+      </div>
+      <div class="card" style="margin:0">
+        <h3 style="margin-top:0;color:var(--emerald)">⚡ Tech + fitness</h3>
+        <p style="font-size:13px">"How I built a free fitness app with FastAPI, React and Groq AI — from side project to 5K users"</p>
+        <div class="tag-list"><span class="tag">Dev.to</span><span class="tag">Hashnode</span></div>
+      </div>
+      <div class="card" style="margin:0">
+        <h3 style="margin-top:0;color:var(--accent)">🏋️ Entrenamiento</h3>
+        <p style="font-size:13px">"Rutina Push Pull Legs completa — cómo estructurar 6 días de entrenamiento con recuperación óptima"</p>
+        <div class="tag-list"><span class="tag">BarBend.com</span><span class="tag">BreakingMuscle</span></div>
+      </div>
+    </div>
+
+    <h3>Dev.to y Hashnode — backlinks técnicos rápidos</h3>
+    <div class="alert alert--green">
+      <span class="alert-icon">✅</span>
+      <div><strong>Dev.to (DA 88) y Hashnode (DA 75)</strong> permiten publicar artículos técnicos con backlinks. Un post de "How I built X" con el stack FastAPI + React + Groq puede tener 1.000-5.000 lecturas y generar backlinks naturales de otros devs que lo citan.</div>
+    </div>
+    <ul class="checklist">
+      <li><span class="check check--hot">!</span><div><strong>Dev.to post</strong>: "Building a freemium fitness app with FastAPI, React and Groq AI — architecture deep dive"</div></li>
+      <li><span class="check check--todo">○</span><div><strong>Hashnode post</strong>: "From zero to 90-test suite: how I set up async testing for FastAPI with SQLAlchemy 2.0"</div></li>
+      <li><span class="check check--todo">○</span><div><strong>Medium.com</strong> (DA 95): "The free fitness app that replaced 3 paid subscriptions — what I learned building it"</div></li>
+    </ul>
+  </section>
+
+  <div class="section-divider"></div>
+
+  <!-- ══════════════════════════════════════════════════════════
+       CONTENT-BASED LINKS
+       ══════════════════════════════════════════════════════════ -->
+  <section id="content-links">
+    <h2><span class="num">9</span> Links por Contenido (Linkable Assets) <span class="badge badge--green" style="margin-left:8px">Mes 4-6 · Backlinks pasivos</span></h2>
+
+    <p>Los <strong>linkable assets</strong> son recursos tan buenos que otros los citan naturalmente. Es el link building más sostenible — trabajas una vez, los backlinks llegan solos.</p>
+
+    <div class="card-grid">
+      <div class="card priority-high">
+        <h3 style="margin-top:0;color:var(--red)">🔴 Prioridad Alta</h3>
+        <strong>Infografía: "Cómo calcular tu TDEE y macros en 5 pasos"</strong>
+        <p style="font-size:13px">Infografía descargable (PNG + PDF). Los blogs de nutrición las usan constantemente y siempre linkean a la fuente. Publicarla en Pinterest, Instagram y en la landing.</p>
+      </div>
+      <div class="card priority-high">
+        <h3 style="margin-top:0;color:var(--red)">🔴 Prioridad Alta</h3>
+        <strong>Guía PDF: "El sistema de macros para ganar músculo sin contar calorías manualmente"</strong>
+        <p style="font-size:13px">PDF descargable gratuito con formulario de email. Double win: backlinks + lista de email.</p>
+      </div>
+      <div class="card priority-medium">
+        <h3 style="margin-top:0;color:var(--amber)">🟡 Prioridad Media</h3>
+        <strong>Estudio: "Análisis de 10.000 rutinas generadas por IA"</strong>
+        <p style="font-size:13px">Con datos reales de usuarios (anonimizados). Medios fitness adoran datos exclusivos. Un "data study" bien hecho atrae backlinks de calidad de forma natural.</p>
+      </div>
+      <div class="card priority-medium">
+        <h3 style="margin-top:0;color:var(--amber)">🟡 Prioridad Media</h3>
+        <strong>Comparativa: "IMC vs RFM: cuál predice mejor la salud cardiometabólica"</strong>
+        <p style="font-size:13px">Artículo científico accesible citando el estudio Nature 2018. Perfectamente linkeable por blogs de nutrición y salud.</p>
+      </div>
+    </div>
+  </section>
+
+  <div class="section-divider"></div>
+
+  <!-- ══════════════════════════════════════════════════════════
+       PLANTILLAS DE OUTREACH
+       ══════════════════════════════════════════════════════════ -->
+  <section id="templates">
+    <h2><span class="num">10</span> Plantillas de Outreach</h2>
+
+    <h3>Email para blogs fitness (review)</h3>
+    <div class="template">Asunto: Review gratuita — App fitness freemium en español (acceso Pro incluido)
+
+Hola [Nombre],
+
+Soy [Tu nombre], creador de HealthStack Pro, una app fitness freemium completamente en español.
+
+En [Nombre del blog] vi vuestro artículo sobre [artículo relacionado] y creo que HealthStack Pro encaja perfectamente con vuestra audiencia: ofrece calculadora TDEE, seguimiento de macros, rutinas generadas por IA y gamificación con XP — todo gratuito, sin tarjeta.
+
+Me gustaría ofreceros:
+• Acceso Pro gratuito de por vida para probarlo a fondo
+• Datos exclusivos para el artículo (usuarios, métricas, arquitectura)
+• Respuesta a cualquier pregunta técnica o de producto
+
+¿Os interesaría cubrir la herramienta?
+
+Saludos,
+[Tu nombre]
+healthstack.pro | rubengomezceo@gmail.com</div>
+
+    <h3>Email para influencers YouTube</h3>
+    <div class="template">Asunto: Colaboración app fitness gratuita — sin coste para ti
+
+Hola [Nombre],
+
+Llevo siguiendo tu canal desde [vídeo específico] — el contenido sobre [tema] es exactamente el tipo de información que necesita la comunidad fitness en español.
+
+Construí HealthStack Pro, una app fitness completamente gratuita con calculadora TDEE, seguimiento de macros, rutinas de IA personalizadas y gamificación. No tiene paywall en las funciones core — creo en hacer esto accesible.
+
+Mi propuesta:
+• Acceso Elite gratis para ti y tu equipo (sin caducidad)
+• Link personalizado con código para tu comunidad
+• Si la usas y te gusta, una mención honesta en cualquier formato que encaje contigo
+
+No busco contenido patrocinado forzado — si la app no te convence, no hace falta que la menciones.
+
+¿Te envío el acceso?
+
+[Tu nombre]</div>
+
+    <h3>Show HN (Hacker News) — formato</h3>
+    <div class="template">Show HN: HealthStack Pro – Free fitness app with AI routines, TDEE calc and macro tracking (healthstack.pro)
+
+Built this over the last 6 months as a side project. Stack: FastAPI + SQLAlchemy 2.0 async, React + Vite, PostgreSQL, Groq AI for routine generation.
+
+What makes it different:
+- Dual-mode BMI: classic WHO + RFM formula (Woolcott & Bergman, Nature 2018) — more accurate for athletes
+- TDEE + macro calculator with Mifflin-St Jeor equation
+- 90 tests passing, RS256 JWT auth, AES-256-GCM health data encryption (GDPR Art. 32)
+- 5 languages (ES/EN/DE/FR/IT), full freemium — no paywalled core features
+- Self-hosted on Raspberry Pi via Cloudflare Tunnel
+
+Would love feedback on the AI coach feature (in-session set coaching via Llama 3.3 70B).
+
+GitHub: github.com/RubenGZ/Health_Stack</div>
+  </section>
+
+  <div class="section-divider"></div>
+
+  <!-- ══════════════════════════════════════════════════════════
+       TRACKING
+       ══════════════════════════════════════════════════════════ -->
+  <section id="tracking">
+    <h2><span class="num">11</span> Sistema de Seguimiento</h2>
+
+    <h3>Herramientas gratuitas para monitorizar backlinks</h3>
+    <table class="table">
+      <thead><tr><th>Herramienta</th><th>Qué mide</th><th>Límite gratuito</th></tr></thead>
+      <tbody>
+        <tr><td><strong>Google Search Console</strong></td><td>Links externos, impresiones, CTR, posiciones</td><td>Ilimitado (tu propio dominio)</td></tr>
+        <tr><td><strong>Ahrefs Webmaster Tools</strong></td><td>Backlinks, DA equivalente (DR), keywords</td><td>Gratis para tu propio dominio</td></tr>
+        <tr><td><strong>Moz Link Explorer</strong></td><td>Domain Authority, backlinks, spam score</td><td>10 consultas/mes gratis</td></tr>
+        <tr><td><strong>Ubersuggest</strong></td><td>Backlinks, keywords, competidores</td><td>3 consultas/día gratis</td></tr>
+        <tr><td><strong>Google Alerts</strong></td><td>Menciones de "HealthStack Pro" en la web</td><td>Ilimitado y gratis</td></tr>
+      </tbody>
+    </table>
+
+    <h3>Métricas a revisar semanalmente</h3>
+    <ul class="checklist">
+      <li><span class="check check--todo">○</span><div><strong>Número de backlinks</strong> (Ahrefs Webmaster Tools) — objetivo: +10/semana en Mes 2-3</div></li>
+      <li><span class="check check--todo">○</span><div><strong>Domain Rating (DR)</strong> — objetivo: DR 10 en Mes 1, DR 25 en Mes 3, DR 40 en Mes 6</div></li>
+      <li><span class="check check--todo">○</span><div><strong>Tráfico orgánico</strong> (GSC) — impresiones + clicks por keyword</div></li>
+      <li><span class="check check--todo">○</span><div><strong>Posición media keywords core</strong> — "calculadora TDEE gratis", "app fitness gratis español"</div></li>
+      <li><span class="check check--todo">○</span><div><strong>Menciones de marca</strong> (Google Alerts) — cualquier mención de "HealthStack" en la web</div></li>
+    </ul>
+  </section>
+
+  <div class="section-divider"></div>
+
+  <!-- ══════════════════════════════════════════════════════════
+       CRONOGRAMA
+       ══════════════════════════════════════════════════════════ -->
+  <section id="timeline">
+    <h2><span class="num">12</span> Cronograma 90 Días — De 1 a 8/10</h2>
+
+    <h3>Semana 1-2 — Fundamentos (score: 1→3)</h3>
+    <div class="roadmap">
+      <div class="rm-item">
+        <div class="rm-dot rm-dot--hot">!</div>
+        <div class="rm-title">Optimizar README + Topics GitHub</div>
+        <div class="rm-desc">Keywords SEO en README. Topics relevantes. Description + URL de producción.</div>
+        <div class="rm-meta">2h · Solo tú · Impacto: DA 90 backlink activado</div>
+      </div>
+      <div class="rm-item">
+        <div class="rm-dot rm-dot--hot">!</div>
+        <div class="rm-title">Submit a G2, Capterra, SaaSHub, AlternativeTo</div>
+        <div class="rm-desc">Los 4 directorios Tier 1. Perfil completo con screenshots y descripción optimizada.</div>
+        <div class="rm-meta">4h · Solo tú · Impacto: +4 backlinks DA 65-90</div>
+      </div>
+      <div class="rm-item">
+        <div class="rm-dot rm-dot--hot">!</div>
+        <div class="rm-title">Crunchbase + BetaList + Trustpilot</div>
+        <div class="rm-desc">Perfil de empresa en Crunchbase. Early access listing en BetaList. Perfil en Trustpilot.</div>
+        <div class="rm-meta">3h · Solo tú · Impacto: +3 backlinks DA 68-91</div>
+      </div>
+      <div class="rm-item">
+        <div class="rm-dot rm-dot--todo">○</div>
+        <div class="rm-title">Completar resto de directorios Tier 2</div>
+        <div class="rm-desc">GetApp, Capterra, SourceForge, AppAdvice, Alternativas.me, Slant.co</div>
+        <div class="rm-meta">3h · Solo tú · Impacto: +8 backlinks DA 35-78</div>
+      </div>
+    </div>
+
+    <h3>Semana 3-4 — Comunidades (score: 3→4)</h3>
+    <div class="roadmap">
+      <div class="rm-item">
+        <div class="rm-dot rm-dot--todo">○</div>
+        <div class="rm-title">Participación activa en Reddit (r/Fitness, r/FitnessApps, r/loseit)</div>
+        <div class="rm-desc">30 min/día respondiendo preguntas. No promocionar todavía — construir karma primero.</div>
+        <div class="rm-meta">Daily · Semana 3 · Preparación</div>
+      </div>
+      <div class="rm-item">
+        <div class="rm-dot rm-dot--todo">○</div>
+        <div class="rm-title">Post en r/SideProject + r/FitnessApps</div>
+        <div class="rm-desc">"I built a free fitness app in Spanish — 6 months of work, here's what I learned". Honesto, técnico, sin spam.</div>
+        <div class="rm-meta">1h · Semana 4 · Impacto: tráfico + menciones</div>
+      </div>
+      <div class="rm-item">
+        <div class="rm-dot rm-dot--todo">○</div>
+        <div class="rm-title">Dev.to + Hashnode articles</div>
+        <div class="rm-desc">2 artículos técnicos con stack y arquitectura. Backlinks de DA 75-88.</div>
+        <div class="rm-meta">4h · Semana 4 · Impacto: +2 backlinks DA alta</div>
+      </div>
+    </div>
+
+    <h3>Mes 2 — Lanzamiento (score: 4→6)</h3>
+    <div class="roadmap">
+      <div class="rm-item">
+        <div class="rm-dot rm-dot--hot">!</div>
+        <div class="rm-title">Product Hunt Launch</div>
+        <div class="rm-desc">Preparar hunter, assets, lista de upvoters. Launch día X a las 00:01 PST. Responder todos los comentarios.</div>
+        <div class="rm-meta">1 semana prep · Impacto: +30 backlinks, 500-2000 visitas D1</div>
+      </div>
+      <div class="rm-item">
+        <div class="rm-dot rm-dot--todo">○</div>
+        <div class="rm-title">Show HN en Hacker News</div>
+        <div class="rm-desc">Post "Show HN" simultáneo con PH. Formato técnico, honesto sobre el stack.</div>
+        <div class="rm-meta">30 min · Impacto: backlink DA 90 + tráfico dev</div>
+      </div>
+      <div class="rm-item">
+        <div class="rm-dot rm-dot--todo">○</div>
+        <div class="rm-title">Outreach a 10 blogs fitness ES</div>
+        <div class="rm-desc">Email personalizado a Vitonica, Sport.es, Mundo Deportivo, As.com y 6 blogs medianos. Ofrecer acceso Pro.</div>
+        <div class="rm-meta">3h outreach · Impacto esperado: 2-3 reviews = +3 backlinks DA 40-72</div>
+      </div>
+    </div>
+
+    <h3>Mes 3-4 — Autoridad (score: 6→8)</h3>
+    <div class="roadmap">
+      <div class="rm-item">
+        <div class="rm-dot rm-dot--todo">○</div>
+        <div class="rm-title">Contactar 20 micro-influencers fitness ES (YouTube/Instagram)</div>
+        <div class="rm-desc">Email de colaboración con propuesta de acceso Elite. Target: 5 menciones = +5 backlinks + tráfico social.</div>
+        <div class="rm-meta">1 semana · Impacto: +5-10 backlinks + audiencia nueva</div>
+      </div>
+      <div class="rm-item">
+        <div class="rm-dot rm-dot--todo">○</div>
+        <div class="rm-title">2 Guest Posts publicados</div>
+        <div class="rm-desc">Artículos en Vitonica o Blog similar + BarBend.com (inglés). Backlinks editoriales de alta calidad.</div>
+        <div class="rm-meta">2 semanas escritura · Impacto: +2 backlinks DA 50-65</div>
+      </div>
+    </div>
+
+    <h3>Mes 5-6 — Escala (score: 8→10)</h3>
+    <div class="roadmap">
+      <div class="rm-item">
+        <div class="rm-dot rm-dot--todo">○</div>
+        <div class="rm-title">Linkable Assets publicados</div>
+        <div class="rm-desc">Infografía TDEE + Guía PDF macros. Distribuir en Pinterest, blogs y redes. Backlinks pasivos.</div>
+        <div class="rm-meta">2 semanas diseño · Impacto: +15-30 backlinks pasivos a 6 meses</div>
+      </div>
+      <div class="rm-item">
+        <div class="rm-dot rm-dot--todo">○</div>
+        <div class="rm-title">Programa de afiliados para influencers</div>
+        <div class="rm-desc">Sistema de tracking de conversiones para influencers. Comisión 20-30% por suscripción Pro referida.</div>
+        <div class="rm-meta">1 semana dev · Impacto: backlinks continuos + ingresos</div>
+      </div>
+      <div class="rm-item">
+        <div class="rm-dot rm-dot--todo">○</div>
+        <div class="rm-title">Prensa digital: nota de prensa a 20+ medios</div>
+        <div class="rm-desc">Con hito real (ej: 10.000 usuarios, lanzamiento en stores, financiación). Los medios necesitan un "why now".</div>
+        <div class="rm-meta">1 semana · Impacto: +5-10 backlinks DA 40-80</div>
+      </div>
+    </div>
+  </section>
+
+  <div class="doc-footer">
+    <p>HealthStack Pro · Link Building Playbook · Mayo 2026</p>
+    <p style="margin-top:6px">Score objetivo: de 1/10 a 10/10 en 6 meses · ~150 backlinks · DA 35+</p>
+  </div>
+
+</main>
+</body>
+</html>

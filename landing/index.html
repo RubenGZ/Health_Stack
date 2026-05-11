@@ -259,7 +259,74 @@
             "@type": "Answer",
             "text": "HealthStack Pro ofrece más valor gratuito que MyFitnessPal: incluye calculadora TDEE integrada (MFP no la tiene), generador de rutinas con IA (MFP no tiene), gamificación con XP y niveles, y comunidad. MyFitnessPal tiene una base de datos de alimentos más grande, pero sus funciones avanzadas requieren suscripción Premium (€19.99/mes). HealthStack Pro es gratuito para siempre en funciones core."
           }
+        },
+        {
+          "@type": "Question",
+          "name": "¿Cómo calcular el porcentaje de grasa corporal sin balanza de bioimpedancia?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "Puedes estimar tu porcentaje de grasa corporal con el método RFM (Relative Fat Mass, Woolcott & Bergman 2018, Nature): Hombres: 64 − (20 × altura/cintura). Mujeres: 76 − (20 × altura/cintura). Es más preciso que el IMC clásico para atletas. HealthStack Pro incluye esta calculadora con el método US Navy (cintura + cuello) para mayor precisión, y tres formas de medir: visual, talla de pantalón o cinta métrica."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "¿Qué es el déficit calórico y cómo crearlo sin perder músculo?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "El déficit calórico es comer menos calorías de las que gastas (TDEE). Para perder grasa sin perder músculo: mantén el déficit entre 300-500 kcal, consume 2-2.4g de proteína por kg de peso corporal al día, y entrena fuerza al menos 3 días por semana. Un déficit de 500 kcal genera aproximadamente 0.5 kg de pérdida de grasa por semana sin catabolismo muscular significativo."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "¿Cuánto músculo puedo ganar en un mes de forma natural?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "La ganancia muscular natural depende del nivel: Principiantes (0-1 año): 1-2 kg/mes. Intermedios (1-3 años): 0.5-1 kg/mes. Avanzados (+3 años): 0.25 kg/mes. Requiere superávit calórico de 200-300 kcal, proteína de 2g/kg/día y entrenamiento progresivo. HealthStack Pro rastrea tu progreso y calcula si vas en el ritmo correcto."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "¿Qué es una rutina Push Pull Legs y para quién es adecuada?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "Push Pull Legs (PPL) divide el entrenamiento en tres sesiones: Push (pecho, hombros, tríceps), Pull (espalda, bíceps) y Legs (cuádriceps, glúteos, isquiotibiales). Ideal para intermedios y avanzados que entrenan 4-6 días por semana, permite trabajar cada músculo 2 veces por semana con recuperación suficiente. HealthStack Pro genera tu rutina PPL personalizada según tu nivel, días disponibles y equipamiento."
+          }
         }
+      ]
+    }
+    </script>
+
+    <!-- ═══ SCHEMA.ORG — HowTo TDEE Calculator ═══════════════════════ -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "HowTo",
+      "name": "Cómo calcular tu TDEE y macros gratis",
+      "description": "Calcula tu gasto calórico total diario (TDEE) y tus macronutrientes personalizados en segundos con HealthStack Pro.",
+      "totalTime": "PT2M",
+      "step": [
+        { "@type": "HowToStep", "name": "Introduce peso y altura", "text": "Escribe tu peso actual en kg y tu altura en cm en los campos de la calculadora TDEE." },
+        { "@type": "HowToStep", "name": "Indica edad y sexo", "text": "Selecciona tu sexo e introduce tu edad. La fórmula Mifflin-St Jeor usa estos datos para calcular tu Tasa Metabólica Basal." },
+        { "@type": "HowToStep", "name": "Selecciona nivel de actividad", "text": "Elige entre Sedentario, Ligeramente activo (1-3 días/semana), Moderadamente activo (3-5 días), Activo (6-7 días) o Muy activo (2 sesiones/día)." },
+        { "@type": "HowToStep", "name": "Elige tu objetivo", "text": "Selecciona perder grasa, mantener o ganar músculo. La calculadora ajusta automáticamente las calorías objetivo." },
+        { "@type": "HowToStep", "name": "Obtén tu TDEE y macros", "text": "La calculadora muestra tu TDEE en kcal/día y el desglose de macros: proteína, carbohidratos y grasas según tu objetivo." }
+      ]
+    }
+    </script>
+
+    <!-- ═══ SCHEMA.ORG — HowTo IMC + RFM Calculator ══════════════════ -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "HowTo",
+      "name": "Cómo calcular tu IMC y porcentaje de grasa corporal real",
+      "description": "Calcula tu IMC clásico (OMS) y tu % de grasa corporal con RFM, la fórmula más precisa para atletas según Nature 2018.",
+      "totalTime": "PT1M",
+      "step": [
+        { "@type": "HowToStep", "name": "Selecciona el modo", "text": "Elige modo Clásico (IMC OMS) o modo Fitness (RFM, más preciso para deportistas musculados)." },
+        { "@type": "HowToStep", "name": "Introduce peso y altura", "text": "Escribe tu peso en kg y tu altura en cm. El modo clásico solo necesita estos datos." },
+        { "@type": "HowToStep", "name": "Elige tu método de medición (modo Fitness)", "text": "Selecciona selector visual de silueta (sin medidas), talla de pantalón (EU o US), o cinta métrica (activa el método US Navy ±3% de precisión)." },
+        { "@type": "HowToStep", "name": "Obtén tu resultado", "text": "El modo clásico muestra IMC y categoría OMS. El modo Fitness muestra % de grasa real: Esencial, Atlético, Fitness, Promedio u Obesidad." }
       ]
     }
     </script>

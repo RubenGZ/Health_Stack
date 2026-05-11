@@ -12,7 +12,9 @@ const GOOGLE_URL = typeof window !== 'undefined'
   : '/api/v1/auth/google/redirect'
 const goToApp    = () => { window.location.href = APP_URL }
 const goToGoogle = () => { window.location.href = GOOGLE_URL }
-import { SplineScene }            from '@/components/ui/splite'
+// SplineScene cargado dinámicamente — fuera del critical path (4.17MB)
+type SplineSceneType = React.ComponentType<{ scene: string; className?: string }>
+let _SplineScene: SplineSceneType | null = null
 import { Card }                   from '@/components/ui/card'
 import { Spotlight }              from '@/components/ui/spotlight'
 import { Button }                 from '@/components/ui/button'
@@ -1033,6 +1035,23 @@ function DashboardMockup() {
 
 export function SplineSceneBasic() {
   const { t } = useTranslation()
+  const [SplineComp, setSplineComp] = useState<SplineSceneType | null>(null)
+
+  useEffect(() => {
+    // Defer Spline load — fuera del critical path para mejorar LCP
+    const load = () => {
+      if (_SplineScene) { setSplineComp(() => _SplineScene); return }
+      import('@/components/ui/splite').then(mod => {
+        _SplineScene = mod.SplineScene as SplineSceneType
+        setSplineComp(() => _SplineScene)
+      })
+    }
+    if ('requestIdleCallback' in window) {
+      requestIdleCallback(load, { timeout: 2000 })
+    } else {
+      setTimeout(load, 500)
+    }
+  }, [])
 
   /* Translated arrays */
   type FeatureI18n     = { title: string; desc: string }
@@ -1262,7 +1281,10 @@ export function SplineSceneBasic() {
               </div>
             </div>
             <SplineErrorBoundary>
-              <SplineScene scene="https://prod.spline.design/kZDDjO5HuC9GJUM2/scene.splinecode" className="w-full h-full" />
+              {SplineComp
+                ? <SplineComp scene="https://prod.spline.design/kZDDjO5HuC9GJUM2/scene.splinecode" className="w-full h-full" />
+                : <div className="w-full h-full bg-gradient-to-br from-cyan-950/30 via-purple-950/20 to-transparent rounded-xl" />
+              }
             </SplineErrorBoundary>
           </div>
         </div>

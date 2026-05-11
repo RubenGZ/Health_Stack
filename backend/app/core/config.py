@@ -69,6 +69,16 @@ class Settings(BaseSettings):
     # En prod: https://<domain>/api/v1/auth/google/callback
     google_redirect_uri: str = ""
 
+    # ── Fitness Platform Integrations ────────────────────────
+    google_fit_client_id: str = ""
+    google_fit_client_secret: str = ""
+    strava_client_id: str = ""
+    strava_client_secret: str = ""
+    fitbit_client_id: str = ""
+    fitbit_client_secret: str = ""
+    # Base URL used to build OAuth2 redirect URIs (no trailing slash)
+    integration_redirect_base: str = "https://healthstack.pro"
+
     # ── xAI Grok ─────────────────────────────────────────────
     grok_api_key: str = ""
 

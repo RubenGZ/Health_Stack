@@ -238,8 +238,12 @@
     "title_1": "SYNCHRONISIERT MIT",
     "title_2": "ALLEM",
     "subtitle": "HealthStack Pro verbindet sich mit den Apps, die du bereits nutzt. Daten importieren, Fortschritt exportieren — alles an einem Ort.",
-    "live": "Verfügbar",
-    "coming_soon": "Demnächst"
+    "live": "Aktiv",
+    "coming_soon": "Bald",
+    "connect": "Verbinden",
+    "apple_csv": "CSV importieren",
+    "apple_ios": "iOS App — Demnächst",
+    "apple_desc": "Exportiere aus Apple Health und importiere deine Historie"
   },
   "dashboard": {
     "weight": "Aktuelles Gewicht",

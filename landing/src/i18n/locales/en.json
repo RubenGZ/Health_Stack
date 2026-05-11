@@ -241,8 +241,12 @@
     "title_1": "SYNCS WITH",
     "title_2": "EVERYTHING",
     "subtitle": "HealthStack Pro connects with the apps you already use. Import data, export progress, all in one place.",
-    "live": "Available",
-    "coming_soon": "Coming soon"
+    "live": "Live",
+    "coming_soon": "Soon",
+    "connect": "Connect",
+    "apple_csv": "Import CSV",
+    "apple_ios": "iOS App — Coming Soon",
+    "apple_desc": "Export from Apple Health and import your history"
   },
   "dashboard": {
     "weight": "Current weight",

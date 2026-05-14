@@ -205,7 +205,9 @@ const Supplements = (function () {
     if (!window.HS_CONFIG) return;
 
     // Intentar cargar suplementos desde la API; si falla, usar config.js
-    fetch('http://localhost:8000/api/v1/nutrition/supplements')
+    var _isProd = location.hostname !== 'localhost' && location.hostname !== '127.0.0.1';
+    var _base   = _isProd ? ('https://' + location.hostname + '/api/v1') : 'http://localhost:8000/api/v1';
+    fetch(_base + '/nutrition/supplements')
       .then(r => r.ok ? r.json() : Promise.reject())
       .then(data => renderSupplements(data))
       .catch(() => renderSupplements(HS_CONFIG.SUPPLEMENTS));

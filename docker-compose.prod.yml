@@ -86,6 +86,17 @@ services:
       JWT_PUBLIC_KEY_PEM: ${JWT_PUBLIC_KEY_PEM}
       SENTRY_DSN: ${SENTRY_DSN:-""}
       ALLOWED_ORIGINS: ${ALLOWED_ORIGINS:-"https://healthstackpro.app"}
+    command: >
+      sh -c "
+        alembic upgrade head &&
+        uvicorn app.main:app --host 0.0.0.0 --port 8000 --workers 2
+      "
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
+      interval: 15s
+      timeout: 5s
+      retries: 6
+      start_period: 60s
     networks:
       - internal
 
@@ -97,7 +108,8 @@ services:
     container_name: healthstack_nginx_prod
     restart: unless-stopped
     depends_on:
-      - backend
+      backend:
+        condition: service_healthy
     ports:
       - "80:80"
       - "443:443"
@@ -105,9 +117,11 @@ services:
       # Nginx configuration
       - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
       # Frontend SPA static files  (built by CI, copied to server)
-      - /opt/healthstack-pro/static/app:/usr/share/nginx/html/app:ro
+      - /opt/healthstack-pro/static/app:/opt/healthstack-pro/static/app:ro
       # Landing page (built by `vite build` in landing/)
-      - /opt/healthstack-pro/static/landing:/usr/share/nginx/html/landing:ro
+      - /opt/healthstack-pro/static/landing:/opt/healthstack-pro/static/landing:ro
+      # Mobile PWA  (built by CI, copied to server)
+      - /opt/healthstack-pro/static/mobile:/opt/healthstack-pro/static/mobile:ro
       # Let's Encrypt TLS certificates (managed by certbot on the host)
       - /etc/letsencrypt:/etc/letsencrypt:ro
       - /var/lib/letsencrypt:/var/lib/letsencrypt:ro

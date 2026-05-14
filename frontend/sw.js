@@ -4,7 +4,7 @@
                Network-first para CDN externos
    ============================================================ */
 
-const CACHE_NAME    = 'healthstack-v13';
+const CACHE_NAME    = 'healthstack-v14';
 const CDN_CACHE     = 'healthstack-cdn-v2';
 
 // Assets locales a pre-cachear en install
@@ -75,6 +75,9 @@ self.addEventListener('fetch', event => {
 
   // Solo interceptar GET
   if (event.request.method !== 'GET') return;
+
+  // Rutas de API y OAuth → NUNCA interceptar (el browser gestiona redirects y cookies)
+  if (url.pathname.startsWith('/api/') || url.pathname.startsWith('/health')) return;
 
   // CDN externos (Three.js, Chart.js) → Stale-While-Revalidate
   if (url.origin === 'https://cdn.jsdelivr.net') {

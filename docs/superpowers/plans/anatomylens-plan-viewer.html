@@ -1,0 +1,719 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AnatomyLens — Plan de Implementación</title>
+<style>
+  :root {
+    --bg: #07070f;
+    --bg2: #0e0e1a;
+    --bg3: #13131f;
+    --border: rgba(255,255,255,0.08);
+    --purple: #6c63ff;
+    --cyan: #00d2ff;
+    --orange: #ff6a00;
+    --green: #00e676;
+    --yellow: #ffd740;
+    --red: #ff5252;
+    --text: rgba(255,255,255,0.88);
+    --muted: rgba(255,255,255,0.45);
+    --radius: 10px;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Inter', system-ui, -apple-system, sans-serif;
+    font-size: 14px;
+    line-height: 1.65;
+    min-height: 100vh;
+  }
+
+  /* ── Header ── */
+  .header {
+    background: linear-gradient(135deg, #0e0e1a 0%, #13101f 100%);
+    border-bottom: 1px solid var(--border);
+    padding: 32px 40px 28px;
+    position: sticky; top: 0; z-index: 100;
+    backdrop-filter: blur(12px);
+  }
+  .header h1 {
+    font-size: 22px;
+    font-weight: 700;
+    letter-spacing: -0.3px;
+    display: flex; align-items: center; gap: 10px;
+    margin-bottom: 6px;
+  }
+  .header h1 .badge {
+    font-size: 11px;
+    font-weight: 600;
+    background: rgba(108,99,255,0.18);
+    color: var(--purple);
+    border: 1px solid rgba(108,99,255,0.3);
+    border-radius: 20px;
+    padding: 2px 10px;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+  }
+  .header p { color: var(--muted); font-size: 13px; }
+
+  /* ── Progress bar ── */
+  .progress-wrap {
+    display: flex; align-items: center; gap: 14px;
+    margin-top: 18px;
+  }
+  .progress-bar-outer {
+    flex: 1; height: 6px; background: rgba(255,255,255,0.07);
+    border-radius: 3px; overflow: hidden;
+  }
+  .progress-bar-inner {
+    height: 100%;
+    background: linear-gradient(90deg, var(--purple), var(--cyan));
+    border-radius: 3px;
+    transition: width 0.4s ease;
+  }
+  .progress-label { color: var(--purple); font-weight: 700; font-size: 13px; white-space: nowrap; }
+
+  /* ── Layout ── */
+  .layout { display: flex; max-width: 1400px; margin: 0 auto; }
+  .sidebar {
+    width: 260px; min-width: 260px;
+    padding: 28px 20px;
+    position: sticky; top: 92px;
+    height: calc(100vh - 92px);
+    overflow-y: auto;
+    border-right: 1px solid var(--border);
+  }
+  .sidebar h3 { font-size: 10px; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; color: var(--muted); margin-bottom: 12px; }
+  .sidebar ul { list-style: none; display: flex; flex-direction: column; gap: 2px; }
+  .sidebar li a {
+    display: flex; align-items: center; gap: 8px;
+    padding: 6px 10px; border-radius: 6px;
+    color: var(--muted); text-decoration: none;
+    font-size: 12px; font-weight: 500;
+    transition: all 0.15s;
+  }
+  .sidebar li a:hover { color: var(--text); background: rgba(255,255,255,0.05); }
+  .sidebar li a.done { color: var(--green); }
+  .sidebar li a.done .dot { background: var(--green); }
+  .sidebar li a.manual { color: var(--yellow); }
+  .sidebar li a.manual .dot { background: var(--yellow); }
+  .dot {
+    width: 7px; height: 7px; border-radius: 50%;
+    background: rgba(255,255,255,0.2); flex-shrink: 0;
+  }
+  .check { color: var(--green); font-size: 12px; }
+
+  /* ── Main content ── */
+  main { flex: 1; padding: 36px 48px; max-width: 900px; }
+
+  /* ── Section cards ── */
+  .section {
+    margin-bottom: 32px;
+    background: var(--bg2);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    overflow: hidden;
+  }
+  .section-header {
+    display: flex; align-items: center; gap: 12px;
+    padding: 18px 24px;
+    cursor: pointer;
+    background: var(--bg2);
+    border-bottom: 1px solid var(--border);
+    user-select: none;
+  }
+  .section-header:hover { background: var(--bg3); }
+  .section-num {
+    width: 32px; height: 32px; border-radius: 8px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 13px; font-weight: 700;
+    background: rgba(108,99,255,0.15);
+    color: var(--purple);
+    flex-shrink: 0;
+  }
+  .section-num.done-num { background: rgba(0,230,118,0.12); color: var(--green); }
+  .section-num.manual-num { background: rgba(255,215,64,0.12); color: var(--yellow); }
+  .section-title { font-size: 15px; font-weight: 600; flex: 1; }
+  .section-status {
+    font-size: 11px; font-weight: 600; border-radius: 20px;
+    padding: 3px 10px; text-transform: uppercase; letter-spacing: 0.05em;
+  }
+  .status-done { background: rgba(0,230,118,0.12); color: var(--green); border: 1px solid rgba(0,230,118,0.25); }
+  .status-pending { background: rgba(108,99,255,0.1); color: var(--purple); border: 1px solid rgba(108,99,255,0.2); }
+  .status-manual { background: rgba(255,215,64,0.1); color: var(--yellow); border: 1px solid rgba(255,215,64,0.2); }
+  .status-blocked { background: rgba(255,82,82,0.1); color: var(--red); border: 1px solid rgba(255,82,82,0.2); }
+  .section-chevron { color: var(--muted); transition: transform 0.2s; font-size: 12px; }
+  .section.open .section-chevron { transform: rotate(90deg); }
+  .section-body { padding: 24px; display: none; }
+  .section.open .section-body { display: block; }
+
+  /* ── Info cards inside sections ── */
+  .info-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 20px; }
+  .info-card {
+    background: var(--bg3); border: 1px solid var(--border);
+    border-radius: var(--radius); padding: 14px 16px;
+  }
+  .info-card label { font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em; color: var(--muted); display: block; margin-bottom: 6px; }
+  .info-card p { font-size: 13px; color: var(--text); }
+  .info-card code { font-family: 'JetBrains Mono', 'Fira Code', monospace; font-size: 12px; color: var(--cyan); }
+
+  /* ── Steps ── */
+  .steps { display: flex; flex-direction: column; gap: 12px; }
+  .step {
+    display: flex; gap: 14px; align-items: flex-start;
+    padding: 14px 16px;
+    background: var(--bg3); border: 1px solid var(--border);
+    border-radius: var(--radius);
+    transition: border-color 0.15s;
+  }
+  .step:hover { border-color: rgba(108,99,255,0.3); }
+  .step-check {
+    width: 20px; height: 20px; border-radius: 5px; flex-shrink: 0;
+    border: 1.5px solid rgba(255,255,255,0.2);
+    background: rgba(0,0,0,0.2);
+    display: flex; align-items: center; justify-content: center;
+    cursor: pointer; transition: all 0.15s; margin-top: 1px;
+  }
+  .step-check.checked { background: var(--green); border-color: var(--green); }
+  .step-check.checked::after { content: '✓'; color: #000; font-size: 11px; font-weight: 700; }
+  .step-content { flex: 1; min-width: 0; }
+  .step-title { font-weight: 600; font-size: 13px; margin-bottom: 4px; }
+
+  /* ── Code blocks ── */
+  pre {
+    background: #0a0a15;
+    border: 1px solid rgba(108,99,255,0.15);
+    border-radius: 8px;
+    padding: 16px;
+    overflow-x: auto;
+    margin: 10px 0;
+    font-size: 12px;
+    line-height: 1.6;
+  }
+  code {
+    font-family: 'JetBrains Mono', 'Fira Code', 'Cascadia Code', monospace;
+    font-size: 12px;
+  }
+  :not(pre) > code {
+    background: rgba(108,99,255,0.12);
+    color: var(--cyan);
+    padding: 1px 6px;
+    border-radius: 4px;
+  }
+  .lang { color: #6272a4; }
+  .kw { color: #ff79c6; }
+  .fn { color: #50fa7b; }
+  .str { color: #f1fa8c; }
+  .cmt { color: #6272a4; font-style: italic; }
+  .num { color: #bd93f9; }
+  .cls { color: #8be9fd; }
+
+  /* ── Tables ── */
+  table { width: 100%; border-collapse: collapse; margin: 12px 0; font-size: 13px; }
+  th {
+    text-align: left; padding: 8px 12px;
+    background: rgba(108,99,255,0.08);
+    border: 1px solid var(--border);
+    color: var(--purple); font-size: 11px;
+    text-transform: uppercase; letter-spacing: 0.06em;
+  }
+  td { padding: 8px 12px; border: 1px solid var(--border); color: var(--text); }
+  tr:nth-child(even) td { background: rgba(255,255,255,0.02); }
+
+  /* ── Alert boxes ── */
+  .alert {
+    display: flex; gap: 12px; align-items: flex-start;
+    padding: 14px 16px; border-radius: var(--radius);
+    margin-bottom: 16px; font-size: 13px;
+  }
+  .alert-icon { font-size: 16px; flex-shrink: 0; margin-top: 1px; }
+  .alert.warning { background: rgba(255,215,64,0.08); border: 1px solid rgba(255,215,64,0.2); }
+  .alert.warning .alert-icon { color: var(--yellow); }
+  .alert.success { background: rgba(0,230,118,0.08); border: 1px solid rgba(0,230,118,0.2); }
+  .alert.success .alert-icon { color: var(--green); }
+  .alert.info { background: rgba(0,210,255,0.07); border: 1px solid rgba(0,210,255,0.2); }
+  .alert.info .alert-icon { color: var(--cyan); }
+
+  /* ── File list ── */
+  .file-list { display: flex; flex-direction: column; gap: 6px; margin: 12px 0; }
+  .file-item {
+    display: flex; align-items: center; gap: 10px;
+    padding: 8px 12px; background: var(--bg3);
+    border: 1px solid var(--border); border-radius: 6px;
+    font-size: 12px;
+  }
+  .file-icon { font-size: 14px; }
+  .file-path { font-family: monospace; color: var(--cyan); }
+  .file-desc { color: var(--muted); margin-left: auto; font-size: 11px; max-width: 280px; text-align: right; }
+
+  /* ── Section intro text ── */
+  .section-desc { color: var(--muted); font-size: 13px; margin-bottom: 20px; line-height: 1.6; }
+  h4 { font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em; color: var(--muted); margin: 20px 0 10px; }
+
+  /* ── Scrollbar ── */
+  ::-webkit-scrollbar { width: 6px; height: 6px; }
+  ::-webkit-scrollbar-track { background: transparent; }
+  ::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.1); border-radius: 3px; }
+
+  /* ── Responsive ── */
+  @media (max-width: 900px) {
+    .sidebar { display: none; }
+    main { padding: 24px 20px; }
+    .info-grid { grid-template-columns: 1fr; }
+    .header { padding: 20px; }
+  }
+</style>
+</head>
+<body>
+
+<!-- HEADER -->
+<div class="header">
+  <h1>
+    🦴 AnatomyLens
+    <span class="badge">Implementation Plan</span>
+  </h1>
+  <p>Visor anatómico 3D · Three.js 0.158.0 · Health Stack Pro</p>
+  <div class="progress-wrap">
+    <div class="progress-bar-outer">
+      <div class="progress-bar-inner" id="progressBar" style="width:0%"></div>
+    </div>
+    <span class="progress-label" id="progressLabel">0 / 13</span>
+  </div>
+</div>
+
+<div class="layout">
+
+<!-- SIDEBAR -->
+<nav class="sidebar">
+  <h3>Tareas</h3>
+  <ul id="sidebarList">
+    <li><a href="#task0" class="manual"><span class="dot"></span>Task 0 — GLB Model</a></li>
+    <li><a href="#task1" class="done"><span class="dot"></span>Task 1 — CSS</a></li>
+    <li><a href="#task2" class="done"><span class="dot"></span>Task 2 — HTML</a></li>
+    <li><a href="#task3" class="done"><span class="dot"></span>Task 3 — state.js</a></li>
+    <li><a href="#task4" class="done"><span class="dot"></span>Task 4 — muscleMap.js</a></li>
+    <li><a href="#task5" class="done"><span class="dot"></span>Task 5 — scene.js</a></li>
+    <li><a href="#task6" class="done"><span class="dot"></span>Task 6 — model.js</a></li>
+    <li><a href="#task7" class="done"><span class="dot"></span>Task 7 — camera.js</a></li>
+    <li><a href="#task8" class="done"><span class="dot"></span>Task 8 — highlighter.js</a></li>
+    <li><a href="#task9" class="done"><span class="dot"></span>Task 9 — legend.js</a></li>
+    <li><a href="#task10" class="done"><span class="dot"></span>Task 10 — fallback.js</a></li>
+    <li><a href="#task11" class="done"><span class="dot"></span>Task 11 — index.js</a></li>
+    <li><a href="#task12" class="done"><span class="dot"></span>Task 12 — exercises.js</a></li>
+    <li><a href="#task13" class="manual"><span class="dot"></span>Task 13 — Testing</a></li>
+  </ul>
+</nav>
+
+<!-- MAIN -->
+<main>
+
+  <!-- OVERVIEW -->
+  <div class="alert info">
+    <span class="alert-icon">ℹ️</span>
+    <div>
+      <strong>Objetivo:</strong> Reemplazar el SVG 2D del visor de ejercicios con un visor 3D que anima la cámara automáticamente al ángulo óptimo y resalta los músculos con emissive pulsante. Fallback SVG transparente si WebGL falla.
+    </div>
+  </div>
+
+  <div class="alert warning">
+    <span class="alert-icon">⚠️</span>
+    <div><strong>Task 0 bloquea Task 6.</strong> El modelo GLB (<code>frontend/models/anatomy_lens.glb</code>) debe estar listo antes de poder probar model.js visualmente. Tasks 1–5 y 7–12 no requieren el GLB.</div>
+  </div>
+
+  <!-- FILE MAP -->
+  <div class="section open" id="filemap">
+    <div class="section-header" onclick="toggle(this)">
+      <div class="section-num" style="background:rgba(0,210,255,0.12);color:var(--cyan)">📁</div>
+      <span class="section-title">File Map — Archivos creados y modificados</span>
+      <span class="section-chevron">▶</span>
+    </div>
+    <div class="section-body">
+      <h4>Archivos nuevos</h4>
+      <div class="file-list">
+        <div class="file-item"><span class="file-icon">🆕</span><span class="file-path">frontend/js/anatomyLens/state.js</span><span class="file-desc">Máquina de estados — ciclo de vida</span></div>
+        <div class="file-item"><span class="file-icon">🆕</span><span class="file-path">frontend/js/anatomyLens/muscleMap.js</span><span class="file-desc">Datos puros: ejercicios → músculos + cámara</span></div>
+        <div class="file-item"><span class="file-icon">🆕</span><span class="file-path">frontend/js/anatomyLens/scene.js</span><span class="file-desc">Three.js renderer, luces, plataforma, FPS</span></div>
+        <div class="file-item"><span class="file-icon">🆕</span><span class="file-path">frontend/js/anatomyLens/model.js</span><span class="file-desc">GLTFLoader, DRACO, mesh registry</span></div>
+        <div class="file-item"><span class="file-icon">🆕</span><span class="file-path">frontend/js/anatomyLens/camera.js</span><span class="file-desc">15 ángulos preestablecidos + tween 800ms</span></div>
+        <div class="file-item"><span class="file-icon">🆕</span><span class="file-path">frontend/js/anatomyLens/highlighter.js</span><span class="file-desc">Pulso morado primario, cyan secundario</span></div>
+        <div class="file-item"><span class="file-icon">🆕</span><span class="file-path">frontend/js/anatomyLens/legend.js</span><span class="file-desc">Componente DOM con fade-in</span></div>
+        <div class="file-item"><span class="file-icon">🆕</span><span class="file-path">frontend/js/anatomyLens/fallback.js</span><span class="file-desc">Toggle SVG ↔ canvas</span></div>
+        <div class="file-item"><span class="file-icon">🆕</span><span class="file-path">frontend/js/anatomyLens/errorBoundary.js</span><span class="file-desc">safeExec / safeOp wrappers</span></div>
+        <div class="file-item"><span class="file-icon">🆕</span><span class="file-path">frontend/js/anatomyLens/index.js</span><span class="file-desc">API pública: init, highlight, reset, destroy</span></div>
+        <div class="file-item"><span class="file-icon">🆕</span><span class="file-path">frontend/css/anatomy-lens.css</span><span class="file-desc">Estilos con prefijo al-</span></div>
+      </div>
+      <h4>Archivos modificados</h4>
+      <div class="file-list">
+        <div class="file-item"><span class="file-icon">✏️</span><span class="file-path">frontend/index.html</span><span class="file-desc">Añade .anatomy-lens-container + link CSS</span></div>
+        <div class="file-item"><span class="file-icon">✏️</span><span class="file-path">frontend/js/exercises.js</span><span class="file-desc">Dynamic import + async selectExercise</span></div>
+      </div>
+      <h4>Prerequisito externo</h4>
+      <div class="file-list">
+        <div class="file-item" style="border-color:rgba(255,215,64,0.3)"><span class="file-icon">⚠️</span><span class="file-path">frontend/models/anatomy_lens.glb</span><span class="file-desc">Manual — Ruben debe sourcing + Blender pipeline</span></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- TASK 0 -->
+  <div class="section" id="task0">
+    <div class="section-header" onclick="toggle(this)">
+      <div class="section-num manual-num">0</div>
+      <span class="section-title">Task 0 — Source GLB Model</span>
+      <span class="section-status status-manual">Manual · Bloqueante</span>
+      <span class="section-chevron">▶</span>
+    </div>
+    <div class="section-body">
+      <div class="alert warning"><span class="alert-icon">🎯</span><div>Esta tarea la debe hacer <strong>Ruben manualmente</strong> antes de que Task 6 pueda probarse visualmente. El código ya está escrito — solo falta el modelo.</div></div>
+      <div class="steps">
+        <div class="step"><div class="step-check" onclick="checkStep(this)"></div><div class="step-content"><div class="step-title">Buscar modelo en Sketchfab</div><p style="color:var(--muted);font-size:12px;">Busca <code>"low poly human anatomy muscles"</code> → filtro CC-BY → necesitas meshes separados por músculo (no un solo mesh fusionado). Alternativa: Fiverr ~$30-50, solicitar modelo con meshes nombrados.</p></div></div>
+        <div class="step"><div class="step-check" onclick="checkStep(this)"></div><div class="step-content"><div class="step-title">Abrir en Blender y renombrar meshes</div><p style="color:var(--muted);font-size:12px;">Convención: <code>mesh_pectoral_mayor_esternal</code>, <code>mesh_dorsal_ancho</code>, etc. Sin sufijo _l/_r — AnatomyLens los añade automáticamente.</p></div></div>
+        <div class="step"><div class="step-check" onclick="checkStep(this)"></div><div class="step-content"><div class="step-title">Exportar GLB con DRACO (&lt;4MB)</div><p style="color:var(--muted);font-size:12px;">File → Export → glTF 2.0 (.glb) · ✅ Compression: DRACO · ❌ Animations: off · Target &lt;4MB</p></div></div>
+        <div class="step"><div class="step-check" onclick="checkStep(this)"></div><div class="step-content"><div class="step-title">Colocar en <code>frontend/models/anatomy_lens.glb</code></div><p style="color:var(--muted);font-size:12px;">Verificar en <a href="https://gltf-viewer.donmccurdy.com/" target="_blank" style="color:var(--cyan)">gltf-viewer.donmccurdy.com</a> que los meshes son separados y están nombrados correctamente.</p></div></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- TASK 1 -->
+  <div class="section" id="task1">
+    <div class="section-header" onclick="toggle(this)">
+      <div class="section-num done-num">✓</div>
+      <span class="section-title">Task 1 — anatomy-lens.css</span>
+      <span class="section-status status-done">Done · commit 2b4250f</span>
+      <span class="section-chevron">▶</span>
+    </div>
+    <div class="section-body">
+      <div class="alert success"><span class="alert-icon">✅</span><div>Creado y verificado. Prefijo <code>al-</code> en todas las clases que colisionan con <code>.legend-dot</code> de main.css.</div></div>
+      <div class="info-grid">
+        <div class="info-card"><label>Archivo</label><p><code>frontend/css/anatomy-lens.css</code></p></div>
+        <div class="info-card"><label>Clases principales</label><p><code>.anatomy-lens-container</code>, <code>.al-legend-dot</code>, <code>.al-legend-group</code></p></div>
+        <div class="info-card"><label>Aspecto ratio</label><p><code>aspect-ratio: 9/16</code> — vista retrato para el visor</p></div>
+        <div class="info-card"><label>Sin conflictos</label><p>Prefijo <code>al-</code> evita colisión con <code>.legend-dot</code> existente en main.css</p></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- TASK 2 -->
+  <div class="section" id="task2">
+    <div class="section-header" onclick="toggle(this)">
+      <div class="section-num done-num">✓</div>
+      <span class="section-title">Task 2 — HTML Structure (index.html)</span>
+      <span class="section-status status-done">Done · commit c01faa1</span>
+      <span class="section-chevron">▶</span>
+    </div>
+    <div class="section-body">
+      <div class="alert success"><span class="alert-icon">✅</span><div>Contenedor 3D añadido. SVG mantiene su posición con clase de fallback. CSS linkeado.</div></div>
+      <pre><code><span class="cmt">&lt;!-- AnatomyLens 3D container — canvas montado aquí --&gt;</span>
+<span class="cls">&lt;div</span> <span class="kw">class</span>=<span class="str">"anatomy-lens-container"</span><span class="cls">&gt;&lt;/div&gt;</span>
+
+<span class="cmt">&lt;!-- SVG 2D fallback — oculto por defecto, visible si WebGL falla --&gt;</span>
+<span class="cls">&lt;div</span> <span class="kw">id</span>=<span class="str">"anatomy-svg-wrap"</span> <span class="kw">class</span>=<span class="str">"anatomy-svg-hidden-by-default"</span><span class="cls">&gt;</span>
+  <span class="cmt">&lt;!-- SVG existente sin cambios --&gt;</span>
+<span class="cls">&lt;/div&gt;</span></code></pre>
+    </div>
+  </div>
+
+  <!-- TASK 3 -->
+  <div class="section" id="task3">
+    <div class="section-header" onclick="toggle(this)">
+      <div class="section-num done-num">✓</div>
+      <span class="section-title">Task 3 — state.js</span>
+      <span class="section-status status-done">Done · commit 67af514</span>
+      <span class="section-chevron">▶</span>
+    </div>
+    <div class="section-body">
+      <div class="alert success"><span class="alert-icon">✅</span><div>Máquina de estados pura — sin DOM, sin Three.js, sin efectos secundarios.</div></div>
+      <h4>Estados y transiciones</h4>
+      <table>
+        <tr><th>Estado</th><th>Desde</th><th>Hacia</th></tr>
+        <tr><td>UNINITIALIZED</td><td>—</td><td>LOADING</td></tr>
+        <tr><td>LOADING</td><td>UNINITIALIZED</td><td>READY, SVG_FALLBACK</td></tr>
+        <tr><td>READY</td><td>LOADING, HIGHLIGHTING</td><td>TRANSITIONING_CAMERA, SVG_FALLBACK</td></tr>
+        <tr><td>TRANSITIONING_CAMERA</td><td>READY, HIGHLIGHTING</td><td>HIGHLIGHTING, TRANSITIONING_CAMERA, SVG_FALLBACK</td></tr>
+        <tr><td>HIGHLIGHTING</td><td>TRANSITIONING_CAMERA</td><td>TRANSITIONING_CAMERA, READY, SVG_FALLBACK</td></tr>
+        <tr><td>SVG_FALLBACK</td><td>cualquiera</td><td>— <em>(terminal)</em></td></tr>
+      </table>
+      <h4>API exportada</h4>
+      <pre><code><span class="fn">getState</span>()       <span class="cmt">// → 'READY' | 'LOADING' | ...</span>
+<span class="fn">transition</span>(next) <span class="cmt">// → boolean — false si transición inválida</span>
+<span class="fn">resetState</span>()     <span class="cmt">// → void — para ciclos destroy + re-init</span>
+<span class="fn">canHighlight</span>()   <span class="cmt">// → true si READY | HIGHLIGHTING | TRANSITIONING_CAMERA</span>
+<span class="fn">is3DActive</span>()     <span class="cmt">// → false si UNINITIALIZED o SVG_FALLBACK</span></code></pre>
+    </div>
+  </div>
+
+  <!-- TASK 4 -->
+  <div class="section" id="task4">
+    <div class="section-header" onclick="toggle(this)">
+      <div class="section-num done-num">✓</div>
+      <span class="section-title">Task 4 — muscleMap.js</span>
+      <span class="section-status status-done">Done · commit ca87a6f</span>
+      <span class="section-chevron">▶</span>
+    </div>
+    <div class="section-body">
+      <div class="alert success"><span class="alert-icon">✅</span><div>29 ejercicios mapeados · 28 bridges DB→GLB · <code>resolveExercise()</code> con doble fallback.</div></div>
+      <div class="info-grid">
+        <div class="info-card"><label>DB_TO_MESH</label><p>28 entradas — traduce nombres simplificados de BD (<code>pecho_mayor</code>) a nombres de mesh GLB (<code>pectoral_mayor_esternal</code>)</p></div>
+        <div class="info-card"><label>EXERCISE_ID_MAP</label><p>IDs numéricos 1–33 → clave del muscleMap. IDs 21, 30, 32, 33 = null (usan fallback)</p></div>
+        <div class="info-card"><label>MUSCLE_MAP</label><p>29 ejercicios con <code>{primary[], secondary[], camera}</code>. Nombres = keys de mesh GLB sin prefijo.</p></div>
+        <div class="info-card"><label>resolveExercise(id, muscles)</label><p>Acepta ID numérico o string. Si no está en el map, traduce <code>muscles[]</code> via DB_TO_MESH. Camera default: FULL.</p></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- TASK 5 -->
+  <div class="section" id="task5">
+    <div class="section-header" onclick="toggle(this)">
+      <div class="section-num done-num">✓</div>
+      <span class="section-title">Task 5 — scene.js</span>
+      <span class="section-status status-done">Done · commit 02a959a</span>
+      <span class="section-chevron">▶</span>
+    </div>
+    <div class="section-body">
+      <div class="alert success"><span class="alert-icon">✅</span><div>Renderer Three.js, 5 luces, plataforma con anillos neón, FPS monitor con degradación automática.</div></div>
+      <h4>Sistema de iluminación</h4>
+      <table>
+        <tr><th>Luz</th><th>Tipo</th><th>Color</th><th>Posición</th></tr>
+        <tr><td>Key (dramática)</td><td>SpotLight</td><td style="color:#ff6a00">#ff6a00 naranja</td><td>[3.0, 6.5, 3.8]</td></tr>
+        <tr><td>Rim (contraluz)</td><td>SpotLight</td><td style="color:#00cfff">#00cfff cyan</td><td>[-3.5, 5.5, -3.0]</td></tr>
+        <tr><td>Fill (volumen)</td><td>DirectionalLight</td><td>#112244 azul oscuro</td><td>[0, 3, -2]</td></tr>
+        <tr><td>Kick (suelo)</td><td>PointLight</td><td style="color:#7766ff">#7766ff púrpura</td><td>[0, -0.5, 1.5]</td></tr>
+        <tr><td>Ambient</td><td>AmbientLight</td><td>#111122</td><td>—</td></tr>
+      </table>
+      <h4>FPS Monitor</h4>
+      <pre><code><span class="cmt">// Si FPS &lt; 20 durante 3 segundos:</span>
+<span class="cmt">// 1º → reduce pixelRatio a 0.75</span>
+<span class="cmt">// 2º (si sigue bajo) → activa SVG fallback</span>
+<span class="fn">renderer</span>.setPixelRatio(<span class="num">0.75</span>)  <span class="cmt">// primer intento</span>
+<span class="fn">onFPSCritical</span>()              <span class="cmt">// → activa SVG fallback</span></code></pre>
+    </div>
+  </div>
+
+  <!-- TASK 6 -->
+  <div class="section" id="task6">
+    <div class="section-header" onclick="toggle(this)">
+      <div class="section-num done-num">✓</div>
+      <span class="section-title">Task 6 — model.js</span>
+      <span class="section-status status-done">Done · commit fc4ae6f</span>
+      <span class="section-chevron">▶</span>
+    </div>
+    <div class="section-body">
+      <div class="alert warning"><span class="alert-icon">⏳</span><div>Código completo. Espera el GLB de Task 0 para la prueba visual. Sin el GLB activa fallback SVG tras 10s de timeout.</div></div>
+      <pre><code><span class="cmt">// model.js — cómo se registran los meshes</span>
+<span class="fn">gltf</span>.scene.<span class="fn">traverse</span>((obj) => {
+  <span class="kw">const</span> rawName = obj.name  <span class="cmt">// ej: "mesh_pectoral_mayor_esternal_l"</span>
+  <span class="kw">const</span> key = rawName
+    .<span class="fn">replace</span>(<span class="str">/^mesh_/</span>, <span class="str">''</span>)          <span class="cmt">// → "pectoral_mayor_esternal_l"</span>
+    .<span class="fn">replace</span>(<span class="str">/_(l|r)$/</span>, <span class="str">''</span>)        <span class="cmt">// → "pectoral_mayor_esternal"</span>
+  registry.<span class="fn">get</span>(key).<span class="fn">push</span>(obj)  <span class="cmt">// ambos lados bajo la misma key</span>
+})</code></pre>
+    </div>
+  </div>
+
+  <!-- TASK 7 -->
+  <div class="section" id="task7">
+    <div class="section-header" onclick="toggle(this)">
+      <div class="section-num done-num">✓</div>
+      <span class="section-title">Task 7 — camera.js</span>
+      <span class="section-status status-done">Done · commit 4568cd5</span>
+      <span class="section-chevron">▶</span>
+    </div>
+    <div class="section-body">
+      <div class="alert success"><span class="alert-icon">✅</span><div>15 ángulos de cámara, tween 800ms ease-in-out, cancelación de tweens en vuelo.</div></div>
+      <h4>Ángulos de cámara</h4>
+      <table>
+        <tr><th>Clave</th><th>Posición</th><th>Usado para</th></tr>
+        <tr><td>FULL</td><td>[0, 1.8, 5.5]</td><td>Vista completa (default)</td></tr>
+        <tr><td>FRONT_UPPER</td><td>[0, 2.2, 3.8]</td><td>Pecho, deltoides anterior</td></tr>
+        <tr><td>FRONT_CENTER</td><td>[0, 1.5, 4.0]</td><td>Abdomen, core</td></tr>
+        <tr><td>FRONT_LOWER</td><td>[0, 0.4, 3.5]</td><td>Cuádriceps, tibial</td></tr>
+        <tr><td>BACK_UPPER</td><td>[0, 2.2, -3.8]</td><td>Trapecio, romboides</td></tr>
+        <tr><td>BACK_CENTER</td><td>[0, 1.5, -4.0]</td><td>Dorsal, erector</td></tr>
+        <tr><td>BACK_LOWER</td><td>[0, 0.3, -3.5]</td><td>Glúteos, isquios</td></tr>
+        <tr><td>LATERAL_L / LATERAL_R</td><td>[±4.0, 1.6, 0]</td><td>Tríceps, dorsal lat</td></tr>
+        <tr><td>OBLIQUE_FL / FR / BL</td><td>varios</td><td>Hombros ¾, glúteo medio</td></tr>
+        <tr><td>ARM_L / ARM_R</td><td>[±4.5, 1.8, 1.0]</td><td>Bíceps, tríceps</td></tr>
+        <tr><td>CALF</td><td>[0, -0.5, 3.5]</td><td>Gemelos, tibial</td></tr>
+      </table>
+    </div>
+  </div>
+
+  <!-- TASK 8 -->
+  <div class="section" id="task8">
+    <div class="section-header" onclick="toggle(this)">
+      <div class="section-num done-num">✓</div>
+      <span class="section-title">Task 8 — highlighter.js</span>
+      <span class="section-status status-done">Done · commit 24bbf46</span>
+      <span class="section-chevron">▶</span>
+    </div>
+    <div class="section-body">
+      <div class="alert success"><span class="alert-icon">✅</span><div>Primario: pulso senoidal morado. Secundario: cyan fijo. Limpieza automática al cambiar ejercicio.</div></div>
+      <pre><code><span class="cmt">// Pulso primario — periodo ~833ms</span>
+<span class="kw">const</span> intensity = Math.<span class="fn">sin</span>((now / <span class="num">1000</span>) * <span class="num">1.2</span> * Math.PI * <span class="num">2</span>) * <span class="num">0.3</span> + <span class="num">0.8</span>
+<span class="cmt">// Rango: 0.5 → 1.1</span>
+mesh.material.emissive.<span class="fn">set</span>(<span class="num">0x6c63ff</span>)     <span class="cmt">// morado</span>
+mesh.material.emissiveIntensity = intensity
+
+<span class="cmt">// Secundario — intensidad fija</span>
+mesh.material.emissive.<span class="fn">set</span>(<span class="num">0x00d2ff</span>)     <span class="cmt">// cyan</span>
+mesh.material.emissiveIntensity = <span class="num">0.35</span></code></pre>
+    </div>
+  </div>
+
+  <!-- TASK 9 -->
+  <div class="section" id="task9">
+    <div class="section-header" onclick="toggle(this)">
+      <div class="section-num done-num">✓</div>
+      <span class="section-title">Task 9 — legend.js</span>
+      <span class="section-status status-done">Done · commit 8d615b1</span>
+      <span class="section-chevron">▶</span>
+    </div>
+    <div class="section-body">
+      <div class="alert success"><span class="alert-icon">✅</span><div>33 etiquetas musculares en español, deduplicación, fade-in con clases <code>al-</code>.</div></div>
+      <pre><code><span class="cmt">&lt;!-- HTML generado por legend.js --&gt;</span>
+<span class="cls">&lt;div</span> <span class="kw">class</span>=<span class="str">"anatomy-legend-3d al-visible"</span><span class="cls">&gt;</span>
+  <span class="cls">&lt;div</span> <span class="kw">class</span>=<span class="str">"al-legend-group"</span><span class="cls">&gt;</span>
+    <span class="cls">&lt;span</span> <span class="kw">class</span>=<span class="str">"al-legend-dot primary"</span><span class="cls">&gt;&lt;/span&gt;</span>
+    <span class="cls">&lt;span&gt;</span>Pecho mayor (esternal)<span class="cls">&lt;/span&gt;</span>
+  <span class="cls">&lt;/div&gt;</span>
+  <span class="cls">&lt;div</span> <span class="kw">class</span>=<span class="str">"al-legend-group"</span><span class="cls">&gt;</span>
+    <span class="cls">&lt;span</span> <span class="kw">class</span>=<span class="str">"al-legend-dot secondary"</span><span class="cls">&gt;&lt;/span&gt;</span>
+    <span class="cls">&lt;span&gt;</span>Deltoides anterior · Tríceps (lateral)<span class="cls">&lt;/span&gt;</span>
+  <span class="cls">&lt;/div&gt;</span>
+<span class="cls">&lt;/div&gt;</span></code></pre>
+    </div>
+  </div>
+
+  <!-- TASK 10 -->
+  <div class="section" id="task10">
+    <div class="section-header" onclick="toggle(this)">
+      <div class="section-num done-num">✓</div>
+      <span class="section-title">Task 10 — fallback.js + errorBoundary.js</span>
+      <span class="section-status status-done">Done · commit 03795d3</span>
+      <span class="section-chevron">▶</span>
+    </div>
+    <div class="section-body">
+      <div class="alert success"><span class="alert-icon">✅</span><div>Dos niveles de error: <code>safeExec</code> (activa SVG fallback) y <code>safeOp</code> (skip sin fallback).</div></div>
+      <table>
+        <tr><th>Función</th><th>En caso de error</th><th>Usado en</th></tr>
+        <tr><td><code>safeExec(fn)</code></td><td>Activa SVG fallback permanente</td><td>init() — carga del GLB</td></tr>
+        <tr><td><code>safeOp(fn)</code></td><td>Skip + console.warn — 3D sigue activo</td><td>highlight(), reset() — operaciones no críticas</td></tr>
+        <tr><td><code>isWebGLAvailable()</code></td><td>—</td><td>Primer check en init()</td></tr>
+        <tr><td><code>activateSVGFallback()</code></td><td>—</td><td>Desde FPS monitor, safeExec, test manual</td></tr>
+      </table>
+    </div>
+  </div>
+
+  <!-- TASK 11 -->
+  <div class="section" id="task11">
+    <div class="section-header" onclick="toggle(this)">
+      <div class="section-num done-num">✓</div>
+      <span class="section-title">Task 11 — index.js (API Pública)</span>
+      <span class="section-status status-done">Done · commit 3238f6d</span>
+      <span class="section-chevron">▶</span>
+    </div>
+    <div class="section-body">
+      <div class="alert success"><span class="alert-icon">✅</span><div>4 funciones públicas async. Cola pendiente para clicks durante carga. Debug API en <code>window.__anatomyLens</code>.</div></div>
+      <pre><code><span class="cmt">// El único archivo que exercises.js importa</span>
+<span class="kw">import</span> AnatomyLens <span class="kw">from</span> <span class="str">'./anatomyLens/index.js'</span>
+
+<span class="kw">await</span> AnatomyLens.<span class="fn">init</span>(container)              <span class="cmt">// Monta el visor</span>
+<span class="kw">await</span> AnatomyLens.<span class="fn">highlight</span>(exerciseId, muscles) <span class="cmt">// Activa músculos</span>
+<span class="kw">await</span> AnatomyLens.<span class="fn">reset</span>()                       <span class="cmt">// Limpia highlights</span>
+<span class="kw">await</span> AnatomyLens.<span class="fn">destroy</span>()                     <span class="cmt">// Libera GPU</span>
+
+<span class="cmt">// Debug en consola del navegador:</span>
+window.__anatomyLens.<span class="fn">getState</span>()     <span class="cmt">// → 'HIGHLIGHTING'</span>
+window.__anatomyLens.<span class="fn">forceFallback</span>() <span class="cmt">// → activa SVG</span></code></pre>
+    </div>
+  </div>
+
+  <!-- TASK 12 -->
+  <div class="section" id="task12">
+    <div class="section-header" onclick="toggle(this)">
+      <div class="section-num done-num">✓</div>
+      <span class="section-title">Task 12 — exercises.js Integration</span>
+      <span class="section-status status-done">Done · commit 868b344</span>
+      <span class="section-chevron">▶</span>
+    </div>
+    <div class="section-body">
+      <div class="alert success"><span class="alert-icon">✅</span><div>Dynamic import lazy — solo carga Three.js cuando el usuario llega a la sección ejercicios. SVG fallback 100% preservado.</div></div>
+      <pre><code><span class="cmt">// Loader lazy — carga AnatomyLens solo la primera vez</span>
+<span class="kw">let</span> _lens = <span class="kw">null</span>
+<span class="kw">async function</span> <span class="fn">getLens</span>() {
+  <span class="kw">if</span> (_lens !== <span class="kw">null</span>) <span class="kw">return</span> _lens
+  <span class="kw">try</span> {
+    <span class="kw">const</span> mod = <span class="kw">await</span> <span class="fn">import</span>(<span class="str">'./anatomyLens/index.js'</span>)
+    _lens = mod.<span class="kw">default</span>
+    <span class="kw">await</span> _lens.<span class="fn">init</span>(container)
+  } <span class="kw">catch</span> (e) {
+    _lens = <span class="kw">false</span>  <span class="cmt">// permanentemente SVG</span>
+  }
+  <span class="kw">return</span> _lens
+}
+
+<span class="cmt">// selectExercise ahora es async</span>
+<span class="kw">async function</span> <span class="fn">selectExercise</span>(id) {
+  <span class="cmt">// ... toggle, renderGrid, renderAffiliate ...</span>
+  <span class="kw">const</span> lens = <span class="kw">await</span> <span class="fn">getLens</span>()
+  <span class="kw">if</span> (lens) {
+    <span class="kw">await</span> lens.<span class="fn">highlight</span>(ex.id, ex.muscles)
+    <span class="kw">return</span>  <span class="cmt">// AnatomyLens gestiona la leyenda</span>
+  }
+  <span class="cmt">// Fallback SVG original — siempre disponible</span>
+  <span class="fn">highlightMuscles</span>(ex.muscles)
+  <span class="fn">renderLegend</span>(ex.muscles)
+}</code></pre>
+    </div>
+  </div>
+
+  <!-- TASK 13 -->
+  <div class="section" id="task13">
+    <div class="section-header" onclick="toggle(this)">
+      <div class="section-num manual-num">13</div>
+      <span class="section-title">Task 13 — Manual Testing</span>
+      <span class="section-status status-manual">Manual · tras Task 0</span>
+      <span class="section-chevron">▶</span>
+    </div>
+    <div class="section-body">
+      <div class="alert warning"><span class="alert-icon">🧪</span><div>Estos tests solo pueden ejecutarse una vez que el GLB de Task 0 esté disponible y cargado en el servidor.</div></div>
+      <div class="steps">
+        <div class="step"><div class="step-check" onclick="checkStep(this)"></div><div class="step-content"><div class="step-title">Test 1 — WebGL deshabilitado</div><p style="color:var(--muted);font-size:12px;">Chrome → <code>chrome://flags/#disable-webgl</code> → Enable → Recargar. Expected: SVG visible inmediatamente, sin canvas, sin errores.</p></div></div>
+        <div class="step"><div class="step-check" onclick="checkStep(this)"></div><div class="step-content"><div class="step-title">Test 2 — GLB 404</div><p style="color:var(--muted);font-size:12px;">Renombrar temporalmente el GLB. Click en ejercicio. Expected: loading overlay → tras 10s → SVG fallback. Console: <code>[AnatomyLens/init] Error: GLB load timeout</code></p></div></div>
+        <div class="step"><div class="step-check" onclick="checkStep(this)"></div><div class="step-content"><div class="step-title">Test 3 — Mesh no encontrado</div><p style="color:var(--muted);font-size:12px;">Consola: <code>const m = await import('/js/anatomyLens/model.js'); m.getMeshes('nonexistent')</code>. Expected: <code>[]</code> + warn, sin crash.</p></div></div>
+        <div class="step"><div class="step-check" onclick="checkStep(this)"></div><div class="step-content"><div class="step-title">Test 4 — Click rápido múltiple</div><p style="color:var(--muted);font-size:12px;">Click "Press banca" → inmediato "Dominadas" → inmediato "Sentadilla". Expected: cada click cancela el tween anterior, posición final = sentadilla FRONT_LOWER. Sin flash ni estado bloqueado.</p></div></div>
+        <div class="step"><div class="step-check" onclick="checkStep(this)"></div><div class="step-content"><div class="step-title">Test 5 — Mobile responsive</div><p style="color:var(--muted);font-size:12px;">DevTools → iPhone 12 Pro (390px). Expected: aspect-ratio 9/16 encaja sin overflow. Click en ejercicio funciona.</p></div></div>
+      </div>
+    </div>
+  </div>
+
+</main>
+</div>
+
+<script>
+  function toggle(header) {
+    const section = header.parentElement;
+    section.classList.toggle('open');
+  }
+
+  function checkStep(el) {
+    el.classList.toggle('checked');
+    updateProgress();
+  }
+
+  function updateProgress() {
+    const total = document.querySelectorAll('.step-check').length;
+    const done = document.querySelectorAll('.step-check.checked').length;
+    const pct = Math.round((done / total) * 100);
+    document.getElementById('progressBar').style.width = pct + '%';
+    document.getElementById('progressLabel').textContent = done + ' / ' + total + ' pasos';
+  }
+
+  // Open first section by default
+  document.addEventListener('DOMContentLoaded', () => {
+    updateProgress();
+  });
+</script>
+</body>
+</html>

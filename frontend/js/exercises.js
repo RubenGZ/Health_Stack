@@ -5,6 +5,22 @@
 const Exercises = (function () {
   'use strict';
 
+  // ── AnatomyLens 3D lazy loader ────────────────────────────────────────────
+  let _lens = null;
+  async function getLens() {
+    if (_lens !== null) return _lens;
+    try {
+      const mod = await import('./anatomyLens/index.js');
+      _lens = mod.default;
+      const container = document.querySelector('.anatomy-lens-container');
+      if (container) await _lens.init(container);
+    } catch (e) {
+      console.warn('[Exercises] AnatomyLens load failed, SVG only:', e);
+      _lens = false;  // false = permanently use SVG
+    }
+    return _lens;
+  }
+
   // ── Base de datos ──────────────────────────────────────────
   const MUSCLE_GROUPS = [
     { id: 'all',       label: 'Todos',        color: '#94a3b8' },
@@ -364,21 +380,38 @@ const Exercises = (function () {
   }
 
   // ── Seleccionar ejercicio → visor anatómico ───────────────
-  function selectExercise(id) {
+  async function selectExercise(id) {
     activeExId = (activeExId === id) ? null : id;
     renderGrid();
 
-    if (!activeExId) { resetAnatomy(); return; }
+    if (!activeExId) {
+      const lens = await getLens();
+      if (lens) lens.reset();
+      else resetAnatomy();
+      return;
+    }
 
     const ex = DB.find(e => e.id === id);
     if (!ex) return;
 
-    highlightMuscles(ex.muscles);
-    renderLegend(ex.muscles);
     renderAffiliate(ex);
 
     const hint = document.getElementById('anatomy-hint');
     if (hint) hint.style.display = 'none';
+
+    const lens = await getLens();
+    if (lens) {
+      try {
+        await lens.highlight(ex.id, ex.muscles);
+        return;  // AnatomyLens handled legend too
+      } catch (err) {
+        console.warn('[Exercises] AnatomyLens highlight failed, using SVG:', err);
+      }
+    }
+
+    // SVG fallback path (always available)
+    highlightMuscles(ex.muscles);
+    renderLegend(ex.muscles);
   }
 
   // ── Animar SVG ────────────────────────────────────────────
@@ -477,6 +510,9 @@ const Exercises = (function () {
         renderGrid();
       });
     }
+
+    // Preload AnatomyLens on init (non-blocking)
+    getLens().catch(() => {});
   }
 
   return { init };

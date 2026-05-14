@@ -703,11 +703,36 @@
       });
   }
 
+  // ── Deep-link desde la landing ───────────────────────────
+  // La landing redirige a /?action=register o /?action=login.
+  // Abrimos el modal correcto automáticamente y limpiamos la URL.
+  function handleLandingBridge() {
+    const params = new URLSearchParams(window.location.search);
+    const action = params.get('action');
+    if (action !== 'register' && action !== 'login') return;
+
+    // Limpiar ?action= de la URL sin recargar
+    const clean = window.location.pathname + window.location.hash;
+    history.replaceState(null, '', clean);
+
+    // Esperar a que Auth.js esté listo (se carga después de app.js)
+    const openWhenReady = () => {
+      if (typeof Auth !== 'undefined' && typeof Auth.open === 'function') {
+        Auth.open(action);
+      } else {
+        setTimeout(openWhenReady, 80);
+      }
+    };
+    // Pequeño delay para que la UI termine de pintar
+    setTimeout(openWhenReady, 200);
+  }
+
   // Arrancar cuando el DOM esté listo
   if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', () => { handleOAuthCallback(); init(); });
+    document.addEventListener('DOMContentLoaded', () => { handleOAuthCallback(); handleLandingBridge(); init(); });
   } else {
     handleOAuthCallback();
+    handleLandingBridge();
     init();
   }
 

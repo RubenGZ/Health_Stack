@@ -5,7 +5,7 @@
 
 import { getState, transition, resetState, canHighlight, STATES } from './state.js';
 import { initScene, startLoop, stopLoop, disposeScene } from './scene.js';
-import { loadModel, disposeModel, resetAllMaterials } from './model.js';
+import { loadModel, disposeModel, resetAllMaterials, isGenericModel } from './model.js';
 import { tweenToAngle, tweenToMeshes, snapToAngle, cancelTween } from './camera.js';
 import { applyHighlight, clearHighlight } from './highlighter.js';
 import { renderLegend, clearLegend } from './legend.js';
@@ -103,9 +103,11 @@ async function highlight(exerciseId, dbMuscles = []) {
     const primaryMeshes = applyHighlight(primary, secondary);
 
     // Dynamic zoom: frame the actual muscle bounding box in world space.
-    // Falls back to tweenToAngle(camera) if no meshes found in registry yet
-    // (e.g. GLB not loaded or mesh name mismatch).
-    await tweenToMeshes(primaryMeshes, camera);
+    // For generic models (no named meshes) use the named camera angle directly
+    // to avoid framing the whole body (which would be a no-op zoom).
+    await (isGenericModel()
+      ? tweenToAngle(camera)
+      : tweenToMeshes(primaryMeshes, camera));
 
     transition(STATES.HIGHLIGHTING);
     renderLegend(primary, secondary);

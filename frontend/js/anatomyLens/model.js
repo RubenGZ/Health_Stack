@@ -102,6 +102,31 @@ export function getMeshes(muscleName) {
 /** Get the entire registry (for debug API) */
 export function getRegistry() { return _registry; }
 
+/**
+ * Returns ALL meshes in the scene (used when model has no named muscle meshes).
+ * @returns {THREE.Mesh[]}
+ */
+export function getAllMeshes() {
+  const all = [];
+  _registry.forEach((meshes) => all.push(...meshes));
+  return all;
+}
+
+/**
+ * Returns true when the loaded model has no properly-named muscle meshes
+ * (e.g. generic exports with Object_N names). In this mode we fall back to
+ * full-body highlighting.
+ * @returns {boolean}
+ */
+export function isGenericModel() {
+  if (_registry.size === 0) return false;
+  // If EVERY key looks like "object_N" the model has no muscle names
+  for (const key of _registry.keys()) {
+    if (!/^object_\d+$/i.test(key)) return false;
+  }
+  return true;
+}
+
 /** Reset all mesh materials to base (no highlights) */
 export function resetAllMaterials() {
   _registry.forEach((meshes) => {

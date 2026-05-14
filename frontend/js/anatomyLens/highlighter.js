@@ -4,7 +4,7 @@
 // Uses scene.js registerUpdate() to drive pulse animation each frame.
 
 import * as THREE from 'three';
-import { getMeshes, resetAllMaterials } from './model.js';
+import { getMeshes, getAllMeshes, isGenericModel, resetAllMaterials } from './model.js';
 import { registerUpdate, unregisterUpdate } from './scene.js';
 
 const COLOR_PRIMARY   = new THREE.Color(0x6c63ff);
@@ -30,30 +30,41 @@ let _pulseCallback = null;
 export function applyHighlight(primary, secondary) {
   clearHighlight();
 
-  // Apply primary — pulsing purple
-  _activePrimary = primary.flatMap(name => getMeshes(name));
-  _activePrimary.forEach(mesh => {
-    mesh.material.emissive.copy(COLOR_PRIMARY);
-    mesh.material.emissiveIntensity = 0.8;
-  });
+  if (isGenericModel()) {
+    // Generic model (no named muscle meshes): highlight ALL meshes with a full-body glow.
+    // Camera angle + legend still convey which muscles are active.
+    _activePrimary = getAllMeshes();
+    _activePrimary.forEach(mesh => {
+      mesh.material.emissive.copy(COLOR_PRIMARY);
+      mesh.material.emissiveIntensity = 0.5;
+    });
+    _activeSecondary = [];
+  } else {
+    // Named model: highlight specific meshes per muscle group
+    _activePrimary = primary.flatMap(name => getMeshes(name));
+    _activePrimary.forEach(mesh => {
+      mesh.material.emissive.copy(COLOR_PRIMARY);
+      mesh.material.emissiveIntensity = 0.8;
+    });
 
-  // Apply secondary — steady cyan
-  _activeSecondary = secondary.flatMap(name => getMeshes(name));
-  _activeSecondary.forEach(mesh => {
-    mesh.material.emissive.copy(COLOR_SECONDARY);
-    mesh.material.emissiveIntensity = 0.35;
-  });
+    _activeSecondary = secondary.flatMap(name => getMeshes(name));
+    _activeSecondary.forEach(mesh => {
+      mesh.material.emissive.copy(COLOR_SECONDARY);
+      mesh.material.emissiveIntensity = 0.35;
+    });
+  }
 
-  // Register pulse animation (Math.sin wave on primary meshes)
+  // Pulse animation on primary meshes (works for both modes)
   _pulseCallback = (now) => {
     const intensity = Math.sin((now / 1000) * 1.2 * Math.PI * 2) * 0.3 + 0.8;
+    const min = isGenericModel() ? 0.3 : 0.5;
+    const max = isGenericModel() ? 0.7 : 1.1;
     _activePrimary.forEach(mesh => {
-      mesh.material.emissiveIntensity = Math.max(0.5, Math.min(1.1, intensity));
+      mesh.material.emissiveIntensity = Math.max(min, Math.min(max, intensity));
     });
   };
   registerUpdate(_pulseCallback);
 
-  // Return primary meshes so callers can compute dynamic camera zoom
   return _activePrimary;
 }
 

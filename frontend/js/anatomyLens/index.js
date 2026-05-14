@@ -121,7 +121,8 @@ async function reset() {
   clearLegend();
   resetAllMaterials();
   await safeOp(() => tweenToAngle('FULL'), 'reset');
-  if (canHighlight()) transition(STATES.READY);
+  const s = getState();
+  if (s === STATES.HIGHLIGHTING || s === STATES.TRANSITIONING_CAMERA) transition(STATES.READY);
 }
 
 /**

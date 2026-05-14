@@ -10,6 +10,7 @@
   <link rel="canonical" href="https://healthstack.pro/app/" />
 
   <link rel="stylesheet" href="css/main.css?v=4">
+  <link rel="stylesheet" href="css/anatomy-lens.css">
   <link rel="manifest" href="manifest.json">
   <meta name="theme-color" content="#0891b2">
   <meta name="apple-mobile-web-app-capable" content="yes">
@@ -790,7 +791,10 @@
         <div class="anatomy-panel card">
           <h4 class="anatomy-title" data-i18n="exercises.anatomy_title">Visor anatómico</h4>
           <div class="anatomy-hint" id="anatomy-hint" data-i18n="exercises.anatomy_hint">Haz clic en un ejercicio para ver los músculos implicados</div>
-          <div class="anatomy-svg-wrap" id="anatomy-svg-wrap">
+          <!-- AnatomyLens 3D container — canvas mounted here by AnatomyLens.init() -->
+          <div class="anatomy-lens-container">
+          </div>
+          <div id="anatomy-svg-wrap" class="anatomy-svg-hidden-by-default">
             <!-- SVG inyectado por exercises.js -->
           </div>
           <div class="anatomy-legend" id="anatomy-legend"></div>

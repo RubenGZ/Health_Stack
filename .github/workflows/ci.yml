@@ -123,3 +123,9 @@ jobs:
         run: |
           npm ci
           npm run build
+
+      - name: Build frontend mobile (TypeScript check + Vite bundle)
+        working-directory: frontend-mobile
+        run: |
+          npm ci
+          npm run build

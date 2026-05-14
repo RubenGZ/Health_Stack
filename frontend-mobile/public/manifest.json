@@ -7,6 +7,8 @@
   "background_color": "#09090b",
   "theme_color": "#0891b2",
   "orientation": "portrait",
-  "icons": [],
+  "icons": [
+    { "src": "/mobile/icon.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any maskable" }
+  ],
   "categories": ["health", "fitness", "lifestyle"]
 }

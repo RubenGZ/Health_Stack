@@ -20,6 +20,13 @@ let _pulseCallback = null;
  * @param {string[]} primary - mesh names to pulse purple
  * @param {string[]} secondary - mesh names to glow cyan
  */
+/**
+ * Highlight muscles for an exercise.
+ * Clears previous highlights first.
+ * @param {string[]} primary - mesh names to pulse purple
+ * @param {string[]} secondary - mesh names to glow cyan
+ * @returns {THREE.Mesh[]} primary meshes that were found (for dynamic camera zoom)
+ */
 export function applyHighlight(primary, secondary) {
   clearHighlight();
 
@@ -45,6 +52,9 @@ export function applyHighlight(primary, secondary) {
     });
   };
   registerUpdate(_pulseCallback);
+
+  // Return primary meshes so callers can compute dynamic camera zoom
+  return _activePrimary;
 }
 
 /** Remove all highlights and stop pulse */

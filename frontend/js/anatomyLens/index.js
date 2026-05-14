@@ -6,7 +6,7 @@
 import { getState, transition, resetState, canHighlight, STATES } from './state.js';
 import { initScene, startLoop, stopLoop, disposeScene } from './scene.js';
 import { loadModel, disposeModel, resetAllMaterials } from './model.js';
-import { tweenToAngle, snapToAngle, cancelTween } from './camera.js';
+import { tweenToAngle, tweenToMeshes, snapToAngle, cancelTween } from './camera.js';
 import { applyHighlight, clearHighlight } from './highlighter.js';
 import { renderLegend, clearLegend } from './legend.js';
 import { resolveExercise } from './muscleMap.js';
@@ -99,11 +99,13 @@ async function highlight(exerciseId, dbMuscles = []) {
     transition(STATES.TRANSITIONING_CAMERA);
     clearHighlight();
 
-    // Start camera tween and highlight in parallel
-    await Promise.all([
-      tweenToAngle(camera),
-      Promise.resolve().then(() => applyHighlight(primary, secondary)),
-    ]);
+    // Apply highlight first (sync) — returns primary meshes for dynamic zoom
+    const primaryMeshes = applyHighlight(primary, secondary);
+
+    // Dynamic zoom: frame the actual muscle bounding box in world space.
+    // Falls back to tweenToAngle(camera) if no meshes found in registry yet
+    // (e.g. GLB not loaded or mesh name mismatch).
+    await tweenToMeshes(primaryMeshes, camera);
 
     transition(STATES.HIGHLIGHTING);
     renderLegend(primary, secondary);

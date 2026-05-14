@@ -19,7 +19,9 @@ from __future__ import annotations
 import logging
 import os
 
-from fastapi import FastAPI, Request, Response, status
+from fastapi import Depends, FastAPI, Request, Response, status
+from sqlalchemy import text
+from sqlalchemy.ext.asyncio import AsyncSession
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 from slowapi import Limiter, _rate_limit_exceeded_handler
@@ -50,9 +52,19 @@ logger = logging.getLogger(__name__)
 settings = get_settings()
 
 # ── Rate Limiter (OWASP A07 — Brute Force Protection) ────────────────────────
-# En producción, pasar storage_uri="redis://..." para estado compartido entre workers.
-# En desarrollo usa memoria local (reinicia con el proceso).
-limiter = Limiter(key_func=get_remote_address, default_limits=["200/minute"])
+# Usa Redis cuando la URL no apunta a localhost (entorno de producción).
+# En Pi/dev el redis_url es redis://localhost:... → cae en memoria local.
+_redis_url = settings.redis_url
+_rate_limit_storage = (
+    _redis_url
+    if _redis_url and "localhost" not in _redis_url and "127.0.0.1" not in _redis_url
+    else None
+)
+limiter = Limiter(
+    key_func=get_remote_address,
+    default_limits=["200/minute"],
+    storage_uri=_rate_limit_storage,
+)
 
 # ── Sentry PII filter ─────────────────────────────────────────────────────────
 # RGPD Art. 28: Sentry es un subencargado — solo puede recibir metadatos de error,
@@ -401,17 +413,29 @@ async def shutdown_scheduler() -> None:
 
 # ── Endpoints del sistema ─────────────────────────────────────────────────────
 
+from app.session import get_db  # noqa: E402 — after app creation to avoid circular import
+
+
 @app.get(
     "/health",
     tags=["System"],
     summary="Health check",
-    description="Verifica que la API está activa. Usado por load balancers y monitorización.",
+    description="Verifica que la API está activa y la BD responde. Usado por Docker healthcheck y load balancers.",
 )
-async def health_check():
+async def health_check(db: AsyncSession = Depends(get_db)):
     """
-    Endpoint de health check — no requiere autenticación.
-    Devuelve 200 si la API está operativa.
+    Devuelve 200 solo si la API está operativa Y la base de datos responde.
+    Un fallo de BD devuelve 503 para que el Docker healthcheck falle y
+    nginx no enrute tráfico a un backend sin acceso a datos.
     """
+    try:
+        await db.execute(text("SELECT 1"))
+    except Exception as exc:
+        logger.error("[health] DB check failed: %s", exc)
+        return JSONResponse(
+            status_code=503,
+            content={"status": "error", "detail": "Database unavailable"},
+        )
     return {
         "status": "ok",
         "version": "2.0.0",

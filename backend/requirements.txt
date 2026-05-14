@@ -35,6 +35,7 @@ httpx==0.27.0            # Cliente HTTP para tests de integración
 # --- Rate Limiting ---
 slowapi==0.1.9             # Wrapper de limits para FastAPI/Starlette (OWASP A07)
 limits==3.13.0             # Backend de límites (en memoria por defecto, Redis en prod)
+redis>=4.6.0               # Requerido por limits para Redis storage en producción
 
 # --- Tareas programadas ---
 apscheduler==3.10.4          # Scheduler in-process (weekly AI insights jobs)

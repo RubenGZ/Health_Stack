@@ -30,6 +30,27 @@ logger = logging.getLogger(__name__)
 _scheduler: AsyncIOScheduler | None = None
 
 
+async def _acquire_job_lock(job_id: str, ttl_seconds: int) -> bool:
+    """
+    Acquires a Redis SET NX lock so only one uvicorn worker runs each job.
+    Returns True if this worker got the lock (or Redis is unavailable — fail open).
+    On Pi/dev the redis_url points to localhost so we skip the lock entirely.
+    """
+    cfg = get_settings()
+    url = cfg.redis_url
+    if not url or "localhost" in url or "127.0.0.1" in url:
+        return True  # no Redis available → run unconditionally (single-worker envs)
+    try:
+        import redis.asyncio as aioredis
+        r = aioredis.from_url(url, socket_connect_timeout=2)
+        acquired = await r.set(f"scheduler_lock:{job_id}", "1", nx=True, ex=ttl_seconds)
+        await r.aclose()
+        return bool(acquired)
+    except Exception as exc:
+        logger.warning("[Scheduler] Redis lock unavailable, running job anyway: %s", exc)
+        return True  # fail open — better to run twice than skip
+
+
 # ── Job functions ─────────────────────────────────────────────────────────────
 
 async def _get_active_user_ids(session_factory: async_sessionmaker) -> list[str]:
@@ -50,6 +71,10 @@ async def weekly_insights_job() -> None:
     Results are NOT stored (on-demand endpoints handle storage via frontend cache).
     This job exists to warm the backend cache and log any users with high injury risk.
     """
+    if not await _acquire_job_lock("weekly_insights", ttl_seconds=7200):
+        logger.info("[Scheduler] weekly_insights_job skipped — another worker holds the lock")
+        return
+
     cfg = get_settings()
     logger.info("[Scheduler] weekly_insights_job started — %s", datetime.now(timezone.utc).isoformat())
 
@@ -96,6 +121,10 @@ async def daily_narrative_job() -> None:
     Daily 07:00 UTC — Logs biomarker narrative health for monitoring.
     Lightweight: only runs for users with health records in the last 7 days.
     """
+    if not await _acquire_job_lock("daily_narrative", ttl_seconds=3600):
+        logger.info("[Scheduler] daily_narrative_job skipped — another worker holds the lock")
+        return
+
     logger.info("[Scheduler] daily_narrative_job started — %s", datetime.now(timezone.utc).isoformat())
 
     cfg = get_settings()

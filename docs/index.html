@@ -1,0 +1,500 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Health Stack — Command Center</title>
+  <style>
+    *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+    :root {
+      --bg: #0d1117;
+      --surface: #161b22;
+      --border: #21262d;
+      --accent: #58a6ff;
+      --green: #3fb950;
+      --yellow: #d29922;
+      --red: #f85149;
+      --text: #e6edf3;
+      --muted: #8b949e;
+    }
+
+    body {
+      font-family: 'Segoe UI', system-ui, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+    }
+
+    /* ── Header ── */
+    header {
+      background: var(--surface);
+      border-bottom: 1px solid var(--border);
+      padding: 1rem 2rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      position: sticky;
+      top: 0;
+      z-index: 10;
+    }
+
+    .logo { display: flex; align-items: center; gap: 0.75rem; }
+    .logo-icon {
+      width: 36px; height: 36px;
+      background: linear-gradient(135deg, #1f6feb, #58a6ff);
+      border-radius: 8px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 1.1rem;
+    }
+    .logo-text h1 { font-size: 1rem; font-weight: 600; color: var(--text); }
+    .logo-text p { font-size: 0.7rem; color: var(--muted); }
+
+    .header-right { display: flex; align-items: center; gap: 1rem; }
+
+    .status-pill {
+      display: flex; align-items: center; gap: 0.4rem;
+      background: #1a2e1a;
+      border: 1px solid #2d5a2d;
+      border-radius: 20px;
+      padding: 0.3rem 0.75rem;
+      font-size: 0.75rem;
+      color: var(--green);
+    }
+    .status-pill .dot {
+      width: 7px; height: 7px;
+      border-radius: 50%;
+      background: var(--green);
+      box-shadow: 0 0 6px var(--green);
+      animation: pulse 2s infinite;
+    }
+
+    @keyframes pulse {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.4; }
+    }
+
+    .identity-badge {
+      font-size: 0.75rem;
+      background: #1f2d45;
+      border: 1px solid #1f6feb55;
+      border-radius: 6px;
+      padding: 0.3rem 0.75rem;
+      color: var(--accent);
+      font-weight: 600;
+    }
+
+    /* ── Layout ── */
+    main { max-width: 1280px; margin: 0 auto; padding: 2rem; }
+
+    /* ── Hero ── */
+    .hero {
+      background: linear-gradient(135deg, #0d1f33 0%, #161b22 100%);
+      border: 1px solid #1f6feb33;
+      border-radius: 16px;
+      padding: 2rem;
+      margin-bottom: 2rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 1rem;
+    }
+
+    .hero-text h2 { font-size: 1.5rem; font-weight: 700; margin-bottom: 0.4rem; }
+    .hero-text h2 span { color: var(--accent); }
+    .hero-text p { color: var(--muted); font-size: 0.9rem; line-height: 1.6; }
+
+    .hero-stats { display: flex; gap: 2rem; flex-shrink: 0; }
+    .hero-stat { text-align: center; }
+    .hero-stat .n { font-size: 2rem; font-weight: 700; color: var(--accent); }
+    .hero-stat .l { font-size: 0.7rem; color: var(--muted); text-transform: uppercase; letter-spacing: 1px; }
+
+    /* ── Grid ── */
+    .grid-4 {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 1rem;
+      margin-bottom: 2rem;
+    }
+
+    .metric-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 1.25rem;
+      transition: border-color 0.2s, transform 0.2s;
+      cursor: default;
+    }
+    .metric-card:hover { border-color: #1f6feb55; transform: translateY(-2px); }
+
+    .metric-card .icon { font-size: 1.4rem; margin-bottom: 0.75rem; }
+    .metric-card .label { font-size: 0.72rem; color: var(--muted); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 0.4rem; }
+    .metric-card .value { font-size: 1.8rem; font-weight: 700; }
+    .metric-card .trend { font-size: 0.78rem; margin-top: 0.3rem; }
+    .trend.up { color: var(--green); }
+    .trend.warn { color: var(--yellow); }
+    .trend.neutral { color: var(--muted); }
+
+    /* ── Two columns ── */
+    .two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; margin-bottom: 2rem; }
+    @media (max-width: 768px) { .two-col { grid-template-columns: 1fr; } }
+
+    .panel {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      overflow: hidden;
+    }
+
+    .panel-header {
+      padding: 1rem 1.25rem;
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .panel-header h3 { font-size: 0.85rem; font-weight: 600; }
+    .panel-header .count {
+      font-size: 0.7rem;
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 0.15rem 0.5rem;
+      color: var(--muted);
+    }
+
+    /* ── Tickets ── */
+    .ticket {
+      padding: 0.85rem 1.25rem;
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      transition: background 0.15s;
+    }
+    .ticket:last-child { border-bottom: none; }
+    .ticket:hover { background: #ffffff05; }
+
+    .ticket-id { font-size: 0.7rem; color: var(--accent); font-weight: 600; min-width: 45px; }
+    .ticket-title { font-size: 0.85rem; flex: 1; }
+    .ticket-status {
+      font-size: 0.65rem;
+      border-radius: 10px;
+      padding: 0.2rem 0.6rem;
+      font-weight: 500;
+    }
+    .status-todo { background: #21262d; color: var(--muted); }
+    .status-progress { background: #1f2d45; color: var(--accent); }
+    .status-done { background: #1a2e1a; color: var(--green); }
+
+    /* ── Services ── */
+    .service {
+      padding: 0.85rem 1.25rem;
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+    }
+    .service:last-child { border-bottom: none; }
+
+    .svc-dot {
+      width: 9px; height: 9px;
+      border-radius: 50%;
+      flex-shrink: 0;
+    }
+    .svc-dot.green { background: var(--green); box-shadow: 0 0 6px var(--green); }
+    .svc-dot.yellow { background: var(--yellow); box-shadow: 0 0 6px var(--yellow); }
+
+    .svc-name { font-size: 0.85rem; flex: 1; }
+    .svc-detail { font-size: 0.72rem; color: var(--muted); }
+    .svc-lat { font-size: 0.78rem; color: var(--accent); font-weight: 500; }
+
+    /* ── Activity ── */
+    .activity-feed {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      overflow: hidden;
+      margin-bottom: 2rem;
+    }
+
+    .activity-item {
+      padding: 0.85rem 1.25rem;
+      border-bottom: 1px solid #ffffff06;
+      display: flex;
+      align-items: flex-start;
+      gap: 0.85rem;
+    }
+    .activity-item:last-child { border-bottom: none; }
+
+    .activity-avatar {
+      width: 32px; height: 32px;
+      border-radius: 8px;
+      background: #1f2d45;
+      border: 1px solid #1f6feb44;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 0.9rem;
+      flex-shrink: 0;
+    }
+    .activity-body .msg { font-size: 0.85rem; color: var(--text); }
+    .activity-body .meta { font-size: 0.72rem; color: var(--muted); margin-top: 0.15rem; }
+    .activity-body .meta strong { color: var(--accent); }
+
+    /* ── Connections ── */
+    .connections {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+      gap: 1rem;
+      margin-bottom: 2rem;
+    }
+
+    .connection-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 1.25rem;
+      text-align: center;
+      transition: border-color 0.2s;
+    }
+    .connection-card:hover { border-color: #3fb95044; }
+
+    .conn-icon { font-size: 1.8rem; margin-bottom: 0.5rem; }
+    .conn-name { font-size: 0.85rem; font-weight: 600; margin-bottom: 0.25rem; }
+    .conn-status { font-size: 0.7rem; color: var(--green); }
+    .conn-detail { font-size: 0.68rem; color: var(--muted); margin-top: 0.2rem; }
+
+    /* ── Footer ── */
+    footer {
+      text-align: center;
+      padding: 1.5rem;
+      font-size: 0.72rem;
+      color: #484f58;
+      border-top: 1px solid var(--border);
+    }
+    footer span { color: var(--accent); font-weight: 600; }
+
+    .section-label {
+      font-size: 0.72rem;
+      font-weight: 600;
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      margin-bottom: 0.75rem;
+    }
+  </style>
+</head>
+<body>
+
+  <header>
+    <div class="logo">
+      <div class="logo-icon">⚕️</div>
+      <div class="logo-text">
+        <h1>Health Stack</h1>
+        <p>Command Center</p>
+      </div>
+    </div>
+    <div class="header-right">
+      <div class="status-pill"><div class="dot"></div> Sistema operativo</div>
+      <div class="identity-badge">Claude Architect · CTO Operativo</div>
+    </div>
+  </header>
+
+  <main>
+
+    <!-- Hero -->
+    <div class="hero">
+      <div class="hero-text">
+        <h2>Bienvenido, <span>Claude Architect</span></h2>
+        <p>Identidad de CTO Operativo activada. Acceso completo a repositorio, Linear y Slack.<br>
+           Equipo HEA conectado — listo para ejecutar el primer ticket.</p>
+      </div>
+      <div class="hero-stats">
+        <div class="hero-stat"><div class="n">4</div><div class="l">Tickets HEA</div></div>
+        <div class="hero-stat"><div class="n">3</div><div class="l">Ramas</div></div>
+        <div class="hero-stat"><div class="n">99.8%</div><div class="l">Uptime</div></div>
+      </div>
+    </div>
+
+    <!-- Métricas -->
+    <div class="section-label">Métricas del sistema</div>
+    <div class="grid-4">
+      <div class="metric-card">
+        <div class="icon">👥</div>
+        <div class="label">Usuarios activos</div>
+        <div class="value">1,284</div>
+        <div class="trend up">↑ 12% esta semana</div>
+      </div>
+      <div class="metric-card">
+        <div class="icon">📡</div>
+        <div class="label">API Latency p95</div>
+        <div class="value">124ms</div>
+        <div class="trend warn">↑ Ligeramente elevada</div>
+      </div>
+      <div class="metric-card">
+        <div class="icon">🔄</div>
+        <div class="label">Sesiones hoy</div>
+        <div class="value">347</div>
+        <div class="trend up">↑ 8% vs ayer</div>
+      </div>
+      <div class="metric-card">
+        <div class="icon">⚡</div>
+        <div class="label">Uptime 30d</div>
+        <div class="value">99.8%</div>
+        <div class="trend neutral">Estable</div>
+      </div>
+    </div>
+
+    <!-- Tickets + Servicios -->
+    <div class="two-col">
+      <div class="panel">
+        <div class="panel-header">
+          <h3>Tickets equipo HEA</h3>
+          <span class="count">4 abiertos</span>
+        </div>
+        <div class="ticket">
+          <span class="ticket-id">HEA-1</span>
+          <span class="ticket-title">Get familiar with Linear</span>
+          <span class="ticket-status status-todo">Todo</span>
+        </div>
+        <div class="ticket">
+          <span class="ticket-id">HEA-2</span>
+          <span class="ticket-title">Set up your teams</span>
+          <span class="ticket-status status-todo">Todo</span>
+        </div>
+        <div class="ticket">
+          <span class="ticket-id">HEA-3</span>
+          <span class="ticket-title">Connect your tools</span>
+          <span class="ticket-status status-todo">Todo</span>
+        </div>
+        <div class="ticket">
+          <span class="ticket-id">HEA-4</span>
+          <span class="ticket-title">Import your data</span>
+          <span class="ticket-status status-todo">Todo</span>
+        </div>
+      </div>
+
+      <div class="panel">
+        <div class="panel-header">
+          <h3>Estado de servicios</h3>
+          <span class="count">5 activos</span>
+        </div>
+        <div class="service">
+          <div class="svc-dot green"></div>
+          <div style="flex:1">
+            <div class="svc-name">Backend API</div>
+            <div class="svc-detail">FastAPI · Docker · Prod</div>
+          </div>
+          <div class="svc-lat">82ms</div>
+        </div>
+        <div class="service">
+          <div class="svc-dot green"></div>
+          <div style="flex:1">
+            <div class="svc-name">Base de datos</div>
+            <div class="svc-detail">PostgreSQL · Alembic</div>
+          </div>
+          <div class="svc-lat">12ms</div>
+        </div>
+        <div class="service">
+          <div class="svc-dot green"></div>
+          <div style="flex:1">
+            <div class="svc-name">Frontend Web</div>
+            <div class="svc-detail">Nginx · Cloudflare</div>
+          </div>
+          <div class="svc-lat">34ms</div>
+        </div>
+        <div class="service">
+          <div class="svc-dot yellow"></div>
+          <div style="flex:1">
+            <div class="svc-name">Mobile App</div>
+            <div class="svc-detail">feat/mobile · En desarrollo</div>
+          </div>
+          <div class="svc-lat">—</div>
+        </div>
+        <div class="service">
+          <div class="svc-dot green"></div>
+          <div style="flex:1">
+            <div class="svc-name">Pi Server</div>
+            <div class="svc-detail">feat/pi-server · Raspberry</div>
+          </div>
+          <div class="svc-lat">61ms</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Conexiones -->
+    <div class="section-label">Integraciones activas</div>
+    <div class="connections">
+      <div class="connection-card">
+        <div class="conn-icon">💬</div>
+        <div class="conn-name">Slack</div>
+        <div class="conn-status">● Conectado</div>
+        <div class="conn-detail">healthstackgroup · #all-health-stack</div>
+      </div>
+      <div class="connection-card">
+        <div class="conn-icon">📋</div>
+        <div class="conn-name">Linear</div>
+        <div class="conn-status">● Conectado</div>
+        <div class="conn-detail">Equipo HEA · 4 tickets</div>
+      </div>
+      <div class="connection-card">
+        <div class="conn-icon">🐙</div>
+        <div class="conn-name">GitHub</div>
+        <div class="conn-status">● Conectado</div>
+        <div class="conn-detail">RubenGZ/Health_Stack · main</div>
+      </div>
+      <div class="connection-card">
+        <div class="conn-icon">🤖</div>
+        <div class="conn-name">Claude Architect</div>
+        <div class="conn-status">● Online</div>
+        <div class="conn-detail">CTO Operativo · Activo</div>
+      </div>
+    </div>
+
+    <!-- Actividad -->
+    <div class="section-label">Actividad reciente</div>
+    <div class="activity-feed">
+      <div class="activity-item">
+        <div class="activity-avatar">🤖</div>
+        <div class="activity-body">
+          <div class="msg">Identidad <strong>Claude Architect</strong> activada — CTO Operativo online</div>
+          <div class="meta"><strong>Claude Architect</strong> · Hoy · 2026-05-13</div>
+        </div>
+      </div>
+      <div class="activity-item">
+        <div class="activity-avatar">🔑</div>
+        <div class="activity-body">
+          <div class="msg">Credenciales configuradas — Slack, Linear y GitHub sincronizados</div>
+          <div class="meta"><strong>Sistema</strong> · infra/automation/config.json</div>
+        </div>
+      </div>
+      <div class="activity-item">
+        <div class="activity-avatar">📁</div>
+        <div class="activity-body">
+          <div class="msg">Repositorio clonado en local — rama main sincronizada con origin</div>
+          <div class="meta"><strong>GitHub</strong> · RubenGZ/Health_Stack · commit 665740a</div>
+        </div>
+      </div>
+      <div class="activity-item">
+        <div class="activity-avatar">📋</div>
+        <div class="activity-body">
+          <div class="msg">4 tickets del equipo HEA listados — HEA-1 marcado como próximo</div>
+          <div class="meta"><strong>Linear</strong> · Equipo Health Stack</div>
+        </div>
+      </div>
+      <div class="activity-item">
+        <div class="activity-avatar">💬</div>
+        <div class="activity-body">
+          <div class="msg">Presentación enviada a RGM y JPM en #all-health-stack</div>
+          <div class="meta"><strong>Slack</strong> · healthstackgroup</div>
+        </div>
+      </div>
+    </div>
+
+  </main>
+
+  <footer>
+    Health Stack Command Center &mdash; Operado por <span>Claude Architect</span> &mdash; 2026
+  </footer>
+
+</body>
+</html>

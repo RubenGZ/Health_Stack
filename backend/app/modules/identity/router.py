@@ -26,6 +26,7 @@ NO hace:
 
 
 import logging
+import secrets
 from datetime import UTC, datetime
 
 from fastapi import APIRouter, Depends, HTTPException, Query, Request, status
@@ -279,19 +280,40 @@ async def logout(
 async def google_redirect(request: Request) -> RedirectResponse:
     """
     Genera la URL de consentimiento de Google y redirige al usuario.
-    El parámetro `state` actúa como nonce CSRF — en producción con sesiones
-    se debería almacenar en la cookie de sesión para verificarlo en el callback.
+    El parámetro `state` es un nonce CSRF aleatorio almacenado en una cookie
+    httpOnly para ser verificado en el callback.
     """
+    # Generar nonce CSRF aleatorio
+    state = secrets.token_urlsafe(32)
+
     try:
         from app.core.security.google_oauth import build_auth_url
-        url, state = build_auth_url()
+        url, _google_state = build_auth_url()
+        # Reemplazamos el state generado por google_oauth con el nuestro para
+        # mantener consistencia — pasamos state propio en la URL
+        from urllib.parse import urlencode, urlparse, parse_qs, urlunparse
+        parsed = urlparse(url)
+        params = parse_qs(parsed.query, keep_blank_values=True)
+        params["state"] = [state]
+        new_query = urlencode({k: v[0] for k, v in params.items()})
+        url = urlunparse(parsed._replace(query=new_query))
     except ValueError as exc:
         raise HTTPException(
             status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
             detail=f"Google OAuth no está configurado: {exc}",
         )
-    # En producción: guardar state en cookie firmada y verificarlo en callback
-    return RedirectResponse(url=url, status_code=status.HTTP_302_FOUND)
+
+    # Redirigir a Google y adjuntar cookie con el state para verificación CSRF
+    response = RedirectResponse(url=url, status_code=status.HTTP_302_FOUND)
+    response.set_cookie(
+        "oauth_state",
+        state,
+        httponly=True,
+        samesite="lax",
+        secure=True,
+        max_age=600,  # 10 minutos — el flujo OAuth debe completarse antes
+    )
+    return response
 
 
 # ── GET /google/callback ──────────────────────────────────────────────────────
@@ -316,29 +338,49 @@ async def google_callback(
 ) -> RedirectResponse:
     """
     Flujo OAuth callback:
-    1. Verificar que no hay error de Google (ej. usuario canceló)
-    2. Obtener perfil de Google (email, nombre) usando el code
-    3. Buscar usuario por email — crear si no existe
-    4. Emitir JWT HealthStack
-    5. Redirigir al frontend con el token en el fragmento URL (#)
+    1. Verificar CSRF: comparar state del query param con la cookie oauth_state
+    2. Verificar que no hay error de Google (ej. usuario canceló)
+    3. Obtener perfil de Google (email, nombre) usando el code
+    4. Buscar usuario por email — crear si no existe
+    5. Emitir JWT HealthStack
+    6. Redirigir al frontend con el token en el fragmento URL (#)
     """
-    # 1. Error de Google (usuario canceló el consentimiento, etc.)
+    # 1. Verificación CSRF — comparar state recibido de Google con la cookie
+    cookie_state = request.cookies.get("oauth_state")
+    if not cookie_state or not state or not secrets.compare_digest(cookie_state, state):
+        logger.warning(
+            "Google OAuth CSRF mismatch: cookie_state=%s state_param=%s",
+            bool(cookie_state),
+            bool(state),
+        )
+        response = RedirectResponse(url="/?auth_error=csrf_mismatch", status_code=302)
+        response.delete_cookie("oauth_state")
+        return response
+
+    # 2. Error de Google (usuario canceló el consentimiento, etc.)
     if error:
         logger.warning(f"Google OAuth error: {error}")
-        return RedirectResponse(url="/?auth_error=google_denied", status_code=302)
+        response = RedirectResponse(url="/?auth_error=google_denied", status_code=302)
+        response.delete_cookie("oauth_state")
+        return response
 
     if not code:
-        return RedirectResponse(url="/?auth_error=no_code", status_code=302)
+        response = RedirectResponse(url="/?auth_error=no_code", status_code=302)
+        response.delete_cookie("oauth_state")
+        return response
 
-    # 2. Obtener perfil de Google
+    # 3. Obtener perfil de Google
     try:
         from app.core.security.google_oauth import get_user_from_google_code
         google_user = await get_user_from_google_code(code)
     except Exception as exc:
         logger.error(f"Error obteniendo perfil de Google: {exc}")
-        return RedirectResponse(url="/?auth_error=google_failed", status_code=302)
+        response = RedirectResponse(url="/?auth_error=google_failed", status_code=302)
+        response.delete_cookie("oauth_state")
+        return response
 
-    # 3. Buscar o crear usuario
+
+    # 4. Buscar o crear usuario
     email        = google_user["email"]
     display_name = google_user.get("display_name") or email.split("@")[0]
 
@@ -364,7 +406,7 @@ async def google_callback(
         await UserRepository.update_last_login(db, str(user.id))
         logger.info(f"Login via Google OAuth: {str(user.id)[:8]}...")
 
-    # 4. Emitir tokens JWT HealthStack
+    # 5. Emitir tokens JWT HealthStack
     access_token  = create_access_token(
         user_id=str(user.id),
         email=user.email,
@@ -381,7 +423,7 @@ async def google_callback(
         expires_at=datetime.fromtimestamp(_rt_payload["exp"], tz=UTC),
     )
 
-    # 5. Redirigir al frontend con los tokens en el fragmento (#)
+    # 6. Redirigir al frontend con los tokens en el fragmento (#)
     #    El JS del frontend lee el hash y almacena los tokens en localStorage
     from app.core.config import get_settings
     settings = get_settings()
@@ -396,7 +438,10 @@ async def google_callback(
         f"&refresh_token={refresh_token}"
         f"&token_type=bearer"
     )
-    return RedirectResponse(url=redirect_url, status_code=302)
+    # Borrar la cookie CSRF — el flujo se completó correctamente
+    response = RedirectResponse(url=redirect_url, status_code=302)
+    response.delete_cookie("oauth_state")
+    return response
 
 
 # ── ADMIN ENDPOINTS ───────────────────────────────────────────────────────────

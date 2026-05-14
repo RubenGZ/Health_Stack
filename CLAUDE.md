@@ -5,6 +5,15 @@
 
 ---
 
+## gstack
+
+Instalado en `~/.claude/skills/gstack` (v1.33.2.0). Usa los skills de gstack para todas las tareas de ingeniería.
+
+- Para navegación web usa siempre `/browse` — nunca usar `mcp__claude-in-chrome__*` directamente.
+- Skills disponibles: `/office-hours`, `/plan-ceo-review`, `/plan-eng-review`, `/plan-design-review`, `/design-consultation`, `/design-shotgun`, `/design-html`, `/review`, `/ship`, `/land-and-deploy`, `/canary`, `/benchmark`, `/browse`, `/connect-chrome`, `/qa`, `/qa-only`, `/design-review`, `/setup-browser-cookies`, `/setup-deploy`, `/setup-gbrain`, `/retro`, `/investigate`, `/document-release`, `/codex`, `/cso`, `/autoplan`, `/plan-devex-review`, `/devex-review`, `/careful`, `/freeze`, `/guard`, `/unfreeze`, `/gstack-upgrade`, `/learn`
+
+---
+
 ## Qué es esto
 
 App de salud personal. Backend FastAPI + PostgreSQL. Dos frontends: una SPA en vanilla JS
@@ -150,16 +159,10 @@ python test_launcher.py status
 
 ## Monetización — Estado (2026-04-25)
 
-### Google AdSense ⚠️ ACCIÓN REQUERIDA ANTES DE PRODUCCIÓN
-Integrado en `frontend/index.html`. Dos placements:
-1. **Dashboard banner** — `#sponsor-banner` debajo de quick-actions, formato horizontal 100%×90px
-2. **Footer ad** — `.footer-right`, tamaño 300×50px
-
-**IMPORTANTE:** Antes de hacer deploy hay que reemplazar en `frontend/index.html`:
-- `ca-pub-XXXXXXXXXXXXXXXX` (3 apariciones: 1 en `<script>` del `<head>` + 2 en `data-ad-client`) → Publisher ID real de AdSense
-- `data-ad-slot="0987654321"` → Ad Unit ID del banner dashboard
-- `data-ad-slot="1234567890"` → Ad Unit ID del footer
-- Los ads NO se ven en localhost. Solo funcionan en el dominio aprobado por AdSense.
+### Google AdSense ⚠️ CONFIGURAR ANTES DE PRODUCCIÓN
+IDs reales en `frontend/.env.adsense` (gitignored). Para aplicar:
+- `scripts/apply-adsense.ps1` — parchea index.html con IDs reales
+- `scripts/revert-adsense.ps1` — revierte a placeholders antes de git commit
 
 ### Geo-pricing — `/api/geo-price` ✅
 Módulo en `backend/app/modules/geopricing/router.py`. Endpoint público (sin JWT).
@@ -189,7 +192,7 @@ Si se añaden features premium futuras, se agregan como índice 4+ en PLAN_OK.
 3. **ruff + mypy** — en `requirements.txt`, configurar en `pyproject.toml`
 4. **Rotación de MASTER_KEY** — documentar procedimiento y automatizarlo
 5. **TODO en `identity/router.py`** — revisar la nota de Fase 2 seguridad
-6. **AdSense IDs** — reemplazar placeholders antes de producción (ver sección Monetización)
+6. **AdSense IDs** — rellenar `frontend/.env.adsense` y ejecutar `scripts/apply-adsense.ps1` antes de deploy
 7. **AI Insights cache DB** — tabla `ai_insights_cache` para persistir resultados del scheduler semanal
 
 ---

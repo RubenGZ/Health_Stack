@@ -1,0 +1,302 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Health Stack — Dashboard</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      font-family: 'Segoe UI', system-ui, sans-serif;
+      background: #0d1117;
+      color: #e6edf3;
+      min-height: 100vh;
+    }
+
+    header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 1.25rem 2rem;
+      border-bottom: 1px solid #21262d;
+      background: #161b22;
+    }
+
+    header h1 {
+      font-size: 1.2rem;
+      font-weight: 600;
+      color: #58a6ff;
+      letter-spacing: 0.5px;
+    }
+
+    .badge {
+      font-size: 0.75rem;
+      background: #1f6feb33;
+      color: #58a6ff;
+      border: 1px solid #1f6feb66;
+      border-radius: 20px;
+      padding: 0.2rem 0.75rem;
+    }
+
+    main {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 2rem;
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 1.25rem;
+      margin-bottom: 2rem;
+    }
+
+    .card {
+      background: #161b22;
+      border: 1px solid #21262d;
+      border-radius: 12px;
+      padding: 1.5rem;
+      transition: border-color 0.2s;
+    }
+
+    .card:hover { border-color: #58a6ff55; }
+
+    .card .label {
+      font-size: 0.75rem;
+      color: #8b949e;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      margin-bottom: 0.5rem;
+    }
+
+    .card .value {
+      font-size: 2rem;
+      font-weight: 700;
+      color: #e6edf3;
+    }
+
+    .card .sub {
+      font-size: 0.8rem;
+      color: #3fb950;
+      margin-top: 0.3rem;
+    }
+
+    .card .sub.warn { color: #d29922; }
+    .card .sub.neutral { color: #8b949e; }
+
+    .section-title {
+      font-size: 0.9rem;
+      font-weight: 600;
+      color: #8b949e;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      margin-bottom: 1rem;
+    }
+
+    .services {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 1rem;
+      margin-bottom: 2rem;
+    }
+
+    .service {
+      background: #161b22;
+      border: 1px solid #21262d;
+      border-radius: 10px;
+      padding: 1rem 1.25rem;
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+    }
+
+    .dot {
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      flex-shrink: 0;
+    }
+
+    .dot.green { background: #3fb950; box-shadow: 0 0 6px #3fb95088; }
+    .dot.yellow { background: #d29922; box-shadow: 0 0 6px #d2992288; }
+    .dot.red { background: #f85149; box-shadow: 0 0 6px #f8514988; }
+
+    .service-info { flex: 1; }
+    .service-name { font-size: 0.9rem; font-weight: 500; }
+    .service-detail { font-size: 0.75rem; color: #8b949e; margin-top: 0.15rem; }
+
+    .service-latency {
+      font-size: 0.8rem;
+      color: #58a6ff;
+      font-weight: 500;
+    }
+
+    .activity {
+      background: #161b22;
+      border: 1px solid #21262d;
+      border-radius: 12px;
+      padding: 1.25rem;
+    }
+
+    .activity-item {
+      display: flex;
+      align-items: flex-start;
+      gap: 0.75rem;
+      padding: 0.75rem 0;
+      border-bottom: 1px solid #21262d22;
+    }
+
+    .activity-item:last-child { border-bottom: none; }
+
+    .activity-icon {
+      font-size: 1rem;
+      width: 28px;
+      height: 28px;
+      border-radius: 6px;
+      background: #21262d;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+
+    .activity-text { font-size: 0.85rem; color: #c9d1d9; }
+    .activity-time { font-size: 0.75rem; color: #8b949e; margin-top: 0.15rem; }
+
+    footer {
+      text-align: center;
+      padding: 1.5rem;
+      font-size: 0.75rem;
+      color: #484f58;
+      border-top: 1px solid #21262d;
+      margin-top: 2rem;
+    }
+
+    footer span { color: #58a6ff; }
+  </style>
+</head>
+<body>
+
+  <header>
+    <h1>Health Stack — Dashboard</h1>
+    <span class="badge">Claude Architect</span>
+  </header>
+
+  <main>
+
+    <div class="grid">
+      <div class="card">
+        <div class="label">Usuarios activos</div>
+        <div class="value">1,284</div>
+        <div class="sub">↑ 12% esta semana</div>
+      </div>
+      <div class="card">
+        <div class="label">Sesiones hoy</div>
+        <div class="value">347</div>
+        <div class="sub">↑ 8% vs ayer</div>
+      </div>
+      <div class="card">
+        <div class="label">API Latency (p95)</div>
+        <div class="value">124ms</div>
+        <div class="sub warn">↑ ligeramente elevada</div>
+      </div>
+      <div class="card">
+        <div class="label">Uptime</div>
+        <div class="value">99.8%</div>
+        <div class="sub neutral">Últimos 30 días</div>
+      </div>
+    </div>
+
+    <div class="section-title">Estado de servicios</div>
+    <div class="services">
+      <div class="service">
+        <div class="dot green"></div>
+        <div class="service-info">
+          <div class="service-name">Backend API</div>
+          <div class="service-detail">FastAPI · Docker · Prod</div>
+        </div>
+        <div class="service-latency">82ms</div>
+      </div>
+      <div class="service">
+        <div class="dot green"></div>
+        <div class="service-info">
+          <div class="service-name">Base de datos</div>
+          <div class="service-detail">PostgreSQL · Alembic</div>
+        </div>
+        <div class="service-latency">12ms</div>
+      </div>
+      <div class="service">
+        <div class="dot green"></div>
+        <div class="service-info">
+          <div class="service-name">Frontend Web</div>
+          <div class="service-detail">Nginx · Cloudflare</div>
+        </div>
+        <div class="service-latency">34ms</div>
+      </div>
+      <div class="service">
+        <div class="dot yellow"></div>
+        <div class="service-info">
+          <div class="service-name">Mobile App</div>
+          <div class="service-detail">feat/mobile · En desarrollo</div>
+        </div>
+        <div class="service-latency">—</div>
+      </div>
+      <div class="service">
+        <div class="dot green"></div>
+        <div class="service-info">
+          <div class="service-name">Pi Server</div>
+          <div class="service-detail">feat/pi-server · Raspberry</div>
+        </div>
+        <div class="service-latency">61ms</div>
+      </div>
+      <div class="service">
+        <div class="dot green"></div>
+        <div class="service-info">
+          <div class="service-name">CI / CD</div>
+          <div class="service-detail">GitHub Actions</div>
+        </div>
+        <div class="service-latency">OK</div>
+      </div>
+    </div>
+
+    <div class="section-title">Actividad reciente</div>
+    <div class="activity">
+      <div class="activity-item">
+        <div class="activity-icon">🤖</div>
+        <div>
+          <div class="activity-text">Claude Architect se une al equipo — acceso total configurado</div>
+          <div class="activity-time">Hoy · 2026-05-13</div>
+        </div>
+      </div>
+      <div class="activity-item">
+        <div class="activity-icon">🔧</div>
+        <div>
+          <div class="activity-text">fix(nginx): update /mobile/ location to use direct volume mount path</div>
+          <div class="activity-time">Último commit · main</div>
+        </div>
+      </div>
+      <div class="activity-item">
+        <div class="activity-icon">📋</div>
+        <div>
+          <div class="activity-text">4 tickets activos en Linear — equipo HEA</div>
+          <div class="activity-time">Linear · Health Stack</div>
+        </div>
+      </div>
+      <div class="activity-item">
+        <div class="activity-icon">🚀</div>
+        <div>
+          <div class="activity-text">Workspace inicializado: repo clonado, Linear y Slack conectados</div>
+          <div class="activity-time">Setup completo</div>
+        </div>
+      </div>
+    </div>
+
+  </main>
+
+  <footer>
+    Health Stack &mdash; Operado por <span>Claude Architect</span> &mdash; 2026
+  </footer>
+
+</body>
+</html>

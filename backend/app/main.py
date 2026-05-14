@@ -403,7 +403,14 @@ app.include_router(
 from app.core.scheduler import start_scheduler, stop_scheduler
 
 @app.on_event("startup")
-async def startup_scheduler() -> None:
+async def startup_checks() -> None:
+    if settings.app_env == "production":
+        origins_raw = getattr(settings, "allowed_origins", "") or ""
+        if not origins_raw.strip():
+            logger.critical(
+                "PRODUCCIÓN SIN ALLOWED_ORIGINS: CORS permite cualquier origen. "
+                "Configura ALLOWED_ORIGINS en .env antes de servir tráfico real."
+            )
     start_scheduler()
 
 @app.on_event("shutdown")

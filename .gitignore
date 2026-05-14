@@ -70,3 +70,6 @@ backend/tmp_openapi.json
 # ── Claude Code ───────────────────────────────────────────────────────────────
 .claude/
 .gstack/
+
+# ── Automatización / Credenciales Claude Architect ────────────────────────────
+infra/automation/config.json

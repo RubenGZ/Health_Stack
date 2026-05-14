@@ -7,7 +7,7 @@ import { DRACOLoader } from 'three/addons/loaders/DRACOLoader.js';
 import { getScene } from './scene.js';
 
 const MODEL_URL = '/models/anatomy_lens.glb';
-const LOAD_TIMEOUT_MS = 10_000;
+const LOAD_TIMEOUT_MS = 30_000;
 
 // Base material shared reference — cloned per mesh for independent highlighting
 const BASE_MATERIAL = new THREE.MeshStandardMaterial({

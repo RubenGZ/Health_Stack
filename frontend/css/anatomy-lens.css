@@ -1,0 +1,109 @@
+/* anatomy-lens.css
+ * Prefijo al- en clases que colisionan con main.css (.legend-dot ya existe)
+ * Variables heredadas de main.css: --radius, --radius-lg, --bg-surface, etc.
+ */
+
+/* ── Contenedor principal del canvas 3D ── */
+.anatomy-lens-container {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 9 / 16;
+  max-height: 480px;
+  background: var(--bg-surface, #07070f);
+  border-radius: var(--radius-lg, 16px);
+  overflow: hidden;
+  margin-bottom: 12px;
+}
+
+/* SVG original: oculto cuando el 3D está activo, visible en fallback */
+.anatomy-svg-hidden-by-default {
+  display: none;
+}
+.anatomy-svg-hidden-by-default.al-fallback-active {
+  display: block;
+}
+
+/* ── Canvas Three.js ── */
+.anatomy-lens-canvas {
+  width: 100%;
+  height: 100%;
+  display: block;
+}
+
+/* ── Loading state: shimmer + progreso ── */
+.anatomy-lens-loading {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  background: var(--bg-surface, #07070f);
+  transition: opacity 0.4s ease;
+}
+
+.anatomy-lens-loading.al-hidden {
+  opacity: 0;
+  pointer-events: none;
+}
+
+.anatomy-lens-loading-text {
+  font-size: 12px;
+  color: rgba(255, 255, 255, 0.4);
+  letter-spacing: 0.05em;
+}
+
+.anatomy-lens-progress {
+  width: 120px;
+  height: 2px;
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 1px;
+  overflow: hidden;
+}
+
+.anatomy-lens-progress-bar {
+  height: 100%;
+  width: 0%;
+  background: #6c63ff;
+  transition: width 0.3s ease;
+}
+
+/* ── Leyenda 3D (prefijo al- para no colisionar con .legend-dot de main.css) ── */
+.anatomy-legend-3d {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  padding: 8px 0;
+  opacity: 0;
+  transition: opacity 0.4s ease;
+}
+
+.anatomy-legend-3d.al-visible {
+  opacity: 1;
+}
+
+.al-legend-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  display: inline-block;
+  margin-right: 4px;
+  flex-shrink: 0;
+}
+
+.al-legend-dot.primary {
+  background: #6c63ff;
+  box-shadow: 0 0 6px #6c63ff;
+}
+
+.al-legend-dot.secondary {
+  background: #00d2ff;
+}
+
+.al-legend-group {
+  display: flex;
+  align-items: center;
+  font-size: 12px;
+  color: rgba(255, 255, 255, 0.7);
+}

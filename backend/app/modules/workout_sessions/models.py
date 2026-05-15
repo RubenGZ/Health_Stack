@@ -34,7 +34,7 @@ class WorkoutSession(Base):
         nullable=False,
         index=True,
     )
-    routine_id      = Column(Integer, ForeignKey("public.saved_routines.id"), nullable=True)
+    routine_id      = Column(UUID(as_uuid=True), ForeignKey("public.saved_routines.id"), nullable=True)
     started_at      = Column(DateTime(timezone=True), nullable=False)
     finished_at     = Column(DateTime(timezone=True), nullable=True)
     duration_secs   = Column(Integer, nullable=True)

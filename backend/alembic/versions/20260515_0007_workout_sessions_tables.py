@@ -22,7 +22,7 @@ def upgrade() -> None:
         'workout_sessions',
         sa.Column('id', sa.Integer(), autoincrement=True, nullable=False),
         sa.Column('user_id', postgresql.UUID(as_uuid=True), nullable=False),
-        sa.Column('routine_id', sa.Integer(), nullable=True),
+        sa.Column('routine_id', postgresql.UUID(as_uuid=True), nullable=True),
         sa.Column('started_at', sa.DateTime(timezone=True), nullable=False),
         sa.Column('finished_at', sa.DateTime(timezone=True), nullable=True),
         sa.Column('duration_secs', sa.Integer(), nullable=True),

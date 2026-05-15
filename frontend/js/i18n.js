@@ -219,8 +219,10 @@
     // Close on outside click
     document.addEventListener('click', e => {
       if (!wrap.contains(e.target)) {
-        document.getElementById('hs-lang-dd').style.display = 'none'
-        document.getElementById('hs-lang-chevron').style.transform = ''
+        const dd  = document.getElementById('hs-lang-dd')
+        const chv = document.getElementById('hs-lang-chevron')
+        if (dd)  dd.style.display = 'none'
+        if (chv) chv.style.transform = ''
       }
     })
   }

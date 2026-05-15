@@ -90,13 +90,34 @@ const MUSCLE_TO_IDS = {
 let _muscleData   = null;
 let _nextInstance = 0;
 
+// CDNs en orden de fiabilidad — se prueban en cascada si la anterior falla
+const BODY_MUSCLES_CDNS = [
+  'https://cdn.jsdelivr.net/npm/body-muscles@1.0.0/+esm',
+  'https://esm.sh/body-muscles@1.0.0',
+  'https://unpkg.com/body-muscles@1.0.0/dist/index.mjs',
+];
+
 async function loadMuscleData() {
   if (_muscleData) return;
-  const { MUSCLE_MAP } = await import('https://esm.sh/body-muscles@1.0.0');
-  if (!MUSCLE_MAP || typeof MUSCLE_MAP !== 'object') {
-    throw new Error('body-muscles: MUSCLE_MAP inválido');
+
+  let lastErr;
+  for (const cdn of BODY_MUSCLES_CDNS) {
+    try {
+      // eslint-disable-next-line no-await-in-loop
+      const mod = await import(/* @vite-ignore */ cdn);
+      // El paquete puede exportar como named o como default
+      const MUSCLE_MAP = mod.MUSCLE_MAP ?? mod.default?.MUSCLE_MAP ?? mod.default;
+      if (!MUSCLE_MAP || typeof MUSCLE_MAP !== 'object' || !Object.keys(MUSCLE_MAP).length) {
+        throw new Error('MUSCLE_MAP vacío o inválido');
+      }
+      _muscleData = Object.values(MUSCLE_MAP);
+      return; // éxito
+    } catch (err) {
+      lastErr = err;
+      console.warn('[AnatomyLens] CDN falló, probando siguiente:', cdn, err.message);
+    }
   }
-  _muscleData = Object.values(MUSCLE_MAP);
+  throw lastErr ?? new Error('body-muscles: ningún CDN disponible');
 }
 
 function showLoading(container) {

@@ -158,12 +158,17 @@ function buildSVG(muscles, instanceId) {
   `;
   svg.appendChild(defs);
 
+  // Grupo de zoom/pan — todo el contenido visual va aquí para poder transformarlo
+  const zoomGroup = document.createElementNS(SVG_NS, 'g');
+  zoomGroup.classList.add('al-zoom-group');
+  svg.appendChild(zoomGroup);
+
   const sep = document.createElementNS(SVG_NS, 'line');
   sep.setAttribute('x1', '36'); sep.setAttribute('y1', '3');
   sep.setAttribute('x2', '36'); sep.setAttribute('y2', '89');
   sep.setAttribute('stroke', '#ffffff0a');
   sep.setAttribute('stroke-width', '0.25');
-  svg.appendChild(sep);
+  zoomGroup.appendChild(sep);
 
   ['FRENTE', 'ESPALDA'].forEach((labelText, i) => {
     const t = document.createElementNS(SVG_NS, 'text');
@@ -175,7 +180,7 @@ function buildSVG(muscles, instanceId) {
     t.setAttribute('font-family', 'system-ui, sans-serif');
     t.setAttribute('letter-spacing', '0.8');
     t.textContent = labelText;
-    svg.appendChild(t);
+    zoomGroup.appendChild(t);
   });
 
   const bgGroup = document.createElementNS(SVG_NS, 'g');
@@ -188,7 +193,7 @@ function buildSVG(muscles, instanceId) {
     p.style.opacity = '0.07';
     bgGroup.appendChild(p);
   });
-  svg.appendChild(bgGroup);
+  zoomGroup.appendChild(bgGroup);
 
   const interGroup = document.createElementNS(SVG_NS, 'g');
   interGroup.classList.add('al-muscles');
@@ -202,9 +207,9 @@ function buildSVG(muscles, instanceId) {
     p.style.transition = 'fill 0.35s ease, stroke 0.35s ease';
     interGroup.appendChild(p);
   });
-  svg.appendChild(interGroup);
+  zoomGroup.appendChild(interGroup);
 
-  return { svg, interGroup, filterId1, filterId2 };
+  return { svg, interGroup, filterId1, filterId2, zoomGroup };
 }
 
 // ── Interpolación de color para overlay ─────────────────────────────────────
@@ -244,6 +249,132 @@ export function createViewer() {
   let _observer      = null;
   let _lastOverlay   = null;
 
+  // ── Zoom / pan state ─────────────────────────────────────────────────────
+  let _zoomGroup  = null;
+  let _zoom       = 1;
+  let _panX       = 0;
+  let _panY       = 0;
+  const ZOOM_MIN  = 0.9;
+  const ZOOM_MAX  = 6;
+  // viewBox dimensions
+  const VB_W = 72, VB_H = 93;
+
+  function _applyTransform() {
+    if (!_zoomGroup) return;
+    _zoomGroup.setAttribute('transform', `translate(${_panX},${_panY}) scale(${_zoom})`);
+    if (_svg) _svg.style.cursor = _zoom > 1.05 ? 'grab' : 'default';
+  }
+
+  function _resetZoom() {
+    _zoom = 1; _panX = 0; _panY = 0;
+    _applyTransform();
+  }
+
+  function _clampPan() {
+    // Evitar que el contenido salga del viewBox más de un 30%
+    const margin = VB_W * 0.3;
+    const scaledW = VB_W * _zoom;
+    const scaledH = VB_H * _zoom;
+    _panX = Math.max(-(scaledW - VB_W) - margin, Math.min(margin, _panX));
+    _panY = Math.max(-(scaledH - VB_H) - margin, Math.min(margin, _panY));
+  }
+
+  function _initZoom() {
+    if (!_svg) return;
+
+    // ── Rueda de ratón (desktop) ─────────────────────────────
+    _svg.addEventListener('wheel', e => {
+      e.preventDefault();
+      const factor  = e.deltaY < 0 ? 1.15 : 1 / 1.15;
+      const newZoom = Math.max(ZOOM_MIN, Math.min(ZOOM_MAX, _zoom * factor));
+      const rect    = _svg.getBoundingClientRect();
+      const mx      = (e.clientX - rect.left) / rect.width  * VB_W;
+      const my      = (e.clientY - rect.top)  / rect.height * VB_H;
+      _panX = mx - (mx - _panX) * (newZoom / _zoom);
+      _panY = my - (my - _panY) * (newZoom / _zoom);
+      _zoom = newZoom;
+      _clampPan();
+      _applyTransform();
+    }, { passive: false });
+
+    // ── Arrastrar con ratón (pan) ────────────────────────────
+    let _dragging = false, _dragStart = { x: 0, y: 0 }, _panStart = { x: 0, y: 0 };
+    _svg.addEventListener('mousedown', e => {
+      if (e.button !== 0) return;
+      _dragging  = true;
+      _dragStart = { x: e.clientX, y: e.clientY };
+      _panStart  = { x: _panX, y: _panY };
+      _svg.style.cursor = 'grabbing';
+      e.preventDefault();
+    });
+    window.addEventListener('mousemove', e => {
+      if (!_dragging) return;
+      const rect = _svg.getBoundingClientRect();
+      _panX = _panStart.x + (e.clientX - _dragStart.x) * (VB_W / rect.width);
+      _panY = _panStart.y + (e.clientY - _dragStart.y) * (VB_H / rect.height);
+      _clampPan();
+      _applyTransform();
+    });
+    window.addEventListener('mouseup', () => {
+      if (!_dragging) return;
+      _dragging = false;
+      _svg.style.cursor = _zoom > 1.05 ? 'grab' : 'default';
+    });
+
+    // ── Doble clic: reset zoom ───────────────────────────────
+    _svg.addEventListener('dblclick', _resetZoom);
+
+    // ── Pinch / pan táctil (mobile) ─────────────────────────
+    let _lastPinchDist  = 0;
+    let _touchPanStart  = { x: 0, y: 0 };
+    let _touchPanOrigin = { x: 0, y: 0 };
+
+    _svg.addEventListener('touchstart', e => {
+      if (e.touches.length === 2) {
+        _lastPinchDist = Math.hypot(
+          e.touches[0].clientX - e.touches[1].clientX,
+          e.touches[0].clientY - e.touches[1].clientY,
+        );
+      } else if (e.touches.length === 1) {
+        _touchPanStart  = { x: e.touches[0].clientX, y: e.touches[0].clientY };
+        _touchPanOrigin = { x: _panX, y: _panY };
+      }
+    }, { passive: true });
+
+    _svg.addEventListener('touchmove', e => {
+      e.preventDefault();
+      const rect = _svg.getBoundingClientRect();
+      if (e.touches.length === 2) {
+        const dist = Math.hypot(
+          e.touches[0].clientX - e.touches[1].clientX,
+          e.touches[0].clientY - e.touches[1].clientY,
+        );
+        const factor  = dist / _lastPinchDist;
+        const newZoom = Math.max(ZOOM_MIN, Math.min(ZOOM_MAX, _zoom * factor));
+        const cx = ((e.touches[0].clientX + e.touches[1].clientX) / 2 - rect.left) / rect.width  * VB_W;
+        const cy = ((e.touches[0].clientY + e.touches[1].clientY) / 2 - rect.top)  / rect.height * VB_H;
+        _panX = cx - (cx - _panX) * (newZoom / _zoom);
+        _panY = cy - (cy - _panY) * (newZoom / _zoom);
+        _zoom = newZoom;
+        _lastPinchDist = dist;
+        _clampPan();
+        _applyTransform();
+      } else if (e.touches.length === 1 && _zoom > 1.05) {
+        _panX = _touchPanOrigin.x + (e.touches[0].clientX - _touchPanStart.x) * (VB_W / rect.width);
+        _panY = _touchPanOrigin.y + (e.touches[0].clientY - _touchPanStart.y) * (VB_H / rect.height);
+        _clampPan();
+        _applyTransform();
+      }
+    }, { passive: false });
+
+    _svg.addEventListener('touchend', e => {
+      if (e.touches.length === 1) {
+        _touchPanStart  = { x: e.touches[0].clientX, y: e.touches[0].clientY };
+        _touchPanOrigin = { x: _panX, y: _panY };
+      }
+    }, { passive: true });
+  }
+
   // ── init ────────────────────────────────────────────────────────────────
   async function init(container) {
     _container = container;
@@ -263,11 +394,13 @@ export function createViewer() {
     _muscleGroup = built.interGroup;
     _filterId1   = built.filterId1;
     _filterId2   = built.filterId2;
+    _zoomGroup   = built.zoomGroup;
 
     hideLoading(loadingEl);
     container.appendChild(_svg);
     _initTooltip();
     _initSweep();
+    _initZoom();
   }
 
   // ── highlight (modo ejercicio — sin cambios de comportamiento) ───────────
@@ -375,6 +508,7 @@ export function createViewer() {
   // ── reset ────────────────────────────────────────────────────────────────
   function reset() {
     clearOverlay();
+    _resetZoom();
   }
 
   // ── destroy ──────────────────────────────────────────────────────────────

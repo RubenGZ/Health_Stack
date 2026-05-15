@@ -70,7 +70,13 @@
   height: auto;
   position: relative;
   z-index: 2;
+  touch-action: none;   /* evita scroll del browser durante pinch/pan */
+  user-select: none;
+  -webkit-user-select: none;
 }
+
+/* Indicador visual zoom activo */
+.al-svg-chart:active { cursor: grabbing; }
 
 /* ── El SVG original simple: oculto ─────────────────────────────────────── */
 /* Red de seguridad si body-muscles CDN falla */

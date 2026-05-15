@@ -28,6 +28,8 @@ import app.modules.community.models     # noqa: F401
 import app.modules.gamification.models  # noqa: F401
 import app.modules.telemetry.models     # noqa: F401
 import app.modules.workout_sessions.models  # noqa: F401
+import app.modules.ranked.models  # noqa: F401
+import app.modules.gym_servers.models  # noqa: F401
 
 TEST_DB_URL = "postgresql+asyncpg://postgres:P%40ssw0rd@localhost:5432/healthstack_test"
 
@@ -46,6 +48,14 @@ TRUNCATE_TABLES = [
     "public.saved_routines",
     "public.user_recipes",
     "public.page_views",
+    "public.gym_challenge_participants",
+    "public.gym_challenges",
+    "public.gym_champion_badges",
+    "public.gym_memberships",
+    "public.gym_servers",
+    "public.ranked_events",
+    "public.ranked_profiles",
+    "public.ranked_seasons",
     "public.users",
 ]
 

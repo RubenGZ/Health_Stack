@@ -52,6 +52,8 @@ from app.modules.community.models import CommunityPost, CommunityLike  # noqa: F
 from app.modules.gamification.models import GamificationState  # noqa: F401
 from app.modules.nutrition.models import Supplement, Ingredient, UserRecipe  # noqa: F401
 import app.modules.workout_sessions.models  # noqa: F401
+import app.modules.ranked.models  # noqa: F401
+import app.modules.gym_servers.models  # noqa: F401
 
 # ── Configuración de Alembic ──────────────────────────────────────────────────
 config = context.config

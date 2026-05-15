@@ -11,7 +11,7 @@ from typing import Literal
 from pydantic import BaseModel, ConfigDict, Field
 
 # Acciones válidas — cambiar aquí si se añaden nuevas
-ValidAction = Literal["weight", "tdee", "routine", "post", "recipe", "streak"]
+ValidAction = Literal["weight", "tdee", "routine", "post", "recipe", "streak", "workout", "ranked_promotion"]
 
 
 class ActionRequest(BaseModel):
@@ -19,7 +19,7 @@ class ActionRequest(BaseModel):
 
     action: ValidAction = Field(
         ...,
-        description="Tipo de acción: 'weight' | 'tdee' | 'routine' | 'post' | 'recipe' | 'streak'",
+        description="Tipo de acción: 'weight' | 'tdee' | 'routine' | 'post' | 'recipe' | 'streak' | 'workout' | 'ranked_promotion'",
     )
 
 

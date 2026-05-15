@@ -67,12 +67,14 @@ class GamificationEvent(UUIDPrimaryKeyMixin, TimestampMixin, Base):
 
 # Tabla de puntos XP por acción
 XP_TABLE: dict[str, int] = {
-    "weight":   10,    # Registro de peso
-    "tdee":     15,    # Cálculo TDEE
-    "routine":  20,    # Rutina guardada
-    "post":      5,    # Post en comunidad
-    "recipe":   10,    # Receta creada
-    "streak":   25,    # Racha de 7 días
+    "weight":           10,    # Registro de peso
+    "tdee":             15,    # Cálculo TDEE
+    "routine":          20,    # Rutina guardada
+    "post":              5,    # Post en comunidad
+    "recipe":           10,    # Receta creada
+    "streak":           25,    # Racha de 7 días
+    "workout":          30,    # Sesión de entrenamiento completada
+    "ranked_promotion": 50,    # Subir de tier en ranked
 }
 
 

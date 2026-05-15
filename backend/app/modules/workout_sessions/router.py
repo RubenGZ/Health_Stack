@@ -7,7 +7,8 @@ from typing import Optional
 
 from fastapi import APIRouter, HTTPException, Query, status
 
-from app.core.security.dependencies import CurrentUser, DBSession
+from app.core.security.dependencies import CurrentUser
+from app.session import DBSession
 from app.modules.workout_sessions import repository as repo
 from app.modules.workout_sessions import service as svc
 from app.modules.workout_sessions.schemas import (

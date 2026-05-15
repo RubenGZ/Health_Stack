@@ -5,7 +5,7 @@
 const Exercises = (function () {
   'use strict';
 
-  // ── AnatomyLens 3D lazy loader ────────────────────────────────────────────
+  // ── AnatomyLens SVG viewer (lazy) ────────────────────────────────────────
   let _lens = null;
   async function getLens() {
     if (_lens !== null) return _lens;
@@ -15,8 +15,14 @@ const Exercises = (function () {
       const container = document.querySelector('.anatomy-lens-container');
       if (container) await _lens.init(container);
     } catch (e) {
-      console.warn('[Exercises] AnatomyLens load failed, SVG only:', e);
-      _lens = false;  // false = permanently use SVG
+      console.warn('[Exercises] AnatomyLens failed, activating emergency SVG:', e);
+      _lens = false;  // false = usar SVG de emergencia inline
+      // Inyectar SVG simple de emergencia
+      const svgWrap = document.getElementById('anatomy-svg-wrap');
+      if (svgWrap) {
+        svgWrap.innerHTML = ANATOMY_SVG;
+        svgWrap.classList.add('al-fallback-active');
+      }
     }
     return _lens;
   }
@@ -401,17 +407,18 @@ const Exercises = (function () {
 
     const lens = await getLens();
     if (lens) {
-      try {
-        await lens.highlight(ex.id, ex.muscles);
-        return;  // AnatomyLens handled legend too
-      } catch (err) {
-        console.warn('[Exercises] AnatomyLens highlight failed, using SVG:', err);
-      }
+      // lens es el visor SVG body-muscles. Si lanza es un error inesperado;
+      // no caer al SVG simple (está oculto) — loguear y seguir.
+      await lens.highlight(ex.id, ex.muscles);
+      return;  // AnatomyLens manejó leyenda + hint
     }
 
-    // SVG fallback path (always available)
-    highlightMuscles(ex.muscles);
-    renderLegend(ex.muscles);
+    // Fallback de emergencia: solo cuando getLens() devuelve false
+    // (body-muscles CDN inaccesible — el SVG simple ya fue inyectado en getLens())
+    if (lens === false) {
+      highlightMuscles(ex.muscles);
+      renderLegend(ex.muscles);
+    }
   }
 
   // ── Animar SVG ────────────────────────────────────────────
@@ -497,8 +504,8 @@ const Exercises = (function () {
 
   // ── Init ──────────────────────────────────────────────────
   function init() {
-    const svgWrap = document.getElementById('anatomy-svg-wrap');
-    if (svgWrap) svgWrap.innerHTML = ANATOMY_SVG;
+    // #anatomy-svg-wrap solo se usa como emergencia si body-muscles CDN falla;
+    // no inyectamos el SVG simple aquí a menos que AnatomyLens no cargue.
 
     renderTabs();
     renderGrid();

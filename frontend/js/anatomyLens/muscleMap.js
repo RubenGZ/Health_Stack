@@ -56,7 +56,7 @@ export const EXERCISE_ID_MAP = {
   18: 'press_frances',
   19: 'plancha',
   20: 'crunch',
-  21: null,
+  21: 'plancha_lateral',
   22: 'ab_wheel',
   23: 'sentadilla',
   24: 'prensa_piernas',
@@ -65,10 +65,10 @@ export const EXERCISE_ID_MAP = {
   27: 'sentadilla_bulgara',
   28: 'hip_thrust',
   29: 'kickback_cable',
-  30: null,
+  30: 'puente_gluteos',
   31: 'burpees',
-  32: null,
-  33: null,
+  32: 'jump_rope',
+  33: 'remo_maquina',
 };
 
 // ── Muscle Map: exercise key → { primary[], secondary[], camera } ───────────
@@ -184,6 +184,11 @@ export const MUSCLE_MAP = {
     secondary: ['oblicuo_externo', 'erector_espinal', 'dorsal_ancho'],
     camera: 'LATERAL_L',
   },
+  'plancha_lateral': {
+    primary:   ['oblicuo_externo', 'oblicuo_interno'],
+    secondary: ['cuadrado_lumbar', 'transverso_abdominal'],
+    camera:    'LATERAL_L',
+  },
   // PIERNAS
   'sentadilla': {
     primary: ['recto_femoral', 'vasto_lateral', 'vasto_medial'],
@@ -221,11 +226,26 @@ export const MUSCLE_MAP = {
     secondary: ['biceps_femoral', 'gluteo_medio'],
     camera: 'BACK_LOWER',
   },
+  'puente_gluteos': {
+    primary:   ['gluteo_mayor'],
+    secondary: ['gluteo_medio', 'biceps_femoral', 'semitendinoso'],
+    camera:    'BACK_LOWER',
+  },
   // CARDIO
   'burpees': {
     primary: ['recto_abdominal', 'pectoral_mayor_esternal', 'deltoides_anterior'],
     secondary: ['gluteo_mayor', 'vasto_lateral', 'triceps_cabeza_lateral'],
     camera: 'FRONT_CENTER',
+  },
+  'jump_rope': {
+    primary:   ['gastrocnemio_medial', 'gastrocnemio_lateral'],
+    secondary: ['recto_abdominal', 'oblicuo_externo', 'deltoides_medial'],
+    camera:    'FRONT_CENTER',
+  },
+  'remo_maquina': {
+    primary:   ['dorsal_ancho', 'recto_femoral', 'vasto_lateral'],
+    secondary: ['romboides_mayor', 'trapecio_medio', 'recto_abdominal', 'biceps_cabeza_larga'],
+    camera:    'BACK_CENTER',
   },
 };
 

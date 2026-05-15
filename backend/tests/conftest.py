@@ -27,6 +27,7 @@ import app.modules.routines.models      # noqa: F401
 import app.modules.community.models     # noqa: F401
 import app.modules.gamification.models  # noqa: F401
 import app.modules.telemetry.models     # noqa: F401
+import app.modules.workout_sessions.models  # noqa: F401
 
 TEST_DB_URL = "postgresql+asyncpg://postgres:P%40ssw0rd@localhost:5432/healthstack_test"
 
@@ -39,6 +40,9 @@ TRUNCATE_TABLES = [
     "public.gamification_events",   # ADR-001-D — antes que gamification_states
     "public.gamification_states",
     "public.refresh_tokens",        # ADR-001-B — antes que users
+    "public.exercise_sets",
+    "public.session_exercises",
+    "public.workout_sessions",
     "public.saved_routines",
     "public.user_recipes",
     "public.page_views",

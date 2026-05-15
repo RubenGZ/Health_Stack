@@ -1,21 +1,79 @@
 /* anatomy-lens.css
+ * Visor anatómico SVG — estilo heavy, ciencia-ficción oscura.
  * Prefijo al- en clases que colisionan con main.css (.legend-dot ya existe)
  * Variables heredadas de main.css: --radius, --radius-lg, --bg-surface, etc.
  */
 
-/* ── Contenedor principal del canvas 3D ── */
+/* ── Contenedor principal del visor ───────────────────────────────────────── */
 .anatomy-lens-container {
   position: relative;
   width: 100%;
-  aspect-ratio: 9 / 16;
-  max-height: 480px;
-  background: var(--bg-surface, #07070f);
+  background: transparent;
   border-radius: var(--radius-lg, 16px);
-  overflow: hidden;
+  overflow: visible;   /* permite que el glow se extienda fuera */
   margin-bottom: 12px;
 }
 
-/* SVG original: oculto cuando el 3D está activo, visible en fallback */
+/* ── SVG Viewer (body-muscles) — heavy style ─────────────────────────────── */
+.al-svg-viewer {
+  width: 100%;
+  padding: 14px 10px 6px;
+  box-sizing: border-box;
+  background: linear-gradient(180deg, #0c0c1e 0%, #07070f 100%);
+  border-radius: var(--radius-lg, 16px);
+  border: 1px solid rgba(124, 107, 255, 0.14);
+  position: relative;
+  box-shadow:
+    0 0 0 1px rgba(124, 107, 255, 0.06),
+    inset 0 1px 0 rgba(255, 255, 255, 0.04);
+  transition: box-shadow 0.5s ease, border-color 0.5s ease;
+}
+
+/* Líneas de escaneo sutiles (scanlines retro-sci-fi) */
+.al-svg-viewer::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: repeating-linear-gradient(
+    0deg,
+    transparent,
+    transparent 3px,
+    rgba(255, 255, 255, 0.01) 3px,
+    rgba(255, 255, 255, 0.01) 4px
+  );
+  pointer-events: none;
+  border-radius: inherit;
+  z-index: 1;
+}
+
+/* Cuando hay highlight activo: el borde se ilumina */
+.al-svg-viewer.has-highlight {
+  border-color: rgba(124, 107, 255, 0.35);
+  box-shadow:
+    0 0 0 1px rgba(124, 107, 255, 0.12),
+    0 0 18px rgba(124, 107, 255, 0.14),
+    0 0 40px rgba(124, 107, 255, 0.06),
+    inset 0 1px 0 rgba(255, 255, 255, 0.05);
+  animation: al-border-pulse 2.6s ease-in-out infinite;
+}
+
+@keyframes al-border-pulse {
+  0%   { box-shadow: 0 0 0 1px rgba(124,107,255,0.12), 0 0 14px rgba(124,107,255,0.12), 0 0 32px rgba(124,107,255,0.05), inset 0 1px 0 rgba(255,255,255,0.05); }
+  50%  { box-shadow: 0 0 0 1px rgba(124,107,255,0.22), 0 0 28px rgba(124,107,255,0.22), 0 0 60px rgba(124,107,255,0.09), inset 0 1px 0 rgba(255,255,255,0.05); }
+  100% { box-shadow: 0 0 0 1px rgba(124,107,255,0.12), 0 0 14px rgba(124,107,255,0.12), 0 0 32px rgba(124,107,255,0.05), inset 0 1px 0 rgba(255,255,255,0.05); }
+}
+
+/* El SVG en sí — ocupa todo el ancho, altura natural del viewBox */
+.al-svg-chart {
+  display: block;
+  width: 100%;
+  height: auto;
+  position: relative;
+  z-index: 2;
+}
+
+/* ── El SVG original simple: oculto ─────────────────────────────────────── */
+/* Red de seguridad si body-muscles CDN falla */
 .anatomy-svg-hidden-by-default {
   display: none;
 }
@@ -23,53 +81,56 @@
   display: block;
 }
 
-/* ── Canvas Three.js ── */
+/* ── Canvas (reservado para uso futuro) ─────────────────────────────────────── */
 .anatomy-lens-canvas {
   width: 100%;
   height: 100%;
   display: block;
 }
 
-/* ── Loading state: shimmer + progreso ── */
-.anatomy-lens-loading {
-  position: absolute;
-  inset: 0;
+/* ── Loading state SVG viewer ─────────────────────────────────────────────── */
+/* Mostrado durante la carga del CDN body-muscles (~1-2s en primera visita)   */
+.al-loading-overlay {
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  gap: 12px;
-  background: var(--bg-surface, #07070f);
-  transition: opacity 0.4s ease;
+  gap: 10px;
+  padding: 40px 0;
+  transition: opacity 0.3s ease;
 }
 
-.anatomy-lens-loading.al-hidden {
+.al-loading-overlay.al-loading-done {
   opacity: 0;
   pointer-events: none;
 }
 
-.anatomy-lens-loading-text {
-  font-size: 12px;
-  color: rgba(255, 255, 255, 0.4);
-  letter-spacing: 0.05em;
+/* Spinner de anillo giratorio */
+.al-loading-ring {
+  width: 28px;
+  height: 28px;
+  border: 2px solid rgba(124, 107, 255, 0.15);
+  border-top-color: #7c6bff;
+  border-radius: 50%;
+  animation: al-spin 0.9s linear infinite;
 }
 
-.anatomy-lens-progress {
-  width: 120px;
-  height: 2px;
-  background: rgba(255, 255, 255, 0.1);
-  border-radius: 1px;
-  overflow: hidden;
+@keyframes al-spin {
+  to { transform: rotate(360deg); }
 }
 
-.anatomy-lens-progress-bar {
-  height: 100%;
-  width: 0%;
-  background: #6c63ff;
-  transition: width 0.3s ease;
+.al-loading-text {
+  font-size: 11px;
+  color: rgba(255, 255, 255, 0.3);
+  letter-spacing: 0.06em;
 }
 
-/* ── Leyenda 3D (prefijo al- para no colisionar con .legend-dot de main.css) ── */
+/* ── Clases legacy (no usadas) ───────────────────────────────────────────────── */
+.anatomy-lens-loading,
+.anatomy-lens-progress,
+.anatomy-lens-progress-bar { display: none; }
+
+/* ── Leyenda (prefijo al- para no colisionar con .legend-dot de main.css) ── */
 .anatomy-legend-3d {
   display: flex;
   flex-wrap: wrap;
@@ -93,12 +154,13 @@
 }
 
 .al-legend-dot.primary {
-  background: #6c63ff;
-  box-shadow: 0 0 6px #6c63ff;
+  background: #7c6bff;
+  box-shadow: 0 0 6px #7c6bff;
 }
 
 .al-legend-dot.secondary {
-  background: #00d2ff;
+  background: #00c8ee;
+  box-shadow: 0 0 4px rgba(0, 200, 238, 0.5);
 }
 
 .al-legend-group {
@@ -106,4 +168,82 @@
   align-items: center;
   font-size: 12px;
   color: rgba(255, 255, 255, 0.7);
+}
+
+/* ── Vista / Atleta toggle chip ────────────────────────────────────────────── */
+.al-mode-toggle {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  z-index: 10;
+  display: flex;
+  align-items: center;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.10);
+  border-radius: 20px;
+  padding: 3px;
+  gap: 2px;
+  font-size: 11px;
+  font-family: system-ui, sans-serif;
+  cursor: pointer;
+  user-select: none;
+  letter-spacing: 0.03em;
+}
+
+.al-mode-btn {
+  padding: 3px 10px;
+  border-radius: 16px;
+  color: rgba(255, 255, 255, 0.35);
+  transition: background 0.2s ease, color 0.2s ease;
+  font-weight: 500;
+}
+
+.al-mode-btn.active {
+  background: rgba(124, 107, 255, 0.25);
+  color: rgba(255, 255, 255, 0.90);
+}
+
+/* ── Tooltip músculo (overlay mode) ─────────────────────────────────────────── */
+.al-tooltip {
+  position: absolute;
+  pointer-events: none;
+  background: rgba(12, 12, 30, 0.92);
+  border: 1px solid rgba(124, 107, 255, 0.30);
+  border-radius: 8px;
+  padding: 5px 10px;
+  font-size: 11px;
+  color: rgba(255, 255, 255, 0.85);
+  line-height: 1.5;
+  white-space: nowrap;
+  z-index: 20;
+  opacity: 0;
+  transition: opacity 0.15s ease;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
+  top: 0;
+  left: 0;
+}
+
+.al-tooltip.al-tooltip-visible {
+  opacity: 1;
+}
+
+/* ── Compact variant: visores secundarios (fatigue, deload) ─────────────────── */
+.anatomy-lens-compact.al-svg-viewer {
+  padding: 8px 6px 4px;
+}
+
+.anatomy-lens-compact .al-svg-chart {
+  max-height: 220px;
+}
+
+/* ── Sweep animation: fade-in escalonado al entrar en viewport ──────────────── */
+@keyframes al-sweep-in {
+  from { opacity: 0; transform: translateY(3px); }
+  to   { opacity: 1; transform: translateY(0);   }
+}
+
+/* Aplicado temporalmente al grupo .al-muscles durante el sweep */
+.al-muscles.al-sweep [data-id] {
+  opacity: 0;
+  animation: al-sweep-in 0.25s ease forwards;
 }

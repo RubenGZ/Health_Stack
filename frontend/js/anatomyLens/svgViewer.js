@@ -298,6 +298,7 @@ export function createViewer() {
   }
 
   function _applyOverlay(data) {
+    if (!_muscleGroup) return;
     _muscleGroup.querySelectorAll('[data-id]').forEach(p => {
       p.setAttribute('fill', COLOR_BASE);
       p.setAttribute('stroke', STROKE_BASE);
@@ -329,7 +330,7 @@ export function createViewer() {
   function setMode(mode) {
     if (mode !== 'vista' && mode !== 'atleta') return;
     _viewMode = mode;
-    localStorage.setItem('al_view_mode', mode);
+    try { localStorage.setItem('al_view_mode', mode); } catch (_) {}
     _updateToggleUI();
     if (_renderMode === 'overlay' && _lastOverlay) _applyOverlay(_lastOverlay);
   }

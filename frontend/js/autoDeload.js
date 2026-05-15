@@ -155,6 +155,45 @@ var AutoDeload = (function () {
     return { name: routine.name || 'Rutina principal', exercises: sets.slice(0, 5) };
   }
 
+  // ── Anatomy overlay ──────────────────────────────────────────
+  // Muestra visor anatomy con los grupos musculares que contribuyeron al deload
+  // sR, sL, sP son los objetos de señal con .fires boolean
+  function renderDeloadAnatomy(container, sR, sL, sP) {
+    import('./anatomyLens/index.js').then(function (mod) {
+      var viewer = mod.createViewer();
+      viewer.init(container).then(function () {
+        var overlayData = [];
+
+        // sR (readiness bajo) → fatiga sistémica general: grupos principales
+        if (sR.fires) {
+          ['back', 'quads', 'chest', 'shoulders'].forEach(function (g) {
+            overlayData.push({ key: g, intensity: 0.80, status: 'tired', label: 'Fatiga sistémica' });
+          });
+        }
+
+        // sL (caída de carga semanal) → grupos de empuje y tirón
+        if (sL.fires) {
+          ['chest', 'back', 'shoulders'].forEach(function (g) {
+            var ex = overlayData.find(function (d) { return d.key === g; });
+            if (!ex) overlayData.push({ key: g, intensity: 0.65, status: 'recovering', label: 'Caída de carga' });
+            else { ex.intensity = Math.min(1, ex.intensity + 0.10); ex.label = 'Fatiga + caída de carga'; }
+          });
+        }
+
+        // sP (estancamiento 1RM) → grupos compuestos principales
+        if (sP.fires) {
+          ['quads', 'back', 'glutes'].forEach(function (g) {
+            var ex = overlayData.find(function (d) { return d.key === g; });
+            if (!ex) overlayData.push({ key: g, intensity: 0.70, status: 'tired', label: 'Estancamiento detectado' });
+            else { ex.intensity = Math.min(1, ex.intensity + 0.15); }
+          });
+        }
+
+        if (overlayData.length) viewer.setOverlay(overlayData);
+      }).catch(function () {});
+    }).catch(function () {});
+  }
+
   // ── Render ────────────────────────────────────────────────────
   function render(root) {
     var weightEntries = JSON.parse(localStorage.getItem('hs_weight_entries') || '[]');
@@ -220,6 +259,15 @@ var AutoDeload = (function () {
     }
 
     root.innerHTML = html;
+
+    // Añadir viewer anatomy compacto si el deload está activo
+    if (needsDeload) {
+      var anatomyWrap = document.createElement('div');
+      anatomyWrap.className = 'anatomy-lens-container anatomy-lens-compact';
+      anatomyWrap.style.marginTop = '16px';
+      root.appendChild(anatomyWrap);
+      renderDeloadAnatomy(anatomyWrap, sR, sL, sP);
+    }
   }
 
   function renderSignal(label, fires, detail) {

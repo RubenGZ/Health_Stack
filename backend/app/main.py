@@ -320,6 +320,8 @@ from app.modules.nutrition.router import router as nutrition_router
 from app.modules.routines.router import router as routines_router
 from app.modules.telemetry.router import router as telemetry_router
 from app.modules.workout_sessions.router import router as workout_router
+from app.modules.ranked.router import router as ranked_router
+from app.modules.gym_servers.router import router as gym_router
 
 app.include_router(
     identity_router,
@@ -403,6 +405,18 @@ app.include_router(
     workout_router,
     prefix="/api/v1/workout",
     tags=["Workout Sessions"],
+)
+
+app.include_router(
+    ranked_router,
+    prefix="/api/v1/ranked",
+    tags=["Ranked System"],
+)
+
+app.include_router(
+    gym_router,
+    prefix="/api/v1/gym-servers",
+    tags=["Gym Servers"],
 )
 
 

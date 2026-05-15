@@ -140,6 +140,24 @@ asyncio_default_test_loop_scope = session   ← sin esto asyncpg explota
 **Contenedor PostgreSQL:** `healthstack_db`
 **Crear BD test:** `docker exec healthstack_db psql -U postgres -c "CREATE DATABASE healthstack_test;"`
 
+## ⚠️ INFRAESTRUCTURA — LEER ANTES DE CUALQUIER COMANDO
+
+**El backend corre en una Raspberry Pi**, no en local. NUNCA pedir al usuario que ejecute migraciones, tests o comandos de servidor en su máquina Windows local.
+
+**Comandos siempre en el Pi** (vía SSH o docker exec):
+```bash
+# Migración
+docker exec healthstack_backend alembic upgrade head
+
+# Tests
+docker exec healthstack_backend python -m pytest -v --tb=short
+
+# Actualizar código
+git pull && docker compose up -d --build
+```
+
+**Máquina local de Ruben (Windows)** = solo para editar código con Claude Code. No tiene PostgreSQL ni venv funcional para el proyecto.
+
 ---
 
 ## Launcher de tests
@@ -183,17 +201,25 @@ Si se añaden features premium futuras, se agregan como índice 4+ en PLAN_OK.
 
 ## Pendientes prioritarios
 
-1. **GitHub Actions CI** — `.github/workflows/ci.yml` que corra los 90 tests en cada push
-2. **Prometheus** — ya instalado, falta cablearlo en `main.py` (3 líneas):
-   ```python
-   from prometheus_fastapi_instrumentator import Instrumentator
-   Instrumentator().instrument(app).expose(app)
-   ```
-3. **ruff + mypy** — en `requirements.txt`, configurar en `pyproject.toml`
-4. **Rotación de MASTER_KEY** — documentar procedimiento y automatizarlo
-5. **TODO en `identity/router.py`** — revisar la nota de Fase 2 seguridad
-6. **AdSense IDs** — rellenar `frontend/.env.adsense` y ejecutar `scripts/apply-adsense.ps1` antes de deploy
-7. **AI Insights cache DB** — tabla `ai_insights_cache` para persistir resultados del scheduler semanal
+### 🔴 Acciones manuales pendientes (Ruben debe hacer esto)
+1. **Subir GitHub Secrets** — ejecutar `scripts\upload-secrets-to-github.ps1` tras `gh auth login`
+2. **AdSense IDs** — rellenar `frontend/.env.adsense` con Publisher ID + Ad Unit IDs reales de Google AdSense, luego `scripts\apply-adsense.ps1` antes de cada deploy
+3. **Rellenar `.env.production.local`** — `DATABASE_URL` con password real + `ALLOWED_ORIGINS` con dominio de prod
+
+### 🟡 Trabajo de código pendiente
+4. **Rotación de MASTER_KEY** — documentar procedimiento y automatizarlo (la key actual está en `.env.production.local` y guardada aparte)
+5. **AI Insights cache DB** — tabla `ai_insights_cache` para persistir resultados del scheduler semanal
+6. **Visor anatómico** — rediseño disruptivo y profesional (brainstorming pendiente)
+7. **Fórmula IMC mejorada** — mejorar cálculo y visualización en la interfaz
+
+### ✅ Ya hecho (actualizado 2026-05-14)
+- CI/CD: `.github/workflows/ci.yml` con tests + security scan + push a GHCR ✅
+- Prometheus: cableado en `main.py` ✅
+- ruff + mypy: configurados en `pyproject.toml` ✅
+- Redis rate limiter: `storage_uri` condicional por URL ✅
+- CSRF Google OAuth: cookie httpOnly + compare_digest ✅
+- ALLOWED_ORIGINS guard en startup ✅
+- RSA 2048 + MASTER_KEY generadas en `backend/.env.production.local` ✅
 
 ---
 

@@ -319,6 +319,7 @@ from app.modules.identity.router import router as identity_router
 from app.modules.nutrition.router import router as nutrition_router
 from app.modules.routines.router import router as routines_router
 from app.modules.telemetry.router import router as telemetry_router
+from app.modules.workout_sessions.router import router as workout_router
 
 app.include_router(
     identity_router,
@@ -396,6 +397,12 @@ app.include_router(
     integrations_router,
     prefix="/api/v1/integrations",
     tags=["Integrations"],
+)
+
+app.include_router(
+    workout_router,
+    prefix="/api/v1/workout",
+    tags=["Workout Sessions"],
 )
 
 

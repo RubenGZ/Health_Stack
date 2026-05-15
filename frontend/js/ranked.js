@@ -34,6 +34,11 @@ async function rkFetchJSON(url, options = {}) {
 }
 
 async function initRanked(container) {
+  const token = localStorage.getItem('hs_access_token') || sessionStorage.getItem('hs_access_token');
+  if (!token) {
+    container.innerHTML = '<p class="rk-error">Inicia sesión para ver tu ranking.</p>';
+    return;
+  }
   container.innerHTML = '<div class="rk-loading">Cargando rankeds...</div>';
   try {
     const [profile, gyms] = await Promise.all([

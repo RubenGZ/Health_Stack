@@ -13,6 +13,7 @@
   <link rel="stylesheet" href="css/anatomy-lens.css">
   <link rel="manifest" href="manifest.json">
   <meta name="theme-color" content="#0891b2">
+  <meta name="mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 
@@ -64,8 +65,8 @@
   }
   </script>
 
-  <!-- Preload CDN críticos (Three.js primero — bloquea canvas) -->
-  <link rel="preload" href="https://cdn.jsdelivr.net/npm/three@0.158.0/build/three.min.js" as="script" crossorigin="anonymous">
+  <!-- Preload CDN críticos -->
+  <link rel="modulepreload" href="https://cdn.jsdelivr.net/npm/three@0.158.0/build/three.module.js" crossorigin="anonymous">
   <link rel="preload" href="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js" as="script" crossorigin="anonymous">
 
   <!-- Google AdSense — activar con apply-adsense.ps1 antes de producción -->
@@ -1466,7 +1467,7 @@
 
   <!-- ── SCRIPTS CDN ──────────────────────────────────────────── -->
   <!-- CDN diferidos — no bloquean el render (LCP) -->
-  <script defer crossorigin="anonymous" src="https://cdn.jsdelivr.net/npm/three@0.158.0/build/three.min.js"></script>
+  <!-- Three.js: cargado vía ESM + importmap (background3d.js y athleteViewer.js comparten instancia) -->
   <script defer crossorigin="anonymous" src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
   <script defer crossorigin="anonymous" src="https://cdn.jsdelivr.net/npm/chartjs-plugin-annotation@3.0.1/dist/chartjs-plugin-annotation.min.js"></script>
 
@@ -1474,7 +1475,7 @@
   <script defer src="js/i18n.js"></script>
   <script defer src="js/config.js?v=5"></script>
   <script defer src="js/api.js?v=2"></script>
-  <script defer src="js/background3d.js"></script>
+  <script type="module" src="js/background3d.js"></script>
 
   <script defer src="js/weightTracker.js"></script>
   <script defer src="js/macroCalc.js"></script>

@@ -8,7 +8,8 @@ from typing import Optional
 from fastapi import APIRouter, HTTPException, Query, status
 from sqlalchemy import select, func
 
-from app.core.security.dependencies import CurrentUser, DBSession
+from app.core.security.dependencies import CurrentUser
+from app.session import DBSession
 from app.modules.gym_servers import service as svc
 from app.modules.gym_servers.models import GymServer, GymMembership
 from app.modules.gym_servers.schemas import (
@@ -87,6 +88,16 @@ async def get_sparrings(
     current_user: CurrentUser,
 ):
     user_id = uuid.UUID(current_user["user_id"])
+    # Solo miembros del gym pueden ver los perfiles de sparring
+    membership_check = (await db.execute(
+        select(GymMembership).where(
+            GymMembership.user_id == user_id,
+            GymMembership.gym_id == gym_id,
+        )
+    )).scalar_one_or_none()
+    if not membership_check:
+        raise HTTPException(status_code=403, detail="No eres miembro de este gym")
+
     rows = await svc.get_sparrings(db, gym_id, user_id)
     return [
         {
@@ -161,5 +172,18 @@ async def join_challenge(
     current_user: CurrentUser,
 ):
     user_id = uuid.UUID(current_user["user_id"])
-    await svc.join_challenge(db, challenge_id, user_id)
+    # Solo miembros del gym pueden unirse a sus retos
+    membership_check = (await db.execute(
+        select(GymMembership).where(
+            GymMembership.user_id == user_id,
+            GymMembership.gym_id == gym_id,
+        )
+    )).scalar_one_or_none()
+    if not membership_check:
+        raise HTTPException(status_code=403, detail="No eres miembro de este gym")
+
+    try:
+        await svc.join_challenge(db, challenge_id, gym_id, user_id)
+    except ValueError as e:
+        raise HTTPException(status_code=400, detail=str(e))
     return {"joined": True}

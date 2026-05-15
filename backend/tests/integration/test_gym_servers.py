@@ -41,8 +41,9 @@ async def test_join_gym_by_invite_code(client: AsyncClient, auth_headers: dict):
     # Register and log in as user 2
     await client.post("/api/v1/auth/register", json={
         "email": "gym_joiner@test.com",
-        "username": "gym_joiner",
+        "display_name": "Gym Joiner",
         "password": "TestPass123!",
+        "consent_gdpr": True,
     })
     login_resp = await client.post("/api/v1/auth/login", json={
         "email": "gym_joiner@test.com",

@@ -21,7 +21,8 @@ def tier_index(queue: str, tier: str) -> int:
 
 
 def is_top_tier(queue: str, tier: str) -> bool:
-    return tier in (TOP_TIER_NORMAL, TOP_TIER_COMPETITIVE)
+    top = TOP_TIER_NORMAL if queue == "normal" else TOP_TIER_COMPETITIVE
+    return tier == top
 
 
 def tier_at_index(queue: str, idx: int) -> str:
@@ -49,7 +50,7 @@ async def get_or_create_profile(
         user_id=user_id, queue=queue, season=season,
         tier=tier, division=4, lp=0,
         peak_tier=tier, peak_division=4,
-        competitive_unlocked=(queue == "normal"),
+        competitive_unlocked=False,  # se activa al alcanzar "comprometido" en normal
     )
     db.add(profile)
     await db.flush()
@@ -72,7 +73,7 @@ async def apply_lp_delta(
     if is_top_tier(profile.queue, profile.tier):
         profile.lp = max(0, profile.lp + delta)
         await _log_event(db, profile, event_type, delta, meta)
-        await db.commit()
+        await db.flush()
         return {"promoted": False, "demoted": False, "tier_after": profile.tier, "lp_after": profile.lp}
 
     tier_before = profile.tier
@@ -119,7 +120,7 @@ async def apply_lp_delta(
                 profile.lp = 0
 
     await _log_event(db, profile, event_type, delta, meta)
-    await db.commit()
+    await db.flush()
     return {
         "promoted": promoted, "demoted": demoted,
         "tier_before": tier_before, "div_before": div_before,
@@ -185,10 +186,16 @@ async def process_workout_session(
     )
 
     # ── Cola Competitivo ──────────────────────────────────────────────────────
-    if not comp_profile.competitive_unlocked and not normal_profile.competitive_unlocked:
+    # El competitivo se desbloquea cuando el perfil normal llega a "comprometido".
+    # apply_lp_delta ya habrá marcado normal_profile.competitive_unlocked=True
+    # si la sesión de hoy provocó la promoción a comprometido.
+    comp_unlocked = normal_profile.competitive_unlocked
+    if not comp_unlocked:
         results["competitive"] = {"locked": True}
     else:
-        comp_profile.competitive_unlocked = True
+        # Asegurar que el perfil competitivo también queda marcado (visible en GET /profile)
+        if not comp_profile.competitive_unlocked:
+            comp_profile.competitive_unlocked = True
         comp_lp = 0
         prs = session_data.get("prs", [])
         if prs:
@@ -208,4 +215,5 @@ async def process_workout_session(
             db, comp_profile, comp_lp, "session_lp" if not prs else "pr_lp", meta=meta,
         )
 
+    await db.commit()
     return results

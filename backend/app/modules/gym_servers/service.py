@@ -2,7 +2,7 @@
 """Lógica de gym servers: crear, unirse, sparring, retos."""
 from __future__ import annotations
 
-import random
+import secrets
 import string
 import uuid
 from typing import Optional
@@ -16,7 +16,7 @@ from app.modules.gym_servers.models import (
 
 def _generate_invite_code(length: int = 8) -> str:
     chars = string.ascii_uppercase + string.digits
-    return ''.join(random.choices(chars, k=length))
+    return ''.join(secrets.choice(chars) for _ in range(length))
 
 
 async def create_gym(
@@ -108,8 +108,20 @@ async def create_challenge(
 
 
 async def join_challenge(
-    db: AsyncSession, challenge_id: int, user_id: uuid.UUID
+    db: AsyncSession, challenge_id: int, gym_id: int, user_id: uuid.UUID
 ) -> GymChallengeParticipant:
+    # Verificar que el reto pertenece al gym indicado
+    challenge = (await db.execute(
+        select(GymChallenge).where(
+            GymChallenge.id == challenge_id,
+            GymChallenge.gym_id == gym_id,
+        )
+    )).scalar_one_or_none()
+    if not challenge:
+        raise ValueError("Reto no encontrado en este gym")
+    if challenge.closed:
+        raise ValueError("Este reto ya está cerrado")
+
     existing = (await db.execute(
         select(GymChallengeParticipant).where(
             GymChallengeParticipant.challenge_id == challenge_id,

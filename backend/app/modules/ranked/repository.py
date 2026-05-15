@@ -4,9 +4,9 @@ from __future__ import annotations
 
 import uuid
 from typing import Optional
-from sqlalchemy import select, desc
+from sqlalchemy import select, desc, case
 from sqlalchemy.ext.asyncio import AsyncSession
-from app.modules.ranked.models import RankedProfile, RankedEvent
+from app.modules.ranked.models import RankedProfile, RankedEvent, TIERS_NORMAL, TIERS_COMPETITIVE
 from app.modules.gym_servers.models import GymMembership
 
 
@@ -20,10 +20,20 @@ async def get_profile(db: AsyncSession, user_id: uuid.UUID, queue: str) -> Optio
     return result.scalar_one_or_none()
 
 
+def _tier_order_expr(queue: str):
+    """Expresión CASE SQL que asigna el índice numérico de cada tier para ordenar."""
+    tiers = TIERS_NORMAL if queue == "normal" else TIERS_COMPETITIVE
+    return case(
+        *[(RankedProfile.tier == tier, idx) for idx, tier in enumerate(tiers)],
+        else_=0,
+    )
+
+
 async def get_gym_leaderboard(
     db: AsyncSession, gym_id: int, queue: str, limit: int = 50
 ) -> list[dict]:
-    """Top usuarios del gym según LP en la cola dada."""
+    """Top usuarios del gym por tier (desc) y LP (desc) en la cola dada."""
+    tier_order = _tier_order_expr(queue)
     result = await db.execute(
         select(RankedProfile, GymMembership)
         .join(GymMembership, GymMembership.user_id == RankedProfile.user_id)
@@ -31,7 +41,7 @@ async def get_gym_leaderboard(
             GymMembership.gym_id == gym_id,
             RankedProfile.queue == queue,
         )
-        .order_by(desc(RankedProfile.lp))
+        .order_by(desc(tier_order), desc(RankedProfile.lp))
         .limit(limit)
     )
     rows = result.all()

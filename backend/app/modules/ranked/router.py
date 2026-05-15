@@ -7,7 +7,8 @@ from typing import Optional
 
 from fastapi import APIRouter, HTTPException, Query
 
-from app.core.security.dependencies import CurrentUser, DBSession
+from app.core.security.dependencies import CurrentUser
+from app.session import DBSession
 from app.modules.ranked import repository as repo
 from app.modules.ranked import service as svc
 from app.modules.ranked.schemas import (
@@ -34,6 +35,10 @@ async def get_ranked_profile(
     normal_p = await svc.get_or_create_profile(db, user_id, "normal", season)
     comp_p   = await svc.get_or_create_profile(db, user_id, "competitive", season)
 
+    # La cola normal siempre está desbloqueada.
+    # La cola competitiva se desbloquea al alcanzar "comprometido" en normal,
+    # lo cual queda registrado en normal_p.competitive_unlocked.
+    comp_unlocked = normal_p.competitive_unlocked or comp_p.competitive_unlocked
     return RankedProfileResponse(
         normal=QueueProfile(
             tier=normal_p.tier, division=normal_p.division, lp=normal_p.lp,
@@ -43,7 +48,7 @@ async def get_ranked_profile(
         competitive=QueueProfile(
             tier=comp_p.tier, division=comp_p.division, lp=comp_p.lp,
             peak_tier=comp_p.peak_tier, peak_div=comp_p.peak_division,
-            season=comp_p.season, unlocked=comp_p.competitive_unlocked,
+            season=comp_p.season, unlocked=comp_unlocked,
         ),
     )
 

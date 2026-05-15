@@ -19,10 +19,31 @@ var FatigueHeatmap = (function () {
   var LABELS = { chest:'Pecho', back:'Espalda', shoulders:'Hombros', biceps:'Bíceps', triceps:'Tríceps', quads:'Cuádriceps', hamstrings:'Isquios', glutes:'Glúteos', core:'Core', calves:'Gemelos' };
 
   function getLastTrained() {
+    var lastTrained = {}; // muscle → Date
+
+    // Fuente 1: workout logger sessions
+    try {
+      var sessions = JSON.parse(localStorage.getItem('hs_workout_sessions_local') || '[]');
+      sessions.forEach(function(session) {
+        var date = new Date(session.startedAt);
+        (session.exercises || []).forEach(function(ex) {
+          Object.keys(MUSCLE_MAP).forEach(function(muscle) {
+            var keywords = MUSCLE_MAP[muscle];
+            var matches = keywords.some(function(kw) {
+              return (ex.name || '').toLowerCase().indexOf(kw.toLowerCase()) !== -1;
+            });
+            if (matches && (!lastTrained[muscle] || date > lastTrained[muscle])) {
+              lastTrained[muscle] = date;
+            }
+          });
+        });
+      });
+    } catch(e) {}
+
+    // Fuente 2: PR records
     var prs = {};
     try { prs = JSON.parse(localStorage.getItem('hs_pr_records') || '{}'); } catch (e) {}
     var exercises = prs.exercises || {};
-    var lastTrained = {}; // muscle → Date
 
     Object.keys(exercises).forEach(function (exName) {
       var entries = exercises[exName];

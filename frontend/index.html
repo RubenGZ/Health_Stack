@@ -244,6 +244,14 @@
         <span class="nav-label" data-i18n="nav.community">Comunidad</span>
       </a>
 
+      <!-- Entrenos -->
+      <a class="nav-item" data-section="workout" href="#workout">
+        <span class="nav-icon">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6.5 6.5h11M6.5 17.5h11M3 12h2m14 0h2"/><circle cx="5" cy="12" r="2"/><circle cx="19" cy="12" r="2"/></svg>
+        </span>
+        <span class="nav-label">Entrenos</span>
+      </a>
+
       <!-- Admin Panel — visible solo para role=admin, gestionado por app.js -->
       <div class="nav-admin-separator" id="nav-admin-separator" style="display:none;"></div>
       <a class="nav-item nav-item--admin" id="nav-admin-link" href="/admin" style="display:none;" title="Panel de administración">
@@ -787,16 +795,14 @@
       <div class="exercises-layout">
         <div class="exercises-grid" id="exercises-grid"></div>
 
-        <!-- Visor anatómico SVG -->
+        <!-- Visor anatómico SVG (body-muscles, heavy style) -->
         <div class="anatomy-panel card">
           <h4 class="anatomy-title" data-i18n="exercises.anatomy_title">Visor anatómico</h4>
           <div class="anatomy-hint" id="anatomy-hint" data-i18n="exercises.anatomy_hint">Haz clic en un ejercicio para ver los músculos implicados</div>
-          <!-- AnatomyLens 3D container — canvas mounted here by AnatomyLens.init() -->
-          <div class="anatomy-lens-container">
-          </div>
-          <div id="anatomy-svg-wrap" class="anatomy-svg-hidden-by-default">
-            <!-- SVG inyectado por exercises.js -->
-          </div>
+          <!-- SVG viewer monta aquí via AnatomyLens.init() -->
+          <div class="anatomy-lens-container"></div>
+          <!-- SVG simple de emergencia (oculto, solo si body-muscles falla) -->
+          <div id="anatomy-svg-wrap" class="anatomy-svg-hidden-by-default"></div>
           <div class="anatomy-legend" id="anatomy-legend"></div>
           <div id="anatomy-affiliate"></div>
         </div>
@@ -982,6 +988,18 @@
           <div class="challenges-list" id="challenges-list"></div>
         </div>
       </div>
+    </section>
+
+    <!-- ── ENTRENOS ──────────────────────────────────────── -->
+    <section id="section-workout" class="section">
+      <header class="section-header">
+        <div>
+          <h1 class="section-title">Entrenos</h1>
+          <p class="section-subtitle">Registra tus sesiones y sigue tu progresión de carga</p>
+        </div>
+      </header>
+      <div id="workout-logger-root"></div>
+      <div id="workout-history-root" style="margin-top:16px;"></div>
     </section>
 
     <!-- ── COMUNIDAD ─────────────────────────────────────── -->
@@ -1478,6 +1496,7 @@
   }
   </script>
   <script type="module" src="js/athleteViewer.js"></script>
+  <script type="module" src="js/workoutInit.js"></script>
   <script>
     // ── PWA: registrar service worker ─────────────────────────
     if ('serviceWorker' in navigator) {

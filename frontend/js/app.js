@@ -10,7 +10,7 @@
   const SECTIONS = [
     'dashboard','peso','nutricion','ejercicios',
     'rutinas','planner','gamificacion','comunidad',
-    'suplementos','timing','records','receipt','fatigue','plateau','deload','bodycomp','sessionreplay',
+    'suplementos','timing','records','receipt','fatigue','plateau','deload','bodycomp','sessionreplay','workout',
   ];
 
   function navigateTo(sectionId) {
@@ -79,6 +79,18 @@
     }
     if (sectionId === 'sessionreplay' && typeof SessionReplay !== 'undefined') {
       SessionReplay.init();
+    }
+    if (sectionId === 'workout') {
+      const loggerRoot = document.getElementById('workout-logger-root');
+      const historyRoot = document.getElementById('workout-history-root');
+      if (loggerRoot && !loggerRoot.dataset.initialized && typeof WorkoutLogger !== 'undefined') {
+        WorkoutLogger.init(loggerRoot);
+        loggerRoot.dataset.initialized = 'true';
+      }
+      if (historyRoot && typeof WorkoutHistory !== 'undefined') {
+        historyRoot.dataset.initialized = '';
+        WorkoutHistory.init(historyRoot);
+      }
     }
   }
 

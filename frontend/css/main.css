@@ -3868,3 +3868,43 @@ select.form-input option { background: var(--bg-surface); color: var(--text-prim
 .wl-select { background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.10); border-radius: 6px; color: #fff; padding: 4px 8px; font-size: 13px; margin-bottom: 10px; }
 .wl-chart { width: 100%; border-radius: 8px; background: rgba(255,255,255,0.02); }
 .wl-history-empty { color: rgba(255,255,255,0.4); font-size: 13px; text-align: center; padding: 20px; }
+
+/* ── Ranked System ─────────────────────────────────────────────────── */
+.rk-loading { color: rgba(255,255,255,0.4); text-align: center; padding: 24px; }
+.rk-error { color: #ef4444; text-align: center; padding: 16px; }
+.rk-panel { display: flex; flex-direction: column; gap: 12px; }
+.rk-queue-card { background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.07); border-radius: 12px; padding: 14px; }
+.rk-queue-card.rk-locked { opacity: 0.6; }
+.rk-queue-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
+.rk-queue-label { font-weight: 600; font-size: 13px; color: rgba(255,255,255,0.8); }
+.rk-tier-badge { font-size: 12px; padding: 3px 10px; border-radius: 20px; font-weight: 700; }
+.rk-lp-bar-track { height: 6px; background: rgba(255,255,255,0.08); border-radius: 3px; overflow: hidden; }
+.rk-lp-bar-fill { height: 100%; border-radius: 3px; transition: width 0.6s ease; }
+.rk-lp-info { font-size: 11px; color: rgba(255,255,255,0.4); margin-top: 4px; }
+.rk-locked-msg { font-weight: 600; margin-bottom: 4px; color: rgba(255,255,255,0.6); }
+.rk-locked-hint { font-size: 12px; color: rgba(255,255,255,0.4); }
+.rk-gym-panel { background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.07); border-radius: 12px; padding: 14px; margin-top: 12px; }
+.rk-gym-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
+.rk-gym-name { font-weight: 600; font-size: 14px; }
+.rk-gym-code { font-size: 11px; color: rgba(255,255,255,0.4); }
+.rk-gym-actions { display: flex; gap: 8px; flex-wrap: wrap; }
+.rk-action { font-size: 12px; padding: 6px 12px; }
+.rk-no-gym { text-align: center; padding: 20px; }
+.rk-no-gym p { color: rgba(255,255,255,0.5); font-size: 13px; margin-bottom: 12px; }
+.rk-join-form { display: flex; gap: 8px; margin-top: 10px; justify-content: center; }
+.rk-lb-row { display: flex; align-items: center; gap: 10px; padding: 8px 0; border-bottom: 1px solid rgba(255,255,255,0.05); font-size: 13px; }
+.rk-lb-row.rk-lb-me { background: rgba(124,107,255,0.08); border-radius: 6px; padding: 8px 6px; }
+.rk-lb-rank { width: 32px; text-align: center; font-size: 16px; }
+.rk-lb-name { flex: 1; color: rgba(255,255,255,0.8); }
+.rk-lb-tier { font-size: 11px; color: rgba(255,255,255,0.4); }
+.rk-lb-lp { font-weight: 600; color: #7c6bff; }
+.rk-sparring-card { padding: 10px; border: 1px solid rgba(255,255,255,0.07); border-radius: 8px; margin-bottom: 8px; }
+.rk-sparring-name { font-weight: 600; display: block; color: rgba(255,255,255,0.8); }
+.rk-sparring-meta { font-size: 11px; color: rgba(255,255,255,0.4); display: block; margin-top: 2px; }
+.rk-sparring-contact { display: inline-block; margin-top: 6px; font-size: 12px; color: #7c6bff; text-decoration: none; }
+.rk-modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.7); display: flex; align-items: center; justify-content: center; z-index: 1000; }
+.rk-modal { background: #0c0c1e; border: 1px solid rgba(124,107,255,0.3); border-radius: 16px; width: min(480px, 94vw); max-height: 80vh; overflow: hidden; display: flex; flex-direction: column; }
+.rk-modal-header { display: flex; justify-content: space-between; align-items: center; padding: 14px 16px; border-bottom: 1px solid rgba(255,255,255,0.07); font-weight: 600; }
+.rk-modal-close { background: none; border: none; color: rgba(255,255,255,0.5); cursor: pointer; font-size: 18px; line-height: 1; }
+.rk-modal-body { padding: 16px; overflow-y: auto; }
+.rk-create-form { display: flex; flex-direction: column; gap: 10px; }

@@ -252,6 +252,12 @@
         <span class="nav-label">Entrenos</span>
       </a>
 
+      <!-- Rankeds -->
+      <a class="nav-item" data-section="ranked" href="#ranked">
+        <span class="nav-icon">🏆</span>
+        <span class="nav-label">Rankeds</span>
+      </a>
+
       <!-- Admin Panel — visible solo para role=admin, gestionado por app.js -->
       <div class="nav-admin-separator" id="nav-admin-separator" style="display:none;"></div>
       <a class="nav-item nav-item--admin" id="nav-admin-link" href="/admin" style="display:none;" title="Panel de administración">
@@ -1002,6 +1008,17 @@
       <div id="workout-history-root" style="margin-top:16px;"></div>
     </section>
 
+    <!-- ── RANKEDS ──────────────────────────────────────── -->
+    <section id="section-ranked" class="section">
+      <header class="section-header">
+        <div>
+          <h1 class="section-title">Rankeds</h1>
+          <p class="section-subtitle">Tu posición en las colas Normal y Competitivo</p>
+        </div>
+      </header>
+      <div id="ranked-root"></div>
+    </section>
+
     <!-- ── COMUNIDAD ─────────────────────────────────────── -->
     <section id="section-comunidad" class="section">
       <header class="section-header">
@@ -1497,6 +1514,7 @@
   </script>
   <script type="module" src="js/athleteViewer.js"></script>
   <script type="module" src="js/workoutInit.js"></script>
+  <script src="js/ranked.js"></script>
   <script>
     // ── PWA: registrar service worker ─────────────────────────
     if ('serviceWorker' in navigator) {

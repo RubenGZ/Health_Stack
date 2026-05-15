@@ -599,3 +599,71 @@ Si `health_records` usara `user_id` directamente, cualquier exfiltración de la 
 ### ¿Por qué AsyncSession en lugar de sesión síncrona?
 
 FastAPI está construido sobre Starlette/anyio y es completamente asíncrono. Usar SQLAlchemy async + asyncpg permite atender múltiples peticiones simultáneamente con un solo proceso, sin bloquear el event loop durante las consultas a BD. Esto es crítico para la escalabilidad horizontal.
+
+---
+
+## 10. AnatomyLens — Visor Anatómico SVG
+
+**Ubicación:** `frontend/js/anatomyLens/` (4 archivos)
+
+**Stack:** body-muscles@1.0.0 (CDN esm.sh), vanilla JS ES modules, sin WebGL.
+
+### 10.1 Arquitectura actual (Phase A)
+
+```
+exercises.js ──import──► index.js (default singleton)──► svgViewer.createViewer()
+                                                           └── highlight(primary, secondary)
+
+fatigueHeatmap.js ──import──► index.js (createViewer) ──► instance.setOverlay(data)
+autoDeload.js     ──import──► index.js (createViewer) ──► instance.setOverlay(data)
+```
+
+### 10.2 API pública (`index.js`)
+
+| Export | Uso |
+|--------|-----|
+| `default` | Singleton para exercises.js — `{ init, highlight, reset, destroy }` |
+| `createViewer()` | Factory para instancias adicionales — devuelve `{ init, highlight, setOverlay, setMode, clearOverlay, reset, destroy }` |
+
+### 10.3 Formato overlay — contrato inmutable
+
+```js
+// Este formato NO cambia en Phase B.
+[{ key: 'chest', intensity: 0.85, status: 'recovering', label: 'Hace 1 día' }]
+// key: grupo EZ (chest/back/...) o clave muscleMap individual
+// intensity: 0.0 (fresco) → 1.0 (agotado)
+// status: 'fresh' | 'warming' | 'recovering' | 'tired'
+```
+
+### 10.4 Modos de renderizado
+
+- **highlight** — ejercicios: primario (púrpura) + secundario (cyan). Sin toggle Vista/Atleta.
+- **overlay** — fatiga/deload: mapa de calor continuo verde→rojo. Toggle Vista/Atleta visible.
+
+### 10.5 Toggle Vista / Atleta
+
+- **Vista** — 10 grupos musculares (chest, back, shoulders…). Persiste en `localStorage('al_view_mode')`.
+- **Atleta** — ~38 músculos individuales de body-muscles. Tooltip con nombre + métrica en hover.
+
+### 10.6 Phase B — anatomyService.js (post workout logging)
+
+Cuando el módulo de workout logging esté implementado, añadir `frontend/js/anatomyLens/anatomyService.js`:
+
+```
+workoutSession.js  →  anatomyService.recordSession(muscles, volume, date)
+anatomyService.js  →  computa recovery %, volumen semanal, señal de fatiga por músculo
+anatomyService.js  →  emite { key, intensity, status, label }[]
+fatigueHeatmap.js  →  anatomyService.getRecoveryOverlay()  →  viewer.setOverlay()
+autoDeload.js      →  anatomyService.getStressOverlay()    →  viewer.setOverlay()
+```
+
+**El viewer no toca ninguna línea.** El contrato de datos es idéntico. Migrar Phase A → B consiste en reemplazar el cálculo local en cada módulo por una llamada al servicio.
+
+### 10.7 anatomyService.js (Phase B) — API prevista
+
+```js
+anatomyService.recordSession(sessionData)    // ingesta workout logging
+anatomyService.getRecoveryOverlay(options)   // recovery % por músculo
+anatomyService.getVolumeOverlay(weekOffset)  // volumen semanal
+anatomyService.getStressOverlay()            // señal de deload por músculo
+```

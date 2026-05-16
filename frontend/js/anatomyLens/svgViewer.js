@@ -401,6 +401,16 @@ export function createViewer() {
     _initTooltip();
     _initSweep();
     _initZoom();
+
+    // ── Mini-leyenda de controles ──────────────────────────────
+    const hint = document.createElement('div');
+    hint.className = 'al-controls-hint';
+    hint.innerHTML =
+      '<span><kbd>scroll</kbd> zoom</span>' +
+      '<span><kbd>arrastrar</kbd> mover</span>' +
+      '<span><kbd>pellizcar</kbd> zoom táctil</span>' +
+      '<span><kbd>2× clic</kbd> resetear</span>';
+    container.appendChild(hint);
   }
 
   // ── highlight (modo ejercicio — sin cambios de comportamiento) ───────────

@@ -242,6 +242,32 @@
   max-height: 220px;
 }
 
+/* ── Mini-leyenda de controles del visor ────────────────────────────────────── */
+.al-controls-hint {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px 10px;
+  justify-content: center;
+  padding: 5px 8px 3px;
+  font-size: 9.5px;
+  color: rgba(255, 255, 255, 0.22);
+  letter-spacing: 0.02em;
+  user-select: none;
+  pointer-events: none;
+}
+
+.al-controls-hint kbd {
+  font-family: inherit;
+  font-size: 8.5px;
+  background: rgba(255, 255, 255, 0.055);
+  border: 1px solid rgba(255, 255, 255, 0.09);
+  border-radius: 3px;
+  padding: 1px 4px;
+  color: rgba(255, 255, 255, 0.30);
+  margin-right: 2px;
+  letter-spacing: 0;
+}
+
 /* ── Sweep animation: fade-in escalonado al entrar en viewport ──────────────── */
 @keyframes al-sweep-in {
   from { opacity: 0; transform: translateY(3px); }

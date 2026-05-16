@@ -185,6 +185,38 @@ canvas { display: block; }
 .nav-icon { width: 20px; flex-shrink: 0; opacity: 0.85; }
 .nav-label { font-size: 0.875rem; font-weight: 500; }
 .nav-item--soon { opacity: 0.45; cursor: default; }
+
+/* ── Etiquetas de grupo de navegación ───────────────────────── */
+.nav-group-label {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 10px 10px 4px;
+  font-size: 0.62rem;
+  font-weight: 700;
+  letter-spacing: 0.10em;
+  text-transform: uppercase;
+  color: rgba(255, 255, 255, 0.22);
+  user-select: none;
+  pointer-events: none;
+}
+.nav-group-label:first-child { padding-top: 4px; }
+.nav-group-label::before {
+  content: '';
+  flex: 1;
+  max-width: 12px;
+  height: 1px;
+  background: rgba(255, 255, 255, 0.08);
+  display: block;
+}
+.nav-group-label::after {
+  content: '';
+  flex: 1;
+  height: 1px;
+  background: rgba(255, 255, 255, 0.08);
+  display: block;
+}
+
 /* Sub-ítem (Peso bajo Nutrición) */
 .nav-item--sub {
   padding-left: 40px;
@@ -1013,6 +1045,7 @@ select.form-input option { background: var(--bg-surface); color: var(--text-prim
   }
   .badge-soon { display: none; }
   .nav-label { font-size: 0.65rem; }
+  .nav-group-label { display: none; }
 
   .mobile-header {
     display: flex;

@@ -61,6 +61,7 @@ const MealPlanner = (function () {
   let catFilter = 'all';
   let searchQuery = '';
   let macroChartInst = null;
+  let macroViewMode  = 'weekly'; // 'weekly' | 'daily'
 
   // ── Persistencia ──────────────────────────────────────────
   function save()   { localStorage.setItem(LS_KEY, JSON.stringify(plan)); }
@@ -188,25 +189,67 @@ const MealPlanner = (function () {
     });
   }
 
-  // ── Calcular y mostrar macros semanales ───────────────────
-  function renderMacros() {
-    let totals = { kcal: 0, p: 0, c: 0, f: 0 };
-    Object.values(plan).forEach(recId => {
-      const r = findRecipe(recId);
-      if (r) { totals.kcal += r.kcal; totals.p += r.p; totals.c += r.c; totals.f += r.f; }
+  // ── Calcular macros para un conjunto de claves del plan ────
+  function calcMacrosFrom(keys) {
+    let totals = { kcal: 0, p: 0, c: 0, f: 0, count: 0 };
+    keys.forEach(key => {
+      const r = findRecipe(plan[key]);
+      if (r) { totals.kcal += r.kcal; totals.p += r.p; totals.c += r.c; totals.f += r.f; totals.count++; }
     });
+    return totals;
+  }
 
-    // Redondear para evitar errores de coma flotante
-    const r1 = v => Math.round(v * 10) / 10;
+  // ── Calcular y mostrar macros (diario o semanal) ──────────
+  function renderMacros() {
+    const todayName = DAYS[new Date().getDay() === 0 ? 6 : new Date().getDay() - 1];
+
+    let totals, label, subtitle;
+    if (macroViewMode === 'daily') {
+      const dailyKeys = Object.keys(plan).filter(k => k.startsWith(todayName + '-'));
+      totals = calcMacrosFrom(dailyKeys);
+      label    = `Macros hoy (${todayName})`;
+      subtitle = `${totals.count} comida${totals.count !== 1 ? 's' : ''} planificada${totals.count !== 1 ? 's' : ''}`;
+    } else {
+      totals = calcMacrosFrom(Object.keys(plan));
+      const daysWithFood = new Set(Object.keys(plan).map(k => k.split('-')[0])).size;
+      label    = 'Macros semana';
+      subtitle = daysWithFood ? `${daysWithFood} día${daysWithFood !== 1 ? 's' : ''} planificado${daysWithFood !== 1 ? 's' : ''}` : 'Sin comidas planificadas';
+    }
+
+    // Actualizar título de la tarjeta
+    const titleEl = document.getElementById('planner-macros-title');
+    if (titleEl) titleEl.textContent = label;
 
     const listEl = document.getElementById('planner-macro-list');
     if (listEl) {
-      listEl.innerHTML = `
-        <div class="pmacro-row"><span>Calorías totales</span><strong>${Math.round(totals.kcal)} kcal</strong></div>
-        <div class="pmacro-row"><span style="color:#6c63ff">Proteína</span><strong>${r1(totals.p)} g</strong></div>
-        <div class="pmacro-row"><span style="color:#00d2ff">Hidratos</span><strong>${r1(totals.c)} g</strong></div>
-        <div class="pmacro-row"><span style="color:#f59e0b">Grasa</span><strong>${r1(totals.f)} g</strong></div>
-      `;
+      if (!totals.kcal) {
+        listEl.innerHTML = `<p class="pmacro-empty">${macroViewMode === 'daily' ? 'Sin comidas hoy' : 'Arrastra recetas al calendario'}</p>`;
+      } else {
+        const totalMacroKcal = (totals.p * 4) + (totals.c * 4) + (totals.f * 9);
+        const pct = (v, mult) => totalMacroKcal ? Math.round((v * mult / totalMacroKcal) * 100) : 0;
+        const pP = pct(totals.p, 4), pC = pct(totals.c, 4), pF = pct(totals.f, 9);
+        listEl.innerHTML = `
+          <div class="pmacro-kcal">${Math.round(totals.kcal).toLocaleString('es-ES')} <span>kcal</span></div>
+          <p class="pmacro-sub">${subtitle}</p>
+          <div class="pmacro-bars">
+            <div class="pmacro-bar-row">
+              <div class="pmacro-bar-label"><span class="pmacro-dot" style="background:#6c63ff"></span>Proteína</div>
+              <div class="pmacro-bar-track"><div class="pmacro-bar-fill" style="width:${pP}%;background:#6c63ff"></div></div>
+              <div class="pmacro-bar-value">${Math.round(totals.p)}g <small>${pP}%</small></div>
+            </div>
+            <div class="pmacro-bar-row">
+              <div class="pmacro-bar-label"><span class="pmacro-dot" style="background:#00d2ff"></span>Hidratos</div>
+              <div class="pmacro-bar-track"><div class="pmacro-bar-fill" style="width:${pC}%;background:#00d2ff"></div></div>
+              <div class="pmacro-bar-value">${Math.round(totals.c)}g <small>${pC}%</small></div>
+            </div>
+            <div class="pmacro-bar-row">
+              <div class="pmacro-bar-label"><span class="pmacro-dot" style="background:#f59e0b"></span>Grasa</div>
+              <div class="pmacro-bar-track"><div class="pmacro-bar-fill" style="width:${pF}%;background:#f59e0b"></div></div>
+              <div class="pmacro-bar-value">${Math.round(totals.f)}g <small>${pF}%</small></div>
+            </div>
+          </div>
+        `;
+      }
     }
 
     const canvas = document.getElementById('planner-macro-chart');
@@ -222,13 +265,25 @@ const MealPlanner = (function () {
           data: [totals.p * 4, totals.c * 4, totals.f * 9],
           backgroundColor: ['#6c63ff', '#00d2ff', '#f59e0b'],
           borderWidth: 0,
-          hoverOffset: 4,
+          hoverOffset: 6,
         }],
       },
       options: {
         responsive: true,
-        cutout: '65%',
-        plugins: { legend: { display: false } },
+        cutout: '68%',
+        plugins: {
+          legend: { display: false },
+          tooltip: {
+            backgroundColor: 'rgba(14,14,26,0.95)',
+            callbacks: {
+              label: item => {
+                const total = item.dataset.data.reduce((a, b) => a + b, 0);
+                const pct   = total ? ((item.parsed / total) * 100).toFixed(0) : 0;
+                return ` ${item.label}: ${pct}%`;
+              },
+            },
+          },
+        },
       },
     });
   }
@@ -303,6 +358,17 @@ const MealPlanner = (function () {
         renderGrid();
         renderMacros();
       }
+    });
+
+    // ── Tab switcher: Macros diario / semanal ────────────────
+    document.querySelector('.macro-view-tabs')?.addEventListener('click', e => {
+      const tab = e.target.closest('[data-mtab]');
+      if (!tab) return;
+      macroViewMode = tab.dataset.mtab;
+      document.querySelectorAll('[data-mtab]').forEach(b =>
+        b.classList.toggle('stab--active', b.dataset.mtab === macroViewMode)
+      );
+      renderMacros();
     });
 
     // ── Tab switcher: Predefinidas / Mis Recetas ─────────────

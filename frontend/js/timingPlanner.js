@@ -221,34 +221,49 @@ const TimingPlanner = (function () {
   // ── Generar avisos personalizados ─────────────────────────────────────────
   function generateTips(params, events) {
     const tips = [];
-    const trainH = parseInt(params.trainTime.split(':')[0]);
+    const trainH    = parseInt(params.trainTime.split(':')[0]);
+    const weight    = parseFloat(params.userWeight) || 75;
+    const cafMin    = Math.round(weight * 3);
+    const cafMax    = Math.round(weight * 6);
+    const protMin   = Math.round(weight * 2.0);
+    const protMax   = Math.round(weight * 2.4);
+    const duration  = parseInt(params.duration);
 
     // Consejos según hora de entreno
     if (trainH >= 20) {
-      tips.push({ icon: '⚠️', text: 'Entrenas tarde: evita la cafeína si tienes sensibilidad. Considera cambiar a L-teanina o pre-entreno sin estimulantes.' });
+      tips.push({ icon: '⚠️', text: `Entrenas tarde (${params.trainTime}): evita la cafeína después de las 18:00 si tienes sensibilidad al sueño. Considera L-teanina como alternativa o un pre-entreno sin estimulantes.` });
     } else if (trainH < 8) {
-      tips.push({ icon: '🌅', text: 'Entreno matutino: toma carbohidratos de rápida absorción antes (plátano, dátiles) para activar el rendimiento.' });
+      tips.push({ icon: '🌅', text: 'Entreno matutino en ayunas: toma 20-30 g de proteína + carbohidratos de rápida absorción antes (plátano, dátiles) para activar el rendimiento y proteger el músculo.' });
     }
-    if (parseInt(params.duration) > 90) {
-      tips.push({ icon: '💧', text: 'Sesión larga (>90 min): añade bebida isotónica o carbohidratos de rápida absorción durante el entreno.' });
+
+    if (duration > 90) {
+      tips.push({ icon: '💧', text: `Sesión larga (${duration} min): planifica 30-45 g de carbohidratos por hora después de los primeros 60 min. Añade electrolitos si hay mucha sudoración.` });
     }
+
+    if (params.supplements.includes('caffeine')) {
+      tips.push({ icon: '☕', text: `Tu dosis de cafeína personalizada para ${weight} kg: ${cafMin}–${cafMax} mg (3–6 mg/kg). Empieza con la dosis baja y ajusta según tolerancia. Cicla 5 días sí / 2 días no para evitar tolerancia.` });
+    }
+
     if (params.goal === 'deficit') {
-      tips.push({ icon: '🎯', text: 'En déficit: la proteína es lo más importante. Prioriza 2.2–2.4 g/kg para preservar músculo.' });
+      tips.push({ icon: '🎯', text: `En déficit calórico tu objetivo proteico es ${protMin}–${protMax} g/día (2.0–2.4 g/kg) para preservar músculo. Distribuye en ingestas de 30-40 g máximo.` });
     }
     if (params.goal === 'hypertrophy') {
-      tips.push({ icon: '💪', text: 'Para hipertrofia: asegura un superávit calórico de 250-500 kcal/día y al menos 2 g/kg de proteína.' });
+      tips.push({ icon: '💪', text: `Para hipertrofia necesitas ${protMin} g/día mínimo de proteína y un superávit calórico de 250-500 kcal. Prioriza sesiones de sueño de 7-9 h — el 70% del GH nocturno se libera en las primeras 2 h.` });
     }
     if (params.goal === 'performance') {
-      tips.push({ icon: '⚡', text: 'Rendimiento: carga de carbohidratos la noche anterior. Prioriza 5-7 g/kg de hidratos en días de competición.' });
+      tips.push({ icon: '⚡', text: `Rendimiento: carga de 7-10 g/kg de carbohidratos la noche anterior a la competición. El día del evento, ingiere 1-4 g/kg de hidratos 1-4 h antes del inicio.` });
     }
+
     if (!params.supplements.includes('creatine')) {
-      tips.push({ icon: '💡', text: 'No usas creatina. Es el suplemento más eficaz y barato: considera añadir 5 g/día.' });
+      tips.push({ icon: '💡', text: 'No usas creatina. Es el suplemento más estudiado y coste-efectivo del mundo: 3-5 g/día sin fase de carga. Mejora la fuerza un 8-15% y la potencia explosiva.' });
     }
+
     if (parseInt(params.mealCount) <= 3) {
-      tips.push({ icon: '📊', text: 'Con pocas comidas, asegura ingestas proteicas de 30-40 g para maximizar síntesis muscular.' });
+      tips.push({ icon: '📊', text: `Con ${params.mealCount} comidas, necesitas 35-45 g de proteína por ingesta para superar el umbral de leucina y maximizar la síntesis muscular (MPS).` });
     }
+
     // Consejo general siempre visible
-    tips.push({ icon: '🕐', text: 'Respeta la ventana anabólica: consume proteína + carbohidratos en los 45-60 min post-entreno.' });
+    tips.push({ icon: '🕐', text: 'Ventana anabólica: consume proteína + carbohidratos en los 45-60 min post-entreno. Cuanto más entrenas en ayunas o con sesiones largas, más importante es esta ventana.' });
 
     return tips;
   }
@@ -365,12 +380,63 @@ const TimingPlanner = (function () {
     `).join('');
   }
 
+  // ── Leer perfil TDEE del usuario (macroCalc.js lo guarda en hs_tdee) ─────────
+  function readUserProfile() {
+    try {
+      return JSON.parse(localStorage.getItem('hs_tdee') || 'null');
+    } catch { return null; }
+  }
+
+  // ── Mapear objetivo TDEE al formato de timing ─────────────────────────────
+  function mapGoal(tdeeGoal) {
+    if (!tdeeGoal) return 'hypertrophy';
+    if (tdeeGoal.startsWith('deficit')) return 'deficit';
+    if (tdeeGoal === 'surplus_hard' || tdeeGoal === 'surplus_soft') return 'hypertrophy';
+    return 'hypertrophy'; // maintain → hipertrofia por defecto
+  }
+
+  // ── Mapear actividad TDEE al número estimado de comidas ──────────────────
+  function mapMeals(activity) {
+    const a = parseFloat(activity || 1.55);
+    if (a <= 1.375) return '3';   // sedentario / poco activo
+    if (a <= 1.55)  return '4';   // moderado
+    if (a <= 1.725) return '5';   // muy activo
+    return '6';                    // extremadamente activo (2x/día)
+  }
+
+  // ── Pre-rellenar formulario desde perfil del usuario ─────────────────────
+  function prefillFromProfile(profile) {
+    if (!profile) return;
+
+    // Objetivo
+    const goalEl = document.getElementById('tp-goal');
+    if (goalEl) goalEl.value = mapGoal(profile.goal);
+
+    // Número de comidas según actividad
+    const mealsEl = document.getElementById('tp-meals');
+    if (mealsEl) mealsEl.value = mapMeals(profile.activity);
+
+    // Banner informativo si hay perfil
+    const formCard = document.querySelector('.timing-form-card .form-grid');
+    if (formCard && !document.getElementById('tp-profile-notice')) {
+      const notice = document.createElement('div');
+      notice.id = 'tp-profile-notice';
+      notice.className = 'tp-profile-notice';
+      notice.innerHTML = `<span>✅ Formulario pre-cargado con tu perfil TDEE</span>
+        <button class="tp-profile-dismiss" onclick="this.parentElement.remove()" title="Cerrar">×</button>`;
+      formCard.insertBefore(notice, formCard.firstChild);
+    }
+  }
+
   // ── Init ──────────────────────────────────────────────────────────────────
   function init() {
     renderSuppCheckboxes();
 
-    // Valores por defecto del formulario
-    // Si la hora actual es >= 22 o < 6 se usa 19:00 como valor por defecto
+    // Leer perfil y pre-rellenar formulario
+    const profile = readUserProfile();
+    prefillFromProfile(profile);
+
+    // Hora de entreno: si la hora actual es >= 22 o < 6, usar 19:00
     const now = new Date();
     const nowH = now.getHours();
     const defaultTrainH = (nowH >= 6 && nowH + 2 <= 22) ? nowH + 2 : 19;
@@ -391,7 +457,9 @@ const TimingPlanner = (function () {
         document.querySelectorAll('input[name="tp-supp"]:checked')
       ).map(cb => cb.value);
 
-      const params = { trainTime, duration, goal, mealCount, supplements: checked, bedTime };
+      // Leer peso del perfil para dosis personalizadas de cafeína
+      const userWeight = profile?.weight || 75;
+      const params = { trainTime, duration, goal, mealCount, supplements: checked, bedTime, userWeight };
       const events  = generateSchedule(params);
 
       localStorage.setItem(LS_KEY, JSON.stringify({ params, events }));

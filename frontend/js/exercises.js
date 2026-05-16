@@ -12,7 +12,7 @@ const Exercises = (function () {
     try {
       const mod = await import('./anatomyLens/index.js');
       _lens = mod.default;
-      const container = document.querySelector('.anatomy-lens-container');
+      const container = document.querySelector('#section-ejercicios .anatomy-lens-container');
       if (container) await _lens.init(container);
     } catch (e) {
       console.warn('[Exercises] AnatomyLens failed, activating emergency SVG:', e);

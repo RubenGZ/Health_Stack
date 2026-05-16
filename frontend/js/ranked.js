@@ -108,8 +108,8 @@ function gymPanel(gym) {
       <span class="rk-gym-code">Código: <strong>${gym.invite_code}</strong></span>
     </div>
     <div class="rk-gym-actions">
-      <button class="btn-secondary rk-action" data-gym-id="${gym.id}">🏆 Leaderboard</button>
-      <button class="btn-secondary rk-action" data-sparring-gym="${gym.id}">🤝 Buscar Sparring</button>
+      <button class="btn btn--ghost btn--sm rk-action" data-gym-id="${gym.id}">🏆 Leaderboard</button>
+      <button class="btn btn--ghost btn--sm rk-action" data-sparring-gym="${gym.id}">🤝 Buscar Sparring</button>
     </div>
   </div>`;
 }
@@ -117,10 +117,10 @@ function gymPanel(gym) {
 function noGymPanel() {
   return `<div class="rk-no-gym">
     <p>Aún no perteneces a ningún gym. ¡Crea uno o únete con un código!</p>
-    <button class="btn-primary" id="rk-create-gym">+ Crear Gym</button>
+    <button class="btn btn--primary btn--sm" id="rk-create-gym">+ Crear Gym</button>
     <div class="rk-join-form">
       <input type="text" id="rk-join-code" placeholder="Código de invitación" class="wl-input" maxlength="12" />
-      <button class="btn-secondary" id="rk-join-btn">Unirse</button>
+      <button class="btn btn--ghost btn--sm" id="rk-join-btn">Unirse</button>
     </div>
   </div>`;
 }
@@ -169,7 +169,7 @@ function openCreateGym(container) {
     <div class="rk-create-form">
       <input id="rk-gym-name" class="wl-input" placeholder="Nombre del gym" maxlength="80" />
       <input id="rk-gym-city" class="wl-input" placeholder="Ciudad (opcional)" maxlength="80" />
-      <button class="btn-primary" id="rk-gym-submit">Crear</button>
+      <button class="btn btn--primary btn--sm" id="rk-gym-submit">Crear</button>
     </div>`);
   document.getElementById('rk-gym-submit')?.addEventListener('click', async () => {
     const name = document.getElementById('rk-gym-name')?.value?.trim();

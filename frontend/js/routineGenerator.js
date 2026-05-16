@@ -1106,13 +1106,13 @@ const RoutineGenerator = (function () {
     }
 
     // Navegar a la sección de Entrenos
-    var navItem = document.querySelector('[data-section="workouts"]');
+    var navItem = document.querySelector('[data-section="workout"]');
     if (navItem) {
       navItem.click();
     } else {
       // Fallback: mostrar la sección directamente
       document.querySelectorAll('.section').forEach(function(s) { s.style.display = 'none'; });
-      var ws = document.getElementById('section-workouts');
+      var ws = document.getElementById('section-workout');
       if (ws) ws.style.display = '';
     }
 

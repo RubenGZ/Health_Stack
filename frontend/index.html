@@ -358,6 +358,18 @@
         </div>
       </div>
 
+      <!-- Mini gráfico de evolución del peso -->
+      <div class="card" style="margin-bottom:16px;padding:14px 16px 10px">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px">
+          <span style="font-size:12px;font-weight:600;color:var(--text-secondary);letter-spacing:.05em;text-transform:uppercase">Evolución del peso</span>
+          <button class="btn btn--ghost btn--xs" onclick="document.querySelector('[data-section=peso]').click()" style="font-size:11px">Ver todo →</button>
+        </div>
+        <div style="position:relative;height:80px">
+          <canvas id="mini-weight-chart" style="width:100%;height:80px"></canvas>
+          <p id="mini-chart-empty" style="display:none;margin:0;text-align:center;color:var(--text-secondary);font-size:13px;padding-top:20px">Sin datos de peso aún</p>
+        </div>
+      </div>
+
       <!-- Training Readiness Score -->
       <div id="readiness-widget" style="display:none;margin-bottom:20px"></div>
 
@@ -1509,20 +1521,20 @@
   <script defer src="js/timingPlanner.js?v=3"></script>
   <script defer src="js/readiness.js"></script>
   <script defer src="js/records.js"></script>
-  <script src="js/plan.js?v=2"></script>
+  <script defer src="js/plan.js?v=2"></script>
   <script defer src="js/restTimer.js"></script>
   <script defer src="js/athleteReceipt.js"></script>
   <script defer src="js/macroAutopilot.js"></script>
-  <script src="js/plateauRadar.js"></script>
-  <script src="js/fatigueHeatmap.js"></script>
-  <script src="js/sessionReplay.js"></script>
-  <script src="js/bodyCompForecast.js"></script>
-  <script src="js/autoDeload.js"></script>
+  <script defer src="js/plateauRadar.js"></script>
+  <script defer src="js/fatigueHeatmap.js"></script>
+  <script defer src="js/sessionReplay.js"></script>
+  <script defer src="js/bodyCompForecast.js"></script>
+  <script defer src="js/autoDeload.js"></script>
   <script defer src="js/auth.js"></script>
   <script defer src="js/app.js"></script>
   <script type="module" src="js/athleteViewer.js"></script>
   <script type="module" src="js/workoutInit.js"></script>
-  <script src="js/ranked.js"></script>
+  <script defer src="js/ranked.js"></script>
   <script>
     // ── PWA: registrar service worker ─────────────────────────
     if ('serviceWorker' in navigator) {

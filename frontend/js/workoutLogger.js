@@ -151,7 +151,7 @@ function renderActive() {
               class="wl-input" autocomplete="off" />
           </div>
           <div class="wl-ex-results" id="wl-ex-results"></div>
-          <button class="btn-ghost wl-add-custom-btn" id="wl-add-custom">
+          <button class="btn--ghost wl-add-custom-btn" id="wl-add-custom">
             + Añadir personalizado
           </button>
         </div>

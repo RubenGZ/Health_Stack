@@ -798,6 +798,27 @@ const RoutineGenerator = (function () {
     if (resetBtn)      resetBtn.style.display = '';
     if (shareBtn)      shareBtn.style.display = '';
 
+    // Botón "Copiar rutina a entreno" — inyectar solo si no existe ya
+    if (!document.getElementById('btn-copy-to-workout')) {
+      var copyBtn = document.createElement('button');
+      copyBtn.id        = 'btn-copy-to-workout';
+      copyBtn.className = 'btn btn--accent';
+      copyBtn.style.cssText = 'display:inline-flex;align-items:center;gap:8px;margin-left:8px;';
+      copyBtn.innerHTML = '<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polygon points="5 3 19 12 5 21 5 3"/></svg> Cargar en Entrenos';
+      copyBtn.addEventListener('click', function() {
+        copyRoutineToWorkout(routine);
+      });
+      if (shareBtn && shareBtn.parentNode) {
+        shareBtn.parentNode.insertBefore(copyBtn, shareBtn.nextSibling);
+      }
+    } else {
+      // Actualizar handler para la rutina actual
+      var existingBtn = document.getElementById('btn-copy-to-workout');
+      var newBtn = existingBtn.cloneNode(true);
+      newBtn.addEventListener('click', function() { copyRoutineToWorkout(routine); });
+      existingBtn.parentNode.replaceChild(newBtn, existingBtn);
+    }
+
     const cfg = routine.cfg;
     const ans = routine.answers;
     const goalMap = { hypertrophy:'Hipertrofia', strength:'Fuerza', fat_loss:'Pérdida de grasa', athletic:'Atlético', recomposition:'Recomposición' };
@@ -838,7 +859,6 @@ const RoutineGenerator = (function () {
                     <span class="rex-rest">⏱ ${ex.rest}</span>
                     ${ex.sfr === 'high' ? '<span class="rex-sfr" title="Alto SFR — máxima relación estímulo/fatiga sistémica">⭐</span>' : ''}
                   </span>
-                  <button class="rex-log-btn" title="Registrar set completado" aria-label="Registrar set">🏋️</button>
                 </div>`).join('')
             }
           </div>
@@ -1035,6 +1055,74 @@ const RoutineGenerator = (function () {
   function closeShareOverlay() {
     const overlay = document.getElementById('share-overlay');
     if (overlay) overlay.style.display = 'none';
+  }
+
+  // ── Copiar rutina generada a la sección de Entrenos ───────────────────────
+  function copyRoutineToWorkout(routine) {
+    if (!routine || !routine.sessions) return;
+
+    // Buscar la primera sesión con ejercicios (día de hoy o día 1)
+    var dayIndex = new Date().getDay(); // 0=dom, 1=lun, …
+    // Mapeo: sesión de entrenamiento según el día de la semana
+    var session = routine.sessions.find(s => s.exercises && s.exercises.length > 0);
+    if (!session) { alert('Esta rutina no tiene ejercicios configurados.'); return; }
+
+    // Construir el draft de sesión en el formato que espera workoutSession.js
+    var now = new Date().toISOString();
+    var draft = {
+      routineId: null,
+      startedAt: now,
+      exercises: session.exercises.map(function(ex, i) {
+        var key = ex.name.toLowerCase().trim()
+          .normalize('NFD').replace(/[̀-ͯ]/g, '')
+          .replace(/\s+/g, '_');
+        var setsArr = [];
+        var numSets = parseInt(ex.sets) || 3;
+        for (var s = 0; s < numSets; s++) {
+          setsArr.push({
+            setNumber:   s + 1,
+            weightKg:    0,
+            reps:        parseInt(ex.reps) || 8,
+            rpe:         null,
+            isWarmup:    false,
+            completedAt: null,
+          });
+        }
+        return {
+          key:        key,
+          name:       ex.name,
+          orderIndex: i,
+          sets:       setsArr,
+          note:       ex.rest ? 'Descanso: ' + ex.rest : '',
+        };
+      }),
+    };
+
+    // Guardar draft en localStorage (clave que lee workoutLogger.js)
+    try {
+      localStorage.setItem('hs_workout_active', JSON.stringify(draft));
+    } catch (e) {
+      console.warn('[RoutineGenerator] No se pudo guardar el draft:', e);
+    }
+
+    // Navegar a la sección de Entrenos
+    var navItem = document.querySelector('[data-section="workouts"]');
+    if (navItem) {
+      navItem.click();
+    } else {
+      // Fallback: mostrar la sección directamente
+      document.querySelectorAll('.section').forEach(function(s) { s.style.display = 'none'; });
+      var ws = document.getElementById('section-workouts');
+      if (ws) ws.style.display = '';
+    }
+
+    // Lanzar el logger si ya está montado
+    setTimeout(function() {
+      if (window.WorkoutLogger && typeof window.WorkoutLogger.init === 'function') {
+        var container = document.getElementById('workout-logger-root');
+        if (container) window.WorkoutLogger.init(container);
+      }
+    }, 150);
   }
 
   return { init };

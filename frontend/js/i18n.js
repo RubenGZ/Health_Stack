@@ -216,14 +216,17 @@
       })
     })
 
-    // Close on outside click
+    // Close on outside click — guard: skip if wrap was removed from DOM
     document.addEventListener('click', e => {
-      if (!wrap.contains(e.target)) {
-        const dd  = document.getElementById('hs-lang-dd')
-        const chv = document.getElementById('hs-lang-chevron')
-        if (dd)  dd.style.display = 'none'
-        if (chv) chv.style.transform = ''
-      }
+      try {
+        if (!wrap.isConnected) return
+        if (!wrap.contains(e.target)) {
+          const dd  = document.getElementById('hs-lang-dd')
+          const chv = document.getElementById('hs-lang-chevron')
+          if (dd)  dd.style.display = 'none'
+          if (chv) chv.style.transform = ''
+        }
+      } catch (_) { /* elemento desconectado */ }
     })
   }
 

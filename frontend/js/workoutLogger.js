@@ -80,16 +80,34 @@ function hideRestTimer() {
 
 // ─── IDLE ──────────────────────────────────────────────────────────────────────
 function renderIdle() {
+  // Última sesión para mostrar vista previa
+  const history = Session.getLocalSessions();
+  const lastSession = history[0];
+  let lastHtml = '';
+  if (lastSession) {
+    const d = new Date(lastSession.startedAt);
+    const dateStr = d.toLocaleDateString('es-ES', { weekday: 'long', day: 'numeric', month: 'short' });
+    const exNames = (lastSession.exercises || []).slice(0, 3).map(e => e.name).join(', ');
+    const more = (lastSession.exercises || []).length > 3 ? ` +${(lastSession.exercises||[]).length - 3}` : '';
+    lastHtml = `
+      <div class="wl-last-session">
+        <div class="wl-last-label">Última sesión</div>
+        <div class="wl-last-date">${dateStr}</div>
+        <div class="wl-last-exercises">${exNames}${more}</div>
+      </div>`;
+  }
+
   _root.innerHTML = `
     <div class="wl-idle">
       <div class="wl-idle-body">
-        <div class="wl-idle-icon">🏋️</div>
+        <span class="wl-idle-icon">🏋️</span>
         <h3 class="wl-idle-title">¿Listo para entrenar?</h3>
         <p class="wl-idle-sub">Registra tus series, sigue tu progresión y bate tus récords.</p>
-        <button class="btn wl-start-btn" id="wl-start">
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+        <button class="wl-start-btn" id="wl-start">
+          <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polygon points="5 3 19 12 5 21 5 3"/></svg>
           Iniciar sesión
         </button>
+        ${lastHtml}
       </div>
     </div>`;
   _root.querySelector('#wl-start').addEventListener('click', () => {
@@ -117,7 +135,7 @@ function renderActive() {
         <span class="wl-timer" id="wl-timer">00:00</span>
         <span class="wl-vol-live" id="wl-vol-live">0 kg</span>
       </div>
-      <button class="btn wl-finish-btn" id="wl-finish">Finalizar</button>
+      <button class="wl-finish-btn" id="wl-finish">Finalizar</button>
     </div>
 
     <!-- Columnas: ejercicios | anat -->
@@ -300,12 +318,15 @@ function renderExercises() {
 
       <!-- Cabecera de columnas -->
       <div class="wl-sets-header">
-        <span>Set</span><span></span><span>kg</span><span></span><span>Reps</span><span></span>
+        <span>Set</span><span title="Calentamiento">Cal</span><span>Peso kg</span><span></span><span>Reps</span><span>✓</span><span></span>
       </div>
 
       <div class="wl-sets-list" id="wl-sets-${CSS.escape(ex.key)}"></div>
 
-      <button class="btn-ghost wl-add-set-btn" data-key="${ex.key}">+ Añadir set</button>`;
+      <button class="wl-add-set-btn" data-key="${ex.key}">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+        Añadir set
+      </button>`;
 
     container.appendChild(card);
     renderSets(ex);
@@ -520,7 +541,7 @@ function renderSummary(result) {
           ${prs.map(pr => `<div class="wl-pr-item">🏆 PR — ${pr.exercise_key.replace(/_/g,' ')}: ${pr.value} kg 1RM</div>`).join('')}
         </div>` : ''}
 
-      <button class="btn wl-done-btn" id="wl-done">Cerrar</button>
+      <button class="wl-done-btn btn" id="wl-done">Nueva sesión</button>
     </div>`;
 
   _root.querySelector('#wl-done').addEventListener('click', () => {

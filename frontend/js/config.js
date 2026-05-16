@@ -1110,12 +1110,12 @@ window.HS_CONFIG = (function () {
     protein: {
       icon: '🥩',
       title: 'PROTEÍNA',
-      range: '2 – 2.4 g/kg · PESO CORPORAL',
+      range: '1.6 – 2.0 g/kg · PESO CORPORAL',
       color: '#ff4757',
       description: 'El macronutriente más importante para la hipertrofia. Aporta los aminoácidos que construyen y reparan el tejido muscular. Fuentes de alta biodisponibilidad: pollo, pavo, ternera magra, huevos, pescado, lácteos, whey.',
       details: {
-        volumen: '2 g/kg',
-        definicion: '2.2–2.4 g/kg para preservar masa magra durante el déficit calórico.',
+        volumen: '1.6–1.8 g/kg (óptimo para ganar masa muscular con suficiente superávit calórico)',
+        definicion: '1.8–2.0 g/kg para preservar masa magra durante el déficit calórico.',
       },
     },
     carbs: {

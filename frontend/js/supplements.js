@@ -204,21 +204,33 @@ const Supplements = (function () {
   function init() {
     if (!window.HS_CONFIG) return;
 
-    // Intentar cargar suplementos desde la API; si falla, usar config.js
-    var _isProd = location.hostname !== 'localhost' && location.hostname !== '127.0.0.1';
-    var _base   = _isProd ? ('https://' + location.hostname + '/api/v1') : 'http://localhost:8000/api/v1';
-    fetch(_base + '/nutrition/supplements')
-      .then(r => r.ok ? r.json() : Promise.reject())
-      .then(data => {
-        // Si la BD está vacía, la API devuelve [] — usar config.js como fallback
-        var list = Array.isArray(data) ? data : (data.supplements || data.items || []);
-        renderSupplements(list.length ? list : HS_CONFIG.SUPPLEMENTS);
-      })
-      .catch(() => renderSupplements(HS_CONFIG.SUPPLEMENTS));
-
+    // Render secciones de macro/timing inmediatamente desde config.js (no dependen de la API)
     renderMacroInfo();
     renderTimingInfo();
     renderSponsorBanner();
+
+    // Intentar cargar suplementos desde la API; si falla o tarda, usar config.js como fallback
+    var _isProd = location.hostname !== 'localhost' && location.hostname !== '127.0.0.1';
+    var _base   = _isProd ? ('https://' + location.hostname + '/api/v1') : 'http://localhost:8000/api/v1';
+
+    var _timedOut = false;
+    var _fallbackTimer = setTimeout(function() {
+      _timedOut = true;
+      renderSupplements(HS_CONFIG.SUPPLEMENTS);
+    }, 3000); // 3s timeout — si la API no responde, usar config.js
+
+    fetch(_base + '/nutrition/supplements')
+      .then(function(r) { return r.ok ? r.json() : Promise.reject(r.status); })
+      .then(function(data) {
+        clearTimeout(_fallbackTimer);
+        if (_timedOut) return; // ya se renderizó el fallback
+        var list = Array.isArray(data) ? data : (data.supplements || data.items || []);
+        renderSupplements(list.length ? list : HS_CONFIG.SUPPLEMENTS);
+      })
+      .catch(function() {
+        clearTimeout(_fallbackTimer);
+        if (!_timedOut) renderSupplements(HS_CONFIG.SUPPLEMENTS);
+      });
   }
 
   return { init };

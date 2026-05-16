@@ -56,6 +56,9 @@
             </div>
           </div>
           <div id="auth-login-error" class="auth-error" style="display:none;margin:0 24px"></div>
+          <div style="text-align:right;margin:4px 24px 0">
+            <button type="button" class="btn btn--ghost btn--sm" id="auth-forgot-btn">¿Olvidaste tu contraseña?</button>
+          </div>
           <div class="ob-footer">
             <span></span>
             <button class="btn btn--primary" id="auth-login-btn">Entrar →</button>
@@ -90,7 +93,7 @@
           </div>
           <label class="auth-consent">
             <input type="checkbox" id="auth-gdpr">
-            Acepto la <a href="/privacidad" target="_blank" rel="noopener">política de privacidad</a>
+            Acepto la <a href="/privacy.html" target="_blank" rel="noopener">Política de Privacidad</a> y los <a href="/terms.html" target="_blank" rel="noopener">Términos de Uso</a>
           </label>
           <div id="auth-register-error" class="auth-error" style="display:none;margin:0 24px"></div>
           <div class="ob-footer">
@@ -131,6 +134,7 @@
 
     document.getElementById('auth-login-btn').addEventListener('click', doLogin);
     document.getElementById('auth-register-btn').addEventListener('click', doRegister);
+    document.getElementById('auth-forgot-btn').addEventListener('click', doForgotPassword);
   }
 
   function switchTab(tab) {
@@ -230,6 +234,40 @@
     } finally {
       btn.disabled = false;
       btn.textContent = 'Crear cuenta →';
+    }
+  }
+
+  async function doForgotPassword() {
+    const emailInput = document.getElementById('auth-login-email');
+    const email = emailInput?.value.trim() || prompt('Introduce tu email:');
+    if (!email) return;
+
+    const errEl = document.getElementById('auth-login-error');
+    const btn   = document.getElementById('auth-forgot-btn');
+
+    if (btn) { btn.disabled = true; btn.textContent = 'Enviando…'; }
+
+    try {
+      await fetch('/api/v1/auth/forgot-password', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email }),
+      });
+      // Respuesta siempre positiva (anti-enumeration)
+      if (errEl) {
+        errEl.style.display = '';
+        errEl.style.color = '#10b981';
+        errEl.textContent = 'Si el email existe, recibirás instrucciones en breve.';
+      }
+    } catch (_) {
+      // Fallo de red — misma UX positiva para no revelar información
+      if (errEl) {
+        errEl.style.display = '';
+        errEl.style.color = '#10b981';
+        errEl.textContent = 'Si el email existe, recibirás instrucciones en breve.';
+      }
+    } finally {
+      if (btn) { btn.disabled = false; btn.textContent = '¿Olvidaste tu contraseña?'; }
     }
   }
 
@@ -368,6 +406,37 @@
   } else {
     init();
   }
+
+  // ── Reset token en URL ─────────────────────────────────────
+  // Si la URL contiene ?reset_token=... se muestra el diálogo de nueva contraseña.
+  // Se ejecuta en cuanto el script carga (antes del DOMContentLoaded no es necesario
+  // porque solo usa fetch + prompt, no el DOM del modal).
+  (function checkResetToken() {
+    const params = new URLSearchParams(window.location.search);
+    const token  = params.get('reset_token');
+    if (!token) return;
+
+    // Limpiar el token de la URL inmediatamente (no queda en historial)
+    window.history.replaceState({}, '', window.location.pathname);
+
+    const newPwd = prompt(
+      'Introduce tu nueva contraseña\n(mín. 8 caracteres · mayúscula · minúscula · número · símbolo):'
+    );
+    if (!newPwd) return;
+
+    fetch('/api/v1/auth/reset-password', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ token, new_password: newPwd }),
+    })
+      .then(r => r.json())
+      .then(data => {
+        alert(data.message || 'Contraseña actualizada. Ya puedes iniciar sesión.');
+      })
+      .catch(() => {
+        alert('Error al restablecer la contraseña. El enlace puede haber expirado.');
+      });
+  })();
 
   // Expose for external use (e.g., admin panel, tests)
   window.Auth = { open: openModal, close: closeModal, showToast };

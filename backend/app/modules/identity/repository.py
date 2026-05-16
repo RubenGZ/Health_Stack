@@ -21,13 +21,15 @@ Separación de schemas PostgreSQL:
 
 from __future__ import annotations
 
-from datetime import UTC, datetime
+import hashlib
+import secrets
 import uuid
+from datetime import UTC, datetime, timedelta
 
-from sqlalchemy import select
+from sqlalchemy import select, update
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.modules.identity.models import DataLink, RefreshToken, User
+from app.modules.identity.models import DataLink, PasswordResetToken, RefreshToken, User
 
 # ── USER REPOSITORY ───────────────────────────────────────────────────────────
 
@@ -115,6 +117,20 @@ class UserRepository:
             .offset(offset)
         )
         return list(result.scalars().all())
+
+    @staticmethod
+    async def update_password(
+        db: AsyncSession,
+        user_id: str | uuid.UUID,
+        new_password_hash: str,
+    ) -> None:
+        """Actualiza el hash de contraseña de un usuario."""
+        uid = uuid.UUID(str(user_id)) if isinstance(user_id, str) else user_id
+        result = await db.execute(select(User).where(User.id == uid))
+        user = result.scalar_one_or_none()
+        if user:
+            user.password_hash = new_password_hash
+            await db.flush()
 
     @staticmethod
     async def set_active(
@@ -266,12 +282,77 @@ class RefreshTokenRepository:
         Úsalo en: cambio de contraseña, cuenta comprometida, admin action.
         Devuelve el número de tokens revocados.
         """
-        from sqlalchemy import update as sa_update
         uid = uuid.UUID(str(user_id)) if isinstance(user_id, str) else user_id
         result = await db.execute(
-            sa_update(RefreshToken)
+            update(RefreshToken)
             .where(RefreshToken.user_id == uid, RefreshToken.revoked_at.is_(None))
             .values(revoked_at=datetime.now(UTC))
         )
         await db.flush()
         return result.rowcount
+
+    @staticmethod
+    async def revoke_all(db: AsyncSession, user_id: str | uuid.UUID) -> int:
+        """Alias de revoke_all_for_user — interfaz uniforme para el router de reset."""
+        return await RefreshTokenRepository.revoke_all_for_user(db, user_id)
+
+
+# ── PASSWORD RESET REPOSITORY ─────────────────────────────────────────────────
+
+class PasswordResetRepository:
+    """
+    Operaciones sobre la tabla `public.password_reset_tokens`.
+
+    Seguridad:
+    - Los tokens en claro nunca se persisten — solo su SHA-256 hex.
+    - Cada `create_token` invalida los tokens anteriores del usuario.
+    - `consume_token` verifica expiración y single-use en una sola operación.
+    """
+
+    @staticmethod
+    async def create_token(db: AsyncSession, user_id: uuid.UUID) -> str:
+        """
+        Genera un token seguro, invalida los anteriores del usuario y guarda el hash.
+        Devuelve el token en claro (para enviarlo por email — nunca se persiste).
+        """
+        # Invalidar tokens anteriores no consumidos del mismo usuario
+        await db.execute(
+            update(PasswordResetToken)
+            .where(
+                PasswordResetToken.user_id == user_id,
+                PasswordResetToken.used_at.is_(None),
+            )
+            .values(used_at=datetime.now(UTC))
+        )
+
+        raw_token = secrets.token_urlsafe(32)
+        token_hash = hashlib.sha256(raw_token.encode()).hexdigest()
+        db_token = PasswordResetToken(
+            user_id=user_id,
+            token_hash=token_hash,
+            expires_at=datetime.now(UTC) + timedelta(hours=1),
+        )
+        db.add(db_token)
+        await db.flush()
+        return raw_token
+
+    @staticmethod
+    async def consume_token(db: AsyncSession, raw_token: str) -> uuid.UUID | None:
+        """
+        Verifica y consume el token. Devuelve user_id si el token es válido,
+        None si el token no existe, ya fue usado o está expirado.
+        """
+        token_hash = hashlib.sha256(raw_token.encode()).hexdigest()
+        result = await db.execute(
+            select(PasswordResetToken).where(
+                PasswordResetToken.token_hash == token_hash,
+                PasswordResetToken.used_at.is_(None),
+                PasswordResetToken.expires_at > datetime.now(UTC),
+            )
+        )
+        db_token = result.scalar_one_or_none()
+        if not db_token:
+            return None
+        db_token.used_at = datetime.now(UTC)
+        await db.flush()
+        return db_token.user_id

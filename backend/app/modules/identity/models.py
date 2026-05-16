@@ -23,7 +23,7 @@ from __future__ import annotations
 from datetime import UTC, datetime
 import uuid
 
-from sqlalchemy import Boolean, DateTime, ForeignKey, String, Text
+from sqlalchemy import Boolean, DateTime, ForeignKey, String, Text, update
 from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
@@ -283,3 +283,49 @@ class DataLink(UUIDPrimaryKeyMixin, TimestampMixin, Base):
     def __repr__(self) -> str:
         # NUNCA mostrar health_uuid_enc en repr → es material criptográfico
         return f"<DataLink user_id={str(self.user_id)[:8]}... [encrypted]>"
+
+
+class PasswordResetToken(UUIDPrimaryKeyMixin, TimestampMixin, Base):
+    """
+    Tabla `password_reset_tokens` — Tokens de restablecimiento de contraseña (schema: public).
+
+    Seguridad:
+    - El token en claro NUNCA se almacena. Solo el SHA-256 hex del token.
+    - Cada solicitud invalida los tokens anteriores del mismo usuario.
+    - Expiración: 1 hora desde la creación.
+    - Single-use: `used_at` marca el consumo del token.
+    """
+
+    __tablename__ = "password_reset_tokens"
+    __table_args__ = {"schema": "public"}
+
+    user_id: Mapped[uuid.UUID] = mapped_column(
+        UUID(as_uuid=True),
+        ForeignKey("public.users.id", ondelete="CASCADE"),
+        nullable=False,
+        index=True,
+    )
+
+    token_hash: Mapped[str] = mapped_column(
+        String(64),
+        nullable=False,
+        unique=True,
+        index=True,
+        comment="SHA-256 hex del token en claro. El token original nunca se persiste.",
+    )
+
+    expires_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True),
+        nullable=False,
+    )
+
+    used_at: Mapped[datetime | None] = mapped_column(
+        DateTime(timezone=True),
+        nullable=True,
+        default=None,
+        comment="Null = token válido. Timestamp = token ya consumido (single-use).",
+    )
+
+    def __repr__(self) -> str:
+        status = "used" if self.used_at else ("expired" if self.expires_at < datetime.now(UTC) else "valid")
+        return f"<PasswordResetToken user_id={str(self.user_id)[:8]}... {status}>"

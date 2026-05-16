@@ -150,3 +150,49 @@ class LoginResponse(BaseModel):
     access_token: str
     refresh_token: str
     token_type: str = "bearer"
+
+
+# ── PASSWORD RESET SCHEMAS ─────────────────────────────────────────────────────
+
+class ForgotPasswordRequest(BaseModel):
+    """Body del endpoint POST /auth/forgot-password."""
+
+    email: EmailStr
+
+
+class ResetPasswordRequest(BaseModel):
+    """Body del endpoint POST /auth/reset-password."""
+
+    token: str
+    new_password: str = Field(..., min_length=8, max_length=128)
+
+    @field_validator("new_password")
+    @classmethod
+    def password_strength(cls, v: str) -> str:
+        """Misma validación de complejidad que RegisterRequest.password_strength."""
+        errors = []
+        if not any(c.isupper() for c in v):
+            errors.append("al menos una mayúscula")
+        if not any(c.islower() for c in v):
+            errors.append("al menos una minúscula")
+        if not any(c.isdigit() for c in v):
+            errors.append("al menos un número")
+        if not any(c in r"!@#$%^&*()_+-=[]{}|;':\",./<>?" for c in v):
+            errors.append("al menos un carácter especial")
+        if errors:
+            raise ValueError(
+                "La contraseña no cumple los requisitos: " + ", ".join(errors)
+            )
+        return v
+
+
+class ForgotPasswordResponse(BaseModel):
+    """Respuesta del endpoint POST /auth/forgot-password."""
+
+    message: str
+
+
+class ResetPasswordResponse(BaseModel):
+    """Respuesta del endpoint POST /auth/reset-password."""
+
+    message: str

@@ -82,6 +82,11 @@ class Settings(BaseSettings):
     # ── xAI Grok ─────────────────────────────────────────────
     grok_api_key: str = ""
 
+    # ── Email (Resend) ────────────────────────────────────────
+    resend_api_key: str = ""          # re_... — vacío desactiva emails
+    resend_from: str = "HealthStack Pro <noreply@healthstack.pro>"
+    app_frontend_url: str = "http://localhost:3000"  # URL base del frontend
+
     # ── Sentry ────────────────────────────────────────────────
     sentry_dsn: str = ""  # Vacío → Sentry desactivado
 

@@ -45,7 +45,7 @@ except ImportError:
 # migraciones automáticas con `alembic revision --autogenerate`.
 # Importar la Base primero, luego los modelos que la usan.
 from app.shared.base_model import Base  # noqa: F401 — importar Base
-from app.modules.identity.models import User, DataLink  # noqa: F401
+from app.modules.identity.models import User, DataLink, PasswordResetToken  # noqa: F401
 from app.modules.health.models import HealthRecord  # noqa: F401
 from app.modules.routines.models import SavedRoutine  # noqa: F401
 from app.modules.community.models import CommunityPost, CommunityLike  # noqa: F401

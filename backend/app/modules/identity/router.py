@@ -42,12 +42,17 @@ from app.core.security.jwt_handler import (
     decode_token,
 )
 from app.modules.identity.repository import RefreshTokenRepository, UserRepository
+from app.core.config import get_settings
 from app.modules.identity.schemas import (
+    ForgotPasswordRequest,
+    ForgotPasswordResponse,
     LoginRequest,
     LoginResponse,
     RefreshRequest,
     RegisterRequest,
     RegisterResponse,
+    ResetPasswordRequest,
+    ResetPasswordResponse,
     UserPublicResponse,
 )
 from app.modules.identity.service import IdentityService
@@ -425,7 +430,6 @@ async def google_callback(
 
     # 6. Redirigir al frontend con los tokens en el fragmento (#)
     #    El JS del frontend lee el hash y almacena los tokens en localStorage
-    from app.core.config import get_settings
     settings = get_settings()
 
     # Detectar la URL base a partir del request si no hay config explícita
@@ -510,3 +514,83 @@ async def admin_update_user(
         f"role={body.role} is_active={body.is_active}"
     )
     return UserPublicResponse.model_validate(user)
+
+
+# ── POST /forgot-password ─────────────────────────────────────────────────────
+
+@router.post(
+    "/forgot-password",
+    response_model=ForgotPasswordResponse,
+    summary="Solicitar reset de contraseña",
+    description=(
+        "Envía un email con un enlace de restablecimiento si el email existe y la cuenta "
+        "está activa. La respuesta es siempre la misma para evitar user enumeration."
+    ),
+)
+async def forgot_password(
+    body: ForgotPasswordRequest,
+    db: DBSession,
+) -> ForgotPasswordResponse:
+    """
+    Flujo de forgot password:
+    1. Buscar usuario por email (silenciosamente si no existe)
+    2. Generar token seguro e invalidar tokens anteriores
+    3. Enviar email con el enlace de reset
+    4. Devolver siempre el mismo mensaje (anti-enumeration)
+    """
+    from app.modules.identity.repository import PasswordResetRepository
+    from app.core.mailer import send_password_reset_email
+
+    user = await UserRepository.get_by_email(db, body.email)
+    # Responder igual independientemente de si el usuario existe — evita user enumeration
+    if user and user.is_active:
+        raw_token = await PasswordResetRepository.create_token(db, user.id)
+        await db.commit()
+        settings = get_settings()
+        reset_url = f"{settings.app_frontend_url}?reset_token={raw_token}"
+        await send_password_reset_email(user.email, reset_url)
+
+    return ForgotPasswordResponse(
+        message="Si el email existe, recibirás instrucciones en breve."
+    )
+
+
+# ── POST /reset-password ──────────────────────────────────────────────────────
+
+@router.post(
+    "/reset-password",
+    response_model=ResetPasswordResponse,
+    summary="Restablecer contraseña con token",
+    description=(
+        "Consume el token de reset (single-use, expira en 1 hora), actualiza la "
+        "contraseña y revoca todos los refresh tokens del usuario (cierre de sesiones)."
+    ),
+)
+async def reset_password(
+    body: ResetPasswordRequest,
+    db: DBSession,
+) -> ResetPasswordResponse:
+    """
+    Flujo de reset password:
+    1. Verificar y consumir el token (single-use + expiración)
+    2. Actualizar la contraseña con Argon2id
+    3. Revocar todos los refresh tokens del usuario
+    4. Devolver confirmación
+    """
+    from app.modules.identity.repository import PasswordResetRepository
+
+    user_id = await PasswordResetRepository.consume_token(db, body.token)
+    if not user_id:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Token inválido o expirado.",
+        )
+
+    new_hash = hash_password(body.new_password)
+    await UserRepository.update_password(db, user_id, new_hash)
+    # Revocar todos los refresh tokens para cerrar sesiones activas
+    await RefreshTokenRepository.revoke_all(db, user_id)
+    await db.commit()
+
+    logger.info("Contraseña restablecida para user_id=%s", str(user_id)[:8])
+    return ResetPasswordResponse(message="Contraseña actualizada correctamente.")

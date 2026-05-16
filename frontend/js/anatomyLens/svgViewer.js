@@ -465,9 +465,10 @@ export function createViewer() {
       const color = overlayColor(intensity);
       if (!color) return;
 
-      const ids = EZ_GROUPS[key]
-        ? EZ_GROUPS[key]
-        : (MUSCLE_TO_IDS[key] ?? []);
+      // Vista = grupos simplificados (EZ_GROUPS), Atleta = músculos individuales
+      const ids = (_viewMode === 'atleta' && MUSCLE_TO_IDS[key]?.length)
+        ? MUSCLE_TO_IDS[key]
+        : (EZ_GROUPS[key] ?? MUSCLE_TO_IDS[key] ?? []);
 
       ids.forEach(id => {
         const el = _muscleGroup.querySelector(`[data-id="${id}"]`);

@@ -1475,6 +1475,16 @@
   <script defer crossorigin="anonymous" src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
   <script defer crossorigin="anonymous" src="https://cdn.jsdelivr.net/npm/chartjs-plugin-annotation@3.0.1/dist/chartjs-plugin-annotation.min.js"></script>
 
+  <!-- Importmap para ESM Three.js — DEBE ir antes de cualquier <script type="module"> -->
+  <script type="importmap">
+  {
+    "imports": {
+      "three": "https://cdn.jsdelivr.net/npm/three@0.158.0/build/three.module.js",
+      "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.158.0/examples/jsm/"
+    }
+  }
+  </script>
+
   <!-- ── SCRIPTS APP (defer — ejecutan en orden tras parsear HTML) ── -->
   <script defer src="js/i18n.js"></script>
   <script defer src="js/config.js?v=5"></script>
@@ -1508,15 +1518,6 @@
   <script src="js/autoDeload.js"></script>
   <script defer src="js/auth.js"></script>
   <script defer src="js/app.js"></script>
-  <!-- Importmap para el visor 3D híbrido -->
-  <script type="importmap">
-  {
-    "imports": {
-      "three": "https://cdn.jsdelivr.net/npm/three@0.158.0/build/three.module.js",
-      "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.158.0/examples/jsm/"
-    }
-  }
-  </script>
   <script type="module" src="js/athleteViewer.js"></script>
   <script type="module" src="js/workoutInit.js"></script>
   <script src="js/ranked.js"></script>

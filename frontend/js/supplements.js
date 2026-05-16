@@ -209,7 +209,11 @@ const Supplements = (function () {
     var _base   = _isProd ? ('https://' + location.hostname + '/api/v1') : 'http://localhost:8000/api/v1';
     fetch(_base + '/nutrition/supplements')
       .then(r => r.ok ? r.json() : Promise.reject())
-      .then(data => renderSupplements(data))
+      .then(data => {
+        // Si la BD está vacía, la API devuelve [] — usar config.js como fallback
+        var list = Array.isArray(data) ? data : (data.supplements || data.items || []);
+        renderSupplements(list.length ? list : HS_CONFIG.SUPPLEMENTS);
+      })
       .catch(() => renderSupplements(HS_CONFIG.SUPPLEMENTS));
 
     renderMacroInfo();

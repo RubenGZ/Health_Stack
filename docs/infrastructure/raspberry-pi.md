@@ -34,7 +34,15 @@ cd health-stack
 
 ---
 
-## 3. Desplegar nueva versión (flujo habitual)
+## 3. Desplegar nueva versión — comando único
+
+```bash
+bash ~/healthstack-pi-server/scripts/update.sh
+```
+
+**Este es el comando mágico.** Hace todo: git pull, build de landing, reload de nginx, migraciones si las hay. Úsalo siempre en lugar de los pasos manuales.
+
+### Pasos manuales (solo si el script falla o no está disponible)
 
 ```bash
 # 1. Ir al proyecto
@@ -44,16 +52,11 @@ cd ~/health-stack
 git pull origin main
 
 # 3. Build de la landing (genera landing/dist/ que sirve Nginx)
-cd landing
-npm install
-npm run build
-cd ..
+cd landing && npm install && npm run build && cd ..
 
 # 4. Recargar Nginx para servir el nuevo dist (sin downtime)
 docker exec healthstack_nginx nginx -s reload
 ```
-
-> No hace falta reconstruir los contenedores para cambios de frontend — solo rebuild + reload nginx.
 
 ---
 

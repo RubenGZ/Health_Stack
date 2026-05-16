@@ -32,12 +32,15 @@ logger = logging.getLogger(__name__)
 # ── Mapping por defecto ───────────────────────────────────────────────────────
 
 _DEFAULT_ROUTING: dict[AIUseCase, RoutingRule] = {
-    # Chat público: Gemini Flash (rápido, free tier) → Groq fallback
+    # Chat público: Groq llama-3.3 (mejor instruction-following para conversación)
+    # → Gemini Flash como fallback
+    # Nota: Gemini Flash ignoraba instrucciones de "una pregunta a la vez";
+    # llama-3.3 sigue prompts conversacionales con mucha más fidelidad.
     AIUseCase.PUBLIC_CHAT: RoutingRule(
-        primary="gemini",
-        primary_model="gemini-2.5-flash",
-        fallback="groq",
-        fallback_model="llama-3.3-70b-versatile",
+        primary="groq",
+        primary_model="llama-3.3-70b-versatile",
+        fallback="gemini",
+        fallback_model="gemini-2.5-flash",
     ),
     # Coach tiempo real: Cerebras (~2000 tok/s, latencia mínima) → Groq fallback
     AIUseCase.REALTIME_COACH: RoutingRule(

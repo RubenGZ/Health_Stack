@@ -242,6 +242,20 @@
   max-height: 220px;
 }
 
+/* ── Modo Atleta: bordes de fascículos musculares visibles ──────────────────── */
+/* En Vista los paths se funden (stroke fino). En Atleta cada path tiene borde
+   blanco visible → el usuario distingue pectoral clavicular/esternal,
+   lats superior/inferior, etc. */
+.al-mode-atleta [data-id][data-overlay-key] {
+  filter: none !important; /* sin glow extra en Atleta — la forma importa */
+}
+
+/* Refuerzo visual de contorno en modo Atleta para paths sin overlay también */
+.al-mode-atleta [data-id]:not([data-overlay-key]) {
+  stroke: rgba(124, 107, 255, 0.06) !important;
+  stroke-width: 0.18 !important;
+}
+
 /* ── Mini-leyenda de controles del visor ────────────────────────────────────── */
 .al-controls-hint {
   display: flex;

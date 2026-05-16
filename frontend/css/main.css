@@ -3866,31 +3866,220 @@ select.form-input option { background: var(--bg-surface); color: var(--text-prim
   cursor: default;
 }
 
-/* ── Workout Logger ──────────────────────────────────────────────────── */
-.wl-idle { text-align: center; padding: 32px 16px; }
-.wl-idle-hint { color: rgba(255,255,255,0.5); margin-bottom: 16px; font-size: 14px; }
-.wl-active { display: flex; flex-direction: column; gap: 12px; }
-.wl-header { display: flex; align-items: center; justify-content: space-between; }
-.wl-timer { font-size: 20px; font-variant-numeric: tabular-nums; font-weight: 600; color: #7c6bff; }
-.wl-exercise { background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.07); border-radius: 10px; padding: 12px; }
-.wl-ex-header { margin-bottom: 8px; }
-.wl-ex-name { font-weight: 600; font-size: 14px; }
-.wl-ex-prev { display: block; font-size: 11px; color: rgba(255,255,255,0.4); margin-top: 2px; }
-.wl-set-row { display: flex; align-items: center; gap: 8px; padding: 4px 0; font-size: 13px; }
-.wl-set-row.wl-warmup { opacity: 0.6; }
-.wl-set-num { width: 40px; color: rgba(255,255,255,0.5); font-size: 12px; }
-.wl-warmup-toggle { display: flex; align-items: center; gap: 4px; font-size: 11px; color: rgba(255,255,255,0.4); }
-.wl-weight, .wl-reps { width: 64px; background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.10); border-radius: 6px; color: #fff; padding: 4px 8px; text-align: center; font-size: 13px; }
-.wl-x { color: rgba(255,255,255,0.3); }
-.wl-add-exercise { display: flex; gap: 8px; }
-.wl-input { flex: 1; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.10); border-radius: 8px; color: #fff; padding: 8px 12px; font-size: 13px; }
-.wl-summary { text-align: center; padding: 24px 16px; }
-.wl-summary-title { font-size: 20px; margin-bottom: 16px; }
-.wl-summary-stats { display: flex; gap: 24px; justify-content: center; margin-bottom: 12px; }
-.wl-stat { display: flex; flex-direction: column; }
-.wl-stat-val { font-size: 22px; font-weight: 700; color: #7c6bff; }
-.wl-stat-lbl { font-size: 11px; color: rgba(255,255,255,0.4); }
-.wl-prs { list-style: none; padding: 0; margin: 12px 0; font-size: 13px; color: #f59e0b; }
+/* ── Workout Logger (Hevy-style) ─────────────────────────────────────── */
+
+/* Idle state */
+.wl-idle {
+  display: flex; align-items: center; justify-content: center;
+  min-height: 300px; padding: 32px 16px;
+}
+.wl-idle-body { text-align: center; }
+.wl-idle-icon { font-size: 48px; margin-bottom: 16px; }
+.wl-idle-title { font-size: 20px; font-weight: 700; margin: 0 0 8px; }
+.wl-idle-sub { font-size: 14px; color: rgba(255,255,255,0.5); margin: 0 0 24px; max-width: 280px; }
+.wl-start-btn { display: inline-flex; align-items: center; gap: 8px; font-size: 15px; padding: 12px 28px; }
+
+/* Rest timer bar */
+.wl-rest-bar {
+  position: sticky; top: 0; z-index: 50;
+  display: none; align-items: center; gap: 12px;
+  background: rgba(124,107,255,0.18); border: 1px solid rgba(124,107,255,0.35);
+  border-radius: 10px; padding: 8px 12px; margin-bottom: 10px;
+  backdrop-filter: blur(8px);
+}
+.wl-rest-bar--visible { display: flex; }
+.wl-rest-left { display: flex; flex-direction: column; min-width: 80px; }
+.wl-rest-label { font-size: 10px; text-transform: uppercase; letter-spacing: 0.08em; color: rgba(255,255,255,0.5); }
+.wl-rest-time { font-size: 20px; font-weight: 700; font-variant-numeric: tabular-nums; color: #7c6bff; }
+.wl-rest-progress { flex: 1; height: 6px; background: rgba(255,255,255,0.10); border-radius: 3px; overflow: hidden; }
+.wl-rest-progress-fill { height: 100%; background: #7c6bff; border-radius: 3px; transition: width 1s linear; }
+.wl-rest-skip { font-size: 12px; padding: 4px 12px; background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.14); border-radius: 6px; color: rgba(255,255,255,0.7); cursor: pointer; white-space: nowrap; }
+.wl-rest-skip:hover { background: rgba(255,255,255,0.14); color: #fff; }
+
+/* Session header */
+.wl-session-header {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 4px 0 10px; margin-bottom: 4px;
+  border-bottom: 1px solid rgba(255,255,255,0.06);
+}
+.wl-session-meta { display: flex; align-items: center; gap: 16px; }
+.wl-timer { font-size: 22px; font-weight: 700; font-variant-numeric: tabular-nums; color: #7c6bff; }
+.wl-vol-live { font-size: 14px; color: rgba(255,255,255,0.5); }
+.wl-finish-btn { font-size: 13px; padding: 7px 18px; background: rgba(124,107,255,0.18); border: 1px solid rgba(124,107,255,0.4); color: #a89fff; border-radius: 8px; cursor: pointer; }
+.wl-finish-btn:hover { background: rgba(124,107,255,0.30); color: #fff; }
+
+/* 2-column layout */
+.wl-layout {
+  display: grid;
+  grid-template-columns: 1fr 220px;
+  gap: 16px;
+  align-items: start;
+}
+@media (max-width: 680px) {
+  .wl-layout { grid-template-columns: 1fr; }
+  .wl-anatomy-col { display: none; }
+}
+.wl-exercises-col { display: flex; flex-direction: column; gap: 12px; min-width: 0; }
+.wl-anatomy-col { position: sticky; top: 80px; }
+.wl-anatomy-wrap { }
+.wl-anatomy-legend {
+  display: flex; flex-wrap: wrap; gap: 6px; padding: 6px 0;
+  font-size: 11px; color: rgba(255,255,255,0.6);
+}
+
+/* Exercise search panel */
+.wl-add-exercise-panel {
+  background: rgba(255,255,255,0.02); border: 1px dashed rgba(255,255,255,0.12);
+  border-radius: 10px; padding: 10px;
+}
+.wl-ex-search-wrap { margin-bottom: 6px; }
+.wl-input {
+  width: 100%; box-sizing: border-box;
+  background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.10);
+  border-radius: 8px; color: #fff; padding: 9px 12px; font-size: 13px;
+  outline: none;
+}
+.wl-input:focus { border-color: rgba(124,107,255,0.5); background: rgba(255,255,255,0.07); }
+.wl-ex-results { display: flex; flex-direction: column; gap: 2px; margin-bottom: 6px; }
+.wl-ex-result-item {
+  display: flex; align-items: center; justify-content: space-between;
+  width: 100%; padding: 7px 10px; background: rgba(255,255,255,0.04);
+  border: 1px solid rgba(255,255,255,0.07); border-radius: 6px;
+  color: #fff; cursor: pointer; text-align: left; font-size: 13px;
+  transition: background 0.15s;
+}
+.wl-ex-result-item:hover { background: rgba(124,107,255,0.15); border-color: rgba(124,107,255,0.3); }
+.wl-res-name { font-weight: 500; }
+.wl-res-group { font-size: 11px; color: rgba(255,255,255,0.4); }
+.wl-no-results { font-size: 12px; color: rgba(255,255,255,0.4); padding: 4px 2px; margin: 0; }
+.wl-add-custom-btn { font-size: 12px; color: rgba(255,255,255,0.5); padding: 4px 6px; width: 100%; text-align: left; }
+.wl-add-custom-btn:hover { color: rgba(255,255,255,0.8); }
+
+/* Exercise cards */
+.wl-ex-card {
+  background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08);
+  border-radius: 12px; padding: 12px 14px;
+}
+.wl-ex-card-header {
+  display: flex; align-items: flex-start; justify-content: space-between;
+  margin-bottom: 8px; gap: 8px;
+}
+.wl-ex-info { flex: 1; min-width: 0; }
+.wl-ex-name-btn {
+  font-size: 14px; font-weight: 600; color: #a89fff;
+  background: none; border: none; padding: 0; cursor: pointer; text-align: left;
+}
+.wl-ex-name-btn:hover { color: #fff; text-decoration: underline; }
+.wl-ex-prev { display: block; font-size: 11px; color: rgba(255,255,255,0.38); margin-top: 2px; }
+.wl-ex-card-actions { display: flex; align-items: center; gap: 8px; flex-shrink: 0; }
+.wl-ex-progress { font-size: 11px; color: rgba(255,255,255,0.4); }
+.wl-ex-delete {
+  display: flex; align-items: center; justify-content: center;
+  width: 28px; height: 28px; background: rgba(239,68,68,0.10);
+  border: 1px solid rgba(239,68,68,0.20); border-radius: 6px;
+  color: rgba(239,68,68,0.7); cursor: pointer; padding: 0;
+}
+.wl-ex-delete:hover { background: rgba(239,68,68,0.22); color: #ef4444; }
+
+/* Sets columns header */
+.wl-sets-header {
+  display: grid; grid-template-columns: 36px 28px 1fr 16px 1fr 32px;
+  gap: 4px; align-items: center;
+  font-size: 10px; text-transform: uppercase; letter-spacing: 0.06em;
+  color: rgba(255,255,255,0.35); padding: 2px 0 4px; margin-bottom: 2px;
+  border-bottom: 1px solid rgba(255,255,255,0.05);
+}
+
+/* Set rows */
+.wl-sets-list { display: flex; flex-direction: column; gap: 3px; margin-bottom: 8px; }
+.wl-set-row {
+  display: grid; grid-template-columns: 36px 28px 1fr 16px 1fr 32px 26px;
+  gap: 4px; align-items: center; padding: 3px 0;
+  border-radius: 6px; transition: background 0.15s;
+}
+.wl-set-row.wl-set-done { opacity: 0.6; }
+.wl-set-row.wl-set-warmup { opacity: 0.75; }
+.wl-set-done .wl-input-num { opacity: 0.6; }
+
+.wl-set-num { font-size: 12px; color: rgba(255,255,255,0.45); text-align: center; }
+
+/* Warmup checkbox — styled as a icon toggle */
+.wl-warmup-chk {
+  display: flex; align-items: center; justify-content: center;
+  width: 22px; height: 22px; cursor: pointer;
+  color: rgba(255,255,255,0.25);
+}
+.wl-warmup-chk input { position: absolute; opacity: 0; width: 0; height: 0; }
+.wl-warmup-chk:has(input:checked) { color: #f59e0b; }
+
+/* Weight / reps inputs */
+.wl-input-num {
+  width: 100%; box-sizing: border-box;
+  background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.10);
+  border-radius: 6px; color: #fff; padding: 5px 4px;
+  text-align: center; font-size: 13px; font-variant-numeric: tabular-nums;
+  outline: none;
+}
+.wl-input-num:focus { border-color: rgba(124,107,255,0.5); }
+.wl-input-num[readonly] { background: rgba(255,255,255,0.03); border-color: rgba(255,255,255,0.05); cursor: default; }
+.wl-x { color: rgba(255,255,255,0.3); text-align: center; font-size: 13px; }
+
+/* Complete set button */
+.wl-set-check {
+  display: flex; align-items: center; justify-content: center;
+  width: 28px; height: 28px; border-radius: 6px;
+  background: rgba(255,255,255,0.07); border: 1px solid rgba(255,255,255,0.14);
+  color: rgba(255,255,255,0.35); cursor: pointer; padding: 0;
+  transition: background 0.15s, color 0.15s, border-color 0.15s;
+}
+.wl-set-check:hover { background: rgba(34,197,94,0.15); color: #22c55e; border-color: rgba(34,197,94,0.35); }
+.wl-set-check--done { background: rgba(34,197,94,0.20); color: #22c55e; border-color: rgba(34,197,94,0.40); }
+.wl-set-check--done:hover { background: rgba(239,68,68,0.15); color: #ef4444; border-color: rgba(239,68,68,0.35); }
+
+/* Delete set button */
+.wl-set-del {
+  display: flex; align-items: center; justify-content: center;
+  width: 22px; height: 22px; border-radius: 4px;
+  background: none; border: none;
+  color: rgba(255,255,255,0.25); cursor: pointer; font-size: 14px;
+  line-height: 1; padding: 0;
+}
+.wl-set-del:hover { color: #ef4444; }
+
+/* Add set button */
+.wl-add-set-btn { font-size: 12px; color: rgba(255,255,255,0.45); padding: 4px 0; width: 100%; text-align: left; }
+.wl-add-set-btn:hover { color: #a89fff; }
+
+/* Session summary */
+.wl-summary { padding: 16px 4px; }
+.wl-summary-header { text-align: center; margin-bottom: 20px; }
+.wl-summary-emoji { font-size: 48px; margin-bottom: 8px; }
+.wl-summary-title { font-size: 22px; font-weight: 700; margin: 0 0 4px; }
+.wl-summary-date { font-size: 13px; color: rgba(255,255,255,0.45); margin: 0; text-transform: capitalize; }
+.wl-summary-stats {
+  display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; margin-bottom: 16px;
+}
+.wl-stat-box {
+  display: flex; flex-direction: column; align-items: center;
+  background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.08);
+  border-radius: 10px; padding: 12px 8px;
+}
+.wl-stat-box-val { font-size: 20px; font-weight: 700; color: #7c6bff; font-variant-numeric: tabular-nums; }
+.wl-stat-box-lbl { font-size: 11px; color: rgba(255,255,255,0.4); margin-top: 2px; }
+.wl-summary-xp {
+  text-align: center; font-size: 18px; font-weight: 700; color: #f59e0b;
+  margin-bottom: 12px;
+}
+.wl-xp-label { font-size: 12px; font-weight: 400; color: rgba(255,255,255,0.5); margin-left: 6px; }
+.wl-summary-prs { display: flex; flex-direction: column; gap: 6px; margin-bottom: 16px; }
+.wl-pr-item {
+  font-size: 13px; color: #f59e0b;
+  background: rgba(245,158,11,0.08); border: 1px solid rgba(245,158,11,0.20);
+  border-radius: 8px; padding: 8px 12px;
+}
+.wl-done-btn { width: 100%; margin-top: 8px; font-size: 15px; padding: 12px; }
+
+/* Legacy compat (history section reuses some old classes) */
 .wl-history-title { font-size: 15px; font-weight: 600; margin-bottom: 10px; }
 .wl-session-card { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; padding: 8px 10px; border-bottom: 1px solid rgba(255,255,255,0.06); font-size: 13px; }
 .wl-sc-date { font-weight: 600; min-width: 90px; }

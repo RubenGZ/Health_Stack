@@ -522,5 +522,8 @@ const Exercises = (function () {
     getLens().catch(() => {});
   }
 
-  return { init };
+  // Expone el DB para que workoutLogger pueda hacer autocomplete
+  function getDB() { return DB; }
+
+  return { init, getDB };
 })();

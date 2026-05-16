@@ -466,6 +466,7 @@ export function createViewer() {
     _muscleGroup.querySelectorAll('[data-id]').forEach(p => {
       p.setAttribute('fill', COLOR_BASE);
       p.setAttribute('stroke', STROKE_BASE);
+      p.setAttribute('stroke-width', '0.15');
       p.style.filter = '';
       delete p.dataset.overlayLabel;
       delete p.dataset.overlayKey;
@@ -475,7 +476,8 @@ export function createViewer() {
       const color = overlayColor(intensity);
       if (!color) return;
 
-      // Vista = grupos simplificados (EZ_GROUPS), Atleta = músculos individuales
+      // Vista = grupos EZ simplificados. Atleta = igual, pero stroke visible
+      // muestra los bordes de cada path de músculo individual.
       const ids = (_viewMode === 'atleta' && MUSCLE_TO_IDS[key]?.length)
         ? MUSCLE_TO_IDS[key]
         : (EZ_GROUPS[key] ?? MUSCLE_TO_IDS[key] ?? []);
@@ -484,11 +486,17 @@ export function createViewer() {
         const el = _muscleGroup.querySelector(`[data-id="${id}"]`);
         if (!el) return;
         el.setAttribute('fill', color);
-        el.setAttribute('stroke', 'rgba(255,255,255,0.15)');
+        // Atleta: stroke más visible para diferenciar cada fascículo
+        el.setAttribute('stroke',
+          _viewMode === 'atleta' ? 'rgba(255,255,255,0.30)' : 'rgba(255,255,255,0.15)');
+        el.setAttribute('stroke-width', _viewMode === 'atleta' ? '0.28' : '0.15');
         el.dataset.overlayLabel = label ?? '';
         el.dataset.overlayKey   = key;
       });
     });
+
+    // Clase en el SVG para ajustes CSS adicionales de modo Atleta
+    if (_svg) _svg.classList.toggle('al-mode-atleta', _viewMode === 'atleta');
   }
 
   // ── setMode (Vista / Atleta) ─────────────────────────────────────────────
@@ -496,6 +504,7 @@ export function createViewer() {
     if (mode !== 'vista' && mode !== 'atleta') return;
     _viewMode = mode;
     try { localStorage.setItem('al_view_mode', mode); } catch (_) {}
+    if (_svg) _svg.classList.toggle('al-mode-atleta', mode === 'atleta');
     _updateToggleUI();
     if (_renderMode === 'overlay' && _lastOverlay) _applyOverlay(_lastOverlay);
   }

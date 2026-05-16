@@ -423,6 +423,29 @@ app.include_router(
 # ── Scheduler lifecycle ───────────────────────────────────────────────────────
 from app.core.scheduler import start_scheduler, stop_scheduler
 
+# ── AIRouter ──────────────────────────────────────────────────────────────────
+from app.services.ai_router.config import AIRouterSettings
+from app.services.ai_router.router import AIRouter
+from app.services.ai_router.providers.groq import GroqProvider
+from app.services.ai_router.providers.gemini import GeminiProvider
+from app.services.ai_router.providers.cerebras import CerebrasProvider
+
+
+def _build_ai_router() -> AIRouter:
+    """
+    Construye el AIRouter con los 3 providers.
+    Providers sin key configurada arrancan igualmente — el router los
+    omite y usa el fallback en cada llamada (loguea warning al arrancar).
+    """
+    ai_settings = AIRouterSettings()
+    providers = {
+        "groq":     GroqProvider(ai_settings.get_groq_key()),
+        "gemini":   GeminiProvider(ai_settings.get_gemini_key()),
+        "cerebras": CerebrasProvider(ai_settings.get_cerebras_key()),
+    }
+    return AIRouter(settings=ai_settings, providers=providers)
+
+
 @app.on_event("startup")
 async def startup_checks() -> None:
     if settings.app_env == "production":
@@ -432,7 +455,11 @@ async def startup_checks() -> None:
                 "PRODUCCIÓN SIN ALLOWED_ORIGINS: CORS permite cualquier origen. "
                 "Configura ALLOWED_ORIGINS en .env antes de servir tráfico real."
             )
+    # Inicializar AIRouter singleton — disponible en toda la app vía app.state
+    app.state.ai_router = _build_ai_router()
+    logger.info("AIRouter inicializado con providers: groq, gemini, cerebras")
     start_scheduler()
+
 
 @app.on_event("shutdown")
 async def shutdown_scheduler() -> None:

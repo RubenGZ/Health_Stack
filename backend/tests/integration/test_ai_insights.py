@@ -63,8 +63,8 @@ class TestAiInsights:
             assert "category" in g
         assert "week_summary" in data
 
-    async def test_biomarker_narrative_groq_mocked(self, client, auth_headers):
-        """Con Groq mockeado y datos existentes devuelve el JSON parseado."""
+    async def test_biomarker_narrative_ai_mocked(self, client, auth_headers):
+        """Con AI mockeada (httpx intercepta Gemini/Groq) devuelve el JSON parseado."""
         # Seed a gamification event so the service bypasses the insufficient_data guard
         await client.post(
             "/api/v1/gamification/action",
@@ -72,7 +72,7 @@ class TestAiInsights:
             headers=auth_headers,
         )
 
-        groq_json = (
+        ai_json = (
             '{"narrative": "Excelente progreso este mes.",'
             ' "trend": "improving",'
             ' "highlights": ["3 entrenamientos", "peso estable", "buena racha"]}'
@@ -80,7 +80,7 @@ class TestAiInsights:
 
         mock_resp = MagicMock()
         mock_resp.status_code = 200
-        mock_resp.json.return_value = {"choices": [{"message": {"content": groq_json}}]}
+        mock_resp.json.return_value = {"choices": [{"message": {"content": ai_json}}]}
         mock_resp.raise_for_status = MagicMock()
 
         with patch("httpx.AsyncClient") as mock_cls:
@@ -90,12 +90,10 @@ class TestAiInsights:
             mock_ctx.post = AsyncMock(return_value=mock_resp)
             mock_cls.return_value = mock_ctx
 
-            with patch("app.modules.ai_insights.service.get_settings") as mock_cfg:
-                mock_cfg.return_value.grok_api_key = "gsk_test_key"
-                resp = await client.get(
-                    "/api/v1/ai-insights/biomarker-narrative",
-                    headers=auth_headers,
-                )
+            resp = await client.get(
+                "/api/v1/ai-insights/biomarker-narrative",
+                headers=auth_headers,
+            )
 
         assert resp.status_code == 200
         data = resp.json()
@@ -103,9 +101,9 @@ class TestAiInsights:
         assert data["trend"] == "improving"
         assert len(data["highlights"]) == 3
 
-    async def test_weekly_goals_groq_mocked(self, client, auth_headers):
-        """Con Groq mockeado devuelve los 3 goals personalizados."""
-        groq_json = (
+    async def test_weekly_goals_ai_mocked(self, client, auth_headers):
+        """Con AI mockeada (httpx intercepta Gemini/Groq) devuelve los 3 goals personalizados."""
+        ai_json = (
             '{"goals": ['
             '{"goal": "Completar 4 entrenamientos", "reasoning": "Subir de 3 a 4", "category": "training"},'
             '{"goal": "Registrar peso 5 días", "reasoning": "Consistencia en seguimiento", "category": "weight"},'
@@ -115,7 +113,7 @@ class TestAiInsights:
 
         mock_resp = MagicMock()
         mock_resp.status_code = 200
-        mock_resp.json.return_value = {"choices": [{"message": {"content": groq_json}}]}
+        mock_resp.json.return_value = {"choices": [{"message": {"content": ai_json}}]}
         mock_resp.raise_for_status = MagicMock()
 
         with patch("httpx.AsyncClient") as mock_cls:
@@ -125,12 +123,10 @@ class TestAiInsights:
             mock_ctx.post = AsyncMock(return_value=mock_resp)
             mock_cls.return_value = mock_ctx
 
-            with patch("app.modules.ai_insights.service.get_settings") as mock_cfg:
-                mock_cfg.return_value.grok_api_key = "gsk_test_key"
-                resp = await client.get(
-                    "/api/v1/ai-insights/weekly-goals",
-                    headers=auth_headers,
-                )
+            resp = await client.get(
+                "/api/v1/ai-insights/weekly-goals",
+                headers=auth_headers,
+            )
 
         assert resp.status_code == 200
         data = resp.json()
@@ -138,8 +134,8 @@ class TestAiInsights:
         assert data["goals"][0]["goal"] == "Completar 4 entrenamientos"
         assert data["week_summary"] == "¡Esta semana, a por todas!"
 
-    async def test_injury_risk_groq_timeout_fallback(self, client, auth_headers):
-        """Timeout de Groq → fallback graceful, no 500."""
+    async def test_injury_risk_all_providers_timeout_fallback(self, client, auth_headers):
+        """Timeout de todos los providers → fallback graceful, no 500."""
         import httpx
 
         with patch("httpx.AsyncClient") as mock_cls:
@@ -149,12 +145,10 @@ class TestAiInsights:
             mock_ctx.post = AsyncMock(side_effect=httpx.TimeoutException("timeout"))
             mock_cls.return_value = mock_ctx
 
-            with patch("app.modules.ai_insights.service.get_settings") as mock_cfg:
-                mock_cfg.return_value.grok_api_key = "gsk_test_key"
-                resp = await client.get(
-                    "/api/v1/ai-insights/injury-risk",
-                    headers=auth_headers,
-                )
+            resp = await client.get(
+                "/api/v1/ai-insights/injury-risk",
+                headers=auth_headers,
+            )
 
         assert resp.status_code == 200
         data = resp.json()

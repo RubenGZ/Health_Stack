@@ -1,29 +1,30 @@
 """
 app/modules/chat/router.py
 ==========================
-Proxy seguro hacia la API de xAI Grok para el asistente virtual.
+Proxy seguro hacia la IA para el asistente virtual público.
 
 La API key NUNCA sale al frontend — vive solo en el servidor.
-Rate limit: 10 req/min por IP para evitar abuso.
+Rate limit: 200 req/min global (heredado de la app).
+
+Migrado en Bloque D: usa AIRouter en lugar de llamar Groq directamente.
+Provider primario: Gemini 2.5 Flash. Fallback: Groq llama-3.3-70b-versatile.
 """
 
 from __future__ import annotations
 
 import logging
 
-import httpx
-from fastapi import APIRouter, Request
+from fastapi import APIRouter, Depends, Request
 from fastapi.responses import JSONResponse
 from pydantic import BaseModel, Field
 
-from app.core.config import get_settings
+from app.services.ai_router.dependencies import get_ai_router
+from app.services.ai_router.router import AIRouter
+from app.services.ai_router.schemas import AIMessage, AIRequest, AIUseCase
+from app.services.ai_router.base import AIProviderError
 
 logger = logging.getLogger(__name__)
 router = APIRouter()
-
-_GROK_URL   = "https://api.groq.com/openai/v1/chat/completions"
-_MODEL      = "llama-3.3-70b-versatile"
-_MAX_TOKENS = 512
 
 _SYSTEM_PROMPT = (
     "Eres el asistente de inteligencia artificial de HealthStack Pro, "
@@ -49,71 +50,36 @@ class ChatRequest(BaseModel):
 
 
 @router.post("/message")
-async def chat_message(request: Request, body: ChatRequest) -> JSONResponse:
+async def chat_message(
+    request: Request,
+    body: ChatRequest,
+    ai_router: AIRouter = Depends(get_ai_router),
+) -> JSONResponse:
     """
-    Envía un mensaje al asistente IA (Grok) y devuelve la respuesta.
+    Envía un mensaje al asistente IA y devuelve la respuesta.
     El historial de conversación se recibe del cliente para mantener contexto.
+    Contrato JSON de respuesta: {"reply": "<string>"} — sin cambios.
     """
-    cfg = get_settings()
-    if not cfg.grok_api_key:
-        return JSONResponse(
-            status_code=503,
-            content={"detail": "El asistente IA no está configurado."},
-        )
-
-    messages = [{"role": "system", "content": _SYSTEM_PROMPT}]
-    # Añadir historial (máx. últimos 10 turnos para no gastar tokens)
-    for msg in body.history[-10:]:
-        messages.append({"role": msg.role, "content": msg.content})
-    messages.append({"role": "user", "content": body.message})
+    # Construir lista de mensajes para el AIRouter
+    messages = [AIMessage(role="system", content=_SYSTEM_PROMPT)]
+    for msg in body.history[-10:]:  # máx. 10 turnos de historial
+        messages.append(AIMessage(role=msg.role, content=msg.content))
+    messages.append(AIMessage(role="user", content=body.message))
 
     try:
-        async with httpx.AsyncClient(timeout=30.0) as client:
-            resp = await client.post(
-                _GROK_URL,
-                headers={
-                    "Authorization": f"Bearer {cfg.grok_api_key}",
-                    "Content-Type": "application/json",
-                },
-                json={
-                    "model": _MODEL,
-                    "messages": messages,
-                    "max_tokens": _MAX_TOKENS,
-                    "temperature": 0.7,
-                },
-            )
-            resp.raise_for_status()
-            data = resp.json()
-            choices = data.get("choices") or []
-            if not choices:
-                logger.error("Groq returned empty choices. Response: %s", str(data)[:200])
-                return JSONResponse(
-                    status_code=502,
-                    content={"detail": "El asistente no devolvió respuesta. Inténtalo de nuevo."},
-                )
-            reply = choices[0].get("message", {}).get("content", "")
-            if not reply:
-                logger.error("Groq returned empty content. choices[0]: %s", str(choices[0])[:200])
-                return JSONResponse(
-                    status_code=502,
-                    content={"detail": "El asistente devolvió una respuesta vacía. Inténtalo de nuevo."},
-                )
-            return JSONResponse(content={"reply": reply})
+        response = await ai_router.call(
+            use_case=AIUseCase.PUBLIC_CHAT,
+            request=AIRequest(
+                messages=messages,
+                max_tokens=512,
+                temperature=0.7,
+                timeout_s=30.0,
+            ),
+        )
+        return JSONResponse(content={"reply": response.content})
 
-    except httpx.TimeoutException as exc:
-        logger.warning("Groq API timeout after 30s: %s", type(exc).__name__)
-        return JSONResponse(
-            status_code=504,
-            content={"detail": "El asistente tardó demasiado en responder. Inténtalo de nuevo."},
-        )
-    except httpx.HTTPStatusError as exc:
-        logger.error("Groq API HTTP error %s: %s", exc.response.status_code, exc.response.text[:200])
-        return JSONResponse(
-            status_code=502,
-            content={"detail": "Error al contactar el asistente IA. Inténtalo de nuevo."},
-        )
-    except httpx.RequestError as exc:
-        logger.error("Groq API connection error (%s): %s", type(exc).__name__, exc)
+    except AIProviderError as exc:
+        logger.error("Chat AIProviderError (%s): %s", type(exc).__name__, exc)
         return JSONResponse(
             status_code=502,
             content={"detail": "No se pudo conectar con el asistente IA. Inténtalo de nuevo."},

@@ -1,29 +1,37 @@
+"""
+app/modules/ai_coach/service.py
+================================
+Coach de fuerza intra-sesión.
+
+Migrado en Bloque D: usa AIRouter en lugar de llamar Groq directamente.
+Provider primario: Cerebras (~2000 tok/s, latencia mínima).
+Fallback: Groq llama-3.3-70b-versatile.
+
+El contrato de respuesta CoachResponse no cambia.
+"""
+
 from __future__ import annotations
 
-import json
 import logging
 
-import httpx
-
-from app.core.config import get_settings
 from app.modules.ai_coach.schemas import CoachResponse, SetFeedbackRequest
+from app.services.ai_router.base import AIProviderError
+from app.services.ai_router.router import AIRouter
+from app.services.ai_router.schemas import AIMessage, AIRequest, AIUseCase
 
 logger = logging.getLogger(__name__)
 
-_GROQ_URL = "https://api.groq.com/openai/v1/chat/completions"
-_MODEL    = "llama-3.3-70b-versatile"
-
 _SUGGESTION_MAP = {
-    "sube":       "increase_weight",
-    "aumenta":    "increase_weight",
-    "baja":       "decrease_weight",
-    "reduce":     "decrease_weight",
-    "descansa":   "rest",
-    "descanso":   "rest",
-    "mantén":     "maintain",
-    "mantener":   "maintain",
-    "forma":      "good_form",
-    "técnica":    "good_form",
+    "sube":     "increase_weight",
+    "aumenta":  "increase_weight",
+    "baja":     "decrease_weight",
+    "reduce":   "decrease_weight",
+    "descansa": "rest",
+    "descanso": "rest",
+    "mantén":   "maintain",
+    "mantener": "maintain",
+    "forma":    "good_form",
+    "técnica":  "good_form",
 }
 
 
@@ -68,49 +76,56 @@ def _parse_suggestion(text: str) -> str:
     return "maintain"
 
 
-async def get_set_feedback(req: SetFeedbackRequest) -> CoachResponse:
-    cfg = get_settings()
-    if not cfg.grok_api_key:
-        return CoachResponse(
-            coaching="Asistente IA no configurado.",
-            suggestion="maintain",
-            confidence=0.0,
-        )
+async def get_set_feedback(
+    req: SetFeedbackRequest,
+    ai_router: AIRouter,
+) -> CoachResponse:
+    """
+    Genera feedback de coaching para un set completado.
 
+    Args:
+        req:       datos del set (ejercicio, peso, reps, RPE, historial)
+        ai_router: instancia del AIRouter (inyectada desde el endpoint)
+
+    Returns:
+        CoachResponse con coaching phrase, suggestion y confidence.
+        Nunca lanza — siempre devuelve un fallback válido si la IA falla.
+    """
     prompt = _build_prompt(req)
 
     try:
-        async with httpx.AsyncClient(timeout=8.0) as client:
-            resp = await client.post(
-                _GROQ_URL,
-                headers={
-                    "Authorization": f"Bearer {cfg.grok_api_key}",
-                    "Content-Type": "application/json",
-                },
-                json={
-                    "model": _MODEL,
-                    "messages": [{"role": "user", "content": prompt}],
-                    "max_tokens": 60,
-                    "temperature": 0.4,
-                },
-            )
-            resp.raise_for_status()
-            data = resp.json()
-            raw = data["choices"][0]["message"]["content"].strip()
+        response = await ai_router.call(
+            use_case=AIUseCase.REALTIME_COACH,
+            request=AIRequest(
+                messages=[AIMessage(role="user", content=prompt)],
+                max_tokens=60,
+                temperature=0.4,
+                timeout_s=8.0,
+            ),
+        )
+        raw = response.content.strip()
+        lines = [line.strip() for line in raw.split("\n") if line.strip()]
+        coaching = lines[0] if lines else "¡Buen set! Sigue así."
+        suggestion = _parse_suggestion(raw)
+        confidence = 0.85 if not response.fallback_triggered else 0.70
 
-            lines = [l.strip() for l in raw.split("\n") if l.strip()]
-            coaching = lines[0] if lines else "¡Buen set! Sigue así."
-            suggestion = _parse_suggestion(raw)
+        return CoachResponse(
+            coaching=coaching,
+            suggestion=suggestion,
+            confidence=confidence,
+        )
 
-            return CoachResponse(
-                coaching=coaching,
-                suggestion=suggestion,
-                confidence=0.85,
-            )
-
-    except httpx.TimeoutException:
-        logger.warning("Groq timeout en set-feedback")
-        return CoachResponse(coaching="¡Buen trabajo! Sigue con la sesión.", suggestion="maintain", confidence=0.5)
+    except AIProviderError as exc:
+        logger.warning("Coach AIProviderError, usando fallback estático: %s", exc)
+        return CoachResponse(
+            coaching="¡Buen trabajo! Sigue con la sesión.",
+            suggestion="maintain",
+            confidence=0.5,
+        )
     except Exception as exc:
-        logger.error("Coach service error: %s", exc)
-        return CoachResponse(coaching="¡Buen set! Continúa.", suggestion="maintain", confidence=0.5)
+        logger.error("Coach unexpected error: %s", exc)
+        return CoachResponse(
+            coaching="¡Buen set! Continúa.",
+            suggestion="maintain",
+            confidence=0.5,
+        )

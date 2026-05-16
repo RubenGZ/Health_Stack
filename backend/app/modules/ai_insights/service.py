@@ -1,14 +1,31 @@
+"""
+app/modules/ai_insights/service.py
+====================================
+Tres análisis de IA sobre los datos del usuario:
+  - Narración de biomarcadores (últimos 30 días)
+  - Riesgo de lesión (basado en rutinas + frecuencia)
+  - Micro-objetivos semanales (basado en nivel/XP/peso)
+
+Migrado en Bloque D: usa AIRouter en lugar de llamar Groq directamente.
+Los 3 endpoints usan Gemini como primario (pro para análisis, flash para goals)
+con Groq como fallback.
+
+Todos los fallbacks de templates se mantienen intactos — si TODOS los
+providers fallan, los endpoints devuelven respuestas útiles sin IA.
+
+TODO: P0-RGPD — estos endpoints envían datos biométricos a free tiers.
+      Ver PRIVACY.md en app/services/ai_router/ antes de producción real.
+"""
+
 from __future__ import annotations
 
 import json
 import logging
 from datetime import date, timedelta
 
-import httpx
 from sqlalchemy import and_, func, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.core.config import get_settings
 from app.core.security.cryptoservice import CryptoService
 from app.modules.gamification.models import GamificationEvent, GamificationState
 from app.modules.health.models import HealthRecord
@@ -21,43 +38,14 @@ from app.modules.ai_insights.schemas import (
     MicroGoal,
     WeeklyGoalsResponse,
 )
+from app.services.ai_router.base import AIProviderError
+from app.services.ai_router.router import AIRouter
+from app.services.ai_router.schemas import AIMessage, AIRequest, AIUseCase
 
 logger = logging.getLogger(__name__)
 
-_GROQ_URL = "https://api.groq.com/openai/v1/chat/completions"
-_MODEL    = "llama-3.3-70b-versatile"
 
-
-# ── Helpers ───────────────────────────────────────────────────────────────────
-
-async def _call_groq(prompt: str, max_tokens: int = 200) -> str | None:
-    cfg = get_settings()
-    if not cfg.grok_api_key:
-        return None
-    try:
-        async with httpx.AsyncClient(timeout=10.0) as client:
-            resp = await client.post(
-                _GROQ_URL,
-                headers={
-                    "Authorization": f"Bearer {cfg.grok_api_key}",
-                    "Content-Type": "application/json",
-                },
-                json={
-                    "model": _MODEL,
-                    "messages": [{"role": "user", "content": prompt}],
-                    "max_tokens": max_tokens,
-                    "temperature": 0.5,
-                },
-            )
-            resp.raise_for_status()
-            return resp.json()["choices"][0]["message"]["content"].strip()
-    except httpx.TimeoutException:
-        logger.warning("Groq timeout en ai_insights")
-        return None
-    except Exception as exc:
-        logger.error("ai_insights Groq error: %s", exc)
-        return None
-
+# ── DB helpers (sin cambios respecto a versión anterior) ──────────────────────
 
 async def _resolve_health_subject(user_id: str, db: AsyncSession) -> str | None:
     crypto = CryptoService()
@@ -122,9 +110,11 @@ async def _get_saved_routines(db: AsyncSession, user_id: str) -> list[SavedRouti
 # ── Biomarker Narrator ────────────────────────────────────────────────────────
 
 async def get_biomarker_narrative(
-    user_id: str, db: AsyncSession
+    user_id: str,
+    db: AsyncSession,
+    ai_router: AIRouter,
 ) -> BiomarkerNarratorResponse:
-    subject_id = await _resolve_health_subject(user_id, db)
+    subject_id    = await _resolve_health_subject(user_id, db)
     gamification  = await _get_gamification_state(db, user_id)
     workout_count = await _count_workout_events(db, user_id, days=30)
 
@@ -132,6 +122,7 @@ async def get_biomarker_narrative(
     if subject_id:
         weight_records = await _get_recent_weight_records(db, subject_id, days=30)
 
+    # Fallback sin datos suficientes — sin llamada a IA
     if not weight_records and workout_count == 0:
         return BiomarkerNarratorResponse(
             narrative="Aún no tienes suficientes datos registrados. Empieza a registrar tu peso y entrenamientos para obtener un análisis personalizado.",
@@ -139,13 +130,11 @@ async def get_biomarker_narrative(
             highlights=["Registra tu peso diariamente", "Completa al menos 3 entrenamientos esta semana"],
         )
 
-    # Build summary for Groq
     weights = [(str(r.recorded_date), float(r.weight_kg)) for r in weight_records if r.weight_kg]
     weight_summary = ""
     if weights:
-        first_w = weights[0][1]
-        last_w  = weights[-1][1]
-        delta   = last_w - first_w
+        first_w, last_w = weights[0][1], weights[-1][1]
+        delta = last_w - first_w
         weight_summary = (
             f"Peso inicial: {first_w}kg, peso actual: {last_w}kg, "
             f"cambio: {delta:+.1f}kg en {len(weights)} registros.\n"
@@ -163,7 +152,22 @@ Responde EXACTAMENTE en este formato JSON (sin bloques de código):
   "highlights": ["punto clave 1", "punto clave 2", "punto clave 3"]
 }}"""
 
-    raw = await _call_groq(prompt, max_tokens=250)
+    raw: str | None = None
+    try:
+        response = await ai_router.call(
+            use_case=AIUseCase.INSIGHTS_NARRATIVE,
+            request=AIRequest(
+                messages=[AIMessage(role="user", content=prompt)],
+                max_tokens=250,
+                temperature=0.5,
+                timeout_s=10.0,
+                response_format="json_object",
+            ),
+            user_id=user_id,
+        )
+        raw = response.content
+    except AIProviderError as exc:
+        logger.warning("insights narrative AIProviderError, usando fallback: %s", exc)
 
     if raw:
         try:
@@ -174,10 +178,9 @@ Responde EXACTAMENTE en este formato JSON (sin bloques de código):
                 highlights=data.get("highlights", []),
             )
         except (json.JSONDecodeError, KeyError):
-            # Parse fallback: first line as narrative
             pass
 
-    # Fallback without Groq
+    # Fallback de templates
     if weights:
         delta = weights[-1][1] - weights[0][1]
         trend = "declining" if delta > 0.5 else ("improving" if delta < -0.5 else "stable")
@@ -197,9 +200,13 @@ Responde EXACTAMENTE en este formato JSON (sin bloques de código):
 
 # ── Injury Risk ───────────────────────────────────────────────────────────────
 
-async def get_injury_risk(user_id: str, db: AsyncSession) -> InjuryRiskResponse:
-    routines = await _get_saved_routines(db, user_id)
-    workouts_this_week = await _count_workout_events(db, user_id, days=7)
+async def get_injury_risk(
+    user_id: str,
+    db: AsyncSession,
+    ai_router: AIRouter,
+) -> InjuryRiskResponse:
+    routines            = await _get_saved_routines(db, user_id)
+    workouts_this_week  = await _count_workout_events(db, user_id, days=7)
 
     if not routines:
         return InjuryRiskResponse(
@@ -208,8 +215,7 @@ async def get_injury_risk(user_id: str, db: AsyncSession) -> InjuryRiskResponse:
             summary="Sin datos de rutinas para analizar. Registra tus entrenamientos para obtener análisis de riesgo.",
         )
 
-    # Parse latest routine exercises
-    latest_json = {}
+    latest_json: dict = {}
     try:
         latest_json = json.loads(routines[0].routine_json)
     except (json.JSONDecodeError, AttributeError):
@@ -239,7 +245,22 @@ Responde EXACTAMENTE en este formato JSON (sin bloques de código):
 
 Máximo 3 risk_flags. Si no hay riesgos claros, devuelve risk_flags vacío con overall_risk "low"."""
 
-    raw = await _call_groq(prompt, max_tokens=300)
+    raw: str | None = None
+    try:
+        response = await ai_router.call(
+            use_case=AIUseCase.INJURY_RISK,
+            request=AIRequest(
+                messages=[AIMessage(role="user", content=prompt)],
+                max_tokens=300,
+                temperature=0.5,
+                timeout_s=10.0,
+                response_format="json_object",
+            ),
+            user_id=user_id,
+        )
+        raw = response.content
+    except AIProviderError as exc:
+        logger.warning("injury risk AIProviderError, usando fallback: %s", exc)
 
     if raw:
         try:
@@ -261,7 +282,7 @@ Máximo 3 risk_flags. Si no hay riesgos claros, devuelve risk_flags vacío con o
         except (json.JSONDecodeError, KeyError):
             pass
 
-    # Fallback
+    # Fallback de templates
     risk = "high" if workouts_this_week >= 6 else ("medium" if workouts_this_week >= 4 else "low")
     return InjuryRiskResponse(
         risk_flags=[],
@@ -270,9 +291,13 @@ Máximo 3 risk_flags. Si no hay riesgos claros, devuelve risk_flags vacío con o
     )
 
 
-# ── Weekly Goals ─────────────────────────────────────────────────────────────
+# ── Weekly Goals ──────────────────────────────────────────────────────────────
 
-async def get_weekly_goals(user_id: str, db: AsyncSession) -> WeeklyGoalsResponse:
+async def get_weekly_goals(
+    user_id: str,
+    db: AsyncSession,
+    ai_router: AIRouter,
+) -> WeeklyGoalsResponse:
     gamification  = await _get_gamification_state(db, user_id)
     workout_count = await _count_workout_events(db, user_id, days=7)
     subject_id    = await _resolve_health_subject(user_id, db)
@@ -305,7 +330,22 @@ Responde EXACTAMENTE en este formato JSON (sin bloques de código):
   "week_summary": "1 frase motivadora para esta semana"
 }}"""
 
-    raw = await _call_groq(prompt, max_tokens=300)
+    raw: str | None = None
+    try:
+        response = await ai_router.call(
+            use_case=AIUseCase.WEEKLY_GOALS,
+            request=AIRequest(
+                messages=[AIMessage(role="user", content=prompt)],
+                max_tokens=300,
+                temperature=0.5,
+                timeout_s=10.0,
+                response_format="json_object",
+            ),
+            user_id=user_id,
+        )
+        raw = response.content
+    except AIProviderError as exc:
+        logger.warning("weekly goals AIProviderError, usando fallback: %s", exc)
 
     if raw:
         try:
@@ -325,7 +365,7 @@ Responde EXACTAMENTE en este formato JSON (sin bloques de código):
         except (json.JSONDecodeError, KeyError):
             pass
 
-    # Fallback
+    # Fallback de templates
     default_goals = [
         MicroGoal(goal="Completa 3 entrenamientos esta semana", reasoning="La consistencia es la base del progreso", category="training"),
         MicroGoal(goal="Registra tu peso cada mañana", reasoning="El seguimiento es clave para ajustar el plan", category="weight"),

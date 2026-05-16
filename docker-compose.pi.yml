@@ -60,6 +60,7 @@ services:
       start_period: 30s
     networks:
       - internal
+      - external   # necesario para llamadas salientes a Groq/OpenAI
 
   # ---------------------------------------------------------------------------
   # Nginx — HTTP only (Cloudflare Tunnel gestiona TLS externamente)

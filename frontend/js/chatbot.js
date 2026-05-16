@@ -132,26 +132,30 @@ const Chatbot = (function () {
 
       if (typing) typing.remove();
 
-      const data  = await res.json();
-      const reply = res.ok
-        ? data.reply
-        : (data.detail || 'Error al procesar tu mensaje. Inténtalo de nuevo.');
-
-      addMessage(reply, true);
-      setDotStatus(true);
+      // Leer body como texto primero — puede ser HTML (502/503 de nginx)
+      const rawText = await res.text();
+      let data;
+      try { data = JSON.parse(rawText); } catch { data = {}; }
 
       if (res.ok) {
+        const reply = data.reply || data.message || 'Respuesta recibida.';
+        addMessage(reply, true);
+        setDotStatus(true);
         history.push({ role: 'user',      content: trimmed });
         history.push({ role: 'assistant', content: reply });
         if (history.length > 20) history = history.slice(-20);
+      } else {
+        setDotStatus(false);
+        const errMsg = res.status >= 500
+          ? '🔧 El servicio de IA está temporalmente fuera de línea. Inténtalo en unos minutos.'
+          : (data.detail || 'Error al procesar tu mensaje. Inténtalo de nuevo.');
+        addMessage(errMsg, true);
       }
 
     } catch (err) {
       if (typing) typing.remove();
       setDotStatus(false);
-
-      const msg = 'El asistente no está disponible en este momento. Inténtalo de nuevo más tarde.';
-      addMessage(msg, true);
+      addMessage('🔌 Sin conexión con el servidor. Comprueba tu conexión e inténtalo de nuevo.', true);
 
     } finally {
       if (sendBtn) sendBtn.disabled = false;

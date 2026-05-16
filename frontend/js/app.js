@@ -83,12 +83,12 @@
     if (sectionId === 'workout') {
       const loggerRoot = document.getElementById('workout-logger-root');
       const historyRoot = document.getElementById('workout-history-root');
-      if (loggerRoot && !loggerRoot.dataset.initialized && typeof WorkoutLogger !== 'undefined') {
+      // Siempre re-init: el logger necesita releer el draft (puede haber cambiado desde Rutinas)
+      if (loggerRoot && typeof WorkoutLogger !== 'undefined') {
         WorkoutLogger.init(loggerRoot);
         loggerRoot.dataset.initialized = 'true';
       }
       if (historyRoot && typeof WorkoutHistory !== 'undefined') {
-        historyRoot.dataset.initialized = '';
         WorkoutHistory.init(historyRoot);
       }
     }

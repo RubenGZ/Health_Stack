@@ -1057,32 +1057,55 @@ const RoutineGenerator = (function () {
     if (overlay) overlay.style.display = 'none';
   }
 
+  // ── Mapa de nombres canónicos (igual que workoutSession.js) ──────────────
+  var EXERCISE_KEY_MAP = {
+    'press banca plano':'press_banca_plano','press banca':'press_banca_plano',
+    'press inclinado':'press_banca_inclinado','aperturas':'aperturas_mancuernas',
+    'fondos':'fondos_pecho','fondos pecho':'fondos_pecho',
+    'flexiones diamante':'flexiones_diamante','dominadas':'dominadas_pronas',
+    'remo barra':'remo_barra','jalon':'jalon_pecho','jalon pecho':'jalon_pecho',
+    'remo mancuerna':'remo_mancuerna','peso muerto':'peso_muerto_convencional',
+    'press militar':'press_militar_barra','elevaciones laterales':'elevaciones_laterales',
+    'pajaros':'pajaros_mancuernas','face pull':'face_pull',
+    'curl barra':'curl_barra','curl martillo':'curl_martillo',
+    'extension triceps':'extension_triceps_polea','press frances':'press_frances',
+    'plancha':'plancha','crunch':'crunch','ab wheel':'ab_wheel',
+    'plancha lateral':'plancha_lateral','sentadilla':'sentadilla',
+    'prensa':'prensa_piernas','extension cuadriceps':'extension_cuadriceps',
+    'curl femoral':'curl_femoral_tumbado','sentadilla bulgara':'sentadilla_bulgara',
+    'hip thrust':'hip_thrust','kickback':'kickback_cable',
+    'puente gluteos':'puente_gluteos','burpees':'burpees',
+    'comba':'jump_rope','remo maquina':'remo_maquina',
+  };
+
+  function resolveExKey(name) {
+    var n = name.toLowerCase().trim().normalize('NFD').replace(/[̀-ͯ]/g, '');
+    return EXERCISE_KEY_MAP[n] || n.replace(/\s+/g, '_');
+  }
+
   // ── Copiar rutina generada a la sección de Entrenos ───────────────────────
   function copyRoutineToWorkout(routine) {
     if (!routine || !routine.sessions) return;
 
-    // Buscar la primera sesión con ejercicios (día de hoy o día 1)
-    var dayIndex = new Date().getDay(); // 0=dom, 1=lun, …
-    // Mapeo: sesión de entrenamiento según el día de la semana
-    var session = routine.sessions.find(s => s.exercises && s.exercises.length > 0);
+    // Buscar primera sesión con ejercicios
+    var session = routine.sessions.find(function(s) { return s.exercises && s.exercises.length > 0; });
     if (!session) { alert('Esta rutina no tiene ejercicios configurados.'); return; }
 
-    // Construir el draft de sesión en el formato que espera workoutSession.js
+    // Construir el draft en el formato exacto que usa workoutSession.js
     var now = new Date().toISOString();
     var draft = {
       routineId: null,
       startedAt: now,
       exercises: session.exercises.map(function(ex, i) {
-        var key = ex.name.toLowerCase().trim()
-          .normalize('NFD').replace(/[̀-ͯ]/g, '')
-          .replace(/\s+/g, '_');
-        var setsArr = [];
+        var key = resolveExKey(ex.name);
         var numSets = parseInt(ex.sets) || 3;
+        var targetReps = parseInt(ex.reps) || 8;
+        var setsArr = [];
         for (var s = 0; s < numSets; s++) {
           setsArr.push({
             setNumber:   s + 1,
             weightKg:    0,
-            reps:        parseInt(ex.reps) || 8,
+            reps:        targetReps,
             rpe:         null,
             isWarmup:    false,
             completedAt: null,
@@ -1098,31 +1121,34 @@ const RoutineGenerator = (function () {
       }),
     };
 
-    // Guardar draft en localStorage (clave que lee workoutLogger.js)
+    // Guardar draft en localStorage
     try {
       localStorage.setItem('hs_workout_active', JSON.stringify(draft));
     } catch (e) {
       console.warn('[RoutineGenerator] No se pudo guardar el draft:', e);
+      return;
     }
 
-    // Navegar a la sección de Entrenos
+    // Resetear el flag de inicialización del logger para que app.js re-cargue el draft
+    var loggerRoot = document.getElementById('workout-logger-root');
+    if (loggerRoot) loggerRoot.removeAttribute('data-initialized');
+
+    // Navegar — usar el nav item para que app.js gestione la transición correctamente
     var navItem = document.querySelector('[data-section="workout"]');
     if (navItem) {
       navItem.click();
     } else {
-      // Fallback: mostrar la sección directamente
-      document.querySelectorAll('.section').forEach(function(s) { s.style.display = 'none'; });
+      // Fallback seguro: sólo activar la sección destino sin tocar las demás vía style
+      document.querySelectorAll('#main-content .section').forEach(function(s) {
+        s.classList.remove('active');
+      });
       var ws = document.getElementById('section-workout');
-      if (ws) ws.style.display = '';
-    }
-
-    // Lanzar el logger si ya está montado
-    setTimeout(function() {
-      if (window.WorkoutLogger && typeof window.WorkoutLogger.init === 'function') {
-        var container = document.getElementById('workout-logger-root');
-        if (container) window.WorkoutLogger.init(container);
+      if (ws) {
+        ws.classList.add('active');
+        // Re-init manual si el nav falló
+        if (window.WorkoutLogger && loggerRoot) window.WorkoutLogger.init(loggerRoot);
       }
-    }, 150);
+    }
   }
 
   return { init };

@@ -158,6 +158,15 @@ def build_scenarios() -> list[Scenario]:
             ],
         ),
         Scenario(
+            id="A3b", category="A", label="Dolor lumbar vago (trampa multi-causa)",
+            payload={"message": "me duele la espalda baja"},
+            assertions=[
+                Assertion("Una sola pregunta (no lista causas)", _one_question_only, "fail"),
+                Assertion("No enumera causas antes de preguntar", lambda r: r.count("•") + r.count("-") < 3, "fail"),
+                Assertion("Respuesta corta (≤5 líneas)", _short_response(5), "warn"),
+            ],
+        ),
+        Scenario(
             id="A4", category="A", label="Seguimiento dolor codo (conversación)",
             payload={
                 "message": "sigue doliéndome",
@@ -332,6 +341,24 @@ def build_scenarios() -> list[Scenario]:
                 ), "warn"),
             ],
         ),
+
+        # ── F: Robustez del contexto de usuario ──────────────────────────────
+        # Estos escenarios se ejecutan con token inválido — el endpoint debe
+        # responder 200 (fallback a chat anónimo) en lugar de 403/500.
+        Scenario(
+            id="F1", category="F", label="Token inválido → chat anónimo (sin crash)",
+            payload={"message": "cuántas proteínas necesito"},
+            assertions=[
+                Assertion("Responde 200 aunque el token sea inválido", _not_empty, "fail"),
+            ],
+        ),
+        Scenario(
+            id="F2", category="F", label="Token expirado → chat anónimo (sin crash)",
+            payload={"message": "cuántos días entreno"},
+            assertions=[
+                Assertion("Responde correctamente en modo anónimo", _not_empty, "fail"),
+            ],
+        ),
     ]
 
 
@@ -415,8 +442,8 @@ def main() -> None:
     parser = argparse.ArgumentParser(description="Chat smoke test — HealthStack Pro")
     parser.add_argument(
         "--url",
-        default="https://saves-acoustic-ata-rangers.trycloudflare.com",
-        help="Base URL del servidor (sin trailing slash)",
+        default="http://localhost:8000",
+        help="Base URL del servidor (sin trailing slash). Ej: https://<tunnel>.trycloudflare.com",
     )
     parser.add_argument(
         "--verbose", "-v",
@@ -425,7 +452,7 @@ def main() -> None:
     )
     parser.add_argument(
         "--category",
-        choices=["A", "B", "C", "D", "E"],
+        choices=["A", "B", "C", "D", "E", "F"],
         help="Ejecuta solo una categoría de escenarios",
     )
     args = parser.parse_args()
@@ -450,6 +477,7 @@ def main() -> None:
                 "C": "Entrenamiento (con/sin contexto)",
                 "D": "Logros (reconocimiento + número)",
                 "E": "Preguntas factuales (dato directo)",
+                "F": "Robustez contexto usuario (token inválido → anónimo)",
             }
             print(f"{BOLD}── {cat}: {cat_labels.get(cat, cat)} ──{RESET}")
             for scenario in cat_scenarios:

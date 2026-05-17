@@ -200,7 +200,7 @@ def test_nutrition() -> None:
     st, body = http("GET", "/api/v1/nutrition/ingredients?limit=5", auth=False)
     check("GET /nutrition/ingredients", "Nutrition", st, body, expected=200)
 
-    st, body = http("GET", f"/api/v1/nutrition/recipes?user_local_id={LOCAL_ID}")
+    st, body = http("GET", f"/api/v1/nutrition/recipes?local_id={LOCAL_ID}")
     check("GET /nutrition/recipes", "Nutrition", st, body, expected=200)
 
     st, body = http("GET", "/api/v1/nutrition/supplements", auth=False)
@@ -291,8 +291,7 @@ def test_telemetry() -> None:
     print(f"\n{BOLD}[12] Telemetry{RESET}")
 
     st, body = http("POST", "/api/v1/telemetry/page-view", {
-        "page":     "/smoke-test",
-        "referrer": "smoke_test_script",
+        "page": "/smoke-test",
     }, auth=False)
     # 200 o 201 según la implementación
     check("POST /telemetry/page-view", "Telemetry", st, body,

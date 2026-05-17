@@ -52,8 +52,7 @@ async def list_integrations(current_user: CurrentUser, db: DB):
     """Returns connection status for all supported platforms."""
     user_id = uuid.UUID(current_user["user_id"])
     svc = IntegrationService()
-    integrations = await svc.list_integrations(user_id, db)
-    return IntegrationListResponse(integrations=integrations)
+    return await svc.list_integrations(user_id, db)
 
 
 @router.get(

@@ -1,6 +1,8 @@
 from __future__ import annotations
 import logging
-from fastapi import APIRouter, Depends, Request
+from typing import Annotated
+
+from fastapi import APIRouter, Body, Depends, Request
 from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
 
 from app.modules.telemetry.schemas import PageViewCreate, PageViewResponse
@@ -22,7 +24,7 @@ def _get_limiter():
 @_get_limiter().limit("10/minute")
 async def record_page_view(
     request: Request,
-    body: PageViewCreate,
+    body: Annotated[PageViewCreate, Body()],
     db: DBSession,
     credentials: HTTPAuthorizationCredentials | None = Depends(_bearer),
 ) -> PageViewResponse:

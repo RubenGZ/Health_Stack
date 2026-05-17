@@ -66,7 +66,7 @@ const Chatbot = (function () {
     if (el) el.scrollTop = el.scrollHeight;
   }
 
-  function addMessage(text, isBot) {
+  function addMessage(text, isBot, action) {
     const container = msgs();
     if (!container) return;
 
@@ -77,6 +77,11 @@ const Chatbot = (function () {
       row.innerHTML = `
         <div class="wizard-bot-avatar">HS</div>
         <div class="chat-bubble">${formatText(text)}</div>`;
+      // Añadir pill de acción si el backend detectó datos guardables
+      if (action) {
+        const pill = buildActionPill(action);
+        if (pill) row.querySelector('.chat-bubble').appendChild(pill);
+      }
     } else {
       row.innerHTML = `<div class="chat-bubble">${formatText(text)}</div>`;
     }
@@ -106,6 +111,129 @@ const Chatbot = (function () {
     container.appendChild(row);
     scrollBottom();
     return row;
+  }
+
+  // ── Action pills ──────────────────────────────────────────
+
+  /**
+   * Construye la pill de confirmación para una acción detectada.
+   * Devuelve un elemento DOM o null si la acción no es soportada.
+   */
+  function buildActionPill(action) {
+    const type = action.type;
+    let label = '';
+    let icon  = '';
+
+    if (type === 'save_weight' && action.kg) {
+      icon  = '⚖️';
+      label = `Guardar ${action.kg} kg en tu historial`;
+    } else if (type === 'save_pr' && action.exercise) {
+      const rm = action.weight_kg && action.reps
+        ? ` (1RM ~${calcEpley(action.weight_kg, action.reps)} kg)`
+        : '';
+      icon  = '🏆';
+      label = `Guardar PR: ${action.exercise} ${action.weight_kg}×${action.reps}${rm}`;
+    } else if (type === 'log_workout') {
+      icon  = '✅';
+      label = 'Registrar entreno (+XP)';
+    } else if (type === 'save_sleep' && action.hours) {
+      icon  = '😴';
+      label = `Guardar ${action.hours}h de sueño en tu historial`;
+    } else {
+      return null;
+    }
+
+    const pill = document.createElement('div');
+    pill.className = 'chat-action-pill';
+    pill.innerHTML = `
+      <span class="cap-icon">${icon}</span>
+      <span class="cap-label">${label}</span>
+      <button class="cap-btn cap-btn--confirm" title="Guardar">Guardar</button>
+      <button class="cap-btn cap-btn--dismiss" title="Descartar">✕</button>`;
+
+    pill.querySelector('.cap-btn--confirm').addEventListener('click', () => {
+      executeAction(action, pill);
+    });
+    pill.querySelector('.cap-btn--dismiss').addEventListener('click', () => {
+      pill.remove();
+    });
+
+    return pill;
+  }
+
+  function calcEpley(weight, reps) {
+    if (+reps === 1) return +weight;
+    return +(+weight * (1 + +reps / 30)).toFixed(1);
+  }
+
+  /**
+   * Ejecuta la acción cuando el usuario confirma.
+   * Llama al endpoint correspondiente y actualiza la UI.
+   */
+  async function executeAction(action, pill) {
+    const confirmBtn = pill.querySelector('.cap-btn--confirm');
+    if (confirmBtn) { confirmBtn.disabled = true; confirmBtn.textContent = '…'; }
+
+    const token   = typeof API !== 'undefined' ? API.getToken?.() : null;
+    const headers = { 'Content-Type': 'application/json' };
+    if (token) headers['Authorization'] = `Bearer ${token}`;
+
+    const today = new Date().toISOString().slice(0, 10);
+
+    try {
+      let ok = false;
+
+      if (action.type === 'save_weight') {
+        const res = await fetch(`${_BASE}/api/v1/health/records`, {
+          method: 'POST', headers,
+          body: JSON.stringify({ recorded_date: today, weight_kg: action.kg }),
+        });
+        ok = res.ok;
+        if (ok) _postGamification(headers, 'weight');
+
+      } else if (action.type === 'save_pr') {
+        // Los PRs se guardan en localStorage (módulo Records)
+        if (typeof Records !== 'undefined' && action.exercise && action.weight_kg && action.reps) {
+          Records.addEntry(action.exercise, action.weight_kg, action.reps);
+          ok = true;
+        }
+        if (ok) _postGamification(headers, 'workout');
+
+      } else if (action.type === 'log_workout') {
+        ok = await _postGamification(headers, 'workout');
+
+      } else if (action.type === 'save_sleep') {
+        const res = await fetch(`${_BASE}/api/v1/health/records`, {
+          method: 'POST', headers,
+          body: JSON.stringify({ recorded_date: today, sleep_hours: action.hours }),
+        });
+        ok = res.ok;
+      }
+
+      if (ok) {
+        pill.innerHTML = '<span style="color:#22c55e;font-size:.85rem;">✓ Guardado</span>';
+        setTimeout(() => pill.remove(), 2500);
+      } else {
+        _pillError(pill, 'Error al guardar. Inténtalo desde la app.');
+      }
+    } catch {
+      _pillError(pill, 'Sin conexión. Datos no guardados.');
+    }
+  }
+
+  async function _postGamification(headers, actionName) {
+    try {
+      const res = await fetch(`${_BASE}/api/v1/gamification/action`, {
+        method: 'POST', headers,
+        body: JSON.stringify({ action: actionName }),
+      });
+      return res.ok;
+    } catch { return false; }
+  }
+
+  function _pillError(pill, msg) {
+    pill.innerHTML = `<span style="color:#ef4444;font-size:.85rem;">⚠ ${msg}</span>`;
+    setTimeout(() => pill.remove(), 4000);
   }
 
   // ── Send message ──────────────────────────────────────────
@@ -143,8 +271,9 @@ const Chatbot = (function () {
       try { data = JSON.parse(rawText); } catch { data = {}; }
 
       if (res.ok) {
-        const reply = data.reply || data.message || 'Respuesta recibida.';
-        addMessage(reply, true);
+        const reply  = data.reply || data.message || 'Respuesta recibida.';
+        const action = data.action || null;
+        addMessage(reply, true, action);
         setDotStatus(true);
         history.push({ role: 'user',      content: trimmed });
         history.push({ role: 'assistant', content: reply });

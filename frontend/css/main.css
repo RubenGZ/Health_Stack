@@ -2003,6 +2003,43 @@ select.form-input option { background: var(--bg-surface); color: var(--text-prim
   color: var(--primary);
 }
 
+/* Action pill — aparece bajo el bubble del bot cuando detecta datos guardables */
+.chat-action-pill {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-top: 8px;
+  padding: 6px 10px;
+  border-radius: 10px;
+  background: rgba(8,145,178,0.08);
+  border: 1px solid rgba(8,145,178,0.25);
+  font-size: 0.78rem;
+  flex-wrap: wrap;
+}
+.cap-icon { font-size: 1rem; flex-shrink: 0; }
+.cap-label { flex: 1; color: var(--text-muted); min-width: 120px; }
+.cap-btn {
+  padding: 3px 10px;
+  border-radius: 6px;
+  border: none;
+  font-size: 0.75rem;
+  cursor: pointer;
+  transition: var(--transition);
+  flex-shrink: 0;
+}
+.cap-btn--confirm {
+  background: var(--primary);
+  color: #fff;
+}
+.cap-btn--confirm:hover { background: var(--primary-dark, #0770a0); }
+.cap-btn--confirm:disabled { opacity: 0.5; cursor: default; }
+.cap-btn--dismiss {
+  background: transparent;
+  color: var(--text-muted);
+  border: 1px solid var(--glass-border);
+}
+.cap-btn--dismiss:hover { color: var(--text); }
+
 /* Input */
 .wizard-input-wrap {
   display: flex;

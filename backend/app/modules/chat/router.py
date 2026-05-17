@@ -17,7 +17,9 @@ Contexto de usuario (Bloque E):
 
 from __future__ import annotations
 
+import json
 import logging
+import re
 
 from fastapi import APIRouter, Depends, Request
 from fastapi.responses import JSONResponse
@@ -99,7 +101,22 @@ Progresión sin dato:
 - Nunca hagas 2 o más preguntas a la vez.
 - Nunca listes causas posibles antes de tener la info.
 - Nunca des contexto ni recomendaciones mientras preguntas.
-- Nunca uses más de 6 líneas cuando la respuesta puede ser más corta.\
+- Nunca uses más de 6 líneas cuando la respuesta puede ser más corta.
+
+━━━ DATOS GUARDABLES — ACCIÓN AUTOMÁTICA ━━━
+Cuando el usuario mencione datos concretos y numéricos sobre sí mismo, añade AL FINAL
+de tu respuesta (sin línea en blanco antes, sin mencionarlo en el texto):
+
+  Peso corporal → [ACTION:{"type":"save_weight","kg":83.5}]
+  Levantamiento → [ACTION:{"type":"save_pr","exercise":"sentadilla","weight_kg":100,"reps":5}]
+  Entreno hecho → [ACTION:{"type":"log_workout"}]
+  Horas de sueño → [ACTION:{"type":"save_sleep","hours":7.5}]
+
+Reglas estrictas:
+- Solo UNO por respuesta, el más relevante.
+- Solo si el dato es explícito, numérico y del propio usuario — nunca si es vago.
+- El campo "exercise" en save_pr: nombre en minúsculas sin tildes (ej: "banca", "sentadilla", "peso muerto", "press militar", "dominadas").
+- NUNCA menciones "[ACTION" en el texto visible de tu respuesta.\
 """
 
 
@@ -113,6 +130,31 @@ class ChatMessage(BaseModel):
 class ChatRequest(BaseModel):
     message: str = Field(..., min_length=1, max_length=2000)
     history: list[ChatMessage] = Field(default_factory=list, max_length=20)
+
+
+# ── Action parser ────────────────────────────────────────────────────────────
+
+_ACTION_RE = re.compile(r'\[ACTION:(\{[^]]*\})\]', re.DOTALL)
+
+
+def _extract_action(reply: str) -> tuple[str, dict | None]:
+    """
+    Extrae el bloque [ACTION:{...}] del reply del modelo.
+    Devuelve (reply_limpio, action_dict | None).
+    El reply limpio es el texto visible sin el tag de acción.
+    """
+    match = _ACTION_RE.search(reply)
+    if not match:
+        return reply, None
+    clean = _ACTION_RE.sub('', reply).strip()
+    try:
+        action = json.loads(match.group(1))
+        action_type = action.get('type', '')
+        if action_type not in ('save_weight', 'save_pr', 'log_workout', 'save_sleep'):
+            return clean, None
+        return clean, action
+    except (json.JSONDecodeError, KeyError):
+        return clean, None
 
 
 # ── Endpoint ──────────────────────────────────────────────────────────────────
@@ -130,7 +172,10 @@ async def chat_message(
 
     El historial de conversación se recibe del cliente para mantener contexto.
     Si hay Bearer token válido → inyecta contexto del usuario al system prompt.
-    Contrato JSON de respuesta: {"reply": "<string>"} — sin cambios.
+    Contrato JSON de respuesta: {"reply": "<string>", "action": {...} | null}.
+    El campo "action" aparece cuando el modelo detecta datos guardables del usuario
+    (peso, PR, entreno completado, sueño). El frontend lo usa para mostrar
+    una pill de confirmación antes de guardar.
     """
     # ── Resolver contexto de usuario (opcional) ───────────────────────────────
     system_prompt = _BASE_SYSTEM_PROMPT
@@ -164,7 +209,12 @@ async def chat_message(
                 timeout_s=30.0,
             ),
         )
-        return JSONResponse(content={"reply": response.content})
+        reply, action = _extract_action(response.content)
+        payload: dict = {"reply": reply}
+        if action:
+            payload["action"] = action
+            logger.debug("Chat action detectada: %s", action.get("type"))
+        return JSONResponse(content=payload)
 
     except AIProviderError as exc:
         logger.error("Chat AIProviderError (%s): %s", type(exc).__name__, exc)

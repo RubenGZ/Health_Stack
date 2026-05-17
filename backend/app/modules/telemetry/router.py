@@ -17,12 +17,8 @@ router = APIRouter()
 
 _bearer = HTTPBearer(auto_error=False)
 
-def _get_limiter():
-    from app.main import limiter
-    return limiter
 
 @router.post("/page-view", response_model=PageViewResponse, summary="Registrar visita de página")
-@_get_limiter().limit("10/minute")
 async def record_page_view(
     request: Request,
     body: Annotated[PageViewCreate, Body()],

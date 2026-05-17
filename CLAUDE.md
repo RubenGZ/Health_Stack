@@ -210,11 +210,10 @@ Si se añaden features premium futuras, se agregan como índice 4+ en PLAN_OK.
 
 ### 🟡 Trabajo de código pendiente
 4. **Rotación de MASTER_KEY** — documentar procedimiento y automatizarlo (la key actual está en `.env.production.local` y guardada aparte)
-5. **AI Insights cache DB** — tabla `ai_insights_cache` para persistir resultados del scheduler semanal
 6. **Visor anatómico** — rediseño disruptivo y profesional (brainstorming pendiente)
 7. **Fórmula IMC mejorada** — mejorar cálculo y visualización en la interfaz
 
-### ✅ Ya hecho (actualizado 2026-05-14)
+### ✅ Ya hecho (actualizado 2026-05-17)
 - CI/CD: `.github/workflows/ci.yml` con tests + security scan + push a GHCR ✅
 - Prometheus: cableado en `main.py` ✅
 - ruff + mypy: configurados en `pyproject.toml` ✅
@@ -222,6 +221,8 @@ Si se añaden features premium futuras, se agregan como índice 4+ en PLAN_OK.
 - CSRF Google OAuth: cookie httpOnly + compare_digest ✅
 - ALLOWED_ORIGINS guard en startup ✅
 - RSA 2048 + MASTER_KEY generadas en `backend/.env.production.local` ✅
+- Chat Bloque E: context injection + auth gate SPA + 27 tests ✅
+- AI Insights cache DB: tabla `ai_insights_cache`, TTL 6h/24h, +1 test caché ✅
 
 ---
 

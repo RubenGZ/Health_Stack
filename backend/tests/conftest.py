@@ -30,6 +30,7 @@ import app.modules.telemetry.models     # noqa: F401
 import app.modules.workout_sessions.models  # noqa: F401
 import app.modules.ranked.models  # noqa: F401
 import app.modules.gym_servers.models  # noqa: F401
+import app.modules.ai_insights.models  # noqa: F401
 
 TEST_DB_URL = "postgresql+asyncpg://postgres:P%40ssw0rd@localhost:5432/healthstack_test"
 

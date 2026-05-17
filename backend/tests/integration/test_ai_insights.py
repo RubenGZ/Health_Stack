@@ -153,3 +153,44 @@ class TestAiInsights:
         assert resp.status_code == 200
         data = resp.json()
         assert data["overall_risk"] in ("low", "medium", "high")
+
+    async def test_weekly_goals_cache_hit_skips_ai(self, client, auth_headers):
+        """Segunda llamada idéntica usa caché — la IA no se vuelve a invocar."""
+        ai_json = (
+            '{"goals": ['
+            '{"goal": "Objetivo cacheado", "reasoning": "Test", "category": "training"},'
+            '{"goal": "Objetivo 2", "reasoning": "Test 2", "category": "weight"},'
+            '{"goal": "Objetivo 3", "reasoning": "Test 3", "category": "recovery"}'
+            '], "week_summary": "Semana desde caché"}'
+        )
+
+        mock_resp = MagicMock()
+        mock_resp.status_code = 200
+        mock_resp.json.return_value = {"choices": [{"message": {"content": ai_json}}]}
+        mock_resp.raise_for_status = MagicMock()
+
+        call_count = 0
+
+        async def mock_post(*args, **kwargs):
+            nonlocal call_count
+            call_count += 1
+            return mock_resp
+
+        with patch("httpx.AsyncClient") as mock_cls:
+            mock_ctx = AsyncMock()
+            mock_ctx.__aenter__ = AsyncMock(return_value=mock_ctx)
+            mock_ctx.__aexit__ = AsyncMock(return_value=False)
+            mock_ctx.post = mock_post
+            mock_cls.return_value = mock_ctx
+
+            # Primera llamada → llama a la IA, guarda en caché
+            resp1 = await client.get("/api/v1/ai-insights/weekly-goals", headers=auth_headers)
+            # Segunda llamada → debe venir de caché, no llamar a la IA
+            resp2 = await client.get("/api/v1/ai-insights/weekly-goals", headers=auth_headers)
+
+        assert resp1.status_code == 200
+        assert resp2.status_code == 200
+        # La IA solo debería haberse llamado UNA vez (la segunda viene de caché)
+        assert call_count <= 1, f"La IA se llamó {call_count} veces — la caché no funcionó"
+        # Ambas respuestas deben ser coherentes
+        assert resp1.json()["week_summary"] == resp2.json()["week_summary"]

@@ -54,6 +54,7 @@ from app.modules.nutrition.models import Supplement, Ingredient, UserRecipe  # n
 import app.modules.workout_sessions.models  # noqa: F401
 import app.modules.ranked.models  # noqa: F401
 import app.modules.gym_servers.models  # noqa: F401
+from app.modules.ai_insights.models import AIInsightsCache  # noqa: F401
 
 # ── Configuración de Alembic ──────────────────────────────────────────────────
 config = context.config

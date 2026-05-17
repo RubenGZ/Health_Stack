@@ -10,6 +10,12 @@ Migrado en Bloque D: usa AIRouter en lugar de llamar Groq directamente.
 Los 3 endpoints usan Gemini como primario (pro para análisis, flash para goals)
 con Groq como fallback.
 
+Bloque F — Caché DB:
+Antes de llamar a la IA se consulta ai_insights_cache. Si hay resultado
+fresco (TTL configurable por tipo) se devuelve directamente.
+TTLs: biomarker_narrative=6h, injury_risk=6h, weekly_goals=24h.
+El UPSERT garantiza una sola fila por (user_id, insight_type).
+
 Todos los fallbacks de templates se mantienen intactos — si TODOS los
 providers fallan, los endpoints devuelven respuestas útiles sin IA.
 
@@ -21,16 +27,17 @@ from __future__ import annotations
 
 import json
 import logging
-from datetime import date, timedelta
+from datetime import datetime, timedelta, timezone
 
-from sqlalchemy import and_, func, select
+from sqlalchemy import and_, select
+from sqlalchemy import func
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core.security.cryptoservice import CryptoService
 from app.modules.gamification.models import GamificationEvent, GamificationState
 from app.modules.health.models import HealthRecord
-from app.modules.health.repository import HealthRepository
 from app.modules.routines.models import SavedRoutine
+from app.modules.ai_insights.models import AIInsightsCache
 from app.modules.ai_insights.schemas import (
     BiomarkerNarratorResponse,
     InjuryRiskFlag,
@@ -43,6 +50,90 @@ from app.services.ai_router.router import AIRouter
 from app.services.ai_router.schemas import AIMessage, AIRequest, AIUseCase
 
 logger = logging.getLogger(__name__)
+
+# ── TTLs por tipo de insight ──────────────────────────────────────────────────
+
+_TTL_HOURS: dict[str, int] = {
+    "biomarker_narrative": 6,
+    "injury_risk": 6,
+    "weekly_goals": 24,
+}
+
+
+# ── Helpers de caché ──────────────────────────────────────────────────────────
+
+def _now_utc() -> datetime:
+    return datetime.now(timezone.utc)
+
+
+async def _cache_get(
+    db: AsyncSession,
+    user_id: str,
+    insight_type: str,
+) -> dict | None:
+    """
+    Devuelve el resultado cacheado si existe y no ha expirado según el TTL
+    del tipo de insight. None si no hay caché o está obsoleta.
+    """
+    ttl_hours = _TTL_HOURS.get(insight_type, 6)
+    cutoff = _now_utc() - timedelta(hours=ttl_hours)
+
+    result = await db.execute(
+        select(AIInsightsCache).where(
+            and_(
+                AIInsightsCache.user_id == user_id,
+                AIInsightsCache.insight_type == insight_type,
+                AIInsightsCache.generated_at >= cutoff,
+            )
+        )
+    )
+    row = result.scalar_one_or_none()
+    if row is None:
+        return None
+    try:
+        return json.loads(row.result_json)
+    except json.JSONDecodeError:
+        return None
+
+
+async def _cache_set(
+    db: AsyncSession,
+    user_id: str,
+    insight_type: str,
+    data: dict,
+) -> None:
+    """
+    UPSERT: actualiza la fila existente o la crea si no existe.
+    Garantiza exactamente una fila por (user_id, insight_type).
+    Silencia errores — si falla el caché no afecta la respuesta.
+    """
+    try:
+        result = await db.execute(
+            select(AIInsightsCache).where(
+                and_(
+                    AIInsightsCache.user_id == user_id,
+                    AIInsightsCache.insight_type == insight_type,
+                )
+            )
+        )
+        row = result.scalar_one_or_none()
+        payload = json.dumps(data, ensure_ascii=False)
+
+        if row is not None:
+            row.result_json = payload
+            row.generated_at = _now_utc()
+        else:
+            db.add(AIInsightsCache(
+                user_id=user_id,
+                insight_type=insight_type,
+                result_json=payload,
+                generated_at=_now_utc(),
+            ))
+        await db.commit()
+        logger.debug("ai_insights cache SET %s for user %s…", insight_type, user_id[:8])
+    except Exception as exc:
+        logger.warning("ai_insights cache SET failed (non-fatal): %s", exc)
+        await db.rollback()
 
 
 # ── DB helpers (sin cambios respecto a versión anterior) ──────────────────────
@@ -59,7 +150,8 @@ async def _resolve_health_subject(user_id: str, db: AsyncSession) -> str | None:
 async def _get_recent_weight_records(
     db: AsyncSession, subject_id: str, days: int = 30
 ) -> list[HealthRecord]:
-    cutoff = date.today() - timedelta(days=days)
+    from datetime import date, timedelta as td
+    cutoff = date.today() - td(days=days)
     result = await db.execute(
         select(HealthRecord)
         .where(
@@ -84,7 +176,8 @@ async def _get_gamification_state(db: AsyncSession, user_id: str) -> dict:
 
 
 async def _count_workout_events(db: AsyncSession, user_id: str, days: int = 7) -> int:
-    cutoff = date.today() - timedelta(days=days)
+    from datetime import date, timedelta as td
+    cutoff = date.today() - td(days=days)
     result = await db.execute(
         select(func.count()).where(
             and_(
@@ -114,6 +207,15 @@ async def get_biomarker_narrative(
     db: AsyncSession,
     ai_router: AIRouter,
 ) -> BiomarkerNarratorResponse:
+    _CACHE_KEY = "biomarker_narrative"
+
+    # ── 1. Intentar caché ─────────────────────────────────────────────────────
+    cached = await _cache_get(db, user_id, _CACHE_KEY)
+    if cached:
+        logger.debug("ai_insights cache HIT %s for user %s…", _CACHE_KEY, user_id[:8])
+        return BiomarkerNarratorResponse(**cached)
+
+    # ── 2. Obtener datos de BD ────────────────────────────────────────────────
     subject_id    = await _resolve_health_subject(user_id, db)
     gamification  = await _get_gamification_state(db, user_id)
     workout_count = await _count_workout_events(db, user_id, days=30)
@@ -152,6 +254,7 @@ Responde EXACTAMENTE en este formato JSON (sin bloques de código):
   "highlights": ["punto clave 1", "punto clave 2", "punto clave 3"]
 }}"""
 
+    # ── 3. Llamar a la IA ─────────────────────────────────────────────────────
     raw: str | None = None
     try:
         response = await ai_router.call(
@@ -172,15 +275,18 @@ Responde EXACTAMENTE en este formato JSON (sin bloques de código):
     if raw:
         try:
             data = json.loads(raw)
-            return BiomarkerNarratorResponse(
+            result = BiomarkerNarratorResponse(
                 narrative=data.get("narrative", ""),
                 trend=data.get("trend", "stable"),
                 highlights=data.get("highlights", []),
             )
+            # ── 4. Guardar en caché ───────────────────────────────────────────
+            await _cache_set(db, user_id, _CACHE_KEY, result.model_dump())
+            return result
         except (json.JSONDecodeError, KeyError):
             pass
 
-    # Fallback de templates
+    # ── 5. Fallback de templates ──────────────────────────────────────────────
     if weights:
         delta = weights[-1][1] - weights[0][1]
         trend = "declining" if delta > 0.5 else ("improving" if delta < -0.5 else "stable")
@@ -205,6 +311,20 @@ async def get_injury_risk(
     db: AsyncSession,
     ai_router: AIRouter,
 ) -> InjuryRiskResponse:
+    _CACHE_KEY = "injury_risk"
+
+    # ── 1. Intentar caché ─────────────────────────────────────────────────────
+    cached = await _cache_get(db, user_id, _CACHE_KEY)
+    if cached:
+        logger.debug("ai_insights cache HIT %s for user %s…", _CACHE_KEY, user_id[:8])
+        flags = [InjuryRiskFlag(**f) for f in cached.get("risk_flags", [])]
+        return InjuryRiskResponse(
+            risk_flags=flags,
+            overall_risk=cached.get("overall_risk", "low"),
+            summary=cached.get("summary", ""),
+        )
+
+    # ── 2. Obtener datos de BD ────────────────────────────────────────────────
     routines            = await _get_saved_routines(db, user_id)
     workouts_this_week  = await _count_workout_events(db, user_id, days=7)
 
@@ -245,6 +365,7 @@ Responde EXACTAMENTE en este formato JSON (sin bloques de código):
 
 Máximo 3 risk_flags. Si no hay riesgos claros, devuelve risk_flags vacío con overall_risk "low"."""
 
+    # ── 3. Llamar a la IA ─────────────────────────────────────────────────────
     raw: str | None = None
     try:
         response = await ai_router.call(
@@ -274,15 +395,18 @@ Máximo 3 risk_flags. Si no hay riesgos claros, devuelve risk_flags vacío con o
                 )
                 for f in data.get("risk_flags", [])[:3]
             ]
-            return InjuryRiskResponse(
+            result = InjuryRiskResponse(
                 risk_flags=flags,
                 overall_risk=data.get("overall_risk", "low"),
                 summary=data.get("summary", ""),
             )
+            # ── 4. Guardar en caché ───────────────────────────────────────────
+            await _cache_set(db, user_id, _CACHE_KEY, result.model_dump())
+            return result
         except (json.JSONDecodeError, KeyError):
             pass
 
-    # Fallback de templates
+    # ── 5. Fallback de templates ──────────────────────────────────────────────
     risk = "high" if workouts_this_week >= 6 else ("medium" if workouts_this_week >= 4 else "low")
     return InjuryRiskResponse(
         risk_flags=[],
@@ -298,6 +422,19 @@ async def get_weekly_goals(
     db: AsyncSession,
     ai_router: AIRouter,
 ) -> WeeklyGoalsResponse:
+    _CACHE_KEY = "weekly_goals"
+
+    # ── 1. Intentar caché ─────────────────────────────────────────────────────
+    cached = await _cache_get(db, user_id, _CACHE_KEY)
+    if cached:
+        logger.debug("ai_insights cache HIT %s for user %s…", _CACHE_KEY, user_id[:8])
+        goals = [MicroGoal(**g) for g in cached.get("goals", [])]
+        return WeeklyGoalsResponse(
+            goals=goals,
+            week_summary=cached.get("week_summary", ""),
+        )
+
+    # ── 2. Obtener datos de BD ────────────────────────────────────────────────
     gamification  = await _get_gamification_state(db, user_id)
     workout_count = await _count_workout_events(db, user_id, days=7)
     subject_id    = await _resolve_health_subject(user_id, db)
@@ -330,6 +467,7 @@ Responde EXACTAMENTE en este formato JSON (sin bloques de código):
   "week_summary": "1 frase motivadora para esta semana"
 }}"""
 
+    # ── 3. Llamar a la IA ─────────────────────────────────────────────────────
     raw: str | None = None
     try:
         response = await ai_router.call(
@@ -358,14 +496,17 @@ Responde EXACTAMENTE en este formato JSON (sin bloques de código):
                 )
                 for g in data.get("goals", [])[:3]
             ]
-            return WeeklyGoalsResponse(
+            result = WeeklyGoalsResponse(
                 goals=goals,
                 week_summary=data.get("week_summary", ""),
             )
+            # ── 4. Guardar en caché ───────────────────────────────────────────
+            await _cache_set(db, user_id, _CACHE_KEY, result.model_dump())
+            return result
         except (json.JSONDecodeError, KeyError):
             pass
 
-    # Fallback de templates
+    # ── 5. Fallback de templates ──────────────────────────────────────────────
     default_goals = [
         MicroGoal(goal="Completa 3 entrenamientos esta semana", reasoning="La consistencia es la base del progreso", category="training"),
         MicroGoal(goal="Registra tu peso cada mañana", reasoning="El seguimiento es clave para ajustar el plan", category="weight"),

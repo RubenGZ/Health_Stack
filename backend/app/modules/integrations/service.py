@@ -113,17 +113,35 @@ def _decrypt_token(payload: str) -> str:
 
 
 def _build_state(platform: str, user_id: uuid.UUID) -> str:
-    """CSRF-proof state = HMAC-SHA256(platform:user_id, MASTER_KEY)."""
+    """
+    CSRF-proof state = "{user_id}:{HMAC-SHA256(platform:user_id, MASTER_KEY)}".
+
+    El user_id viaja en claro (necesario para recuperarlo en el callback sin
+    sesión de servidor). La firma HMAC impide que nadie forge un state válido.
+    Formato: <uuid>:<64-char-hex-signature>
+    """
     raw = os.environ.get("HEALTH_LINK_MASTER_KEY", "x")
     key = bytes.fromhex(raw) if len(raw) == 64 else raw.encode()
     msg = f"{platform}:{user_id}".encode()
-    return hmac.new(key, msg, hashlib.sha256).hexdigest()
+    sig = hmac.new(key, msg, hashlib.sha256).hexdigest()
+    return f"{user_id}:{sig}"
 
 
 def _verify_state(state: str, platform: str) -> uuid.UUID:
-    """Not used in callback verification — state contains no user_id.
-    The callback relies on the JWT-authenticated current_user instead."""
-    return uuid.UUID(int=0)  # placeholder
+    """
+    Verifica el state OAuth2 y devuelve el user_id si la firma es válida.
+    Lanza ValueError si el formato es incorrecto o la firma no coincide.
+    """
+    if not state or ":" not in state:
+        raise ValueError("state format invalid")
+    # Formato: "<uuid>:<64-char-hmac>" — el UUID tiene guiones, por eso rsplit
+    user_id_str, sig = state.rsplit(":", 1)
+    user_id = uuid.UUID(user_id_str)          # ValueError si no es UUID válido
+    expected = _build_state(platform, user_id)
+    # compare_digest previene timing attacks
+    if not hmac.compare_digest(state, expected):
+        raise ValueError("state signature mismatch")
+    return user_id
 
 
 def _redirect_uri(platform: str) -> str:

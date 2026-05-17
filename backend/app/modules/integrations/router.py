@@ -28,7 +28,7 @@ from app.modules.integrations.schemas import (
     IntegrationListResponse,
     SyncResult,
 )
-from app.modules.integrations.service import IntegrationService
+from app.modules.integrations.service import IntegrationService, _verify_state
 from app.session import DBSession as DB
 
 router = APIRouter()
@@ -91,9 +91,9 @@ async def oauth_callback(
     if not state:
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Missing state parameter.")
     try:
-        user_id = uuid.UUID(state)
+        user_id = _verify_state(state, platform)
     except ValueError:
-        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Invalid state parameter.")
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Invalid or tampered state parameter.")
 
     svc = IntegrationService()
     await svc.handle_callback(platform, code, user_id, db)
@@ -149,8 +149,10 @@ async def import_apple_csv(
             detail="Only CSV files are supported. Export from Apple Health and upload the .csv file.",
         )
 
-    csv_bytes = await file.read()
-    if len(csv_bytes) > 20 * 1024 * 1024:
+    # Verificar tamaño ANTES de leer para evitar OOM con archivos gigantes
+    _MAX_CSV = 20 * 1024 * 1024  # 20 MB
+    csv_bytes = await file.read(_MAX_CSV + 1)
+    if len(csv_bytes) > _MAX_CSV:
         raise HTTPException(
             status_code=status.HTTP_413_REQUEST_ENTITY_TOO_LARGE,
             detail="File too large. Maximum size is 20 MB.",

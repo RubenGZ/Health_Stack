@@ -2,6 +2,7 @@
 """Pydantic v2 schemas para workout sessions."""
 from __future__ import annotations
 
+import uuid
 from datetime import datetime
 from typing import Optional
 from pydantic import BaseModel, ConfigDict, Field
@@ -24,7 +25,7 @@ class ExerciseIn(BaseModel):
 
 
 class SessionCreateRequest(BaseModel):
-    routine_id:  Optional[int] = None
+    routine_id:  Optional[uuid.UUID] = None  # FK → saved_routines.id (UUID, no Integer)
     started_at:  datetime
     finished_at: Optional[datetime] = None
     notes:       Optional[str] = Field(None, max_length=1000)

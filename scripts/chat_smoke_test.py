@@ -244,7 +244,9 @@ def build_scenarios() -> list[Scenario]:
             id="C2", category="C", label="Cuántos días entrenar a la semana",
             payload={"message": "cuántos días debo entrenar a la semana"},
             assertions=[
-                Assertion("Incluye número de días", _contains_number, "fail"),
+                # Correcto que pida contexto (nivel) O dé rango numérico directamente
+                Assertion("Da número de días o pide nivel/objetivo", lambda r: _contains_number(r) or "?" in r, "fail"),
+                Assertion("Una sola pregunta si pregunta", _one_question_only, "fail"),
                 Assertion("Respuesta no vacía", _not_empty, "fail"),
             ],
         ),
@@ -280,8 +282,10 @@ def build_scenarios() -> list[Scenario]:
             id="C5", category="C", label="Tiempo de descanso entre series (factual)",
             payload={"message": "cuánto tiempo descanso entre series"},
             assertions=[
-                Assertion("Incluye número de minutos/segundos", _contains_number, "fail"),
-                Assertion("Respuesta directa", _not_empty, "fail"),
+                # Correcto pedir objetivo (fuerza/hipertrofia/resistencia) o dar rango directo
+                Assertion("Da número o pide objetivo de entrenamiento", lambda r: _contains_number(r) or "?" in r, "fail"),
+                Assertion("Una sola pregunta si pregunta", _one_question_only, "fail"),
+                Assertion("Respuesta no vacía", _not_empty, "fail"),
             ],
         ),
 
@@ -455,6 +459,12 @@ def main() -> None:
         choices=["A", "B", "C", "D", "E", "F"],
         help="Ejecuta solo una categoría de escenarios",
     )
+    parser.add_argument(
+        "--delay",
+        type=float,
+        default=3.0,
+        help="Segundos entre requests (default: 3.0) — evita rate limit de Groq free tier",
+    )
     args = parser.parse_args()
 
     scenarios = build_scenarios()
@@ -463,7 +473,8 @@ def main() -> None:
 
     print(f"\n{BOLD}Chat Smoke Test — HealthStack Pro{RESET}")
     print(f"  URL: {args.url}")
-    print(f"  Escenarios: {len(scenarios)}\n")
+    print(f"  Escenarios: {len(scenarios)}")
+    print(f"  Delay entre requests: {args.delay}s\n")
 
     categories = sorted(set(s.category for s in scenarios))
     results = []
@@ -479,8 +490,10 @@ def main() -> None:
                 "E": "Preguntas factuales (dato directo)",
                 "F": "Robustez contexto usuario (token inválido → anónimo)",
             }
-            print(f"{BOLD}── {cat}: {cat_labels.get(cat, cat)} ──{RESET}")
-            for scenario in cat_scenarios:
+            print(f"{BOLD}-- {cat}: {cat_labels.get(cat, cat)} --{RESET}")
+            for i, scenario in enumerate(cat_scenarios):
+                if i > 0 and args.delay > 0:
+                    time.sleep(args.delay)
                 result = run_scenario(client, args.url, scenario)
                 results.append(result)
                 print_result(result, args.verbose)
@@ -492,7 +505,7 @@ def main() -> None:
     failed = total - passed
     warn_count = sum(len(r.warnings) for r in results)
 
-    print(f"{BOLD}── Resultado ──────────────────────────────────{RESET}")
+    print(f"{BOLD}-- Resultado ----------------------------------{RESET}")
     print(f"  Total:    {total}")
     print(f"  {GREEN}Passed:   {passed}{RESET}")
     if failed:

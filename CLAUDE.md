@@ -77,7 +77,8 @@ Si se rota la MASTER_KEY hay que re-cifrar todos los `health_uuid_enc`. (TODO pe
 
 ## Tests — Estado actual
 
-**90/90 pasando.** Última ejecución: 2026-05-06, 64s.
+**90/90 pasando** (previo a chat). Última ejecución: 2026-05-06, 64s.
+**+27 tests chat** añadidos (pendiente ejecutar en Pi).
 
 ```
 tests/unit/                   16 tests  (JWT, hashing, scheduler)
@@ -90,6 +91,7 @@ tests/integration/
   test_nutrition.py            5 tests
   test_ai_coach.py             9 tests
   test_ai_insights.py          9 tests
+  test_chat.py                27 tests  ← NEW (contratos HTTP + 20 escenarios)
 ```
 
 **Configuración crítica en `pytest.ini`:**

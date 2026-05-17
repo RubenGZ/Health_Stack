@@ -57,6 +57,7 @@ TRUNCATE_TABLES = [
     "public.ranked_events",
     "public.ranked_profiles",
     "public.ranked_seasons",
+    "public.ai_insights_cache",
     "public.users",
 ]
 

@@ -29,6 +29,11 @@
     }
   }
 
+  // Dejar pasar deep-links de la landing para registro/login.
+  // app.js los intercepta con handleLandingBridge() y abre el modal correcto.
+  var bridgeAction = new URLSearchParams(window.location.search).get('action');
+  if (bridgeAction === 'register' || bridgeAction === 'login') return;
+
   var token = localStorage.getItem(TOKEN_KEY);
 
   if (!token || isExpired(token)) {

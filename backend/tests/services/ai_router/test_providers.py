@@ -16,7 +16,6 @@ Patrón general de cada test:
 
 from __future__ import annotations
 
-import asyncio
 import json
 from unittest.mock import AsyncMock, MagicMock, patch
 
@@ -30,10 +29,9 @@ from app.services.ai_router.base import (
     AIRateLimitError,
     AITimeoutError,
 )
-from app.services.ai_router.providers.gemini import GeminiProvider, _GEMINI_BASE_URL
-from app.services.ai_router.providers.groq import GroqProvider, _GROQ_BASE_URL
+from app.services.ai_router.providers.gemini import _GEMINI_BASE_URL, GeminiProvider
+from app.services.ai_router.providers.groq import _GROQ_BASE_URL, GroqProvider
 from app.services.ai_router.schemas import AIMessage, AIRequest
-
 
 # ── Fixtures ──────────────────────────────────────────────────────────────────
 
@@ -310,7 +308,7 @@ class TestCerebrasProvider:
     para inyectar resultados o excepciones sin tocar el SDK real.
     """
 
-    def _provider(self) -> "CerebrasProvider":
+    def _provider(self):
         from app.services.ai_router.providers.cerebras import CerebrasProvider
         return CerebrasProvider(api_key="csk_test_key")
 

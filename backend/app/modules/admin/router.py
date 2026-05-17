@@ -1,10 +1,18 @@
 from __future__ import annotations
+
 import logging
+
 from fastapi import APIRouter, Depends, Query
+
 from app.core.security.dependencies import require_role
 from app.modules.admin.schemas import (
-    OverviewStats, TimeseriesPoint, ModuleActivity,
-    TableInfo, TechnicalMetrics, UserAdminRow, PatchUserRequest
+    ModuleActivity,
+    OverviewStats,
+    PatchUserRequest,
+    TableInfo,
+    TechnicalMetrics,
+    TimeseriesPoint,
+    UserAdminRow,
 )
 from app.modules.admin.service import AdminService
 from app.session import DBSession

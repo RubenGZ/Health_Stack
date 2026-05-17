@@ -17,7 +17,8 @@ Decisiones arquitectónicas (ADR-001):
 
 from __future__ import annotations
 
-from typing import Sequence, Union
+from collections.abc import Sequence
+from typing import Union
 
 import sqlalchemy as sa
 from sqlalchemy.dialects import postgresql

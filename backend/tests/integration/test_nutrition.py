@@ -15,9 +15,9 @@ NOTA SOBRE DISEÑO:
     GET  /recipes?local_id=X  → sin auth (filtra por local_id query param)
 """
 
-import pytest
 import uuid
 
+import pytest
 
 TEST_LOCAL_ID = str(uuid.uuid4())
 

@@ -1,5 +1,5 @@
 # tests/unit/test_workout_service.py
-from app.modules.workout_sessions.service import epley_1rm, detect_prs, compute_volume
+from app.modules.workout_sessions.service import compute_volume, detect_prs, epley_1rm
 
 
 def test_epley_1rm_one_rep():

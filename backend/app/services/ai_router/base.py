@@ -13,7 +13,6 @@ from abc import ABC, abstractmethod
 
 from app.services.ai_router.schemas import AIRequest, AIResponse
 
-
 # ── Excepciones ───────────────────────────────────────────────────────────────
 
 class AIProviderError(Exception):

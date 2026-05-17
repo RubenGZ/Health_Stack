@@ -3,19 +3,21 @@
 from __future__ import annotations
 
 import uuid
-from typing import Optional
 
-from fastapi import APIRouter, HTTPException, Query, status
-from sqlalchemy import select, func
+from fastapi import APIRouter, HTTPException, status
+from sqlalchemy import func, select
 
 from app.core.security.dependencies import CurrentUser
-from app.session import DBSession
 from app.modules.gym_servers import service as svc
-from app.modules.gym_servers.models import GymServer, GymMembership
+from app.modules.gym_servers.models import GymMembership, GymServer
 from app.modules.gym_servers.schemas import (
-    GymCreateRequest, GymResponse, JoinGymRequest,
-    MembershipUpdateRequest, ChallengeCreateRequest,
+    ChallengeCreateRequest,
+    GymCreateRequest,
+    GymResponse,
+    JoinGymRequest,
+    MembershipUpdateRequest,
 )
+from app.session import DBSession
 
 router = APIRouter()
 

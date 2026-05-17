@@ -6,7 +6,6 @@ Tests de integración para los endpoints de autenticación.
 
 import pytest
 
-
 REGISTER_PAYLOAD = {
     "email": "integration@healthstack.com",
     "password": "SecurePass123!",

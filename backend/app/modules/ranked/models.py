@@ -11,14 +11,19 @@ Cada tier tiene 4 divisiones (1-4) excepto 'leyenda' y 'apex' (division=None).
 """
 from __future__ import annotations
 
-import uuid
 from sqlalchemy import (
-    Boolean, Column, DateTime, Date, ForeignKey,
-    Integer, String, UniqueConstraint,
+    Boolean,
+    Column,
+    Date,
+    DateTime,
+    ForeignKey,
+    Integer,
+    String,
+    UniqueConstraint,
 )
 from sqlalchemy.dialects.postgresql import JSONB, UUID
-from sqlalchemy.orm import relationship
 from sqlalchemy.sql import func
+
 from app.shared.base_model import Base
 
 TIERS_NORMAL = [

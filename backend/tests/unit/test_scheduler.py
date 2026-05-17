@@ -4,8 +4,9 @@ tests/unit/test_scheduler.py
 Tests del scheduler APScheduler.
 """
 
-import pytest
 from unittest.mock import AsyncMock, MagicMock, patch
+
+import pytest
 
 
 class TestScheduler:

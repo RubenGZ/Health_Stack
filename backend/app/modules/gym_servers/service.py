@@ -5,12 +5,15 @@ from __future__ import annotations
 import secrets
 import string
 import uuid
-from typing import Optional
-from sqlalchemy import select, func
+
+from sqlalchemy import func, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.modules.gym_servers.models import (
-    GymServer, GymMembership, GymChallenge, GymChallengeParticipant,
+    GymChallenge,
+    GymChallengeParticipant,
+    GymMembership,
+    GymServer,
 )
 
 
@@ -47,12 +50,12 @@ async def create_gym(
 
 
 async def join_gym(
-    db: AsyncSession, user_id: uuid.UUID, gym_id: Optional[int], invite_code: Optional[str]
+    db: AsyncSession, user_id: uuid.UUID, gym_id: int | None, invite_code: str | None
 ) -> GymMembership:
     if invite_code:
         gym = (await db.execute(select(GymServer).where(GymServer.invite_code == invite_code))).scalar_one_or_none()
     elif gym_id:
-        gym = (await db.execute(select(GymServer).where(GymServer.id == gym_id, GymServer.is_public == True))).scalar_one_or_none()
+        gym = (await db.execute(select(GymServer).where(GymServer.id == gym_id, GymServer.is_public.is_(True)))).scalar_one_or_none()
     else:
         raise ValueError("Se requiere invite_code o gym_id")
 
@@ -85,7 +88,7 @@ async def get_sparrings(
     result = await db.execute(
         select(GymMembership).where(
             GymMembership.gym_id == gym_id,
-            GymMembership.profile_public == True,
+            GymMembership.profile_public.is_(True),
             GymMembership.user_id != requesting_user_id,
         )
     )

@@ -42,11 +42,11 @@ from __future__ import annotations
 
 import argparse
 import asyncio
+from datetime import UTC, datetime
 import logging
 import os
-import sys
-from datetime import datetime, timezone
 from pathlib import Path
+import sys
 
 # Añadir el directorio backend al path para importar los módulos de la app
 sys.path.insert(0, str(Path(__file__).parent.parent))
@@ -96,8 +96,8 @@ async def rotate(dry_run: bool = False) -> None:
     logger.info("CryptoService inicializado con claves OLD y NEW.")
 
     # ── Conectar a la BD ──────────────────────────────────────────────────────
-    from sqlalchemy import select, update as sa_update
-    from sqlalchemy.ext.asyncio import create_async_engine, async_sessionmaker
+    from sqlalchemy import select
+    from sqlalchemy.ext.asyncio import async_sessionmaker, create_async_engine
 
     db_url = os.environ.get("DATABASE_URL", "")
     if not db_url:
@@ -115,7 +115,8 @@ async def rotate(dry_run: bool = False) -> None:
 
     # ── Contar registros ──────────────────────────────────────────────────────
     async with Session() as db:
-        from sqlalchemy import func, select as sa_select
+        from sqlalchemy import func
+        from sqlalchemy import select as sa_select
         result = await db.execute(sa_select(func.count()).select_from(DataLink))
         total = result.scalar_one()
 
@@ -149,7 +150,7 @@ async def rotate(dry_run: bool = False) -> None:
                 if not links:
                     break
 
-                now = datetime.now(timezone.utc)
+                now = datetime.now(UTC)
 
                 for link in links:
                     try:

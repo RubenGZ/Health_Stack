@@ -3,14 +3,15 @@
 from __future__ import annotations
 
 import uuid
-from typing import Optional
-from sqlalchemy import select, desc, case
+
+from sqlalchemy import case, desc, select
 from sqlalchemy.ext.asyncio import AsyncSession
-from app.modules.ranked.models import RankedProfile, RankedEvent, TIERS_NORMAL, TIERS_COMPETITIVE
+
 from app.modules.gym_servers.models import GymMembership
+from app.modules.ranked.models import TIERS_COMPETITIVE, TIERS_NORMAL, RankedEvent, RankedProfile
 
 
-async def get_profile(db: AsyncSession, user_id: uuid.UUID, queue: str) -> Optional[RankedProfile]:
+async def get_profile(db: AsyncSession, user_id: uuid.UUID, queue: str) -> RankedProfile | None:
     result = await db.execute(
         select(RankedProfile).where(
             RankedProfile.user_id == user_id,

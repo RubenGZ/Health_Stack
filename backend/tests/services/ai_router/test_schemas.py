@@ -9,8 +9,8 @@ validadores personalizados y jerarquía de excepciones.
 
 from __future__ import annotations
 
-import pytest
 from pydantic import ValidationError
+import pytest
 
 from app.services.ai_router.base import (
     AIInvalidRequestError,
@@ -25,7 +25,6 @@ from app.services.ai_router.schemas import (
     AIUseCase,
     RoutingRule,
 )
-
 
 # ── AIUseCase ─────────────────────────────────────────────────────────────────
 

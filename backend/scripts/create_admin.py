@@ -22,14 +22,15 @@ Credenciales por defecto:
 from __future__ import annotations
 
 import asyncio
-import sys
 from datetime import UTC, datetime
 from pathlib import Path
+import sys
 
 # Añadir raíz del proyecto al path
 sys.path.insert(0, str(Path(__file__).parent.parent))
 
 from dotenv import load_dotenv
+
 load_dotenv(Path(__file__).parent.parent / ".env")
 
 from sqlalchemy.ext.asyncio import AsyncSession, create_async_engine
@@ -38,8 +39,8 @@ from sqlalchemy.orm import sessionmaker
 from app.core.config import get_settings
 from app.core.security.cryptoservice import CryptoService
 from app.core.security.hashing import hash_password
+from app.modules.identity.models import User
 from app.modules.identity.repository import UserRepository
-from app.modules.identity.models import Base, DataLink, User
 
 # ── Credenciales del admin ─────────────────────────────────────────────────────
 ADMIN_EMAIL        = "admin@healthstack.app"
@@ -63,7 +64,7 @@ async def create_or_promote_admin() -> None:
             existing.is_active = True
             await db.flush()
             await db.commit()
-            print(f"✅  Usuario existente elevado a admin:")
+            print("✅  Usuario existente elevado a admin:")
             print(f"    ID:    {existing.id}")
             print(f"    Email: {existing.email}")
             print(f"    Rol:   {existing.role}")
@@ -98,7 +99,7 @@ async def create_or_promote_admin() -> None:
         print("╠══════════════════════════════════════════════════════╣")
         print(f"║  Email:    {ADMIN_EMAIL:<40}║")
         print(f"║  Password: {ADMIN_PASSWORD:<40}║")
-        print(f"║  Rol:      admin                                     ║")
+        print("║  Rol:      admin                                     ║")
         print(f"║  UUID:     {str(user.id):<40}║")
         print("╠══════════════════════════════════════════════════════╣")
         print("║  ⚠️  Cambia la contraseña en producción              ║")

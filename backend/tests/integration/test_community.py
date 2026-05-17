@@ -10,7 +10,6 @@ PostResponse schema real:
 """
 import pytest
 
-
 POST_PAYLOAD = {
     "content": "Hoy entrené pierna por primera vez en meses.",
 }

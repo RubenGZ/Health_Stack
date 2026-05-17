@@ -1,7 +1,7 @@
 # tests/integration/test_gym_servers.py
 """Integration tests for gym server endpoints."""
-import pytest
 from httpx import AsyncClient
+import pytest
 
 BASE = "/api/v1/gym-servers"
 

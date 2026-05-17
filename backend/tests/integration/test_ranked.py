@@ -1,7 +1,7 @@
 # tests/integration/test_ranked.py
 """Integration tests for the ranked system endpoints."""
-import pytest
 from httpx import AsyncClient
+import pytest
 
 BASE = "/api/v1/ranked"
 

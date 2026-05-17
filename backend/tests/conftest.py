@@ -5,32 +5,33 @@ Fixtures compartidas para toda la suite de tests.
 """
 
 import asyncio
-import pytest
-import pytest_asyncio
 from pathlib import Path
-from httpx import AsyncClient, ASGITransport
-from sqlalchemy.ext.asyncio import create_async_engine, async_sessionmaker
-from sqlalchemy import text
 
 from dotenv import load_dotenv
+from httpx import ASGITransport, AsyncClient
+import pytest
+import pytest_asyncio
+from sqlalchemy import text
+from sqlalchemy.ext.asyncio import async_sessionmaker, create_async_engine
+
 load_dotenv(Path(__file__).parent.parent / ".env")
 
 from app.main import app as fastapi_app
-from app.session import get_db
-from app.shared.base_model import Base
+import app.modules.ai_insights.models  # noqa: F401
+import app.modules.community.models  # noqa: F401
+import app.modules.gamification.models  # noqa: F401
+import app.modules.gym_servers.models  # noqa: F401
+import app.modules.health.models  # noqa: F401
 
 # Importar todos los modelos para que SQLAlchemy configure los mappers
-import app.modules.identity.models      # noqa: F401
-import app.modules.health.models        # noqa: F401
-import app.modules.nutrition.models     # noqa: F401
-import app.modules.routines.models      # noqa: F401
-import app.modules.community.models     # noqa: F401
-import app.modules.gamification.models  # noqa: F401
-import app.modules.telemetry.models     # noqa: F401
-import app.modules.workout_sessions.models  # noqa: F401
+import app.modules.identity.models  # noqa: F401
+import app.modules.nutrition.models  # noqa: F401
 import app.modules.ranked.models  # noqa: F401
-import app.modules.gym_servers.models  # noqa: F401
-import app.modules.ai_insights.models  # noqa: F401
+import app.modules.routines.models  # noqa: F401
+import app.modules.telemetry.models  # noqa: F401
+import app.modules.workout_sessions.models  # noqa: F401
+from app.session import get_db
+from app.shared.base_model import Base
 
 TEST_DB_URL = "postgresql+asyncpg://postgres:P%40ssw0rd@localhost:5432/healthstack_test"
 

@@ -28,10 +28,10 @@ from pydantic import BaseModel, Field
 
 from app.core.security.jwt_handler import decode_token
 from app.modules.chat.context import build_user_context
+from app.services.ai_router.base import AIProviderError
 from app.services.ai_router.dependencies import get_ai_router
 from app.services.ai_router.router import AIRouter
 from app.services.ai_router.schemas import AIMessage, AIRequest, AIUseCase
-from app.services.ai_router.base import AIProviderError
 from app.session import DBSession
 
 logger = logging.getLogger(__name__)
@@ -210,11 +210,11 @@ async def chat_message(
             ),
         )
         reply, action = _extract_action(response.content)
-        payload: dict = {"reply": reply}
+        response_body: dict = {"reply": reply}
         if action:
-            payload["action"] = action
+            response_body["action"] = action
             logger.debug("Chat action detectada: %s", action.get("type"))
-        return JSONResponse(content=payload)
+        return JSONResponse(content=response_body)
 
     except AIProviderError as exc:
         logger.error("Chat AIProviderError (%s): %s", type(exc).__name__, exc)

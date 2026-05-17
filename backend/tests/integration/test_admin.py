@@ -12,7 +12,6 @@ Cubre:
 
 import pytest
 
-
 ADMIN_BASE = "/api/v1/admin"
 
 

@@ -2,14 +2,16 @@
 """Lógica de negocio: Epley 1RM, PR detection, gamificación."""
 from __future__ import annotations
 
+from datetime import UTC, datetime
 import uuid
-from datetime import datetime, timezone
-from typing import Optional
+
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.modules.workout_sessions import repository as repo
 from app.modules.workout_sessions.schemas import (
-    SessionCreateRequest, SessionCreateResponse, PRRecord,
+    PRRecord,
+    SessionCreateRequest,
+    SessionCreateResponse,
 )
 
 
@@ -31,7 +33,7 @@ def compute_volume(exercises_data: list[dict]) -> float:
 
 def detect_prs(
     exercises_data: list[dict],
-    prev_bests: dict[str, Optional[float]],
+    prev_bests: dict[str, float | None],
 ) -> list[PRRecord]:
     prs = []
     for ex in exercises_data:
@@ -60,7 +62,7 @@ async def create_workout_session(
     exercises_data = [e.model_dump() for e in request.exercises]
     total_volume = compute_volume(exercises_data)
 
-    prev_bests: dict[str, Optional[float]] = {}
+    prev_bests: dict[str, float | None] = {}
     for ex in exercises_data:
         key = ex["exercise_key"]
         prev_bests[key] = await repo.get_best_1rm(db, user_id, key)
@@ -72,7 +74,7 @@ async def create_workout_session(
         user_id=user_id,
         routine_id=request.routine_id,
         started_at=request.started_at,
-        finished_at=request.finished_at or datetime.now(timezone.utc),
+        finished_at=request.finished_at or datetime.now(UTC),
         notes=request.notes,
         total_volume_kg=total_volume,
         exercises_data=exercises_data,

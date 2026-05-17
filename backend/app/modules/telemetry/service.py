@@ -1,7 +1,10 @@
 from __future__ import annotations
+
 from sqlalchemy.ext.asyncio import AsyncSession
+
 from app.modules.telemetry.repository import TelemetryRepository
 from app.modules.telemetry.schemas import PageViewCreate
+
 
 class TelemetryService:
 

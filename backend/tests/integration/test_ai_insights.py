@@ -4,8 +4,9 @@ tests/integration/test_ai_insights.py
 Tests de integración para el módulo ai_insights.
 """
 
-import pytest
 from unittest.mock import AsyncMock, MagicMock, patch
+
+import pytest
 
 
 @pytest.mark.asyncio

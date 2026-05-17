@@ -6,7 +6,6 @@ Tests de integración para el módulo de telemetría (page views).
 
 import pytest
 
-
 TELEMETRY_URL = "/api/v1/telemetry/page-view"
 
 

@@ -25,14 +25,15 @@ NO hace:
 """
 
 
+from datetime import UTC, datetime
 import logging
 import secrets
-from datetime import UTC, datetime
 
 from fastapi import APIRouter, Depends, HTTPException, Query, Request, status
 from fastapi.responses import RedirectResponse
 from pydantic import BaseModel
 
+from app.core.config import get_settings
 from app.core.security.cryptoservice import CryptoService, get_crypto_service
 from app.core.security.dependencies import CurrentUser, require_role
 from app.core.security.hashing import hash_password
@@ -42,7 +43,6 @@ from app.core.security.jwt_handler import (
     decode_token,
 )
 from app.modules.identity.repository import RefreshTokenRepository, UserRepository
-from app.core.config import get_settings
 from app.modules.identity.schemas import (
     ForgotPasswordRequest,
     ForgotPasswordResponse,
@@ -296,7 +296,7 @@ async def google_redirect(request: Request) -> RedirectResponse:
         url, _google_state = build_auth_url()
         # Reemplazamos el state generado por google_oauth con el nuestro para
         # mantener consistencia — pasamos state propio en la URL
-        from urllib.parse import urlencode, urlparse, parse_qs, urlunparse
+        from urllib.parse import parse_qs, urlencode, urlparse, urlunparse
         parsed = urlparse(url)
         params = parse_qs(parsed.query, keep_blank_values=True)
         params["state"] = [state]
@@ -430,8 +430,6 @@ async def google_callback(
 
     # 6. Redirigir al frontend con los tokens en el fragmento (#)
     #    El JS del frontend lee el hash y almacena los tokens en localStorage
-    settings = get_settings()
-
     # Detectar la URL base a partir del request si no hay config explícita
     base = str(request.base_url).rstrip("/")
 
@@ -538,8 +536,8 @@ async def forgot_password(
     3. Enviar email con el enlace de reset
     4. Devolver siempre el mismo mensaje (anti-enumeration)
     """
-    from app.modules.identity.repository import PasswordResetRepository
     from app.core.mailer import send_password_reset_email
+    from app.modules.identity.repository import PasswordResetRepository
 
     user = await UserRepository.get_by_email(db, body.email)
     # Responder igual independientemente de si el usuario existe — evita user enumeration

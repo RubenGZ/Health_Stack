@@ -11,13 +11,20 @@ user_id usa UUID(as_uuid=True) porque users.id es UUID — no Integer.
 """
 from __future__ import annotations
 
-import uuid
 from sqlalchemy import (
-    Boolean, Column, DateTime, Float, ForeignKey,
-    Integer, String, Text, Index,
+    Boolean,
+    Column,
+    DateTime,
+    Float,
+    ForeignKey,
+    Index,
+    Integer,
+    String,
+    Text,
 )
 from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.orm import relationship
+
 from app.shared.base_model import Base
 
 

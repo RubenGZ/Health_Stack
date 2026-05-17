@@ -1,8 +1,11 @@
 from __future__ import annotations
+
 import logging
+
 from fastapi import HTTPException, status
 from sqlalchemy.ext.asyncio import AsyncSession
-from app.modules.admin.repository import AdminRepository, ALLOWED_TABLES
+
+from app.modules.admin.repository import ALLOWED_TABLES, AdminRepository
 from app.modules.admin.schemas import PatchUserRequest
 from app.modules.identity.repository import UserRepository
 

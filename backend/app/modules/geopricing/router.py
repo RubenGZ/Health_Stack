@@ -10,9 +10,9 @@ import logging
 import time
 from typing import Any
 
-import httpx
 from fastapi import APIRouter, Request
 from fastapi.responses import JSONResponse
+import httpx
 
 logger = logging.getLogger(__name__)
 

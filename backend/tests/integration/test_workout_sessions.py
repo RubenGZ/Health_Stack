@@ -1,7 +1,7 @@
 # tests/integration/test_workout_sessions.py
 """Tests de integración para workout sessions API."""
-import pytest
 from httpx import AsyncClient
+import pytest
 
 BASE = "/api/v1/workout"
 

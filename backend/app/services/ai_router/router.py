@@ -23,7 +23,6 @@ Errores NO retriables (no fallback):
 
 from __future__ import annotations
 
-import copy
 import hashlib
 import logging
 import time
@@ -33,8 +32,6 @@ from app.services.ai_router.base import (
     AIInvalidRequestError,
     AIProvider,
     AIProviderError,
-    AIRateLimitError,
-    AITimeoutError,
 )
 from app.services.ai_router.config import AIRouterSettings
 from app.services.ai_router.schemas import AIRequest, AIResponse, AIUseCase

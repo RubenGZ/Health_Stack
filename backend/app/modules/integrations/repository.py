@@ -6,6 +6,7 @@ Database access layer for integration tokens.
 
 from __future__ import annotations
 
+from datetime import UTC
 import uuid
 
 from sqlalchemy import delete, select
@@ -67,10 +68,10 @@ class IntegrationRepository:
         return token
 
     async def mark_synced(self, user_id: uuid.UUID, platform: str) -> None:
-        from datetime import datetime, timezone
+        from datetime import datetime
         token = await self.get_token(user_id, platform)
         if token:
-            token.last_sync_at = datetime.now(tz=timezone.utc)
+            token.last_sync_at = datetime.now(tz=UTC)
             await self._db.flush()
 
     async def delete_token(self, user_id: uuid.UUID, platform: str) -> bool:

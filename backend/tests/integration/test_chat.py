@@ -15,13 +15,13 @@ Para testear la calidad de respuesta real ejecuta:
 
 from __future__ import annotations
 
-import pytest
 from unittest.mock import AsyncMock, MagicMock
+
+import pytest
 
 from app.main import app as fastapi_app
 from app.services.ai_router.base import AIProviderError
 from app.services.ai_router.schemas import AIResponse
-
 
 # ── Helpers ───────────────────────────────────────────────────────────────────
 

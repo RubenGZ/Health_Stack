@@ -1,5 +1,7 @@
 from __future__ import annotations
+
 from pydantic import BaseModel, Field
+
 
 class PageViewCreate(BaseModel):
     page: str = Field(..., max_length=100)

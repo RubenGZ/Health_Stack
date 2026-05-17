@@ -29,7 +29,6 @@ from app.services.ai_router.schemas import (
     RoutingRule,
 )
 
-
 # ── Helpers ───────────────────────────────────────────────────────────────────
 
 def _make_response(provider: str = "gemini", model: str = "gemini-2.5-flash") -> AIResponse:
@@ -327,7 +326,6 @@ class TestAIRouterLogging:
             def emit(self, record):
                 log_records.append(getattr(record, "__dict__", {}))
 
-        import logging as _logging
         from app.services.ai_router import router as router_module
         handler = CapturingHandler()
         router_module.logger.addHandler(handler)

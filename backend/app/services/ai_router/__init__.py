@@ -19,6 +19,7 @@ from app.services.ai_router.base import (
     AITimeoutError,
 )
 from app.services.ai_router.config import AIRouterSettings
+from app.services.ai_router.router import AIRouter
 from app.services.ai_router.schemas import (
     AIMessage,
     AIRequest,
@@ -26,9 +27,6 @@ from app.services.ai_router.schemas import (
     AIUseCase,
     RoutingRule,
 )
-
-from app.services.ai_router.router import AIRouter
-
 
 __all__ = [
     # Schemas

@@ -18,9 +18,9 @@ Referencia: https://alembic.sqlalchemy.org/en/latest/cookbook.html#using-asyncio
 from __future__ import annotations
 
 import asyncio
+from logging.config import fileConfig
 import os
 import sys
-from logging.config import fileConfig
 
 # Añadir el directorio raíz del backend al path para que `app` sea importable
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
@@ -44,17 +44,17 @@ except ImportError:
 # Alembic necesita conocer todos los modelos SQLAlchemy para generar
 # migraciones automáticas con `alembic revision --autogenerate`.
 # Importar la Base primero, luego los modelos que la usan.
-from app.shared.base_model import Base  # noqa: F401 — importar Base
-from app.modules.identity.models import User, DataLink, PasswordResetToken  # noqa: F401
-from app.modules.health.models import HealthRecord  # noqa: F401
-from app.modules.routines.models import SavedRoutine  # noqa: F401
-from app.modules.community.models import CommunityPost, CommunityLike  # noqa: F401
-from app.modules.gamification.models import GamificationState  # noqa: F401
-from app.modules.nutrition.models import Supplement, Ingredient, UserRecipe  # noqa: F401
-import app.modules.workout_sessions.models  # noqa: F401
-import app.modules.ranked.models  # noqa: F401
-import app.modules.gym_servers.models  # noqa: F401
 from app.modules.ai_insights.models import AIInsightsCache  # noqa: F401
+from app.modules.community.models import CommunityLike, CommunityPost  # noqa: F401
+from app.modules.gamification.models import GamificationState  # noqa: F401
+import app.modules.gym_servers.models  # noqa: F401
+from app.modules.health.models import HealthRecord  # noqa: F401
+from app.modules.identity.models import DataLink, PasswordResetToken, User  # noqa: F401
+from app.modules.nutrition.models import Ingredient, Supplement, UserRecipe  # noqa: F401
+import app.modules.ranked.models  # noqa: F401
+from app.modules.routines.models import SavedRoutine  # noqa: F401
+import app.modules.workout_sessions.models  # noqa: F401
+from app.shared.base_model import Base  # noqa: F401 — importar Base
 
 # ── Configuración de Alembic ──────────────────────────────────────────────────
 config = context.config

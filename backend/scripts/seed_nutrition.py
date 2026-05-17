@@ -18,14 +18,13 @@ Datos:
 from __future__ import annotations
 
 import asyncio
-import sys
 from pathlib import Path
+import sys
 
 # Añadir raíz del proyecto al path
 sys.path.insert(0, str(Path(__file__).parent.parent))
 
-from sqlalchemy import text
-from sqlalchemy.ext.asyncio import create_async_engine, AsyncSession
+from sqlalchemy.ext.asyncio import AsyncSession, create_async_engine
 from sqlalchemy.orm import sessionmaker
 
 from app.core.config import get_settings

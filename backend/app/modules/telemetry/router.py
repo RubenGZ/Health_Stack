@@ -1,14 +1,15 @@
 from __future__ import annotations
+
 import logging
 from typing import Annotated
 
 from fastapi import APIRouter, Body, Depends, Request
 from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
 
+from app.core.security.jwt_handler import decode_token
 from app.modules.telemetry.schemas import PageViewCreate, PageViewResponse
 from app.modules.telemetry.service import TelemetryService
 from app.session import DBSession
-from app.core.security.jwt_handler import decode_token
 from app.shared.exceptions import TokenExpiredError, TokenInvalidError
 
 logger = logging.getLogger(__name__)

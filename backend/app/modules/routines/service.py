@@ -10,7 +10,6 @@ import json
 import logging
 
 import httpx
-from fastapi import HTTPException, status
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core.config import get_settings

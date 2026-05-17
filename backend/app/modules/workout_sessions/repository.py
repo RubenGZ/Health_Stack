@@ -2,23 +2,23 @@
 """Queries SQLAlchemy async para workout sessions."""
 from __future__ import annotations
 
-import uuid
 from datetime import datetime
-from typing import Optional
-from sqlalchemy import func, select, desc
+import uuid
+
+from sqlalchemy import desc, func, select
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import selectinload
 
-from app.modules.workout_sessions.models import WorkoutSession, SessionExercise, ExerciseSet
+from app.modules.workout_sessions.models import ExerciseSet, SessionExercise, WorkoutSession
 
 
 async def create_session(
     db: AsyncSession,
     user_id: uuid.UUID,
-    routine_id: Optional[int],
+    routine_id: uuid.UUID | None,
     started_at: datetime,
-    finished_at: Optional[datetime],
-    notes: Optional[str],
+    finished_at: datetime | None,
+    notes: str | None,
     total_volume_kg: float,
     exercises_data: list[dict],
 ) -> WorkoutSession:
@@ -67,7 +67,7 @@ async def create_session(
 
 async def get_session_detail(
     db: AsyncSession, session_id: int, user_id: uuid.UUID
-) -> Optional[WorkoutSession]:
+) -> WorkoutSession | None:
     result = await db.execute(
         select(WorkoutSession)
         .options(
@@ -84,7 +84,7 @@ async def list_sessions(
     user_id: uuid.UUID,
     page: int = 1,
     per_page: int = 20,
-    exercise_key: Optional[str] = None,
+    exercise_key: str | None = None,
 ) -> tuple[list[WorkoutSession], int]:
     base_q = select(WorkoutSession).where(WorkoutSession.user_id == user_id)
     if exercise_key:
@@ -142,7 +142,7 @@ async def get_best_1rm(
     db: AsyncSession,
     user_id: uuid.UUID,
     exercise_key: str,
-) -> Optional[float]:
+) -> float | None:
     result = await db.execute(
         select(ExerciseSet.weight_kg, ExerciseSet.reps)
         .join(ExerciseSet.exercise)

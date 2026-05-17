@@ -14,7 +14,6 @@ from typing import Literal
 
 from pydantic import BaseModel, Field, model_validator
 
-
 # ── Use cases ────────────────────────────────────────────────────────────────
 
 class AIUseCase(str, Enum):

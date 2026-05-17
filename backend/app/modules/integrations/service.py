@@ -21,6 +21,8 @@ Token security:
 from __future__ import annotations
 
 import csv
+from datetime import UTC, date, datetime, timedelta
+from decimal import Decimal
 import hashlib
 import hmac
 import io
@@ -28,8 +30,6 @@ import logging
 import os
 import urllib.parse
 import uuid
-from datetime import date, datetime, timedelta, timezone
-from decimal import Decimal
 
 import httpx
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -219,7 +219,7 @@ class IntegrationService:
         expires_in: int = token_data.get("expires_in", 3600)
         scope_raw = token_data.get("scope", cfg["scope"])
         scope = scope_raw if isinstance(scope_raw, str) else " ".join(scope_raw)
-        expires_at = datetime.now(tz=timezone.utc) + timedelta(seconds=expires_in)
+        expires_at = datetime.now(tz=UTC) + timedelta(seconds=expires_in)
 
         access_enc = _encrypt_token(access_token)
         refresh_enc = _encrypt_token(refresh_token) if refresh_token else None
@@ -239,7 +239,7 @@ class IntegrationService:
         self, token: IntegrationToken, db: AsyncSession
     ) -> str:
         """Return a valid access token, refreshing if needed."""
-        now = datetime.now(tz=timezone.utc)
+        now = datetime.now(tz=UTC)
         if token.expires_at and token.expires_at > now + timedelta(minutes=5):
             return _decrypt_token(token.access_token_enc)
 
@@ -319,14 +319,14 @@ class IntegrationService:
     ) -> int:
         """Fetch weight data from Google Fit and upsert HealthRecords."""
         from app.core.security.cryptoservice import get_crypto_service
-        from app.modules.health.service import HealthService
         from app.modules.health.schemas import HealthRecordCreate
+        from app.modules.health.service import HealthService
 
         crypto = get_crypto_service()
         health_svc = HealthService()
 
-        now_ms = int(datetime.now(tz=timezone.utc).timestamp() * 1000)
-        days_ago_ms = int((datetime.now(tz=timezone.utc) - timedelta(days=90)).timestamp() * 1000)
+        now_ms = int(datetime.now(tz=UTC).timestamp() * 1000)
+        days_ago_ms = int((datetime.now(tz=UTC) - timedelta(days=90)).timestamp() * 1000)
 
         async with httpx.AsyncClient(timeout=20.0) as client:
             resp = await client.post(
@@ -355,7 +355,7 @@ class IntegrationService:
                     if weight_kg <= 0:
                         continue
                     ts_ms = int(point.get("startTimeNanos", 0)) // 1_000_000
-                    record_date = date.fromtimestamp(ts_ms / 1000, tz=timezone.utc)
+                    record_date = datetime.fromtimestamp(ts_ms / 1000, tz=UTC).date()
                     try:
                         await health_svc.create_record(
                             db=db,
@@ -376,8 +376,8 @@ class IntegrationService:
     ) -> int:
         """Fetch recent activities from Strava (heart rate data)."""
         from app.core.security.cryptoservice import get_crypto_service
-        from app.modules.health.service import HealthService
         from app.modules.health.schemas import HealthRecordCreate
+        from app.modules.health.service import HealthService
 
         crypto = get_crypto_service()
         health_svc = HealthService()
@@ -422,8 +422,8 @@ class IntegrationService:
     ) -> int:
         """Fetch weight and sleep data from Fitbit."""
         from app.core.security.cryptoservice import get_crypto_service
-        from app.modules.health.service import HealthService
         from app.modules.health.schemas import HealthRecordCreate
+        from app.modules.health.service import HealthService
 
         crypto = get_crypto_service()
         health_svc = HealthService()
@@ -492,8 +492,8 @@ class IntegrationService:
         Expected columns: date, weight_kg (or weight_lb), sleep_hours, resting_heart_rate
         """
         from app.core.security.cryptoservice import get_crypto_service
-        from app.modules.health.service import HealthService
         from app.modules.health.schemas import HealthRecordCreate
+        from app.modules.health.service import HealthService
 
         crypto = get_crypto_service()
         health_svc = HealthService()

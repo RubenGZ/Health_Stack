@@ -3,15 +3,18 @@
 from __future__ import annotations
 
 import uuid
-from typing import Optional
-from sqlalchemy.ext.asyncio import AsyncSession
+
 from sqlalchemy import select
+from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.modules.ranked.models import (
-    RankedProfile, RankedEvent, TIERS_NORMAL, TIERS_COMPETITIVE,
-    TOP_TIER_NORMAL, TOP_TIER_COMPETITIVE,
+    TIERS_COMPETITIVE,
+    TIERS_NORMAL,
+    TOP_TIER_COMPETITIVE,
+    TOP_TIER_NORMAL,
+    RankedEvent,
+    RankedProfile,
 )
-
 
 # ── Helpers de tier ───────────────────────────────────────────────────────────
 
@@ -64,7 +67,7 @@ async def apply_lp_delta(
     profile: RankedProfile,
     delta: int,
     event_type: str,
-    meta: Optional[dict] = None,
+    meta: dict | None = None,
 ) -> dict:
     """
     Aplica delta de LP al perfil con lógica de promoción/descenso.
@@ -130,7 +133,7 @@ async def apply_lp_delta(
 
 
 async def _log_event(
-    db: AsyncSession, profile: RankedProfile, event_type: str, delta: int, meta: Optional[dict]
+    db: AsyncSession, profile: RankedProfile, event_type: str, delta: int, meta: dict | None
 ) -> None:
     event = RankedEvent(
         user_id=profile.user_id,

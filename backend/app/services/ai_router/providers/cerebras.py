@@ -50,7 +50,7 @@ def _import_cerebras():
     si el paquete no está instalado (entorno sin Cerebras key).
     """
     try:
-        from cerebras.cloud.sdk import Cerebras, APIStatusError, APITimeoutError  # noqa: F401
+        from cerebras.cloud.sdk import APIStatusError, APITimeoutError, Cerebras  # noqa: F401
         return Cerebras, APIStatusError, APITimeoutError
     except ImportError as exc:
         raise ImportError(

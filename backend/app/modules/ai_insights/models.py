@@ -17,8 +17,8 @@ una fila por (user_id, insight_type) — sin crecer sin límite.
 
 from __future__ import annotations
 
-import uuid
 from datetime import datetime
+import uuid
 
 from sqlalchemy import DateTime, String, Text, UniqueConstraint
 from sqlalchemy.dialects.postgresql import UUID

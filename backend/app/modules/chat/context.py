@@ -25,8 +25,8 @@ Uso en router.py:
 from __future__ import annotations
 
 import asyncio
-import logging
 from datetime import date, timedelta
+import logging
 
 from sqlalchemy import and_, select
 from sqlalchemy.ext.asyncio import AsyncSession

@@ -20,14 +20,14 @@ import logging
 import os
 
 from fastapi import Depends, FastAPI, Request, Response, status
-from sqlalchemy import text
-from sqlalchemy.ext.asyncio import AsyncSession
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 from slowapi import Limiter, _rate_limit_exceeded_handler
 from slowapi.errors import RateLimitExceeded
 from slowapi.middleware import SlowAPIMiddleware
 from slowapi.util import get_remote_address
+from sqlalchemy import text
+from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core.config import get_settings
 from app.shared.exceptions import (
@@ -307,21 +307,21 @@ async def validation_error_handler(request: Request, exc: ValidationError):
 
 # ── Routers ───────────────────────────────────────────────────────────────────
 from app.modules.admin.router import router as admin_router
-from app.modules.integrations.router import router as integrations_router
 from app.modules.ai_coach.router import router as ai_coach_router
 from app.modules.ai_insights.router import router as ai_insights_router
 from app.modules.chat.router import router as chat_router
 from app.modules.community.router import router as community_router
-from app.modules.geopricing.router import router as geopricing_router
 from app.modules.gamification.router import router as gamification_router
+from app.modules.geopricing.router import router as geopricing_router
+from app.modules.gym_servers.router import router as gym_router
 from app.modules.health.router import router as health_router
 from app.modules.identity.router import router as identity_router
+from app.modules.integrations.router import router as integrations_router
 from app.modules.nutrition.router import router as nutrition_router
+from app.modules.ranked.router import router as ranked_router
 from app.modules.routines.router import router as routines_router
 from app.modules.telemetry.router import router as telemetry_router
 from app.modules.workout_sessions.router import router as workout_router
-from app.modules.ranked.router import router as ranked_router
-from app.modules.gym_servers.router import router as gym_router
 
 app.include_router(
     identity_router,
@@ -425,10 +425,10 @@ from app.core.scheduler import start_scheduler, stop_scheduler
 
 # ── AIRouter ──────────────────────────────────────────────────────────────────
 from app.services.ai_router.config import AIRouterSettings
-from app.services.ai_router.router import AIRouter
-from app.services.ai_router.providers.groq import GroqProvider
-from app.services.ai_router.providers.gemini import GeminiProvider
 from app.services.ai_router.providers.cerebras import CerebrasProvider
+from app.services.ai_router.providers.gemini import GeminiProvider
+from app.services.ai_router.providers.groq import GroqProvider
+from app.services.ai_router.router import AIRouter
 
 
 def _build_ai_router() -> AIRouter:

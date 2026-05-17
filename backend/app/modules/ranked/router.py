@@ -3,18 +3,20 @@
 from __future__ import annotations
 
 import uuid
-from typing import Optional
 
 from fastapi import APIRouter, HTTPException, Query
 
 from app.core.security.dependencies import CurrentUser
-from app.session import DBSession
 from app.modules.ranked import repository as repo
 from app.modules.ranked import service as svc
 from app.modules.ranked.schemas import (
-    RankedProfileResponse, QueueProfile, LeaderboardResponse,
-    LeaderboardEntry, RankedEventResponse,
+    LeaderboardEntry,
+    LeaderboardResponse,
+    QueueProfile,
+    RankedEventResponse,
+    RankedProfileResponse,
 )
+from app.session import DBSession
 
 router = APIRouter()
 
@@ -64,7 +66,7 @@ async def get_leaderboard(
     current_user: CurrentUser,
     queue: str = Query("competitive", pattern="^(normal|competitive)$"),
     scope: str = Query("gym", pattern="^(gym|city|national|global)$"),
-    gym_id: Optional[int] = Query(None),
+    gym_id: int | None = Query(None),
 ):
     if scope == "gym" and not gym_id:
         raise HTTPException(status_code=400, detail="gym_id requerido para scope=gym")

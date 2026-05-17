@@ -15,8 +15,8 @@ Apple Health (web can't use HealthKit):
 
 from __future__ import annotations
 
-import uuid
 from typing import Annotated
+import uuid
 
 from fastapi import APIRouter, File, HTTPException, Query, UploadFile, status
 from fastapi.responses import RedirectResponse

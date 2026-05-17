@@ -16,12 +16,11 @@ from __future__ import annotations
 
 from unittest.mock import AsyncMock, MagicMock
 
+from httpx import ASGITransport, AsyncClient
 import pytest
-from httpx import AsyncClient, ASGITransport
 
 from app.services.ai_router.base import AIProviderError
 from app.services.ai_router.schemas import AIResponse, AIUseCase
-
 
 # ── Helpers ────────────────────────────────────────────────────────────────────
 

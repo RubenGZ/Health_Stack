@@ -11,8 +11,9 @@ Cerebras (provider primario de REALTIME_COACH) usa su propio SDK síncrono,
 no httpx, por lo que parchear httpx no intercepta sus llamadas.
 """
 
-import pytest
 from unittest.mock import AsyncMock, MagicMock
+
+import pytest
 
 from app.main import app as fastapi_app
 from app.services.ai_router.base import AIProviderError

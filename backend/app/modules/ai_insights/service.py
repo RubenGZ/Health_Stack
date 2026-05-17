@@ -25,18 +25,14 @@ TODO: P0-RGPD — estos endpoints envían datos biométricos a free tiers.
 
 from __future__ import annotations
 
+from datetime import UTC, datetime, timedelta
 import json
 import logging
-from datetime import datetime, timedelta, timezone
 
-from sqlalchemy import and_, select
-from sqlalchemy import func
+from sqlalchemy import and_, func, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core.security.cryptoservice import CryptoService
-from app.modules.gamification.models import GamificationEvent, GamificationState
-from app.modules.health.models import HealthRecord
-from app.modules.routines.models import SavedRoutine
 from app.modules.ai_insights.models import AIInsightsCache
 from app.modules.ai_insights.schemas import (
     BiomarkerNarratorResponse,
@@ -45,6 +41,9 @@ from app.modules.ai_insights.schemas import (
     MicroGoal,
     WeeklyGoalsResponse,
 )
+from app.modules.gamification.models import GamificationEvent, GamificationState
+from app.modules.health.models import HealthRecord
+from app.modules.routines.models import SavedRoutine
 from app.services.ai_router.base import AIProviderError
 from app.services.ai_router.router import AIRouter
 from app.services.ai_router.schemas import AIMessage, AIRequest, AIUseCase
@@ -63,7 +62,7 @@ _TTL_HOURS: dict[str, int] = {
 # ── Helpers de caché ──────────────────────────────────────────────────────────
 
 def _now_utc() -> datetime:
-    return datetime.now(timezone.utc)
+    return datetime.now(UTC)
 
 
 async def _cache_get(
@@ -150,7 +149,8 @@ async def _resolve_health_subject(user_id: str, db: AsyncSession) -> str | None:
 async def _get_recent_weight_records(
     db: AsyncSession, subject_id: str, days: int = 30
 ) -> list[HealthRecord]:
-    from datetime import date, timedelta as td
+    from datetime import date
+    from datetime import timedelta as td
     cutoff = date.today() - td(days=days)
     result = await db.execute(
         select(HealthRecord)
@@ -176,7 +176,8 @@ async def _get_gamification_state(db: AsyncSession, user_id: str) -> dict:
 
 
 async def _count_workout_events(db: AsyncSession, user_id: str, days: int = 7) -> int:
-    from datetime import date, timedelta as td
+    from datetime import date
+    from datetime import timedelta as td
     cutoff = date.today() - td(days=days)
     result = await db.execute(
         select(func.count()).where(

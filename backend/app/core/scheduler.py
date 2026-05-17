@@ -14,13 +14,13 @@ DB session lifecycle consistent.
 
 from __future__ import annotations
 
+from datetime import UTC, datetime
 import logging
-from datetime import datetime, timezone
 
 from apscheduler.schedulers.asyncio import AsyncIOScheduler
 from apscheduler.triggers.cron import CronTrigger
 from sqlalchemy import select
-from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker, create_async_engine
+from sqlalchemy.ext.asyncio import async_sessionmaker, create_async_engine
 
 from app.core.config import get_settings
 from app.modules.identity.models import User
@@ -76,7 +76,7 @@ async def weekly_insights_job() -> None:
         return
 
     cfg = get_settings()
-    logger.info("[Scheduler] weekly_insights_job started — %s", datetime.now(timezone.utc).isoformat())
+    logger.info("[Scheduler] weekly_insights_job started — %s", datetime.now(UTC).isoformat())
 
     if not cfg.grok_api_key:
         logger.warning("[Scheduler] GROK_API_KEY not set — skipping weekly insights job")
@@ -92,12 +92,24 @@ async def weekly_insights_job() -> None:
         processed = 0
         high_risk_count = 0
 
-        async with session_factory() as session:
-            from app.modules.ai_insights.service import get_injury_risk, get_weekly_goals
+        from app.modules.ai_insights.service import get_injury_risk
+        from app.services.ai_router.config import AIRouterSettings
+        from app.services.ai_router.providers.cerebras import CerebrasProvider
+        from app.services.ai_router.providers.gemini import GeminiProvider
+        from app.services.ai_router.providers.groq import GroqProvider
+        from app.services.ai_router.router import AIRouter
 
+        ai_settings = AIRouterSettings()
+        ai_router = AIRouter(settings=ai_settings, providers={
+            "groq":     GroqProvider(ai_settings.get_groq_key()),
+            "gemini":   GeminiProvider(ai_settings.get_gemini_key()),
+            "cerebras": CerebrasProvider(ai_settings.get_cerebras_key()),
+        })
+
+        async with session_factory() as session:
             for user_id in user_ids:
                 try:
-                    risk = await get_injury_risk(user_id, session)
+                    risk = await get_injury_risk(user_id, session, ai_router)
                     if risk.overall_risk == "high":
                         high_risk_count += 1
                         logger.warning(
@@ -125,7 +137,7 @@ async def daily_narrative_job() -> None:
         logger.info("[Scheduler] daily_narrative_job skipped — another worker holds the lock")
         return
 
-    logger.info("[Scheduler] daily_narrative_job started — %s", datetime.now(timezone.utc).isoformat())
+    logger.info("[Scheduler] daily_narrative_job started — %s", datetime.now(UTC).isoformat())
 
     cfg = get_settings()
     if not cfg.grok_api_key:

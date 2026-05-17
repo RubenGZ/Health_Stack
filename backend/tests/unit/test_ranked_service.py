@@ -1,7 +1,7 @@
 # tests/unit/test_ranked_service.py
 """Unit tests for pure helper functions in ranked service (no DB needed)."""
-from app.modules.ranked.service import tier_index, tier_at_index, is_top_tier
-from app.modules.ranked.models import TIERS_NORMAL, TIERS_COMPETITIVE
+from app.modules.ranked.models import TIERS_COMPETITIVE, TIERS_NORMAL
+from app.modules.ranked.service import is_top_tier, tier_at_index, tier_index
 
 
 def test_tier_index_normal():

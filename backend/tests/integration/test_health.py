@@ -13,7 +13,6 @@ Esquema real de HealthRecordCreate:
 """
 import pytest
 
-
 RECORD_PAYLOAD = {
     "recorded_date": "2026-04-20",
     "weight_kg": 75.5,

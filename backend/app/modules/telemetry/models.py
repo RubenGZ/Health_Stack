@@ -1,10 +1,14 @@
 from __future__ import annotations
-import uuid
+
 from datetime import UTC, datetime
+import uuid
+
 from sqlalchemy import Boolean, DateTime, ForeignKey, String
 from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.orm import Mapped, mapped_column
+
 from app.shared.base_model import Base
+
 
 class PageView(Base):
     __tablename__ = "page_views"

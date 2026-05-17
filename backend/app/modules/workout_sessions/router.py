@@ -3,12 +3,10 @@
 from __future__ import annotations
 
 import uuid
-from typing import Optional
 
 from fastapi import APIRouter, HTTPException, Query, status
 
 from app.core.security.dependencies import CurrentUser
-from app.session import DBSession
 from app.modules.workout_sessions import repository as repo
 from app.modules.workout_sessions import service as svc
 from app.modules.workout_sessions.schemas import (
@@ -20,6 +18,7 @@ from app.modules.workout_sessions.schemas import (
     SessionListResponse,
     SessionSummary,
 )
+from app.session import DBSession
 
 router = APIRouter()
 
@@ -63,7 +62,7 @@ async def list_sessions(
     current_user: CurrentUser,
     page: int = Query(1, ge=1),
     per_page: int = Query(20, ge=1, le=100),
-    exercise_key: Optional[str] = Query(None),
+    exercise_key: str | None = Query(None),
 ):
     """Lista sesiones del usuario, paginadas."""
     user_id = uuid.UUID(current_user["user_id"])

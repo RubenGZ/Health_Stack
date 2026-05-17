@@ -123,9 +123,14 @@ const Chatbot = (function () {
     const typing = addTypingIndicator();
 
     try {
+      // Añadir token si el usuario está autenticado (contexto personalizado)
+      const headers = { 'Content-Type': 'application/json' };
+      const token = typeof API !== 'undefined' ? API.getToken?.() : null;
+      if (token) headers['Authorization'] = `Bearer ${token}`;
+
       const res = await fetch(API_URL, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers,
         body: JSON.stringify({ message: trimmed, history }),
         signal: AbortSignal.timeout(30000),
       });

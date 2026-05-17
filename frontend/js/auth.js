@@ -162,7 +162,13 @@
     const modal = document.getElementById('auth-modal');
     if (!modal) return;
     modal.classList.add('ob-exit');
-    setTimeout(() => modal.remove(), 380);
+    setTimeout(() => {
+      modal.remove();
+      // Si cerraron sin autenticarse → volver a la landing
+      if (!localStorage.getItem('hs_access_token')) {
+        window.location.replace('/landing/');
+      }
+    }, 380);
   }
 
   // ── Auth actions ───────────────────────────────────────────

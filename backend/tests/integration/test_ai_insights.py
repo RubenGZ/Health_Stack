@@ -155,6 +155,93 @@ class TestAiInsights:
         data = resp.json()
         assert data["overall_risk"] in ("low", "medium", "high")
 
+    async def test_ai_prompts_never_contain_pii(self, client, auth_headers, registered_user):
+        """
+        RGPD Art. 25 — Privacy by design.
+
+        Verifica que NINGUNO de los tres endpoints de ai_insights envía
+        identificadores personales (user_id, email, display_name) ni el
+        health_subject_id en el prompt que se manda al AIRouter.
+
+        Patrón: sustituye `app.state.ai_router` por un Recorder que captura
+        cada AIRequest y luego comprueba el contenido. El test es agnóstico
+        del proveedor concreto (Groq, Gemini, Cerebras).
+        """
+        from app.main import app as fastapi_app
+        from app.services.ai_router.schemas import AIResponse
+
+        user_id = registered_user["user"]["id"]
+        email = registered_user["user"]["email"]
+        display_name = registered_user["user"].get("display_name", "")
+
+        # Seed un evento de gamification para pasar el guard de "insufficient_data"
+        await client.post(
+            "/api/v1/gamification/action",
+            json={"action": "routine"},
+            headers=auth_headers,
+        )
+
+        captured_prompts: list[str] = []
+
+        class RecorderAIRouter:
+            async def call(self, *, use_case, request, user_id=None):
+                # Capturar todos los mensajes del request
+                for msg in request.messages:
+                    captured_prompts.append(msg.content)
+                # Devolver una respuesta JSON válida para que el endpoint no caiga al fallback
+                fake_json = (
+                    '{"narrative":"x","trend":"stable","highlights":["a","b","c"],'
+                    '"risk_flags":[],"overall_risk":"low","summary":"x",'
+                    '"goals":[{"goal":"x","reasoning":"y","category":"training"},'
+                    '{"goal":"x","reasoning":"y","category":"weight"},'
+                    '{"goal":"x","reasoning":"y","category":"recovery"}],'
+                    '"week_summary":"x"}'
+                )
+                return AIResponse(
+                    content=fake_json,
+                    provider_used="recorder",
+                    model_used="recorder",
+                    tokens_used=0,
+                    fallback_triggered=False,
+                )
+
+        original_router = getattr(fastapi_app.state, "ai_router", None)
+        fastapi_app.state.ai_router = RecorderAIRouter()
+
+        try:
+            await client.get("/api/v1/ai-insights/biomarker-narrative", headers=auth_headers)
+            await client.get("/api/v1/ai-insights/injury-risk", headers=auth_headers)
+            await client.get("/api/v1/ai-insights/weekly-goals", headers=auth_headers)
+        finally:
+            fastapi_app.state.ai_router = original_router
+
+        assert captured_prompts, "El RecorderAIRouter no capturó ningún prompt — revisa el patch"
+
+        # Construir blob con todos los prompts concatenados para comprobar contenido
+        blob = "\n---\n".join(captured_prompts).lower()
+
+        # Identificadores que NUNCA deben aparecer en un prompt enviado a IA externa
+        forbidden = [
+            user_id.lower(),        # UUID del usuario
+            email.lower(),          # email — siempre PII
+            "test@healthstack.com",
+        ]
+        if display_name:
+            forbidden.append(display_name.lower())
+
+        for token in forbidden:
+            assert token not in blob, (
+                f"RGPD VIOLATION: el identificador '{token}' apareció en un prompt enviado a IA. "
+                f"Revisa _build_anonymous_ai_context() en ai_insights/service.py"
+            )
+
+        # Tokens que sugieren que se está pasando texto libre del usuario
+        suspicious = ["bearer", "jwt", "token=", "password", "health_subject_id"]
+        for token in suspicious:
+            assert token not in blob, (
+                f"RGPD VIOLATION: el token sospechoso '{token}' apareció en un prompt"
+            )
+
     async def test_weekly_goals_cache_hit_skips_ai(self, client, auth_headers):
         """Segunda llamada idéntica usa caché — la IA no se vuelve a invocar."""
         ai_json = (

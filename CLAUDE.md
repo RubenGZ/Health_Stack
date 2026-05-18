@@ -98,10 +98,12 @@ Key `gsk_...` en `backend/.env`. Modelo: `llama-3.3-70b-versatile`.
 Todos los endpoints tienen fallback graceful si la key no está configurada.
 `@limiter.limit()` NO se puede usar con `Depends()` en FastAPI — usar rate limit global.
 
-**RGPD P0 pendiente — ai_insights:**
-Datos biométricos reales (peso, fechas, composición corporal) se envían a proveedores
-de IA free-tier sin anonimizar. Resolver antes de producción con usuarios reales: añadir
-paso de anonimización en `ai_insights/service.py` antes de llamar a AIRouter.
+**RGPD — ai_insights ✅ RESUELTO (2026-05-18):**
+Pipeline de anonimización `_build_anonymous_ai_context()` aplicado a los 3 endpoints
+(biomarker_narrative, injury_risk, weekly_goals). El AIRouter hashea el `user_id` con
+SHA-256 antes de loguearlo y nunca lo envía al proveedor externo. Test de privacidad
+añadido (`test_ai_prompts_never_contain_pii`) que verifica con un Recorder que ningún
+identificador (UUID, email, display_name, health_subject_id) aparece en los prompts.
 
 ---
 
@@ -180,6 +182,7 @@ asyncio_default_test_loop_scope = session   ← sin esto asyncpg explota
 | CSV Apple Health OOM en archivos grandes | `file.read()` completo antes de validar tamaño | `file.read(_MAX_CSV + 1)` — lee máximo lo necesario |
 | `routine_id: Optional[int]` en workout schema | ORM usa UUID, schema usaba int → insert fallaba | Cambiado a `Optional[uuid.UUID]` en schemas.py |
 | Bucle infinito landing → app | `auth-gate.js` no whitelistaba `?action=register` | Whitelist añadida + `?v=2` cache-bust + SW bumped a v15 |
+| RGPD P0: ai_insights enviaba PII a IA externa | `get_weekly_goals` no usaba `_build_anonymous_ai_context` | Refactorizado + test `test_ai_prompts_never_contain_pii` añadido (2026-05-18) |
 
 ---
 
@@ -275,15 +278,14 @@ Si se añaden features premium futuras, se agregan como índice 4+ en PLAN_OK.
 4. **Redis en Pi** — contenedor `healthstack_redis` unhealthy (ver logs para diagnóstico)
 
 ### 🟡 Trabajo de código pendiente (ordenado por impacto)
-5. **RGPD P0 — ai_insights**: anonimizar datos biométricos antes de enviar a IA free-tier
-6. **Tests integrations**: 0 tests para OAuth2/sync/CSV — módulo completamente sin cobertura
-7. **Ranked — leaderboard completo**: city/national/global devuelven [] vacío (solo gym funciona)
-8. **Ranked — temporadas reales**: `season = 1` hardcodeado, `RankedSeason` inerte
-9. **workout_sessions — streak real**: conectar racha de gamification para LP ranked
-10. **ai_insights tests**: migrar 2 mocks httpx muertos a `app.state.ai_router` (como hace ai_coach)
-11. **Rotación de MASTER_KEY** — documentar procedimiento de re-cifrado
-12. **Visor anatómico** — rediseño disruptivo y profesional (brainstorming pendiente)
-13. **Fórmula IMC mejorada** — mejorar cálculo y visualización en la interfaz
+5. **Tests integrations**: 0 tests para OAuth2/sync/CSV — módulo completamente sin cobertura
+6. **Ranked — leaderboard completo**: city/national/global devuelven [] vacío (solo gym funciona)
+7. **Ranked — temporadas reales**: `season = 1` hardcodeado, `RankedSeason` inerte
+8. **workout_sessions — streak real**: conectar racha de gamification para LP ranked
+9. **ai_insights tests**: migrar 2 mocks httpx muertos a `app.state.ai_router` (como hace ai_coach)
+10. **Rotación de MASTER_KEY** — documentar procedimiento de re-cifrado
+11. **Visor anatómico** — rediseño disruptivo y profesional (brainstorming pendiente)
+12. **Fórmula IMC mejorada** — mejorar cálculo y visualización en la interfaz
 
 ### ✅ Ya hecho (actualizado 2026-05-17)
 - CI/CD: `.github/workflows/ci.yml` con tests + security scan + push a GHCR ✅
@@ -300,6 +302,7 @@ Si se añaden features premium futuras, se agregan como índice 4+ en PLAN_OK.
 - Integrations OAuth2 CSRF callback corregido: `_verify_state()` real ✅
 - Integrations CSV OOM fix: `file.read(_MAX_CSV + 1)` ✅
 - Smoke test script: `scripts/smoke_test.py` — cubre 17 módulos, sin deps externas ✅
+- RGPD P0 ai_insights: `get_weekly_goals` ahora pasa por `_build_anonymous_ai_context` + test `test_ai_prompts_never_contain_pii` que verifica que ningún UUID/email/display_name llega al prompt enviado a IA externa ✅ (2026-05-18)
 
 ### 🗒️ Smoke test (ejecutar en Pi)
 ```bash

@@ -518,20 +518,29 @@ async def get_weekly_goals(
     if subject_id:
         weight_records = await _get_recent_weight_records(db, subject_id, days=14)
 
-    weight_str = ""
-    if weight_records:
-        weights = [float(r.weight_kg) for r in weight_records if r.weight_kg]
-        if weights:
-            weight_str = f"Peso reciente: {weights[-1]}kg. "
+    weight_values = [float(r.weight_kg) for r in weight_records if r.weight_kg]
+
+    # ── Construir contexto anonimizado — NUNCA enviar PII a la IA ────────────
+    ctx = _build_anonymous_ai_context(
+        weight_values_kg=weight_values,
+        workout_count_30d=0,
+        workout_count_7d=workout_count,
+        gamification_level=gamification["level"],
+        gamification_xp=gamification["xp"],
+        gamification_streak=gamification["streak"],
+    )
+
+    weight_line = ""
+    if weight_values:
+        weight_line = f"- Peso reciente: {ctx['weight_last_kg']}kg (cambio {ctx['weight_delta_kg']:+.1f}kg)\n"
 
     prompt = f"""Eres un coach de fitness personal. Genera 3 micro-objetivos específicos y alcanzables para esta semana.
 
 Datos del usuario:
-- Nivel: {gamification['level']}, XP total: {gamification['xp']}
-- Racha actual: {gamification['streak']} días
-- Entrenamientos la semana pasada: {workout_count}
-- {weight_str}
-
+- Nivel: {ctx['gamification_level']}, XP total: {ctx['gamification_xp']}
+- Racha actual: {ctx['gamification_streak']} días
+- Entrenamientos la semana pasada: {ctx['workout_count_7d']}
+{weight_line}
 Responde EXACTAMENTE en este formato JSON (sin bloques de código):
 {{
   "goals": [

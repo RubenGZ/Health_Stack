@@ -1,0 +1,453 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<title>Hoja de Ruta Estratégica — HealthStack Pro</title>
+<style>
+  :root{
+    --bg:#0a0a0f; --card:#141420; --card2:#1a1a28; --border:#23233a;
+    --text:#e8e8f0; --muted:#8a8aa3; --dim:#5c5c75;
+    --blue:#3b82f6; --green:#10b981; --amber:#f59e0b; --red:#ef4444;
+    --mono:ui-monospace,"SF Mono",Menlo,Consolas,monospace;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html,body{background:var(--bg);color:var(--text);font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;line-height:1.6;font-size:15px;-webkit-font-smoothing:antialiased}
+  .wrap{max-width:960px;margin:0 auto;padding:48px 32px 80px}
+  header{border-bottom:1px solid var(--border);padding-bottom:32px;margin-bottom:48px}
+  .eyebrow{font-family:var(--mono);font-size:11px;letter-spacing:.18em;color:var(--amber);text-transform:uppercase;margin-bottom:14px}
+  h1{font-size:32px;font-weight:700;letter-spacing:-.02em;line-height:1.2;margin-bottom:16px}
+  h1 .accent{color:var(--blue)}
+  .meta{display:flex;gap:24px;font-family:var(--mono);font-size:12px;color:var(--muted);flex-wrap:wrap}
+  .meta .conf{color:var(--red);font-weight:600}
+  h2{font-size:22px;font-weight:600;margin:56px 0 20px;letter-spacing:-.01em;padding-bottom:10px;border-bottom:1px solid var(--border)}
+  h2 .num{font-family:var(--mono);color:var(--dim);font-size:14px;font-weight:500;margin-right:12px}
+  h3{font-size:16px;font-weight:600;margin:24px 0 10px;color:var(--text)}
+  h4{font-size:13px;font-weight:600;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);margin:18px 0 8px}
+  p{margin-bottom:12px;color:var(--text)}
+  p.lead{font-size:17px;line-height:1.55;color:var(--text)}
+  .card{background:var(--card);border:1px solid var(--border);border-radius:10px;padding:24px;margin:16px 0}
+  .card.tight{padding:18px}
+  .grid-2{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+  .grid-3{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}
+  @media(max-width:720px){.grid-2,.grid-3{grid-template-columns:1fr}}
+  table{width:100%;border-collapse:collapse;margin:14px 0;font-size:14px}
+  th,td{text-align:left;padding:11px 12px;border-bottom:1px solid var(--border);vertical-align:top}
+  th{font-size:11px;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);font-weight:600;background:#10101a}
+  td.mono,th.mono,.mono{font-family:var(--mono);font-size:13px}
+  .pill{display:inline-block;padding:2px 8px;border-radius:4px;font-family:var(--mono);font-size:10.5px;font-weight:600;letter-spacing:.04em;text-transform:uppercase}
+  .pill.blue{background:rgba(59,130,246,.12);color:var(--blue);border:1px solid rgba(59,130,246,.3)}
+  .pill.green{background:rgba(16,185,129,.12);color:var(--green);border:1px solid rgba(16,185,129,.3)}
+  .pill.amber{background:rgba(245,158,11,.12);color:var(--amber);border:1px solid rgba(245,158,11,.3)}
+  .pill.red{background:rgba(239,68,68,.12);color:var(--red);border:1px solid rgba(239,68,68,.3)}
+  .pill.gray{background:#22223a;color:var(--muted);border:1px solid var(--border)}
+  ul{padding-left:20px;margin-bottom:12px}
+  li{margin-bottom:6px}
+  ul.bare{list-style:none;padding-left:0}
+  ul.bare li{padding-left:18px;position:relative}
+  ul.bare li:before{content:"›";position:absolute;left:0;color:var(--blue);font-weight:700}
+  ul.check li:before{content:"✓";color:var(--green)}
+  ul.cross li:before{content:"✗";color:var(--red)}
+  .stat{font-family:var(--mono);font-size:13px;color:var(--muted)}
+  .stat strong{color:var(--text);font-size:18px;font-weight:600;display:block;margin-bottom:2px}
+  .quote{border-left:3px solid var(--blue);padding:10px 16px;color:var(--muted);font-style:italic;margin:14px 0;background:rgba(59,130,246,.04)}
+
+  .timeline{position:relative;padding-left:32px;margin:24px 0}
+  .timeline:before{content:"";position:absolute;left:8px;top:8px;bottom:8px;width:2px;background:linear-gradient(180deg,var(--blue),var(--green),var(--amber))}
+  .tl-item{position:relative;margin-bottom:28px;padding-left:8px}
+  .tl-item:before{content:"";position:absolute;left:-31px;top:6px;width:14px;height:14px;border-radius:50%;background:var(--bg);border:2px solid var(--blue)}
+  .tl-item.g:before{border-color:var(--green)}
+  .tl-item.a:before{border-color:var(--amber)}
+  .tl-q{font-family:var(--mono);font-size:11px;letter-spacing:.1em;color:var(--blue);text-transform:uppercase;margin-bottom:4px}
+  .tl-item.g .tl-q{color:var(--green)}
+  .tl-item.a .tl-q{color:var(--amber)}
+  .tl-title{font-size:17px;font-weight:600;margin-bottom:10px}
+  .tl-body{font-size:14px;color:var(--text);background:var(--card);border:1px solid var(--border);border-radius:8px;padding:16px}
+  .tl-body .label{font-family:var(--mono);font-size:10.5px;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);display:block;margin-top:10px;margin-bottom:4px}
+
+  footer{margin-top:64px;padding-top:24px;border-top:1px solid var(--border);font-size:12px;color:var(--dim);line-height:1.7}
+  footer .src{font-family:var(--mono);font-size:11px;display:block}
+
+  .kpi-row{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin:18px 0}
+  @media(max-width:720px){.kpi-row{grid-template-columns:repeat(2,1fr)}}
+  .kpi{background:var(--card2);border:1px solid var(--border);border-radius:8px;padding:14px}
+  .kpi .v{font-family:var(--mono);font-size:20px;font-weight:600;color:var(--blue)}
+  .kpi .l{font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;margin-top:4px}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<header>
+  <div class="eyebrow">Memo al Consejo · Oficina del CSO</div>
+  <h1>Hoja de Ruta Estratégica &amp; Diferenciación Defendible<br><span class="accent">HealthStack Pro</span></h1>
+  <div class="meta">
+    <span>2026-05-17</span>
+    <span>v1.0</span>
+    <span>Autor: CSO</span>
+    <span class="conf">CONFIDENCIAL — USO INTERNO</span>
+  </div>
+</header>
+
+<h2><span class="num">01</span>Tesis de inversión</h2>
+<div class="card">
+  <p class="lead"><strong>HealthStack Pro</strong> es la única capa de salud personal que combina (a) cifrado real y cumplimiento RGPD/AEPD a nivel de registro, (b) un coach IA contextual con datos biométricos completos del usuario, y (c) una capa social vertical por gimnasio físico. <strong>Apple y Google nunca ocuparán las tres a la vez</strong>: por incentivos de plataforma horizontal, por neutralidad regulatoria, y porque el vínculo gimnasio-IRL no es escalable algorítmicamente.</p>
+  <p class="lead" style="margin-top:14px">El producto está en posición de capturar al usuario europeo de salud y rendimiento que <em>desconfía del lock-in americano</em> y al usuario GLP-1 que necesita <em>preservación muscular medida</em>, no balanzas conectadas.</p>
+  <p class="lead" style="margin-top:14px">La ventana se cierra en 18 meses: Google relanza Health App con coach IA generativa el 19 de mayo 2026, y MyFitnessPal/WW ya están construyendo el segmento GLP-1. Quien fije <em>moat de datos + comunidad localizada</em> antes de Q4 2026 se queda con el mercado.</p>
+
+  <div class="grid-2" style="margin-top:20px">
+    <div>
+      <h4 style="color:var(--green)">Por qué ahora — timing</h4>
+      <ul class="bare">
+        <li>Financiación en salud digital 2025: <span class="mono">$22.3B</span> (+19% interanual); IA = 69% del Q2 (CB Insights)</li>
+        <li>1 de cada 8 adultos en EE.UU. toma GLP-1 — pérdida muscular documentada, sin app europea seria que lo aborde</li>
+        <li>Google deprecia las APIs de Google Fit en 2026 → migración forzada del ecosistema Android</li>
+        <li>El 85% de los líderes sanitarios ya exploran GenAI (McKinsey 2025)</li>
+        <li>Oura cierra $900M en octubre de 2025 — el mercado paga por wearable+software, no por hardware solo</li>
+      </ul>
+    </div>
+    <div>
+      <h4 style="color:var(--blue)">Ventajas injustas — hoy</h4>
+      <ul class="bare">
+        <li>Pseudonimización AEPD real (health_uuid_enc + AES-256-GCM): replicable en 6 meses, defendible legalmente <em>desde el primer día</em></li>
+        <li>17 módulos integrados en una sola identidad — los competidores son monoproducto</li>
+        <li>Stack europeo soberano (FastAPI + PostgreSQL + Pi/nube propia): vendible al usuario que rechaza las grandes tecnológicas</li>
+        <li>Tier gratuito completo: cero fricción de adquisición frente a Whoop ($30/mes), Oura ($6/mes + anillo $349)</li>
+      </ul>
+    </div>
+  </div>
+
+  <h4 style="color:var(--amber);margin-top:24px">Ventajas injustas construibles en 18 meses</h4>
+  <ul class="bare">
+    <li><strong>Red de gimnasios físicos</strong> con clasificaciones, retos y sparring — efecto de red local que ni Apple ni Strava replican</li>
+    <li><strong>Modelo IA ajustado</strong> sobre patrones longitudinales de usuarios europeos (régimen mediterráneo, tipos de entrenamiento, patrones GLP-1)</li>
+    <li><strong>Capa de interoperabilidad bidireccional</strong> (Apple Health + Health Connect + FHIR) que nos posiciona como agregador, no como silo</li>
+    <li><strong>Certificación CE clase I como dispositivo médico de bienestar</strong> (MDR) — barrera regulatoria de 18-24 meses para competidores americanos</li>
+  </ul>
+</div>
+
+<h2><span class="num">02</span>Tendencias macro</h2>
+<div class="kpi-row">
+  <div class="kpi"><div class="v">$22.3B</div><div class="l">Financiación salud digital 2025</div></div>
+  <div class="kpi"><div class="v">+39%</div><div class="l">Europa interanual (más rápido del mundo)</div></div>
+  <div class="kpi"><div class="v">12.5%</div><div class="l">Adultos EE.UU. en GLP-1</div></div>
+  <div class="kpi"><div class="v">85%</div><div class="l">Líderes en salud explorando GenAI</div></div>
+</div>
+
+<h3>Cinco vientos a favor</h3>
+<table>
+  <thead><tr><th>Tendencia</th><th>Dato</th><th>Implicación para HealthStack</th></tr></thead>
+  <tbody>
+    <tr><td><strong>IA agéntica en salud</strong></td><td class="mono">McKinsey 2025: IA agéntica = tendencia #1</td><td>Nuestro coach IA + insights ya están posicionados; falta orquestación multi-agente</td></tr>
+    <tr><td><strong>GLP-1 + preservación muscular</strong></td><td class="mono">1/8 adultos EE.UU., creciente en UE</td><td>Vertical natural sobre workout_sessions + nutrition; ningún competidor europeo serio</td></tr>
+    <tr><td><strong>Interoperabilidad forzada</strong></td><td class="mono">Deprecación de Google Fit en 2026</td><td>Migración masiva del mercado Android — ventana de adquisición</td></tr>
+    <tr><td><strong>Longevidad/healthspan</strong></td><td class="mono">Oura $900M Serie F oct'25</td><td>El mercado valida el software de salud premium; demanda de paneles longitudinales</td></tr>
+    <tr><td><strong>Desconfianza hacia las grandes tecnológicas</strong></td><td class="mono">DMA + cumplimiento RGPD 2025</td><td>Posicionamiento "propiedad de los datos" + cifrado real = diferenciación regulatoria real</td></tr>
+  </tbody>
+</table>
+
+<h3>Dos amenazas estructurales</h3>
+<table>
+  <thead><tr><th>Amenaza</th><th>Impacto</th><th>Horizonte</th></tr></thead>
+  <tbody>
+    <tr><td><strong>Google Health App con coach IA generativa</strong> (lanzamiento 19 mayo 2026)</td><td>Capta el caso de uso "coach IA gratuito" en Android; integra Apple Watch desde iOS</td><td class="mono"><span class="pill red">Inmediato</span></td></tr>
+    <tr><td><strong>Apple Intelligence Health</strong> integrado en watchOS</td><td>Convierte el coaching contextual en funcionalidad del sistema operativo</td><td class="mono"><span class="pill amber">12-18 meses</span></td></tr>
+  </tbody>
+</table>
+
+<h2><span class="num">03</span>Análisis del moat</h2>
+<p>Evaluación de los seis tipos canónicos de moat. Escala de fortaleza 1-5 (1 = inexistente, 5 = defensa estructural completa).</p>
+<table>
+  <thead><tr><th>Tipo</th><th>Estado actual</th><th>Tiempo para construir</th><th>Fortaleza potencial</th><th>Veredicto</th></tr></thead>
+  <tbody>
+    <tr>
+      <td><strong>Datos</strong><br><span class="stat">Volumen + propiedad + longitudinalidad</span></td>
+      <td><span class="pill amber">En construcción</span><br>17 módulos generan datos, base de usuarios aún pequeña</td>
+      <td class="mono">12-18 meses</td>
+      <td class="mono">4/5</td>
+      <td>Moat real si superamos los 50k usuarios activos con &gt;6 meses de historial</td>
+    </tr>
+    <tr>
+      <td><strong>Red (efectos de red)</strong><br><span class="stat">Gym servers + sparring + comunidad</span></td>
+      <td><span class="pill red">No existe a escala</span><br>Infraestructura lista, sin masa crítica</td>
+      <td class="mono">9-12 meses</td>
+      <td class="mono">5/5</td>
+      <td>Red <em>local por gimnasio</em> es el moat más defendible — Apple no puede replicarlo</td>
+    </tr>
+    <tr>
+      <td><strong>Coste de cambio</strong><br><span class="stat">Historial cifrado + rutinas + marcas personales</span></td>
+      <td><span class="pill green">Construido</span><br>1RM Epley, marcas personales, racha, rutinas guardadas</td>
+      <td class="mono">Reforzar 6 meses</td>
+      <td class="mono">3/5</td>
+      <td>Moderado; la exportación portátil evita el lock-in tóxico pero aumenta la inercia psicológica</td>
+    </tr>
+    <tr>
+      <td><strong>Marca</strong><br><span class="stat">Confianza + posicionamiento</span></td>
+      <td><span class="pill red">No existe</span><br>Producto sin narrativa pública</td>
+      <td class="mono">18-24 meses</td>
+      <td class="mono">3/5</td>
+      <td>Apuesta: marca "salud soberana europea" — nicho real pero limitado en TAM</td>
+    </tr>
+    <tr>
+      <td><strong>Tecnología</strong><br><span class="stat">Cifrado + arquitectura</span></td>
+      <td><span class="pill green">Construido</span><br>AES-256-GCM, RS256, cumple AEPD</td>
+      <td class="mono">N/A</td>
+      <td class="mono">2/5</td>
+      <td>Necesario pero no suficiente — replicable en 6 meses por un equipo competente</td>
+    </tr>
+    <tr>
+      <td><strong>Regulatorio</strong><br><span class="stat">RGPD + AEPD + MDR</span></td>
+      <td><span class="pill amber">Parcial</span><br>RGPD cumplido; MDR no iniciado</td>
+      <td class="mono">18-24 meses</td>
+      <td class="mono">5/5</td>
+      <td>Certificación CE clase I = barrera real; las corporaciones estadounidenses tardan años en obtenerla</td>
+    </tr>
+  </tbody>
+</table>
+
+<div class="quote">"Quien trate los datos como un foso a esconder perderá usuarios ante quien los maneje con transparencia." — Livity, 2025. Nuestro moat de datos es <em>cualitativo</em> (cifrado, AEPD), no cuantitativo. La diferencia importa.</div>
+
+<h2><span class="num">04</span>Amenaza Apple/Google &amp; estrategia de coexistencia</h2>
+
+<div class="grid-2">
+  <div class="card">
+    <h4 style="color:var(--red)">Lo que pueden copiar en 12 meses</h4>
+    <ul class="cross bare">
+      <li>Coach IA conversacional con contexto biométrico (Google lo lanza el 19 mayo 2026)</li>
+      <li>Análisis narrativos sobre tendencias de peso, sueño, recuperación</li>
+      <li>Detección de marcas personales en ejercicios estándar</li>
+      <li>Recomendaciones de hidratación, descanso, timing nutricional</li>
+      <li>Paneles longitudinales y gamificación con XP/niveles</li>
+    </ul>
+  </div>
+  <div class="card">
+    <h4 style="color:var(--green)">Lo que NO pueden copiar — y por qué</h4>
+    <ul class="check bare">
+      <li><strong>Red social vertical por gimnasio físico.</strong> Apple/Google son horizontales: no segmentan por establecimiento IRL. Es un problema de incentivos, no técnico.</li>
+      <li><strong>Posicionamiento "anti-grandes tecnológicas".</strong> Por definición no pueden ocuparlo. RGPD soberano + stack europeo = nicho estructural.</li>
+      <li><strong>Especialización vertical (GLP-1, longevidad).</strong> Su modelo es horizontal: dedicar el producto a un nicho clínico reduce el engagement medio agregado.</li>
+      <li><strong>Comunidad de retos entre gimnasios.</strong> Requiere relaciones B2B con operadores, no una API. Es operacional, no algorítmico.</li>
+      <li><strong>Cifrado en el cliente con custodia europea.</strong> Apple cifra, pero ante una orden judicial de EE.UU. entrega. La custodia en suelo de la UE es un diferencial legal.</li>
+    </ul>
+  </div>
+</div>
+
+<h3>Estrategia de coexistencia: agregador, no competidor</h3>
+<div class="card">
+  <p>No competimos con Apple Health/Health Connect — los <strong>consumimos</strong>. Posicionamos HealthStack como la capa superior que (a) ingiere datos de cualquier wearable vía HealthKit y Health Connect, (b) los enriquece con coaching contextual, (c) los devuelve cifrados al usuario en suelo de la UE, (d) añade la dimensión social local que las plataformas horizontales no pueden ocupar.</p>
+  <p><strong>Regla:</strong> nunca pedir al usuario que abandone su wearable. Siempre ofrecer "trae tus datos de Oura/Whoop/Apple Watch y dales sentido".</p>
+</div>
+
+<h2><span class="num">05</span>Roadmap trimestral · 18 meses</h2>
+
+<div class="timeline">
+
+  <div class="tl-item">
+    <div class="tl-q">Q1 2025 · Estabilización del moat técnico</div>
+    <div class="tl-title">Cerrar brechas P0 y blindar el activo regulatorio</div>
+    <div class="tl-body">
+      <strong>Qué se construye:</strong>
+      <ul>
+        <li>Anonimización biométrica en <span class="mono">ai_insights/service.py</span> antes de llamadas a Groq (RGPD P0)</li>
+        <li>Tests de integración OAuth2/sync/CSV en el módulo integrations (de 0 a ≥15 tests)</li>
+        <li>Leaderboard de Ranked funcional en ámbitos ciudad/nacional/global (hoy solo gimnasio)</li>
+        <li>Racha real conectada workout↔gamification↔ranked LP</li>
+        <li>Smoke test automatizado en cada despliegue CI/CD</li>
+      </ul>
+      <span class="label">Métrica de éxito</span>
+      152 → ≥190 tests pasando. Auditoría interna RGPD con 0 hallazgos P0. Tiempo de despliegue &lt;8 min.
+      <span class="label">Moat reforzado</span>
+      <span class="pill green">Regulatorio</span> <span class="pill green">Tecnología</span>
+    </div>
+  </div>
+
+  <div class="tl-item">
+    <div class="tl-q">Q2 2025 · Interoperabilidad como puerta de entrada</div>
+    <div class="tl-title">Apple HealthKit + Health Connect + importación FHIR</div>
+    <div class="tl-body">
+      <strong>Qué se construye:</strong>
+      <ul>
+        <li>Conectores nativos: Apple HealthKit (iOS), Health Connect (Android), Garmin Connect, Oura, Whoop</li>
+        <li>Importación FHIR R4 para registros médicos europeos (epSOS, MyHealth@EU)</li>
+        <li>Visor anatómico rediseñado con superposición de carga muscular semanal (datos de workout + wearable)</li>
+        <li>Fórmula IMC mejorada con composición corporal (estimación equivalente a DEXA)</li>
+      </ul>
+      <span class="label">Métrica de éxito</span>
+      ≥40% de los nuevos usuarios importan datos de al menos una fuente externa durante el onboarding. Activación D7 +25%.
+      <span class="label">Moat reforzado</span>
+      <span class="pill blue">Datos</span> <span class="pill amber">Coste de cambio</span>
+    </div>
+  </div>
+
+  <div class="tl-item g">
+    <div class="tl-q">Q3 2025 · Vertical GLP-1 + longevidad</div>
+    <div class="tl-title">Capturar el segmento que Apple no segmentará</div>
+    <div class="tl-body">
+      <strong>Qué se construye:</strong>
+      <ul>
+        <li>Módulo GLP-1 Muscle Guard: seguimiento de medicación, ajuste automático de macros (≥1.6g/kg de proteína), rutinas adaptadas a baja energía</li>
+        <li>Puntuación healthspan: VO2max estimado + composición corporal + biomarcadores + recuperación</li>
+        <li>Alianzas con 3 clínicas privadas europeas (validación clínica + canal de adquisición)</li>
+        <li>Contenido educativo en la landing: "GLP-1 sin perder músculo" — estrategia SEO</li>
+      </ul>
+      <span class="label">Métrica de éxito</span>
+      ≥3.000 usuarios activos en la vertical GLP-1. CAC orgánico &lt;€8 vía SEO. NPS específico de la vertical ≥55.
+      <span class="label">Moat reforzado</span>
+      <span class="pill blue">Datos</span> <span class="pill green">Marca</span>
+    </div>
+  </div>
+
+  <div class="tl-item g">
+    <div class="tl-q">Q4 2025 · Red de gimnasios físicos</div>
+    <div class="tl-title">El moat que ni Apple ni Strava pueden ocupar</div>
+    <div class="tl-body">
+      <strong>Qué se construye:</strong>
+      <ul>
+        <li>Endpoint público "descubrir gimnasios" + onboarding B2B para operadores</li>
+        <li>Programa "Gimnasio Campeón": gimnasios firmados con beneficios exclusivos para sus socios</li>
+        <li>Retos inter-gimnasio (ciudad → región → nacional) — temporadas reales en RankedSeason</li>
+        <li>Emparejamiento de sparring por nivel + ubicación + horario</li>
+        <li>Métricas para gerentes de gimnasio (anonimizadas, agregadas): retención, asistencia, marcas personales colectivas</li>
+      </ul>
+      <span class="label">Métrica de éxito</span>
+      ≥150 gimnasios firmados. ≥40% de los usuarios activos pertenecen a un gimnasio. Retención D90 +35% en usuarios con gimnasio frente a usuarios sin gimnasio.
+      <span class="label">Moat reforzado</span>
+      <span class="pill green">Red</span> <span class="pill amber">Coste de cambio</span>
+    </div>
+  </div>
+
+  <div class="tl-item a">
+    <div class="tl-q">Q1 2026 · Monetización selectiva</div>
+    <div class="tl-title">Tier premium sin romper la promesa "tier gratuito completo"</div>
+    <div class="tl-body">
+      <strong>Qué se construye:</strong>
+      <ul>
+        <li>Tier Pro (€7.99/mes UE, precio geo-ajustado): coach IA ilimitado, exportaciones clínicas, análisis longitudinales avanzados, prioridad en sparring</li>
+        <li>Tier Gimnasio (B2B €49/mes por gimnasio): panel de gestión + marca personalizada</li>
+        <li>Mantener el tier gratuito funcional al 100% en las funcionalidades hoy existentes (pacto con usuarios fundadores)</li>
+        <li>AdSense desactivado para usuarios Pro</li>
+      </ul>
+      <span class="label">Métrica de éxito</span>
+      Conversión gratuito→Pro ≥3.5% en 90 días. ARR ≥€800k al salir del trimestre. Tier Gimnasio: ≥30 contratos.
+      <span class="label">Moat reforzado</span>
+      <span class="pill green">Marca</span> <span class="pill blue">Datos</span>
+    </div>
+  </div>
+
+  <div class="tl-item a">
+    <div class="tl-q">Q2 2026 · Barrera regulatoria + escala</div>
+    <div class="tl-title">CE Clase I MDR + expansión EU5</div>
+    <div class="tl-body">
+      <strong>Qué se construye:</strong>
+      <ul>
+        <li>Certificación CE clase I como dispositivo médico de bienestar (módulo de registros de salud + análisis)</li>
+        <li>Localización completa DE/FR/IT/PL/NL (hoy solo ES/EN)</li>
+        <li>Piloto con aseguradora europea (descuento en prima por engagement medible)</li>
+        <li>Rotación documentada de MASTER_KEY + procedimiento de re-cifrado</li>
+        <li>SOC 2 Tipo II en proceso</li>
+      </ul>
+      <span class="label">Métrica de éxito</span>
+      CE clase I emitida. ≥1 aseguradora firmada en piloto. ≥50k MAU. ARR ≥€2.5M en tasa de ejecución.
+      <span class="label">Moat reforzado</span>
+      <span class="pill green">Regulatorio</span> <span class="pill green">Marca</span> <span class="pill blue">Red</span>
+    </div>
+  </div>
+
+</div>
+
+<h2><span class="num">06</span>Anti-roadmap — lo que NO haremos</h2>
+<p>Cada uno de estos puntos es tentador. Cada uno es una distracción. La disciplina importa más que la ambición.</p>
+<table>
+  <thead><tr><th>No haremos</th><th>Por qué no</th></tr></thead>
+  <tbody>
+    <tr><td><strong>Wearable propio</strong></td><td>El hardware quema capital, retrasa el software, Oura/Whoop llevan 10 años de ventaja. Mejor ser la capa que <em>los consume</em>.</td></tr>
+    <tr><td><strong>Telemedicina / consultas con médicos</strong></td><td>Categoría regulatoria distinta (MDR clase IIa+), márgenes pobres, mercado saturado (Doctolib, Teladoc). Fuera de nuestro stack.</td></tr>
+    <tr><td><strong>Mercado de suplementos</strong></td><td>Tentación clásica: monetización rápida pero alinea los incentivos contra el usuario. Destruye la marca "salud soberana".</td></tr>
+    <tr><td><strong>Expansión a EE.UU. en 2025-2026</strong></td><td>HIPAA + competencia feroz + CAC 4-6x UE. Conquistar EU5 primero; EE.UU. tras CE + Serie A.</td></tr>
+    <tr><td><strong>Funcionalidad social pública al estilo Strava</strong></td><td>Compite con la red local por gimnasio. Social <em>contenido</em>: gimnasio, retos, sparring — no un feed abierto.</td></tr>
+    <tr><td><strong>Coach IA como "chatbot general"</strong></td><td>Google y ChatGPT ya lo hacen. Nuestra IA debe ser <em>contextual con los datos del usuario</em>, no una conversación abierta.</td></tr>
+    <tr><td><strong>Pivote a B2B de salud corporativa puro</strong></td><td>Mercado tentador (Gympass, Wellhub) pero ciclos largos, dependencia de RRHH, dilución de marca consumer.</td></tr>
+    <tr><td><strong>Recetas/planificación de comidas como producto principal</strong></td><td>MyFitnessPal lo domina. Mantenemos nutrition como módulo de soporte, no como tesis central.</td></tr>
+  </tbody>
+</table>
+
+<h2><span class="num">07</span>Matriz de riesgos</h2>
+<table>
+  <thead><tr><th>Riesgo</th><th>Prob.</th><th>Impacto</th><th>Mitigación</th></tr></thead>
+  <tbody>
+    <tr>
+      <td><strong>Google Health App con coach IA capta el segmento Android gratuito</strong></td>
+      <td><span class="pill red">Alta</span></td><td><span class="pill red">Alto</span></td>
+      <td>Diferenciación por verticalidad (GLP-1, longevidad) + red de gimnasios. No competir en general-purpose.</td>
+    </tr>
+    <tr>
+      <td><strong>Filtración de datos de salud (brecha de seguridad)</strong></td>
+      <td><span class="pill amber">Baja-Media</span></td><td><span class="pill red">Existencial</span></td>
+      <td>AES-256 ya activo. Pendiente: rotación documentada de MASTER_KEY, pentest externo, SOC 2 Tipo II, ciberseguro de €5M.</td>
+    </tr>
+    <tr>
+      <td><strong>Apple Intelligence Health integra todo en watchOS</strong></td>
+      <td><span class="pill amber">Media</span></td><td><span class="pill amber">Alto</span></td>
+      <td>Posicionarse como agregador multiplataforma; los usuarios Android + multi-wearable no son el público objetivo de Apple.</td>
+    </tr>
+    <tr>
+      <td><strong>El AI Act categoriza el coaching IA como de alto riesgo</strong></td>
+      <td><span class="pill amber">Media</span></td><td><span class="pill amber">Alto</span></td>
+      <td>Documentar el modelo como "bienestar", no "diagnóstico". Anonimización P0 ya identificada. Asesoría AEPD trimestral.</td>
+    </tr>
+    <tr>
+      <td><strong>Groq/llama-3.3 sube el precio o deprecia el modelo free-tier</strong></td>
+      <td><span class="pill amber">Media</span></td><td><span class="pill amber">Medio</span></td>
+      <td>AIRouter abstrae al proveedor. Tests de paridad con Mistral, Together, Anthropic, modelo self-hosted.</td>
+    </tr>
+    <tr>
+      <td><strong>Adopción B2B por parte de los gimnasios más lenta de lo previsto</strong></td>
+      <td><span class="pill amber">Media-Alta</span></td><td><span class="pill amber">Alto</span></td>
+      <td>Plan B: tier gratuito para gimnasios pequeños, monetizar solo cadenas &gt;5 sedes. Bottom-up vía usuarios.</td>
+    </tr>
+    <tr>
+      <td><strong>El coste de infraestructura crece más rápido que la monetización (cifrado/IA)</strong></td>
+      <td><span class="pill amber">Media</span></td><td><span class="pill amber">Medio</span></td>
+      <td>Caché de ai_insights ya implementada (TTL 6h/24h). Migrar de Raspberry Pi a Hetzner UE con autoescalado.</td>
+    </tr>
+    <tr>
+      <td><strong>Pérdida de un fundador / punto único de fallo</strong></td>
+      <td><span class="pill amber">Baja-Media</span></td><td><span class="pill red">Alto</span></td>
+      <td>Documentación arquitectónica al día (ARCHITECTURE.md). Contratar 2º backend senior en Q3 2025. Bus factor ≥2.</td>
+    </tr>
+  </tbody>
+</table>
+
+<h2><span class="num">08</span>La posición que nadie más puede ocupar</h2>
+<div class="card" style="border-color:var(--blue);background:linear-gradient(180deg,rgba(59,130,246,.06),transparent)">
+  <p class="lead">Apple optimiza para el ecosistema. Google optimiza para escala de datos. Strava optimiza para el feed social. Whoop y Oura optimizan para su hardware. <strong>HealthStack Pro optimiza para una persona específica: el europeo de 28-50 años que entrena en serio, que toma decisiones sobre su salud, que no quiere que sus datos crucen el Atlántico, y que pertenece a un gimnasio físico real.</strong></p>
+  <p class="lead" style="margin-top:14px">Esa persona no es un nicho — son aproximadamente <strong>40 millones de adultos en EU5</strong>. Y es la única persona para la que Apple, Google, Strava, Whoop y Oura están <em>estructuralmente</em> mal posicionados: porque la plataforma horizontal no quiere ser europea, el feed social no quiere ser íntimo, y el wearable no quiere ser software.</p>
+  <p class="lead" style="margin-top:14px">El moat no se llama "tecnología" ni "datos". Se llama <strong>especificidad</strong>: la combinación irreproducible de cifrado RGPD real, comunidad local IRL, verticalidad clínica (GLP-1, longevidad) e independencia del lock-in americano. Ninguno de esos cuatro elementos es revolucionario por separado. Los cuatro juntos, en una identidad de usuario, son un producto que <em>nadie más quiere construir</em> — y por eso mismo, defendible durante años.</p>
+  <p class="lead" style="margin-top:14px">La pregunta para el consejo no es <em>cómo competimos con Apple</em>. Es <em>cómo aceleramos antes de que el mercado vea que esta posición existe</em>.</p>
+</div>
+
+<footer>
+  <strong style="color:var(--text)">Fuentes</strong><br><br>
+  <span class="src">[1] McKinsey — Healing consumer confidence through AI-powered, human-centered healthcare (2025)</span>
+  <span class="src">[2] McKinsey — The state of AI in 2025: Agents, innovation, and transformation</span>
+  <span class="src">[3] McKinsey — Generative AI in healthcare: Current trends and future outlook (2025)</span>
+  <span class="src">[4] a16z — AI at the Intersection: The a16z Investment Thesis on AI in Bio + Health (2025)</span>
+  <span class="src">[5] a16z — Big Ideas in Tech for 2025 (Bio + Health)</span>
+  <span class="src">[6] CB Insights — State of Digital Health 2025 Report ($22.3B, +19% YoY)</span>
+  <span class="src">[7] CB Insights — Digital Health 50 (2025)</span>
+  <span class="src">[8] HIT Consultant — Digital Health Funding Rebound 2025 Report</span>
+  <span class="src">[9] 9to5Google — Google Health rebrand &amp; AI coach launch (2026-05)</span>
+  <span class="src">[10] NBC Palm Springs — Google Health App Welcomes Apple Watch Users (2026-05-07)</span>
+  <span class="src">[11] ROOK — Apple Health vs Health Connect: Pros, Cons, Integration in 2025</span>
+  <span class="src">[12] ukactive — GLP-1 medications and muscle mass preservation (2025)</span>
+  <span class="src">[13] Axios — How weight-loss drugs are reshaping fitness gyms (2025-12)</span>
+  <span class="src">[14] MobiHealthNews — MyFitnessPal GLP-1 medication support tools</span>
+  <span class="src">[15] Livity — Health Data Privacy: Who Has Your Fitness Tracker Data?</span>
+  <span class="src">[16] Medium / Bootcamp — WHOOP vs Apple Watch vs Oura: The Health App War</span>
+  <span class="src">[17] PMC — GLP-1 agonists and exercise: the future of lifestyle prioritization</span>
+  <br>
+  <span class="src" style="color:var(--dim)">Documento generado 2026-05-17 · Oficina del CSO de HealthStack Pro · CONFIDENCIAL · Distribución: consejo + nivel C únicamente</span>
+</footer>
+
+</div>
+</body>
+</html>

@@ -94,13 +94,22 @@ async def create_workout_session(
     # Intentar actualizar LP de rankeds (no bloquea si falla)
     try:
         from app.modules.ranked.service import process_workout_session as ranked_update
+        from app.modules.gamification.repository import GamificationRepository
+
+        # Leer streak real desde gamification (antes hardcodeado a 0)
+        try:
+            game_state = await GamificationRepository.get_or_create(db, user_id)
+            streak_days = game_state.streak_days if game_state else 0
+        except Exception:
+            streak_days = 0
+
         muscle_groups = list({ex["exercise_key"].split("_")[0] for ex in exercises_data})
         await ranked_update(db=db, user_id=user_id, session_data={
             "total_volume_kg": total_volume,
             "personal_avg_volume": None,
             "muscle_groups": muscle_groups,
             "prs": [{"exercise_key": pr.exercise_key, "old_1rm": pr.prev, "new_1rm": pr.value} for pr in prs],
-            "streak_days": 0,
+            "streak_days": streak_days,
         })
     except Exception:
         pass

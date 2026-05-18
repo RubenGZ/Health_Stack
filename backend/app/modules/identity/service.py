@@ -34,11 +34,13 @@ from app.modules.identity.repository import RefreshTokenRepository, UserReposito
 from app.modules.identity.schemas import (
     LoginRequest,
     LoginResponse,
+    OnboardingRequest,
+    OnboardingResponse,
     RegisterRequest,
     RegisterResponse,
     UserPublicResponse,
 )
-from app.shared.exceptions import InvalidCredentialsError, UserAlreadyExistsError
+from app.shared.exceptions import InvalidCredentialsError, UserAlreadyExistsError, UserNotFoundError
 
 logger = logging.getLogger(__name__)
 
@@ -249,4 +251,70 @@ class IdentityService:
             user=UserPublicResponse.model_validate(user),
             access_token=access_token,
             refresh_token=refresh_token,
+        )
+
+    # ── ONBOARDING ────────────────────────────────────────────────────────────
+
+    @staticmethod
+    async def complete_onboarding(
+        db: AsyncSession,
+        user_id: str,
+        request: OnboardingRequest,
+        crypto: CryptoService,
+    ) -> OnboardingResponse:
+        """
+        Guarda el perfil de onboarding del usuario y siembra un health record baseline.
+
+        Flujo:
+            1. Actualizar columnas de perfil en public.users
+            2. Resolver health_subject_id del usuario (via CryptoService)
+            3. Crear HealthRecord baseline con weight_kg + height_cm de hoy
+            4. Marcar onboarding_completed = True
+
+        Los datos de peso/altura se guardan en DOS lugares:
+            - public.users.current_weight_kg → baseline rápido para cálculos (no histórico)
+            - health.health_records          → registro histórico seudonimizado (Art. 9 RGPD)
+        """
+        from datetime import date as date_type
+        from app.modules.health.models import HealthRecord
+
+        # 1. Obtener usuario
+        user = await UserRepository.get_by_id(db, user_id)
+        if user is None:
+            raise UserNotFoundError(f"Usuario {user_id[:8]}... no encontrado.")
+
+        # 2. Actualizar perfil
+        user.biological_sex = request.biological_sex
+        user.birth_date = request.birth_date
+        user.current_weight_kg = request.current_weight_kg
+        user.height_cm = request.height_cm
+        user.activity_level = request.activity_level
+        user.primary_fitness_goal = request.primary_fitness_goal
+        user.onboarding_completed = True
+        await db.flush()
+
+        # 3. Sembrar health record baseline (seudonimizado)
+        health_record_seeded = False
+        try:
+            subject_id = await crypto.resolve_health_subject_id(user_id, db)
+            baseline = HealthRecord(
+                health_subject_id=subject_id,
+                recorded_date=date_type.today(),
+                weight_kg=request.current_weight_kg,
+                height_cm=request.height_cm,
+            )
+            db.add(baseline)
+            health_record_seeded = True
+        except Exception as exc:
+            logger.warning(
+                "Onboarding: no se pudo crear health record baseline para user=%s: %s",
+                user_id[:8], exc,
+            )
+
+        await db.commit()
+        logger.info("Onboarding completado: user=%s", user_id[:8])
+
+        return OnboardingResponse(
+            onboarding_completed=True,
+            health_record_seeded=health_record_seeded,
         )

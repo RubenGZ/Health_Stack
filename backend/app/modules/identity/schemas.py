@@ -14,7 +14,9 @@ health_subject_id, health_uuid_enc ni datos de la tabla data_links.
 
 from __future__ import annotations
 
-from datetime import datetime
+from datetime import date, datetime
+from decimal import Decimal
+from typing import Literal
 from uuid import UUID
 
 from pydantic import BaseModel, EmailStr, Field, field_validator
@@ -196,3 +198,64 @@ class ResetPasswordResponse(BaseModel):
     """Respuesta del endpoint POST /auth/reset-password."""
 
     message: str
+
+
+# ── ONBOARDING SCHEMAS ─────────────────────────────────────────────────────────
+
+class OnboardingRequest(BaseModel):
+    """Body del endpoint POST /auth/onboarding."""
+
+    biological_sex: Literal["male", "female"] = Field(
+        ...,
+        description="Sexo biológico del usuario.",
+    )
+    birth_date: date = Field(
+        ...,
+        description="Fecha de nacimiento (YYYY-MM-DD).",
+    )
+    current_weight_kg: Decimal = Field(
+        ...,
+        gt=20,
+        lt=500,
+        description="Peso actual en kg.",
+    )
+    height_cm: Decimal = Field(
+        ...,
+        gt=50,
+        lt=300,
+        description="Altura en cm.",
+    )
+    activity_level: Literal[
+        "sedentary", "lightly_active", "moderately_active", "very_active"
+    ] = Field(
+        ...,
+        description="Nivel de actividad física semanal.",
+    )
+    primary_fitness_goal: Literal[
+        "lose_fat", "maintain", "gain_muscle", "increase_strength"
+    ] = Field(
+        ...,
+        description="Objetivo principal de fitness.",
+    )
+
+    @field_validator("birth_date")
+    @classmethod
+    def birth_date_reasonable(cls, v: date) -> date:
+        from datetime import date as date_type
+        today = date_type.today()
+        age = today.year - v.year - ((today.month, today.day) < (v.month, v.day))
+        if age < 13:
+            raise ValueError("Debes tener al menos 13 años para usar la aplicación.")
+        if age > 120:
+            raise ValueError("Fecha de nacimiento no válida.")
+        return v
+
+
+class OnboardingResponse(BaseModel):
+    """Respuesta del endpoint POST /auth/onboarding."""
+
+    message: str = "Perfil de onboarding guardado correctamente."
+    onboarding_completed: bool = True
+    health_record_seeded: bool = Field(
+        description="True si se creó el registro baseline en health_records.",
+    )

@@ -12,11 +12,11 @@ Qué hace:
   - Si el email ya existe → eleva su rol a 'admin' y activa la cuenta
   - Muestra las credenciales al final (guardarlas en un gestor de contraseñas)
 
-Credenciales por defecto:
-  Email:    admin@healthstack.app
-  Password: HS_Admin_2026!
+Credenciales (configurables en .env):
+  ADMIN_EMAIL=admin@healthstack.app          (defecto si no se define)
+  ADMIN_INITIAL_PASSWORD=HS_Admin_2026!      (defecto si no se define)
 
-⚠️  Cambia la contraseña en la primera sesión o edita las constantes abajo.
+⚠️  Define estas variables en backend/.env antes de ejecutar en producción.
 """
 
 from __future__ import annotations
@@ -42,15 +42,17 @@ from app.core.security.hashing import hash_password
 from app.modules.identity.models import User
 from app.modules.identity.repository import UserRepository
 
-# ── Credenciales del admin ─────────────────────────────────────────────────────
-ADMIN_EMAIL        = "admin@healthstack.app"
-ADMIN_PASSWORD     = "HS_Admin_2026!"
-ADMIN_DISPLAY_NAME = "Administrador HS"
+# ── Credenciales del admin (leídas desde .env) ────────────────────────────────
+# Variables de entorno: ADMIN_EMAIL, ADMIN_INITIAL_PASSWORD
+# Si no están en .env se usan los valores por defecto de Settings.
 # ──────────────────────────────────────────────────────────────────────────────
 
 
 async def create_or_promote_admin() -> None:
     cfg     = get_settings()
+    ADMIN_EMAIL        = cfg.admin_email
+    ADMIN_PASSWORD     = cfg.admin_initial_password
+    ADMIN_DISPLAY_NAME = "Administrador HS"
     engine  = create_async_engine(cfg.database_url, echo=False)
     Session = sessionmaker(engine, class_=AsyncSession, expire_on_commit=False)
     crypto  = CryptoService()  # reads HEALTH_LINK_MASTER_KEY from env

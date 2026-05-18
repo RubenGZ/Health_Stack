@@ -1,0 +1,836 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>HealthStack Pro — Análisis Estratégico de Mercado 2026</title>
+<style>
+  :root {
+    --bg: #0a0a0f;
+    --card: #141420;
+    --card-2: #1a1a28;
+    --border: #25253a;
+    --text: #e8e8f0;
+    --muted: #8a8aa0;
+    --blue: #3b82f6;
+    --green: #10b981;
+    --amber: #f59e0b;
+    --red: #ef4444;
+    --violet: #8b5cf6;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html, body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    font-size: 15px;
+    line-height: 1.6;
+    -webkit-font-smoothing: antialiased;
+  }
+  .mono { font-family: "SF Mono", "JetBrains Mono", "Cascadia Code", Menlo, Consolas, monospace; }
+  .wrap {
+    max-width: 920px;
+    margin: 0 auto;
+    padding: 60px 32px 80px;
+  }
+  /* Header */
+  header.doc-head {
+    border-bottom: 1px solid var(--border);
+    padding-bottom: 36px;
+    margin-bottom: 48px;
+  }
+  .eyebrow {
+    font-size: 11px;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--muted);
+    display: flex;
+    gap: 16px;
+    align-items: center;
+    margin-bottom: 18px;
+  }
+  .conf {
+    background: rgba(239,68,68,0.12);
+    color: var(--red);
+    padding: 3px 8px;
+    border-radius: 3px;
+    font-weight: 600;
+    border: 1px solid rgba(239,68,68,0.3);
+  }
+  h1 {
+    font-size: 36px;
+    line-height: 1.15;
+    font-weight: 700;
+    letter-spacing: -0.02em;
+    margin-bottom: 12px;
+  }
+  .subtitle {
+    font-size: 17px;
+    color: var(--muted);
+    max-width: 680px;
+  }
+  /* Sections */
+  section { margin-bottom: 56px; }
+  h2 {
+    font-size: 11px;
+    letter-spacing: 0.22em;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: 18px;
+    padding-bottom: 10px;
+    border-bottom: 1px solid var(--border);
+    font-weight: 600;
+  }
+  h2 .num {
+    color: var(--blue);
+    margin-right: 12px;
+    font-family: "SF Mono", Menlo, monospace;
+  }
+  h3 {
+    font-size: 19px;
+    font-weight: 600;
+    margin-bottom: 10px;
+    letter-spacing: -0.01em;
+  }
+  p { color: var(--text); margin-bottom: 12px; }
+  p.muted { color: var(--muted); font-size: 14px; }
+  /* Exec summary */
+  .exec {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-left: 3px solid var(--blue);
+    padding: 26px 28px;
+    border-radius: 4px;
+  }
+  .exec ul { list-style: none; }
+  .exec li {
+    padding: 10px 0;
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    gap: 14px;
+  }
+  .exec li:last-child { border-bottom: none; }
+  .exec li::before {
+    content: "▸";
+    color: var(--blue);
+    flex-shrink: 0;
+  }
+  /* KPI grid */
+  .kpi-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 14px;
+    margin-bottom: 26px;
+  }
+  .kpi {
+    background: var(--card);
+    border: 1px solid var(--border);
+    padding: 22px 20px;
+    border-radius: 4px;
+  }
+  .kpi .label {
+    font-size: 11px;
+    color: var(--muted);
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    margin-bottom: 10px;
+  }
+  .kpi .value {
+    font-family: "SF Mono", Menlo, monospace;
+    font-size: 28px;
+    font-weight: 600;
+    letter-spacing: -0.02em;
+    color: var(--text);
+    margin-bottom: 4px;
+  }
+  .kpi .value.green { color: var(--green); }
+  .kpi .value.amber { color: var(--amber); }
+  .kpi .value.blue  { color: var(--blue); }
+  .kpi .source {
+    font-size: 11px;
+    color: var(--muted);
+  }
+  /* Tables */
+  .tbl-wrap { overflow-x: auto; border: 1px solid var(--border); border-radius: 4px; }
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 13px;
+  }
+  thead th {
+    background: #0f0f18;
+    color: var(--muted);
+    font-weight: 600;
+    text-transform: uppercase;
+    font-size: 10px;
+    letter-spacing: 0.12em;
+    padding: 12px 10px;
+    text-align: left;
+    border-bottom: 1px solid var(--border);
+    white-space: nowrap;
+  }
+  tbody td {
+    padding: 12px 10px;
+    border-bottom: 1px solid var(--border);
+    vertical-align: middle;
+  }
+  tbody tr:nth-child(even) { background: rgba(255,255,255,0.015); }
+  tbody tr:last-child td { border-bottom: none; }
+  td.player { font-weight: 600; color: var(--text); white-space: nowrap; }
+  td.center { text-align: center; font-family: "SF Mono", Menlo, monospace; }
+  .ok { color: var(--green); font-weight: 700; }
+  .partial { color: var(--amber); font-weight: 700; }
+  .no { color: var(--red); font-weight: 700; }
+  /* Gaps */
+  .gap-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 14px; }
+  .gap-card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    padding: 18px 20px;
+    border-radius: 4px;
+  }
+  .gap-card .name {
+    font-size: 14px;
+    font-weight: 700;
+    color: var(--text);
+    margin-bottom: 8px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  .gap-card .name .seg {
+    font-size: 10px;
+    font-weight: 500;
+    color: var(--muted);
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+  }
+  .gap-card ul { list-style: none; }
+  .gap-card li {
+    font-size: 13px;
+    color: var(--text);
+    padding: 4px 0;
+    padding-left: 14px;
+    position: relative;
+    color: var(--muted);
+  }
+  .gap-card li::before {
+    content: "—";
+    position: absolute;
+    left: 0;
+    color: var(--red);
+  }
+  /* Niches */
+  .niche {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    padding: 24px 26px;
+    margin-bottom: 14px;
+  }
+  .niche-head {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 14px;
+    flex-wrap: wrap;
+    gap: 10px;
+  }
+  .niche-title {
+    font-size: 18px;
+    font-weight: 700;
+    letter-spacing: -0.01em;
+  }
+  .badges { display: flex; gap: 8px; flex-wrap: wrap; }
+  .badge {
+    font-size: 10px;
+    font-weight: 700;
+    padding: 4px 9px;
+    border-radius: 3px;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+  }
+  .b-high { background: rgba(16,185,129,0.12); color: var(--green); border: 1px solid rgba(16,185,129,0.3); }
+  .b-med  { background: rgba(245,158,11,0.12); color: var(--amber); border: 1px solid rgba(245,158,11,0.3); }
+  .b-fit-high { background: rgba(59,130,246,0.12); color: var(--blue); border: 1px solid rgba(59,130,246,0.3); }
+  .b-fit-med  { background: rgba(139,92,246,0.12); color: var(--violet); border: 1px solid rgba(139,92,246,0.3); }
+  .niche-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 18px;
+    margin-top: 10px;
+  }
+  .niche-grid .field .lbl {
+    font-size: 10px;
+    text-transform: uppercase;
+    letter-spacing: 0.12em;
+    color: var(--muted);
+    margin-bottom: 4px;
+  }
+  .niche-grid .field .val { font-size: 13.5px; color: var(--text); }
+  .niche-size {
+    font-family: "SF Mono", Menlo, monospace;
+    font-size: 16px;
+    color: var(--green);
+    font-weight: 600;
+  }
+  /* Positioning */
+  .position-box {
+    background: linear-gradient(135deg, rgba(59,130,246,0.08), rgba(16,185,129,0.05));
+    border: 1px solid rgba(59,130,246,0.3);
+    padding: 28px;
+    border-radius: 4px;
+    margin-bottom: 20px;
+  }
+  .position-box .lbl {
+    font-size: 10px;
+    text-transform: uppercase;
+    letter-spacing: 0.18em;
+    color: var(--blue);
+    margin-bottom: 12px;
+    font-weight: 600;
+  }
+  .position-box .stmt {
+    font-size: 20px;
+    line-height: 1.4;
+    font-weight: 500;
+    color: var(--text);
+    letter-spacing: -0.015em;
+  }
+  .moves { counter-reset: move; }
+  .move {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    padding: 20px 24px;
+    margin-bottom: 12px;
+    display: flex;
+    gap: 20px;
+    align-items: flex-start;
+  }
+  .move::before {
+    counter-increment: move;
+    content: counter(move, decimal-leading-zero);
+    font-family: "SF Mono", Menlo, monospace;
+    font-size: 22px;
+    color: var(--blue);
+    font-weight: 700;
+    line-height: 1;
+    padding-top: 2px;
+  }
+  .move .title {
+    font-size: 15px;
+    font-weight: 700;
+    margin-bottom: 6px;
+  }
+  .move .desc {
+    font-size: 13.5px;
+    color: var(--muted);
+  }
+  /* Footer */
+  footer.doc-foot {
+    margin-top: 64px;
+    padding-top: 28px;
+    border-top: 1px solid var(--border);
+    font-size: 11px;
+    color: var(--muted);
+    line-height: 1.7;
+  }
+  footer.doc-foot .row {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 10px;
+  }
+  /* Segment text helpers */
+  .lede {
+    font-size: 16px;
+    color: var(--text);
+    margin-bottom: 22px;
+    max-width: 720px;
+  }
+  .seg-list { display: grid; grid-template-columns: 1fr 1fr; gap: 10px 24px; margin-top: 14px; }
+  .seg-list .row { display: flex; justify-content: space-between; padding: 8px 0; border-bottom: 1px dashed var(--border); font-size: 13px; }
+  .seg-list .row .v { font-family: "SF Mono", Menlo, monospace; color: var(--green); }
+
+  @media (max-width: 720px) {
+    .kpi-grid, .gap-grid, .niche-grid, .seg-list { grid-template-columns: 1fr; }
+    h1 { font-size: 28px; }
+    .wrap { padding: 36px 18px 60px; }
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<header class="doc-head">
+  <div class="eyebrow">
+    <span>Análisis Estratégico de Mercado</span>
+    <span>·</span>
+    <span>Salud Digital / Fitness de Consumo</span>
+    <span>·</span>
+    <span class="conf">CONFIDENCIAL</span>
+  </div>
+  <h1>HealthStack Pro: Dónde Ganar en un Mercado de $288B que Odia a sus Titulares</h1>
+  <p class="subtitle">Panorama competitivo, nichos desatendidos y una tesis de posicionamiento defendible para un stack de salud personal privacidad-primero e integrado con gimnasios. Preparado mayo 2026.</p>
+</header>
+
+<!-- 1. EXEC SUMMARY -->
+<section>
+  <h2><span class="num">01</span>Resumen Ejecutivo</h2>
+  <div class="exec">
+    <ul>
+      <li><strong>El mercado es enorme y se está consolidando en torno a la IA.</strong> La salud digital global asciende a $288.55B en 2024 y se dirige a $946B para 2030 (22,2% CAGR, Grand View). En 2024, las empresas enfocadas en IA captaron el 42% de toda la financiación de capital riesgo en salud digital — un récord (CB Insights). El bienestar de consumo es un mercado separado de $1,8T (McKinsey). El capital se reduce pero los tamaños de las operaciones están en máximos históricos ($5,3M de mediana, +39% interanual) — los inversores pagarán una prima por stacks diferenciados, no por otro tracker más.</li>
+      <li><strong>Los titulares tienen fortalezas inversas y puntos ciegos compartidos.</strong> Whoop y Oura dominan recuperación/sueño pero ignoran el trabajo de fuerza en gimnasio. Strava domina el social de resistencia pero explícitamente no registra series/repeticiones/peso ("Entrenamiento" es un campo de duración, nada más). MyFitnessPal domina la nutrición pero carga con la cicatriz de una brecha de 150M de usuarios y ahora una brecha adicional de 3M de usuarios de Cal AI en 2026. Ninguno combina datos de salud cifrados AES-256, coaching con IA y programación centrada en la fuerza en un único stack.</li>
+      <li><strong>El nicho vacío es el consumidor que va al gimnasio, conoce los datos y se niega a entregar información biométrica a apps impulsadas por publicidad.</strong> Un aumento del 25% interanual en mujeres entrenando con pesas en Strava (2024), una cohorte GLP-1 en explosivo crecimiento que necesita preservación de masa muscular, y el rechazo post-brecha de Cal AI apuntan todos al mismo comprador desatendido.</li>
+      <li><strong>Tesis de posicionamiento:</strong> HealthStack Pro no debe competir como "otro tracker más". Debe apropiarse de la cuña "la única app integrada de fuerza + nutrición + coach de IA donde tus datos biométricos están cifrados, no monetizados" — y liderar con tres movimientos concretos: (1) la capa de anonimización RGPD como activo de marketing, (2) efecto de red del módulo Gym Server (B2B2C con gimnasios físicos), (3) insights de IA vinculados a récords personales de fuerza, no a narrativas genéricas de bienestar.</li>
+    </ul>
+  </div>
+</section>
+
+<!-- 2. MARKET -->
+<section>
+  <h2><span class="num">02</span>Tamaño de Mercado y Crecimiento</h2>
+  <p class="lede">El capital fluye hacia apuestas menos numerosas, más grandes y más nativas de IA. El mercado total direccionable es cómodamente de nueve cifras en ARR para un líder de categoría; la pregunta es qué categoría.</p>
+
+  <div class="kpi-grid">
+    <div class="kpi">
+      <div class="label">Salud Digital Global 2024</div>
+      <div class="value mono blue">$288.55B</div>
+      <div class="source">Grand View Research, 2025</div>
+    </div>
+    <div class="kpi">
+      <div class="label">Previsión 2030 / CAGR</div>
+      <div class="value mono green">$946B · 22,2%</div>
+      <div class="source">Grand View, 2025–2030</div>
+    </div>
+    <div class="kpi">
+      <div class="label">Economía Global del Bienestar</div>
+      <div class="value mono">$1,8T</div>
+      <div class="source">McKinsey, 2024</div>
+    </div>
+    <div class="kpi">
+      <div class="label">Capital Riesgo en Salud Digital EE.UU. 2024</div>
+      <div class="value mono blue">$10,1B</div>
+      <div class="source">Rock Health · 497 operaciones</div>
+    </div>
+    <div class="kpi">
+      <div class="label">% de Financiación hacia Empresas de IA</div>
+      <div class="value mono amber">42%</div>
+      <div class="source">CB Insights 2024 (récord histórico)</div>
+    </div>
+    <div class="kpi">
+      <div class="label">Mercado de Apps de Fitness 2024</div>
+      <div class="value mono green">$22B · 14,3%</div>
+      <div class="source">Statista · crecimiento interanual</div>
+    </div>
+  </div>
+
+  <h3>Subsegmentos a seguir</h3>
+  <div class="seg-list">
+    <div class="row"><span>Apps de fitness digital (2026 → 2031)</span><span class="v">$15,4B → $28,3B</span></div>
+    <div class="row"><span>Mercado de bienestar en EE.UU. (CAGR)</span><span class="v">5–10% / año</span></div>
+    <div class="row"><span>Financiación salud digital EE.UU. 2024</span><span class="v">$11,7B / 683 operaciones</span></div>
+    <div class="row"><span>Financiación Europa 2024</span><span class="v">$2,8B / 258 operaciones</span></div>
+    <div class="row"><span>Tamaño mediano de operación salud digital 2024</span><span class="v">$5,3M (+39% interanual)</span></div>
+    <div class="row"><span>Consumidores con wearable propio</span><span class="v">~50% (McKinsey)</span></div>
+  </div>
+
+  <p class="muted" style="margin-top:18px">Conclusión: el <em>volumen</em> de operaciones se reduce pero el <em>listón de calidad</em> sube. Una tesis defendible (privacidad + integración + IA) es ahora lo único que obtiene financiación. Un pitch tipo "Strava para X" está muerto.</p>
+</section>
+
+<!-- 3. COMPETITIVE MAP -->
+<section>
+  <h2><span class="num">03</span>Mapa del Panorama Competitivo</h2>
+  <p class="lede">12 titulares, 8 dimensiones de capacidad. Ningún jugador cubre más de 4 de 8 bien. El espacio en blanco está en la columna más a la derecha: nadie combina privacidad real, IA integrada, fuerza gamificada y nutrición.</p>
+
+  <div class="tbl-wrap">
+    <table>
+      <thead>
+        <tr>
+          <th>Jugador</th>
+          <th>Privacidad / RGPD</th>
+          <th>Coach IA</th>
+          <th>Gamificación / Ranked</th>
+          <th>Nutrición</th>
+          <th>Fuerza / Halterofilia</th>
+          <th>Comunidad / Social</th>
+          <th>Nivel Gratuito</th>
+          <th>Wearables</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td class="player">Apple Health</td>
+          <td class="center ok">✓</td>
+          <td class="center no">✗</td>
+          <td class="center no">✗</td>
+          <td class="center partial">~</td>
+          <td class="center partial">~</td>
+          <td class="center no">✗</td>
+          <td class="center ok">✓</td>
+          <td class="center ok">✓</td>
+        </tr>
+        <tr>
+          <td class="player">Whoop</td>
+          <td class="center partial">~</td>
+          <td class="center partial">~</td>
+          <td class="center no">✗</td>
+          <td class="center no">✗</td>
+          <td class="center no">✗</td>
+          <td class="center partial">~</td>
+          <td class="center no">✗</td>
+          <td class="center ok">✓</td>
+        </tr>
+        <tr>
+          <td class="player">Oura Ring</td>
+          <td class="center partial">~</td>
+          <td class="center partial">~</td>
+          <td class="center no">✗</td>
+          <td class="center no">✗</td>
+          <td class="center no">✗</td>
+          <td class="center no">✗</td>
+          <td class="center no">✗</td>
+          <td class="center ok">✓</td>
+        </tr>
+        <tr>
+          <td class="player">MyFitnessPal</td>
+          <td class="center no">✗</td>
+          <td class="center partial">~</td>
+          <td class="center no">✗</td>
+          <td class="center ok">✓</td>
+          <td class="center partial">~</td>
+          <td class="center partial">~</td>
+          <td class="center partial">~</td>
+          <td class="center partial">~</td>
+        </tr>
+        <tr>
+          <td class="player">Cronometer</td>
+          <td class="center partial">~</td>
+          <td class="center no">✗</td>
+          <td class="center no">✗</td>
+          <td class="center ok">✓</td>
+          <td class="center no">✗</td>
+          <td class="center no">✗</td>
+          <td class="center ok">✓</td>
+          <td class="center partial">~</td>
+        </tr>
+        <tr>
+          <td class="player">Levels</td>
+          <td class="center partial">~</td>
+          <td class="center partial">~</td>
+          <td class="center no">✗</td>
+          <td class="center partial">~</td>
+          <td class="center no">✗</td>
+          <td class="center no">✗</td>
+          <td class="center no">✗</td>
+          <td class="center ok">✓</td>
+        </tr>
+        <tr>
+          <td class="player">Zoe</td>
+          <td class="center partial">~</td>
+          <td class="center ok">✓</td>
+          <td class="center no">✗</td>
+          <td class="center ok">✓</td>
+          <td class="center no">✗</td>
+          <td class="center no">✗</td>
+          <td class="center no">✗</td>
+          <td class="center partial">~</td>
+        </tr>
+        <tr>
+          <td class="player">Strava</td>
+          <td class="center partial">~</td>
+          <td class="center no">✗</td>
+          <td class="center partial">~</td>
+          <td class="center no">✗</td>
+          <td class="center no">✗</td>
+          <td class="center ok">✓</td>
+          <td class="center partial">~</td>
+          <td class="center ok">✓</td>
+        </tr>
+        <tr>
+          <td class="player">Garmin Connect</td>
+          <td class="center partial">~</td>
+          <td class="center no">✗</td>
+          <td class="center partial">~</td>
+          <td class="center no">✗</td>
+          <td class="center partial">~</td>
+          <td class="center partial">~</td>
+          <td class="center ok">✓</td>
+          <td class="center ok">✓</td>
+        </tr>
+        <tr>
+          <td class="player">Fitbit / Google Fit</td>
+          <td class="center no">✗</td>
+          <td class="center partial">~</td>
+          <td class="center partial">~</td>
+          <td class="center partial">~</td>
+          <td class="center no">✗</td>
+          <td class="center partial">~</td>
+          <td class="center partial">~</td>
+          <td class="center ok">✓</td>
+        </tr>
+        <tr>
+          <td class="player">Noom</td>
+          <td class="center no">✗</td>
+          <td class="center ok">✓</td>
+          <td class="center no">✗</td>
+          <td class="center ok">✓</td>
+          <td class="center no">✗</td>
+          <td class="center partial">~</td>
+          <td class="center no">✗</td>
+          <td class="center no">✗</td>
+        </tr>
+        <tr>
+          <td class="player">Lifesum</td>
+          <td class="center partial">~</td>
+          <td class="center partial">~</td>
+          <td class="center no">✗</td>
+          <td class="center ok">✓</td>
+          <td class="center no">✗</td>
+          <td class="center no">✗</td>
+          <td class="center partial">~</td>
+          <td class="center partial">~</td>
+        </tr>
+        <tr style="background: rgba(59,130,246,0.07);">
+          <td class="player" style="color: var(--blue);">HealthStack Pro</td>
+          <td class="center ok">✓</td>
+          <td class="center ok">✓</td>
+          <td class="center ok">✓</td>
+          <td class="center ok">✓</td>
+          <td class="center ok">✓</td>
+          <td class="center ok">✓</td>
+          <td class="center ok">✓</td>
+          <td class="center partial">~</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+  <p class="muted" style="margin-top:14px"><strong>Leyenda:</strong> <span class="ok">✓</span> Fuerte / nativo · <span class="partial">~</span> Parcial / débil · <span class="no">✗</span> Ausente. "Privacidad/RGPD" evaluado como postura arquitectónica real (cifrado en reposo, sin segmentación publicitaria), no como texto de política.</p>
+</section>
+
+<!-- 4. GAPS -->
+<section>
+  <h2><span class="num">04</span>Análisis de Brechas — Lo que Cada Titular se Niega a Corregir</h2>
+  <div class="gap-grid">
+
+    <div class="gap-card">
+      <div class="name">Whoop <span class="seg">$500M+ ARR</span></div>
+      <ul>
+        <li>Cero seguimiento de fuerza. Series/repeticiones/peso no son elementos de primera clase. Los entrenamientos de los levantadores se convierten en blobs de "Actividad".</li>
+        <li>Suscripción de $239/año obligatoria; sin nivel gratuito significativo ⇒ excluye a la mayoría de usuarios de gimnasio.</li>
+      </ul>
+    </div>
+
+    <div class="gap-card">
+      <div class="name">Oura Ring <span class="seg">$500M+ en ingresos · 5,5M anillos vendidos</span></div>
+      <ul>
+        <li>Fisiología de solo lectura. Sin nutrición, sin programación de entrenamientos, sin bucle social.</li>
+        <li>Dependencia del hardware: los datos quedan bloqueados tras un anillo de $300 + suscripción de $6/mes.</li>
+      </ul>
+    </div>
+
+    <div class="gap-card">
+      <div class="name">MyFitnessPal <span class="seg">200M+ usuarios</span></div>
+      <ul>
+        <li>Cicatriz de brecha: 150M usuarios (2018) + Cal AI 3M usuarios (2026). La confianza en la marca está estructuralmente dañada para compradores sensibles a la privacidad.</li>
+        <li>Modelo respaldado por publicidad = datos biométricos monetizados; paywalling agresivo de funciones básicas.</li>
+      </ul>
+    </div>
+
+    <div class="gap-card">
+      <div class="name">Strava <span class="seg">~150M usuarios</span></div>
+      <ul>
+        <li>No registra fuerza oficialmente. "Entrenamiento de Pesas" se convierte silenciosamente en "Entrenamiento" genérico vía API.</li>
+        <li>Modelo mental exclusivamente de resistencia — sin embargo, el crecimiento del 25% interanual de mujeres levantando peso en la plataforma señala una demanda que se niegan a atender.</li>
+      </ul>
+    </div>
+
+    <div class="gap-card">
+      <div class="name">Cronometer</div>
+      <ul>
+        <li>Base de datos de micronutrientes de primer nivel, capa nula de entrenamiento/fuerza, cero coaching con IA, UX estéril.</li>
+        <li>Audiencia de nicho (clínicos/biohackers); sin camino hacia el usuario de gimnasio convencional.</li>
+      </ul>
+    </div>
+
+    <div class="gap-card">
+      <div class="name">Levels / Zoe <span class="seg">$125–$414/año</span></div>
+      <ul>
+        <li>Bloqueados por CGM. Coste de entrada de cientos de dólares al año en hardware + suscripción. Techo duro en el mercado total direccionable.</li>
+        <li>Solo glucosa/microbioma — sin fuerza, sin programación, sin comunidad.</li>
+      </ul>
+    </div>
+
+    <div class="gap-card">
+      <div class="name">Garmin Connect</div>
+      <ul>
+        <li>La UX es un volcado de reloj deportivo de 2014. Sin IA, sin narrativas, sin inteligencia de programación.</li>
+        <li>Bloqueado al hardware de Garmin; funciones de comunidad superficiales.</li>
+      </ul>
+    </div>
+
+    <div class="gap-card">
+      <div class="name">Noom <span class="seg">$1B ARR · 1,5M suscriptores</span></div>
+      <ul>
+        <li>Enfoque de psicología de pérdida de peso — aliena completamente a las audiencias de ganancia muscular y recomposición corporal.</li>
+        <li>Pivotando agresivamente hacia prescripciones GLP-1 ($100M en tasa anualizada) — abandonando al comprador de "ganar músculo / hacerse más fuerte".</li>
+      </ul>
+    </div>
+
+  </div>
+</section>
+
+<!-- 5. NICHES -->
+<section>
+  <h2><span class="num">05</span>Nichos Desatendidos</h2>
+  <p class="lede">Cinco segmentos donde la demanda está documentada y la oferta es estructuralmente débil. Ordenados por encaje con el stack existente de HealthStack Pro.</p>
+
+  <div class="niche">
+    <div class="niche-head">
+      <div class="niche-title">1. El Levantador Nativo de Privacidad</div>
+      <div class="badges">
+        <span class="badge b-high">Oportunidad: Alta</span>
+        <span class="badge b-fit-high">Encaje: Alto</span>
+      </div>
+    </div>
+    <p>Usuario de gimnasio, 22–40 años, UE/UK/Canadá, con conocimientos tecnológicos, se niega a dar datos biométricos a Meta/Google/Under Armour tras el ciclo de brechas. Actualmente combina Hevy + Cronometer + Apple Health, pero ninguno está diseñado arquitectónicamente para RGPD (cifrado en reposo, seudonimización).</p>
+    <div class="niche-grid">
+      <div class="field"><div class="lbl">Segmento Estimado</div><div class="val niche-size">~8–12M usuarios UE</div></div>
+      <div class="field"><div class="lbl">Por qué Está Desatendido</div><div class="val">Ningún competidor con sede en EE.UU. trata el cifrado AES-256-GCM en reposo + la seudonimización como superficie de marketing. Incluso los competidores "privacidad-primero" (Cronometer, Garmin) son solo políticas de texto.</div></div>
+      <div class="field"><div class="lbl">Qué se Necesita para Captarlo</div><div class="val">Hacer visible la postura criptográfica: diagrama de flujo de datos en la landing, badge de auditoría de terceros, residencia regional opcional (solo UE).</div></div>
+      <div class="field"><div class="lbl">Por qué Encaja</div><div class="val">Ya implementado: AES-256-GCM, JWT RS256, health_subject_id seudonimizado. El producto ya es la respuesta — el foso está inframarketizado.</div></div>
+    </div>
+  </div>
+
+  <div class="niche">
+    <div class="niche-head">
+      <div class="niche-title">2. Cohorte GLP-1 de Preservación Muscular</div>
+      <div class="badges">
+        <span class="badge b-high">Oportunidad: Alta</span>
+        <span class="badge b-fit-high">Encaje: Alto</span>
+      </div>
+    </div>
+    <p>La cohorte de salud de más rápido crecimiento de la década. Los usuarios de GLP-1 (Ozempic/Wegovy/Mounjaro) pierden entre el 25–40% de la pérdida de peso en masa magra sin entrenamiento de resistencia. El programa GLP-1 de Noom ($100M ARR en 4 meses) los trata como pacientes de pérdida de peso, no como atletas que de repente necesitan cálculo de proteínas + programación de levantamiento.</p>
+    <div class="niche-grid">
+      <div class="field"><div class="lbl">Segmento Estimado</div><div class="val niche-size">12M+ usuarios EE.UU. (2025)</div></div>
+      <div class="field"><div class="lbl">Por qué Está Desatendido</div><div class="val">Ninguna app de fitness ha construido un módulo consciente de GLP-1: objetivos calóricos reducidos, alcanzar el suelo proteico (1,6 g/kg de masa magra) y priorizar el trabajo de resistencia para preservar músculo.</div></div>
+      <div class="field"><div class="lbl">Qué se Necesita</div><div class="val">Un "modo GLP-1" que ajuste automáticamente macros + coach de IA + una biblioteca de rutinas de entrenamiento de resistencia sesgada hacia ejercicios compuestos. Sin receta necesaria — complementario, no competitivo, con Noom Rx.</div></div>
+      <div class="field"><div class="lbl">Por qué Encaja</div><div class="val">Los módulos de nutrición + rutinas + coach de IA + insights de IA ya existen. Coste marginal = una capa de enrutamiento + un paquete de contenido.</div></div>
+    </div>
+  </div>
+
+  <div class="niche">
+    <div class="niche-head">
+      <div class="niche-title">3. Mujeres que Levantan en Serio (No "Tonificar")</div>
+      <div class="badges">
+        <span class="badge b-high">Oportunidad: Alta</span>
+        <span class="badge b-fit-high">Encaje: Alto</span>
+      </div>
+    </div>
+    <p>Strava reportó +25% interanual de mujeres entrenando con pesas en 2024 — su segmento de <em>crecimiento más rápido</em>, a pesar de que la plataforma es estructuralmente incapaz de registrarlo. El mercado lo están creando los propios usuarios a pesar de las herramientas. Las apps existentes dirigidas a mujeres (Sweat, Tone &amp; Sculpt) infantilizan con UX rosa y evitan los récords personales.</p>
+    <div class="niche-grid">
+      <div class="field"><div class="lbl">Segmento Estimado</div><div class="val niche-size">15–20M globalmente</div></div>
+      <div class="field"><div class="lbl">Por qué Está Desatendido</div><div class="val">Las apps de fuerza serias (Hevy, Strong) tienen UX codificada para hombres. Las apps codificadas para mujeres se niegan a tratar a las usuarias como atletas. Nadie ofrece ranked/leaderboard para levantadoras.</div></div>
+      <div class="field"><div class="lbl">Qué se Necesita</div><div class="val">UX neutral en género con récords personales como protagonistas, asociaciones con creadoras de contenido femeninas, capa de programación consciente del ciclo menstrual, rangos clasificados separados por categoría de peso corporal (no por estereotipo de género).</div></div>
+      <div class="field"><div class="lbl">Por qué Encaja</div><div class="val">Sesiones de entrenamiento + LP ranked + comunidad ya están construidos. La diferenciación es el enfoque de UX y las asociaciones, no código nuevo.</div></div>
+    </div>
+  </div>
+
+  <div class="niche">
+    <div class="niche-head">
+      <div class="niche-title">4. El Gimnasio como Red (B2B2C con Operador de Gimnasio Local)</div>
+      <div class="badges">
+        <span class="badge b-med">Oportunidad: Media</span>
+        <span class="badge b-fit-high">Encaje: Alto</span>
+      </div>
+    </div>
+    <p>Más de 200K gimnasios independientes a nivel mundial no tienen más stack de software que un sistema de facturación (Mindbody, Glofox). Los socios quieren comunidad, leaderboards y programación. Los propietarios quieren retención. Ninguna app de fitness de consumo da presencia de marca al gimnasio — y el gimnasio es el canal de distribución más infrautilizado en el mundo de la tecnología del fitness.</p>
+    <div class="niche-grid">
+      <div class="field"><div class="lbl">Segmento Estimado</div><div class="val niche-size">~210K gimnasios indie globalmente</div></div>
+      <div class="field"><div class="lbl">Por qué Está Desatendido</div><div class="val">Mindbody/Glofox resuelven operaciones, no la participación de socios. Hevy/Strong son solo para consumidores. Los clubs de Strava son una ocurrencia tardía. Nadie ofrece un "Discord para tu gimnasio" vinculado a datos de entrenamiento reales.</div></div>
+      <div class="field"><div class="lbl">Qué se Necesita</div><div class="val">Promover el módulo `gym_servers` de WIP a producto estrella. Panel de control para propietarios, leaderboards con marca propia, retos entre gimnasios. Incorporar 10 gimnasios ancla primero; dejar que los efectos de red generen el volante de crecimiento.</div></div>
+      <div class="field"><div class="lbl">Por qué Encaja</div><div class="val">El módulo `gym_servers` ya existe en estado WIP. Mayor defensibilidad — las apps de usuario único no replican los fosos de comunidad.</div></div>
+    </div>
+  </div>
+
+  <div class="niche">
+    <div class="niche-head">
+      <div class="niche-title">5. Atletas Maduros (35–55, el Comprador de "Healthspan")</div>
+      <div class="badges">
+        <span class="badge b-med">Oportunidad: Media</span>
+        <span class="badge b-fit-med">Encaje: Medio</span>
+      </div>
+    </div>
+    <p>McKinsey: "longevidad" / "healthspan" es el subvertical de bienestar de más rápido crecimiento, impulsado por profesionales de 40+ con ingresos disponibles. Quieren fuerza (prevención de sarcopenia) + métricas de recuperación + narrativas legibles — no la puntuación de estrés de Whoop en el vacío.</p>
+    <div class="niche-grid">
+      <div class="field"><div class="lbl">Segmento Estimado</div><div class="val niche-size">30M+ EE.UU., $500+ ARPU</div></div>
+      <div class="field"><div class="lbl">Por qué Está Desatendido</div><div class="val">Whoop/Oura apuntan a la élite de 25–35 años; el contenido al estilo de Peter Attia está bloqueado tras servicios de conserjería de $1.000+/año. No existe un producto masivo con enfoque de longevidad.</div></div>
+      <div class="field"><div class="lbl">Qué se Necesita</div><div class="val">Capa narrativa de "Healthspan" sobre los insights de IA existentes, seguimiento de biomarcadores (carga de DEXA/análisis de sangre), puntuación de VO2 max + fuerza de agarre, nivel premium de $15–25/mes.</div></div>
+      <div class="field"><div class="lbl">Por qué Encaja</div><div class="val">El módulo de insights de IA ya produce narrativas. Riesgo: requiere inversión en contenido y credibilidad que HealthStack no tiene hoy.</div></div>
+    </div>
+  </div>
+
+</section>
+
+<!-- 6. POSITIONING -->
+<section>
+  <h2><span class="num">06</span>Recomendación de Posicionamiento Estratégico</h2>
+
+  <p class="lede">El error a evitar: posicionarse como "app de salud todo-en-uno". Esa frase está muerta — suena a Samsung Health y genera un escepticismo inmediato en el consumidor. El posicionamiento defendible es mucho más estrecho y mucho más sólido.</p>
+
+  <div class="position-box">
+    <div class="lbl">Posición Única y Defendible</div>
+    <div class="stmt">La única app de entrenamiento donde los datos de tu cuerpo están cifrados por defecto y tus ganancias de fuerza impulsan un coach de IA — construida en Europa, tuya, nunca vendida.</div>
+  </div>
+
+  <div class="position-box" style="border-color: rgba(16,185,129,0.3);">
+    <div class="lbl" style="color: var(--green);">Eslogan Propuesto (Héroe de la Landing)</div>
+    <div class="stmt">"Levanta más. Registra todo. No confíes en nadie. HealthStack Pro es el stack de entrenamiento con grado RGPD para usuarios serios de gimnasio — coach de IA, nutrición, leaderboards clasificados, la comunidad de tu gimnasio. Gratis."</div>
+  </div>
+
+  <h3 style="margin-top:32px; margin-bottom:14px;">Tres Movimientos Prioritarios (Próximos 90 Días)</h3>
+  <div class="moves">
+
+    <div class="move">
+      <div>
+        <div class="title">Convertir el stack de privacidad en la principal superficie de marketing</div>
+        <div class="desc">Resolver el P0 de RGPD abierto (anonimizar datos biométricos antes de enviarlos a proveedores de IA — ya marcado en CLAUDE.md). Luego hacer de AES-256-GCM, la seudonimización y la residencia en la UE el héroe de la landing — no enterrado en /privacidad. Obtener un badge de auditoría de seguridad de terceros. Tras la brecha de Cal AI (mayo 2026), esta es la narrativa de mayor conversión del mercado y ya se tiene la ingeniería.</div>
+      </div>
+    </div>
+
+    <div class="move">
+      <div>
+        <div class="title">Promover `gym_servers` de WIP a producto estrella; firmar 10 gimnasios ancla</div>
+        <div class="desc">Esta es la única funcionalidad que los competidores no pueden copiar sin una nueva arquitectura. Completar las piezas que faltan (response_models, endpoint para abandonar el gimnasio, seguimiento del progreso de retos — todos en la lista WIP). Reclutar 10 gimnasios independientes en Madrid/Barcelona como socios de diseño con servidores de marca gratuitos. Cada gimnasio aporta entre 200–800 miembros activos con un CAC casi nulo.</div>
+      </div>
+    </div>
+
+    <div class="move">
+      <div>
+        <div class="title">Lanzar "Modo GLP-1" + paquetes de contenido "Mujeres que Levantan" en el Q3</div>
+        <div class="desc">Las dos cohortes de mayor crecimiento que los titulares están gestionando mal. Ambas requieren ingeniería nueva neta casi nula: una capa de enrutamiento sobre los módulos existentes de nutrición + rutinas + coach de IA, más bibliotecas de contenido dirigidas y prompts de IA. Liderar con creadores de TikTok/IG en cada cohorte. Rastrear la activación por cohorte para validar antes de una inversión más amplia.</div>
+      </div>
+    </div>
+
+  </div>
+
+  <p class="muted" style="margin-top:24px"><strong>Qué NO hacer:</strong> No perseguir hardware de wearables (trampa de capex; Whoop/Oura llevan una década de ventaja). No perseguir CGM (el techo de precios de Levels/Zoe demuestra el límite del mercado). No añadir telemedicina/prescripciones (foso propio de Noom, pantano regulatorio). No construir un marketplace (prematuro; se necesita primero densidad de DAU).</p>
+</section>
+
+<!-- FOOTER -->
+<footer class="doc-foot">
+  <div class="row">
+    <span>HealthStack Pro · Análisis Estratégico de Mercado</span>
+    <span>Preparado el 17 de mayo de 2026</span>
+  </div>
+  <div class="row">
+    <span>Fuentes: Rock Health (2024 Year-End Market Overview), CB Insights (State of Digital Health 2024), Grand View Research (Digital Health Market 2024–2030), McKinsey (Future of Wellness 2024), Statista (Fitness Apps Worldwide 2024), Mordor Intelligence (Digital Fitness Apps), Sacra (Oura / Whoop / Noom equity research), Strava 2024 Year In Sport, divulgaciones de brechas de MyFitnessPal / Cal AI.</span>
+  </div>
+  <div class="row" style="margin-top:14px; color: var(--red); opacity: 0.8;">
+    <span>CONFIDENCIAL — Preparado para revisión estratégica interna. Las cifras de dimensionamiento de mercado son estimaciones de terceros y deben validarse contra fuentes primarias antes de tomar decisiones. Las declaraciones prospectivas son inferencias analíticas, no orientación financiera.</span>
+  </div>
+</footer>
+
+</div>
+</body>
+</html>

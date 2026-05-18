@@ -9,6 +9,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.modules.gym_servers.models import GymMembership
 from app.modules.ranked.models import TIERS_COMPETITIVE, TIERS_NORMAL, RankedEvent, RankedProfile
+from app.modules.identity.models import User
 
 
 async def get_profile(db: AsyncSession, user_id: uuid.UUID, queue: str) -> RankedProfile | None:
@@ -50,6 +51,32 @@ async def get_gym_leaderboard(
         {
             "profile": r.RankedProfile,
             "membership": r.GymMembership,
+        }
+        for r in rows
+    ]
+
+
+async def get_global_leaderboard(
+    db: AsyncSession, queue: str, limit: int = 50
+) -> list[dict]:
+    """
+    Top usuarios global por tier (desc) y LP (desc).
+    Fallback para scopes city/national/global cuando no hay datos filtrados.
+    Devuelve los usuarios con perfil ranked existente ordenados por posición.
+    """
+    tier_order = _tier_order_expr(queue)
+    result = await db.execute(
+        select(RankedProfile, User)
+        .join(User, User.id == RankedProfile.user_id)
+        .where(RankedProfile.queue == queue)
+        .order_by(desc(tier_order), desc(RankedProfile.lp))
+        .limit(limit)
+    )
+    rows = result.all()
+    return [
+        {
+            "profile": r.RankedProfile,
+            "user": r.User,
         }
         for r in rows
     ]

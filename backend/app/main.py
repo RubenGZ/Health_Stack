@@ -69,34 +69,91 @@ limiter = Limiter(
 # ── Sentry PII filter ─────────────────────────────────────────────────────────
 # RGPD Art. 28: Sentry es un subencargado — solo puede recibir metadatos de error,
 # nunca datos personales (email, IPs de usuarios, payloads de salud).
-_SENSITIVE_KEYS = {"email", "password", "health_subject_id", "health_uuid_enc",
-                   "weight_kg", "notes", "user_id", "refresh_token", "access_token"}
+#
+# Dos capas de protección:
+#   1. _SENSITIVE_KEYS: scrub por nombre de campo (aplica a cualquier endpoint)
+#   2. _FULL_SCRUB_PATHS: endpoints cuyo body completo se reemplaza por [SCRUBBED]
+#      porque contienen datos biométricos o médicos (Art. 9 RGPD) — onboarding y rehab.
+
+_SENSITIVE_KEYS: frozenset[str] = frozenset({
+    # Identidad
+    "email", "password", "display_name",
+    # Auth tokens
+    "access_token", "refresh_token", "token", "new_password",
+    # IDs internos de salud
+    "user_id", "health_subject_id", "health_uuid_enc",
+    # Biometría (onboarding)
+    "biological_sex", "birth_date", "current_weight_kg", "height_cm",
+    "activity_level", "primary_fitness_goal",
+    # Registros de salud
+    "weight_kg", "body_fat_pct", "notes", "notes_encrypted",
+    # Rehab (Art. 9 — descripción de lesión)
+    "injury_type", "body_area", "pain_level", "weeks_since_injury",
+})
+
+# Endpoints cuyo body se borra por completo — contienen datos médicos / biométricos
+# incluso si los nombres de campo cambian en el futuro.
+_FULL_SCRUB_PATHS: tuple[str, ...] = (
+    "/api/v1/auth/onboarding",
+    "/api/v1/rehab/protocol",
+    "/api/v1/health/records",
+    "/api/v1/auth/register",
+    "/api/v1/auth/login",
+    "/api/v1/auth/reset-password",
+)
+
 
 def _sentry_before_send(event: dict, hint: dict) -> dict | None:
     """
-    Filtra PII antes de enviar eventos a Sentry.
-    - Elimina keys sensibles de request bodies y user context
-    - Redacta IPs de usuarios (mantiene solo primer octeto para geolocalización)
-    - Elimina cabeceras Authorization
+    Filtro PII antes de enviar eventos a Sentry.
+
+    Capas de protección:
+    1. Endpoints con datos médicos/biométricos → body completo a [SCRUBBED].
+    2. Campos sensibles en cualquier endpoint → valor a [FILTERED].
+    3. Cabeceras Authorization y Cookie → [FILTERED].
+    4. IP del usuario → solo primer octeto (RGPD Art. 4 / pseudonimización).
+    5. Contexto de usuario (user dict de Sentry) → campos sensibles a [FILTERED].
+    6. Variables locales de frames de stack → scrub de passwords/tokens en locals.
     """
-    # Redactar datos del request
     request = event.get("request", {})
-    if "data" in request and isinstance(request["data"], dict):
+    url: str = request.get("url", "")
+
+    # ── Capa 1: borrado completo del body en endpoints médicos/biométricos ──────
+    path = url.split("?")[0]  # ignorar query params
+    # Comparación por sufijo — cubre http://host/api/v1/... y /api/v1/...
+    if any(path.endswith(p) for p in _FULL_SCRUB_PATHS):
+        request["data"] = "[SCRUBBED — endpoint médico/biométrico, RGPD Art. 9]"
+    elif "data" in request and isinstance(request["data"], dict):
+        # ── Capa 2: scrub por nombre de campo en el resto de endpoints ──────────
         request["data"] = {
             k: "[FILTERED]" if k in _SENSITIVE_KEYS else v
             for k, v in request["data"].items()
         }
-    # Eliminar cabecera Authorization (contiene JWT)
-    headers = request.get("headers", {})
-    if "Authorization" in headers:
-        headers["Authorization"] = "[FILTERED]"
-    if "authorization" in headers:
-        headers["authorization"] = "[FILTERED]"
 
-    # Redactar IP — mantener solo primer octeto para geolocalización (RGPD Art. 4)
-    if "user" in event and "ip_address" in event["user"]:
-        ip = event["user"]["ip_address"]
-        event["user"]["ip_address"] = ip.split(".")[0] + ".x.x.x" if "." in ip else "[FILTERED]"
+    # ── Capa 3: cabeceras sensibles ─────────────────────────────────────────────
+    headers: dict = request.get("headers", {})
+    for h in list(headers.keys()):
+        if h.lower() in ("authorization", "cookie", "set-cookie", "x-api-key"):
+            headers[h] = "[FILTERED]"
+
+    # ── Capa 4: IP → solo primer octeto ────────────────────────────────────────
+    user_ctx = event.get("user", {})
+    if "ip_address" in user_ctx:
+        ip = user_ctx["ip_address"]
+        user_ctx["ip_address"] = ip.split(".")[0] + ".x.x.x" if "." in ip else "[FILTERED]"
+    # Nunca enviar email o username al contexto de Sentry
+    for key in ("email", "username", "name"):
+        if key in user_ctx:
+            user_ctx[key] = "[FILTERED]"
+
+    # ── Capa 5: variables locales en frames del stack trace ─────────────────────
+    exception = event.get("exception", {})
+    for exc_val in exception.get("values", []):
+        for frame in exc_val.get("stacktrace", {}).get("frames", []):
+            local_vars: dict = frame.get("vars", {})
+            for var_name in list(local_vars.keys()):
+                if var_name.lower() in _SENSITIVE_KEYS:
+                    local_vars[var_name] = "[FILTERED]"
 
     return event
 
@@ -321,6 +378,7 @@ from app.modules.nutrition.router import router as nutrition_router
 from app.modules.ranked.router import router as ranked_router
 from app.modules.routines.router import router as routines_router
 from app.modules.telemetry.router import router as telemetry_router
+from app.modules.rehab.router import router as rehab_router
 from app.modules.workout_sessions.router import router as workout_router
 
 app.include_router(
@@ -419,6 +477,12 @@ app.include_router(
     tags=["Gym Servers"],
 )
 
+app.include_router(
+    rehab_router,
+    prefix="/api/v1/rehab",
+    tags=["Rehab"],
+)
+
 
 # ── Scheduler lifecycle ───────────────────────────────────────────────────────
 from app.core.scheduler import start_scheduler, stop_scheduler
@@ -469,6 +533,22 @@ async def shutdown_scheduler() -> None:
 # ── Endpoints del sistema ─────────────────────────────────────────────────────
 
 from app.session import get_db  # noqa: E402 — after app creation to avoid circular import
+
+
+@app.get(
+    "/api/v1/config/public",
+    tags=["System"],
+    summary="Configuración pública del cliente",
+    description="Variables de configuración no sensibles para el frontend. Sin autenticación.",
+)
+async def public_config():
+    """
+    Expone parámetros de configuración que el frontend necesita pero que no deben
+    estar hardcodeados en el JS. Nunca incluir secretos aquí.
+    """
+    return {
+        "whatsapp_number": settings.feedback_whatsapp_number,
+    }
 
 
 @app.get(

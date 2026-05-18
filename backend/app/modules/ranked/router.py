@@ -92,6 +92,26 @@ async def get_leaderboard(
             if p.user_id == user_id:
                 my_rank = i
 
+    elif scope in ("city", "national", "global"):
+        # Fallback: leaderboard global de usuarios con perfil ranked.
+        # Cuando existan tablas de ciudad/nación se filtrará aquí.
+        rows = await repo.get_global_leaderboard(db, queue)
+        total = len(rows)
+        for i, row in enumerate(rows, 1):
+            p = row["profile"]
+            u = row["user"]
+            display = u.display_name or (str(p.user_id)[:8] + "…")
+            entries.append(LeaderboardEntry(
+                rank=i,
+                username=display,
+                tier=p.tier,
+                division=p.division,
+                lp=p.lp,
+                badge=None,
+            ))
+            if p.user_id == user_id:
+                my_rank = i
+
     return LeaderboardResponse(
         scope=scope, gym_id=gym_id, season=1,
         entries=entries[:50], my_rank=my_rank, total=total,

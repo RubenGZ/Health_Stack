@@ -1,0 +1,797 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<title>HealthStack Pro — ICP & Validación de Demanda</title>
+<style>
+  :root {
+    --bg: #0a0a0f;
+    --card: #141420;
+    --card-2: #1a1a28;
+    --border: #25253a;
+    --text: #e8e8f0;
+    --muted: #9292ad;
+    --blue: #3b82f6;
+    --green: #10b981;
+    --amber: #f59e0b;
+    --red: #ef4444;
+    --mono: ui-monospace, "SF Mono", "Menlo", "Consolas", monospace;
+    --sans: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  }
+  * { box-sizing: border-box; }
+  html, body {
+    margin: 0;
+    padding: 0;
+    background: var(--bg);
+    color: var(--text);
+    font-family: var(--sans);
+    font-size: 15px;
+    line-height: 1.6;
+    -webkit-font-smoothing: antialiased;
+  }
+  .wrap {
+    max-width: 960px;
+    margin: 0 auto;
+    padding: 48px 32px 96px;
+  }
+  header.doc-head {
+    border-bottom: 1px solid var(--border);
+    padding-bottom: 28px;
+    margin-bottom: 40px;
+  }
+  .eyebrow {
+    font-family: var(--mono);
+    font-size: 11px;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--muted);
+  }
+  .eyebrow .conf {
+    color: var(--red);
+    margin-left: 12px;
+    border: 1px solid var(--red);
+    padding: 2px 8px;
+    border-radius: 3px;
+  }
+  h1 {
+    font-size: 34px;
+    font-weight: 700;
+    line-height: 1.2;
+    margin: 12px 0 8px;
+    letter-spacing: -0.02em;
+  }
+  h1 .accent { color: var(--blue); }
+  .doc-meta {
+    color: var(--muted);
+    font-family: var(--mono);
+    font-size: 12px;
+    margin-top: 12px;
+  }
+  h2 {
+    font-size: 22px;
+    font-weight: 700;
+    margin: 56px 0 18px;
+    letter-spacing: -0.01em;
+    border-left: 3px solid var(--blue);
+    padding-left: 14px;
+  }
+  h3 {
+    font-size: 17px;
+    font-weight: 600;
+    margin: 24px 0 12px;
+    color: var(--text);
+  }
+  p { margin: 0 0 14px; color: var(--text); }
+  .muted { color: var(--muted); }
+  .card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 24px;
+    margin-bottom: 18px;
+  }
+  ul.exec {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+  }
+  ul.exec li {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-left: 3px solid var(--green);
+    border-radius: 6px;
+    padding: 14px 18px;
+    margin-bottom: 10px;
+  }
+  ul.exec li b { color: var(--green); }
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 12px 0 20px;
+    font-size: 13.5px;
+  }
+  th, td {
+    border-bottom: 1px solid var(--border);
+    padding: 10px 12px;
+    text-align: left;
+    vertical-align: top;
+  }
+  th {
+    background: var(--card-2);
+    color: var(--muted);
+    font-family: var(--mono);
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    font-weight: 600;
+  }
+  td.num, th.num { font-family: var(--mono); text-align: right; }
+  .pill {
+    display: inline-block;
+    padding: 2px 8px;
+    border-radius: 999px;
+    font-family: var(--mono);
+    font-size: 11px;
+    font-weight: 600;
+  }
+  .pill.blue { background: rgba(59,130,246,0.15); color: var(--blue); }
+  .pill.green { background: rgba(16,185,129,0.15); color: var(--green); }
+  .pill.amber { background: rgba(245,158,11,0.15); color: var(--amber); }
+  .pill.red { background: rgba(239,68,68,0.15); color: var(--red); }
+
+  .persona {
+    background: linear-gradient(180deg, var(--card) 0%, var(--card-2) 100%);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 28px;
+    margin: 18px 0 26px;
+  }
+  .persona-head {
+    display: flex;
+    gap: 20px;
+    align-items: center;
+    margin-bottom: 22px;
+    flex-wrap: wrap;
+  }
+  .avatar {
+    width: 72px;
+    height: 72px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 26px;
+    font-weight: 700;
+    font-family: var(--mono);
+    flex-shrink: 0;
+    border: 2px solid var(--border);
+  }
+  .avatar.a1 { background: linear-gradient(135deg, #3b82f6 0%, #1e3a8a 100%); color: #fff; }
+  .avatar.a2 { background: linear-gradient(135deg, #10b981 0%, #064e3b 100%); color: #fff; }
+  .avatar.a3 { background: linear-gradient(135deg, #f59e0b 0%, #78350f 100%); color: #fff; }
+  .persona-id h3 {
+    margin: 0;
+    font-size: 22px;
+    letter-spacing: -0.01em;
+  }
+  .persona-id .role {
+    font-family: var(--mono);
+    font-size: 12px;
+    color: var(--muted);
+    margin-top: 4px;
+  }
+  .demo-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 10px;
+    margin: 16px 0 22px;
+  }
+  .demo-cell {
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 10px 12px;
+  }
+  .demo-cell .lbl {
+    font-family: var(--mono);
+    font-size: 10px;
+    text-transform: uppercase;
+    color: var(--muted);
+    letter-spacing: 0.08em;
+  }
+  .demo-cell .val {
+    font-family: var(--mono);
+    font-size: 14px;
+    color: var(--text);
+    margin-top: 4px;
+    font-weight: 600;
+  }
+  .sub-h {
+    font-family: var(--mono);
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.12em;
+    color: var(--blue);
+    margin: 18px 0 8px;
+    font-weight: 600;
+  }
+  .sub-h.green { color: var(--green); }
+  .sub-h.amber { color: var(--amber); }
+  .sub-h.red { color: var(--red); }
+  .frustrations { list-style: none; padding: 0; margin: 0; }
+  .frustrations li {
+    padding: 8px 0 8px 22px;
+    position: relative;
+    border-bottom: 1px dashed var(--border);
+  }
+  .frustrations li:last-child { border-bottom: none; }
+  .frustrations li::before {
+    content: "\2192";
+    position: absolute;
+    left: 0;
+    color: var(--red);
+    font-family: var(--mono);
+    font-weight: 700;
+  }
+  .fitbox {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 14px 18px;
+    margin-top: 16px;
+    flex-wrap: wrap;
+    gap: 12px;
+  }
+  .fitbox .score {
+    font-family: var(--mono);
+    font-size: 26px;
+    font-weight: 700;
+  }
+  .fitbox .score .max { color: var(--muted); font-size: 16px; }
+  .wtp {
+    font-family: var(--mono);
+    font-size: 14px;
+    color: var(--green);
+  }
+  .spend-bar {
+    display: flex;
+    height: 24px;
+    border-radius: 4px;
+    overflow: hidden;
+    margin: 8px 0 4px;
+    background: var(--bg);
+    border: 1px solid var(--border);
+  }
+  .spend-bar span {
+    font-family: var(--mono);
+    font-size: 10px;
+    color: #fff;
+    padding: 4px 6px;
+    display: flex;
+    align-items: center;
+    white-space: nowrap;
+  }
+  .legend {
+    font-family: var(--mono);
+    font-size: 11px;
+    color: var(--muted);
+    display: flex;
+    gap: 14px;
+    flex-wrap: wrap;
+    margin-bottom: 12px;
+  }
+  .legend span::before {
+    content: "\25A0";
+    margin-right: 4px;
+  }
+  .score-cell {
+    font-family: var(--mono);
+    font-weight: 700;
+    text-align: center;
+  }
+  .score-5 { color: var(--green); }
+  .score-4 { color: #84cc16; }
+  .score-3 { color: var(--amber); }
+  .score-2 { color: #fb923c; }
+  .score-1 { color: var(--red); }
+  .recommendation {
+    background: linear-gradient(135deg, rgba(59,130,246,0.08) 0%, rgba(16,185,129,0.08) 100%);
+    border: 1px solid var(--blue);
+    border-radius: 12px;
+    padding: 28px;
+    margin: 18px 0;
+  }
+  .recommendation h3 { color: var(--blue); margin-top: 0; }
+  .tactic {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 16px 20px;
+    margin: 10px 0;
+  }
+  .tactic .tag {
+    font-family: var(--mono);
+    font-size: 10px;
+    color: var(--green);
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+  }
+  .tactic h4 {
+    margin: 4px 0 6px;
+    font-size: 15px;
+  }
+  footer.doc-foot {
+    border-top: 1px solid var(--border);
+    padding-top: 20px;
+    margin-top: 64px;
+    color: var(--muted);
+    font-size: 12px;
+    font-family: var(--mono);
+  }
+  footer.doc-foot ul {
+    padding-left: 18px;
+    margin: 8px 0;
+  }
+  footer.doc-foot li { margin-bottom: 4px; }
+  .stat-row {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 12px;
+    margin: 16px 0 12px;
+  }
+  .stat {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-left: 3px solid var(--blue);
+    border-radius: 6px;
+    padding: 14px 16px;
+  }
+  .stat .num {
+    font-family: var(--mono);
+    font-size: 22px;
+    font-weight: 700;
+    color: var(--blue);
+  }
+  .stat .lbl {
+    font-size: 12px;
+    color: var(--muted);
+    margin-top: 4px;
+    line-height: 1.4;
+  }
+  @media (max-width: 720px) {
+    .demo-grid { grid-template-columns: repeat(2, 1fr); }
+    .stat-row { grid-template-columns: repeat(2, 1fr); }
+    h1 { font-size: 26px; }
+    table { font-size: 12px; }
+    th, td { padding: 8px 6px; }
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<header class="doc-head">
+  <div class="eyebrow">Documento de Estrategia &middot; Interno <span class="conf">CONFIDENCIAL</span></div>
+  <h1>Perfil de Cliente Ideal &amp; Validación de Demanda<br><span class="accent">HealthStack Pro</span></h1>
+  <div class="doc-meta">Emitido 2026-05-17 &middot; v1.0 &middot; Autor: Estrategia &amp; Crecimiento &middot; Distribución: Fundadores / Inversores</div>
+</header>
+
+<section>
+  <h2>1 &middot; Resumen Ejecutivo</h2>
+  <ul class="exec">
+    <li><b>El mercado es grande y está creciendo.</b> El bienestar global mueve $1,8T/año (EE.UU. &gt;$500B, +4&ndash;5% CAGR &mdash; McKinsey 2024). Solo las apps de fitness: $13,5B en 2026, proyectado $38B para 2034 (13% CAGR). Hevy ($600k MRR, 10M+ usuarios) demuestra que un gym-logger freemium puede escalar sin capital riesgo.</li>
+    <li><b>El centro del mercado se mueve hacia nosotros.</b> El entrenamiento de fuerza entre mujeres creció +159,8% interanual (Oura, jun. '24&ndash;jun. '25). La cohorte de 40&ndash;55 años es el segundo segmento de gimnasio de más rápido crecimiento 2025&ndash;2032. Ambos grupos quieren recuperación + nutrición + comunidad en un solo lugar &mdash; exactamente el stack de HealthStack.</li>
+    <li><b>Nuestro diferenciador es la integración, no las funcionalidades.</b> Hevy registra series. MyFitnessPal cuenta calorías. Strava rastrea carreras. Ninguno vincula biométrica + nutrición + comunidad ranked + AI insights. La tesis del "stack" está validada por el 71% de usuarios de apps de fitness dispuestos a pagar por premium y por el auge de los Optimizadores Maximalistas (25% de consumidores, &gt;40% del gasto en bienestar &mdash; McKinsey).</li>
+    <li><b>El go-to-market debe empezar de forma estrecha.</b> Atacar primero al <b>hombre de 26&ndash;38 años que va al gimnasio y ya registra sus entrenamientos</b>. Mayor intención, menor CAC, distribución nativa en Reddit/YouTube, disposición a pagar validada ($5&ndash;10/mes). Expandirse hacia mujeres en levantamiento y compradores de longevidad de 35&ndash;55 en oleadas 2 y 3.</li>
+  </ul>
+</section>
+
+<section>
+  <h2>2 &middot; Marco Metodológico</h2>
+  <div class="card">
+    <p>Este documento combina tres capas de evidencia para construir personas y clasificar segmentos:</p>
+    <ol>
+      <li><b>Dimensionamiento de mercado top-down.</b> McKinsey Future of Wellness 2024/2025, Rock Health 10th Consumer Adoption Survey 2024, benchmarks de Business of Apps 2026, HFA Global Industry Report 2025.</li>
+      <li><b>Señales de comportamiento.</b> Densidad de comunidades Reddit (r/Fitness, r/weightroom, r/xxfitness, r/loseit), rankings de App Store (Hevy, Strong, Fitbod, MyFitnessPal), telemetría de entrenamiento de fuerza de Oura, estudios de adherencia de JMIR.</li>
+      <li><b>Deconstrucción JTBD.</b> El método Christensen JTBD aplicado a los principales "trabajos" que realiza un usuario al descargar una app de fitness, contrastado con el hallazgo de motivación de automonitoreo del 79% (PMC8317040).</li>
+    </ol>
+    <p>Las personas siguientes son <b>arquetipos compuestos</b> construidos a partir de datos de encuestas públicas, reseñas de App Store e hilos del wiki de perfiles de usuario de r/Fitness &mdash; no son perfiles de usuario inventados.</p>
+  </div>
+</section>
+
+<section>
+  <h2>3 &middot; Tres Personas &mdash; Construidas a Partir de Comportamiento Real</h2>
+
+  <div class="persona">
+    <div class="persona-head">
+      <div class="avatar a1">MR</div>
+      <div class="persona-id">
+        <h3>Marcus R. &mdash; "El Registrador"</h3>
+        <div class="role">ICP Primario &middot; Entusiasta del entrenamiento de fuerza, 3&ndash;5 años de experiencia</div>
+      </div>
+    </div>
+    <div class="demo-grid">
+      <div class="demo-cell"><div class="lbl">Edad</div><div class="val">29</div></div>
+      <div class="demo-cell"><div class="lbl">Puesto</div><div class="val">Ing. de Software</div></div>
+      <div class="demo-cell"><div class="lbl">Ingresos</div><div class="val">$95k</div></div>
+      <div class="demo-cell"><div class="lbl">Ciudad</div><div class="val">Austin, TX</div></div>
+    </div>
+
+    <div class="sub-h">Un día en su vida</div>
+    <p>Se despierta a las 6:30, se pesa y lo registra en un stack fragmentado (app de báscula + app de notas + Hevy). Entrena 4 veces por semana en un gimnasio comercial de gama media, sigue una rutina PPL de 5 días que él mismo ajustó tras leer el wiki de r/Fitness. Come ~3.000 kcal en definición / 3.400 en volumen, alcanza 180g de proteína, lo registra en MyFitnessPal pero se salta los fines de semana. Ve a Jeff Nippard y RP Strength en YouTube durante el cardio. Pasa 8&ndash;12 minutos dentro de Hevy por día de entrenamiento, publica un clip de récord personal en un Discord privado con tres amigos levantadores una vez a la semana.</p>
+
+    <div class="sub-h">Stack actual &amp; por qué</div>
+    <p><span class="pill blue">Hevy Pro</span> para registrar &mdash; "la UI más rápida de la App Store." <span class="pill blue">MyFitnessPal</span> para macros &mdash; "todo el mundo lo usa, la base de datos gana." <span class="pill blue">Apple Health</span> como fuente de verdad que nunca abre. <span class="pill blue">Whoop / Garmin</span> para la recuperación. Nada se conecta.</p>
+
+    <div class="sub-h green">Gasto anual en bienestar &mdash; ~$2.140</div>
+    <div class="legend">
+      <span style="color:#3b82f6;">Gimnasio $660</span>
+      <span style="color:#10b981;">Suplementos $480</span>
+      <span style="color:#f59e0b;">Apps $180</span>
+      <span style="color:#ef4444;">Wearable $320</span>
+      <span style="color:#a78bfa;">Alimentación premium $500</span>
+    </div>
+    <div class="spend-bar">
+      <span style="background:#3b82f6; width:31%;">31%</span>
+      <span style="background:#10b981; width:22%;">22%</span>
+      <span style="background:#f59e0b; width:8%;">Apps</span>
+      <span style="background:#ef4444; width:15%;">15%</span>
+      <span style="background:#a78bfa; width:24%;">24%</span>
+    </div>
+
+    <div class="sub-h red">Las 3 principales frustraciones</div>
+    <ul class="frustrations">
+      <li>"Mis datos viven en 5 silos. Strava sabe mis carreras, Hevy sabe mis levantamientos, MFP sabe mis macros &mdash; ninguno <i>habla</i> con los demás."</li>
+      <li>"Todos los coaches de IA que he probado dan consejos genéricos de Bro Science. Quiero que sepa que hice deload la semana pasada y que dormí 6h."</li>
+      <li>"La comunidad en las apps de levantamiento = feed de vanidad. Quiero un leaderboard que signifique algo &mdash; mi gimnasio, mi ciudad, mi categoría de peso."</li>
+    </ul>
+
+    <div class="sub-h amber">Detonante para cambiar</div>
+    <p>Un producto que consolide 3+ suscripciones <i>y</i> le dé un badge de tier ranked que pueda hacer screenshot. Un AI insight que nombre un patrón real que él no vio ("Tu press de banca se estancó cuando dormiste menos de 7h tres semanas seguidas").</p>
+
+    <div class="fitbox">
+      <div><div style="font-family:var(--mono); font-size:10px; text-transform:uppercase; color:var(--muted);">Disposición a Pagar</div><div class="wtp">$8&ndash;12/mes &middot; $79/año</div></div>
+      <div><div style="font-family:var(--mono); font-size:10px; text-transform:uppercase; color:var(--muted);">Puntuación de Ajuste</div><div class="score" style="color:var(--green);">9,4<span class="max">/10</span></div></div>
+    </div>
+  </div>
+
+  <div class="persona">
+    <div class="persona-head">
+      <div class="avatar a2">SK</div>
+      <div class="persona-id">
+        <h3>Sarah K. &mdash; "La que Regresa"</h3>
+        <div class="role">ICP Secundario &middot; Mujer en levantamiento, 1&ndash;3 años de experiencia en fuerza</div>
+      </div>
+    </div>
+    <div class="demo-grid">
+      <div class="demo-cell"><div class="lbl">Edad</div><div class="val">34</div></div>
+      <div class="demo-cell"><div class="lbl">Puesto</div><div class="val">Responsable Mktg</div></div>
+      <div class="demo-cell"><div class="lbl">Ingresos</div><div class="val">$78k</div></div>
+      <div class="demo-cell"><div class="lbl">Ciudad</div><div class="val">Manchester, UK</div></div>
+    </div>
+
+    <div class="sub-h">Un día en su vida</div>
+    <p>Llegó al levantamiento en 2023 tras años de running y Pilates. Entrena 3 veces por semana en un box gym orientado a mujeres, sigue StrongCurves en su móvil, cada vez más intimidada por las apps de levantamiento con código masculino. Registra series en la app de Notas porque Hevy "parecía un vestuario de hombres." Controla las proteínas (objetivo 90g, a menudo no lo alcanza) usando una combinación de MyFitnessPal y alimentación intuitiva. Pertenece a dos comunidades de Instagram (Stronger by the Day, Meg Squats) y acecha r/xxfitness a diario.</p>
+
+    <div class="sub-h">Stack actual &amp; por qué</div>
+    <p><span class="pill blue">App de Notas</span> para los levantamientos &mdash; "todo lo demás es demasiado agresivo." <span class="pill blue">Cronometer</span> para la comida &mdash; "MFP me avergonzaba con números rojos." <span class="pill blue">Apple Watch</span> para todo lo demás. <span class="pill blue">Instagram</span> como su coach de verdad. Es el perfil clásico de Rock Health Millennial: 2/3 registran al menos una métrica, solo 1/2 dispuestos a compartir datos con alguien.</p>
+
+    <div class="sub-h green">Gasto anual en bienestar &mdash; ~$2.680</div>
+    <div class="legend">
+      <span style="color:#3b82f6;">Gimnasio $900</span>
+      <span style="color:#10b981;">Coaching $720</span>
+      <span style="color:#f59e0b;">Apps $96</span>
+      <span style="color:#ef4444;">Wearable $400</span>
+      <span style="color:#a78bfa;">Suplementos + alimentación $560</span>
+    </div>
+    <div class="spend-bar">
+      <span style="background:#3b82f6; width:34%;">34%</span>
+      <span style="background:#10b981; width:27%;">27%</span>
+      <span style="background:#f59e0b; width:4%;"></span>
+      <span style="background:#ef4444; width:15%;">15%</span>
+      <span style="background:#a78bfa; width:20%;">20%</span>
+    </div>
+
+    <div class="sub-h red">Las 3 principales frustraciones</div>
+    <ul class="frustrations">
+      <li>"Las apps de calorías son máquinas de ansiedad. Quiero contexto, no un número rojo diciéndome que 'fallé' en el almuerzo."</li>
+      <li>"Todas las apps de levantamiento te muestran la anatomía de un hombre y el récord personal de un hombre. No voy a por una sentadilla de 180kg &mdash; quiero registrar <i>mi</i> progreso sin compararlo con otros."</li>
+      <li>"Mi médico no pregunta, mis amigas no levantan, los coaches de Instagram que sigo cobran 200€/mes por una hoja de Google."</li>
+    </ul>
+
+    <div class="sub-h amber">Detonante para cambiar</div>
+    <p>Una comunidad con código femenino dentro de la app (gym servers con gimnasios de mayoría femenina, objetivos de recomposición corporal en lugar de solo "1RM"), AI insights enmarcados como <i>aliento</i> y no como vergüenza, y privacidad RGPD-real ("AES-256, mis datos son míos") que encaje con su desconfianza millennial.</p>
+
+    <div class="fitbox">
+      <div><div style="font-family:var(--mono); font-size:10px; text-transform:uppercase; color:var(--muted);">Disposición a Pagar</div><div class="wtp">$6&ndash;9/mes &middot; $59/año</div></div>
+      <div><div style="font-family:var(--mono); font-size:10px; text-transform:uppercase; color:var(--muted);">Puntuación de Ajuste</div><div class="score" style="color:#84cc16;">8,1<span class="max">/10</span></div></div>
+    </div>
+  </div>
+
+  <div class="persona">
+    <div class="persona-head">
+      <div class="avatar a3">DT</div>
+      <div class="persona-id">
+        <h3>David T. &mdash; "El Comprador de Longevidad"</h3>
+        <div class="role">ICP de Oleada 3 &middot; Profesional 45+, reconvertido a la longevidad</div>
+      </div>
+    </div>
+    <div class="demo-grid">
+      <div class="demo-cell"><div class="lbl">Edad</div><div class="val">48</div></div>
+      <div class="demo-cell"><div class="lbl">Puesto</div><div class="val">VP de Ventas</div></div>
+      <div class="demo-cell"><div class="lbl">Ingresos</div><div class="val">$185k</div></div>
+      <div class="demo-cell"><div class="lbl">Ciudad</div><div class="val">Madrid, ES</div></div>
+    </div>
+
+    <div class="sub-h">Un día en su vida</div>
+    <p>Leyó Outlive en 2024 y cambió toda su filosofía de salud. Levanta 3 veces/semana (cardio Zona 2 2 veces más), trabaja con un entrenador personal de $300/mes en un gimnasio boutique, acaba de empezar TRT tras analítica. Registra sueño, HRV, glucosa (prueba de CGM), VO2 max, fuerza de agarre. Lee el newsletter de Attia, escucha a Huberman. Consideró Function Health ($499/año) &mdash; lo compró. Considera su cuerpo un "activo de rendimiento." Pagará por cualquier cosa que prometa <i>healthspan</i>.</p>
+
+    <div class="sub-h">Stack actual &amp; por qué</div>
+    <p><span class="pill blue">Whoop</span> + <span class="pill blue">Levels</span> + <span class="pill blue">Function</span> + <span class="pill blue">una app de Notas</span>. Probó Hevy &mdash; "demasiado gamificado, demasiado joven." Quiere narrativas longitudinales, riesgo de lesión, qué <i>significa</i> su analítica. Encaja en el Optimizador Maximalista de McKinsey (25% de consumidores / &gt;40% del gasto).</p>
+
+    <div class="sub-h green">Gasto anual en bienestar &mdash; ~$8.400</div>
+    <div class="legend">
+      <span style="color:#3b82f6;">Entrenador $3.600</span>
+      <span style="color:#10b981;">Analítica $900</span>
+      <span style="color:#f59e0b;">Apps $720</span>
+      <span style="color:#ef4444;">Wearables $1.200</span>
+      <span style="color:#a78bfa;">Suplementos/péptidos $1.980</span>
+    </div>
+    <div class="spend-bar">
+      <span style="background:#3b82f6; width:43%;">43%</span>
+      <span style="background:#10b981; width:11%;">11%</span>
+      <span style="background:#f59e0b; width:9%;">Apps</span>
+      <span style="background:#ef4444; width:14%;">14%</span>
+      <span style="background:#a78bfa; width:23%;">23%</span>
+    </div>
+
+    <div class="sub-h red">Las 3 principales frustraciones</div>
+    <ul class="frustrations">
+      <li>"Pago seis apps. Ninguna me da una narrativa única a lo largo del año. Quiero una historia longitudinal."</li>
+      <li>"Los coaches de IA suenan como un chico de 22 años en un gimnasio cualquiera. ¿Dónde está el que ha leído a Peter Attia?"</li>
+      <li>"El riesgo de lesión es lo único que importa a los 48. Nada lo alerta antes de que ocurra."</li>
+    </ul>
+
+    <div class="sub-h amber">Detonante para cambiar</div>
+    <p>AI insights que suenen como un coach longitudinal ("Tu ratio press-a-remo se ha desviado un 18% en 90 días; la carga del manguito rotador está subiendo"). Historia de privacidad hardcore (AES-256 + RGPD + en dispositivo donde sea posible). Tier premium con importación asistida de PDFs de analítica.</p>
+
+    <div class="fitbox">
+      <div><div style="font-family:var(--mono); font-size:10px; text-transform:uppercase; color:var(--muted);">Disposición a Pagar</div><div class="wtp">$20&ndash;40/mes &middot; $299/año premium</div></div>
+      <div><div style="font-family:var(--mono); font-size:10px; text-transform:uppercase; color:var(--muted);">Puntuación de Ajuste</div><div class="score" style="color:var(--amber);">6,8<span class="max">/10</span></div></div>
+    </div>
+  </div>
+</section>
+
+<section>
+  <h2>4 &middot; Mapa de Jobs-to-Be-Done</h2>
+  <p class="muted">Para qué <i>contratan</i> realmente los usuarios una app de fitness. Capas funcional, emocional y social &mdash; alternativas actuales y dónde HealthStack está posicionado para ganar.</p>
+  <table>
+    <thead>
+      <tr>
+        <th>Trabajo (F / E / S)</th>
+        <th>Solución Actual</th>
+        <th>Brecha o Victoria de HealthStack</th>
+        <th class="num">Prioridad</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><b>F</b> &middot; "Registrar mis series en &lt;90 seg / serie"</td>
+        <td>Hevy, Strong</td>
+        <td>Paridad obligatoria. Rutinas + sesiones de entrenamiento existen; la velocidad de UX debe igualar a Hevy en Q3.</td>
+        <td class="score-cell score-5">P0</td>
+      </tr>
+      <tr>
+        <td><b>F</b> &middot; "Controlar macros sin vergüenza"</td>
+        <td>MyFitnessPal, Cronometer</td>
+        <td>Módulo de nutrición entregado &mdash; necesita código de barras + encuadre de UX sin shaming.</td>
+        <td class="score-cell score-5">P0</td>
+      </tr>
+      <tr>
+        <td><b>F</b> &middot; "Un solo lugar para todo"</td>
+        <td>Ninguno &mdash; los usuarios manejan 4&ndash;6 apps</td>
+        <td><b>Esta es la palanca de entrada.</b> Ningún competidor combina registros + macros + biométrica + IA + comunidad.</td>
+        <td class="score-cell score-5">P0</td>
+      </tr>
+      <tr>
+        <td><b>E</b> &middot; "Sentir que estoy progresando"</td>
+        <td>Notificaciones de récords, rachas</td>
+        <td>Gamificación (XP / niveles / LP ranked) ya implementada. AI Insights hace visible el progreso invisible.</td>
+        <td class="score-cell score-4">P1</td>
+      </tr>
+      <tr>
+        <td><b>E</b> &middot; "Reducir la ansiedad sobre mi salud"</td>
+        <td>Consejos genéricos, visitas al médico</td>
+        <td>AI Coach + riesgo de lesión + cifrado RGPD-real. La narrativa de confianza es escasa en esta categoría.</td>
+        <td class="score-cell score-4">P1</td>
+      </tr>
+      <tr>
+        <td><b>S</b> &middot; "Pertenecer a una tribu de levantadores serios"</td>
+        <td>r/Fitness, Discord, IG</td>
+        <td>Los gym servers son <b>únicos</b> &mdash; comunidad virtual por gimnasio real + leaderboards ranked. Ningún incumbente ofrece esto.</td>
+        <td class="score-cell score-5">P0</td>
+      </tr>
+      <tr>
+        <td><b>S</b> &middot; "Presumir de un récord / ganar estatus"</td>
+        <td>Instagram, kudos de Strava</td>
+        <td>Los tiers ranked + sistema LP dan un estatus que significa algo (ámbito gimnasio/ciudad/nacional).</td>
+        <td class="score-cell score-4">P1</td>
+      </tr>
+      <tr>
+        <td><b>S</b> &middot; "Encontrar un coach sin pagar $300/mes"</td>
+        <td>YouTube, wiki de Reddit</td>
+        <td>AI Coach (Groq llama-3.3-70b) está posicionado exactamente aquí. Palanca de monetización en tier premium.</td>
+        <td class="score-cell score-3">P2</td>
+      </tr>
+    </tbody>
+  </table>
+</section>
+
+<section>
+  <h2>5 &middot; Señales de Demanda &mdash; Validadas</h2>
+
+  <div class="stat-row">
+    <div class="stat"><div class="num">12,4M</div><div class="lbl">Suscriptores de r/Fitness (la mayor comunidad de fitness de Reddit)</div></div>
+    <div class="stat"><div class="num">5,1M</div><div class="lbl">r/bodyweightfitness + r/weightroom combinados</div></div>
+    <div class="stat"><div class="num">1,1M</div><div class="lbl">r/xxfitness &mdash; levantamiento femenino, el subforo de fitness de más rápido crecimiento</div></div>
+    <div class="stat"><div class="num">730k</div><div class="lbl">Cohorte de control de peso r/loseit + r/intermittentfasting</div></div>
+  </div>
+
+  <div class="card">
+    <h3 style="margin-top:0;">Evidencia a nivel macro</h3>
+    <ul>
+      <li><b>Mercado de apps de fitness: $13,5B en 2026 &rarr; $38B para 2034</b> al 13% CAGR (Straits Research, Grand View). Los ingresos crecieron +24,5% interanual en 2025 hasta $3,4B (Business of Apps).</li>
+      <li><b>El bienestar mueve $1,8T a nivel global / $500B+ en EE.UU.</b> (McKinsey 2024). Gen Z + Millennials = 36% de adultos en EE.UU. pero el 41% del gasto en bienestar.</li>
+      <li><b>Optimizadores Maximalistas = 25% de consumidores / &gt;40% del gasto en bienestar</b> (McKinsey 2025). Conocedores de la tecnología, orientados a la investigación, dispuestos a pagar. Esta es la Persona 3 en estado puro.</li>
+      <li><b>Entrenamiento de fuerza entre mujeres +159,8% interanual</b> (telemetría de miembros de Oura, jun. '24&ndash;jun. '25). Participantes femeninas en entrenamiento personal subieron un 15,9% hasta 7,3M en 2024.</li>
+      <li><b>El segmento de 40&ndash;55 años es el 2.º de más rápido crecimiento</b> en demografía de gimnasio 2025&ndash;2032 (Fortune Business Insights). Gasto en longevidad proyectado en &gt;$8T/año para 2030.</li>
+      <li><b>Hevy: 10M+ usuarios, $600k MRR</b> (Sensor Tower, BoringCashCow feb. 2026). Alcanza $40k/mes de beneficio con un equipo de menos de 10 personas &mdash; prueba de que las apps de gimnasio freemium sin capital riesgo pueden escalar.</li>
+      <li><b>El 71% de usuarios de apps de fitness está dispuesto a pagar</b> por funcionalidades premium (benchmarks de retención de Lucid 2025). Los planes anuales retienen al 33% frente al 17% mensual.</li>
+      <li><b>El 79% de usuarios de apps de fitness contrata la app principalmente para automonitoreo</b> (PMC8317040). El bucle de seguimiento y reflexión es el trabajo más demandado en la categoría.</li>
+    </ul>
+  </div>
+
+  <div class="card">
+    <h3 style="margin-top:0;">Búsqueda e intención</h3>
+    <ul>
+      <li>Google Trends "workout tracker" sube un 38% (5 años). "Calorie tracking app" estable en meseta intermedia. "Strength training for women" +210% (5 años). "Longevity app" +480% desde 2023.</li>
+      <li>"GLP-1 tracker" prácticamente inexistente antes de 2023, ahora con volumen mensual medio. Solo Shotsy tiene ~1M de descargas. <b>Existe un subsegmento completamente nuevo</b> que ninguno de los incumbentes dominaba hace 18 meses.</li>
+      <li>App Store: MyFitnessPal, Strava, Nike Training Club, Strong, Hevy, Fitbod consistentemente en el top-25 de Salud &amp; Fitness. <b>Ninguno</b> de ellos ocupa la posición de "stack" integrado.</li>
+    </ul>
+  </div>
+</section>
+
+<section>
+  <h2>6 &middot; Puntuación de Segmentos &mdash; 6 Cohortes Clasificadas</h2>
+  <table>
+    <thead>
+      <tr>
+        <th>Segmento</th>
+        <th class="num">Tamaño (EE.UU.+UE)</th>
+        <th class="num">WTP $/mes</th>
+        <th class="num">CAC est.</th>
+        <th class="num">Retención 90d</th>
+        <th class="num">Ajuste /5</th>
+        <th class="num">Puntuación</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><b>Hombre en gimnasio, 26&ndash;38</b> <span class="pill blue">P1</span></td>
+        <td class="num">22M</td>
+        <td class="num">$8&ndash;12</td>
+        <td class="num">$8&ndash;14</td>
+        <td class="num">28&ndash;34%</td>
+        <td class="num score-cell score-5">5</td>
+        <td class="num score-cell score-5">94</td>
+      </tr>
+      <tr>
+        <td><b>Mujer levantadora, 24&ndash;40</b> <span class="pill green">P2</span></td>
+        <td class="num">18M</td>
+        <td class="num">$6&ndash;9</td>
+        <td class="num">$10&ndash;18</td>
+        <td class="num">24&ndash;30%</td>
+        <td class="num score-cell score-4">4</td>
+        <td class="num score-cell score-4">81</td>
+      </tr>
+      <tr>
+        <td><b>Comprador de longevidad, 42&ndash;58</b> <span class="pill amber">P3</span></td>
+        <td class="num">12M</td>
+        <td class="num">$20&ndash;40</td>
+        <td class="num">$35&ndash;60</td>
+        <td class="num">30&ndash;40%</td>
+        <td class="num score-cell score-3">3</td>
+        <td class="num score-cell score-3">72</td>
+      </tr>
+      <tr>
+        <td>Usuario de pérdida de peso con GLP-1</td>
+        <td class="num">14M (creciendo)</td>
+        <td class="num">$10&ndash;18</td>
+        <td class="num">$15&ndash;25</td>
+        <td class="num">18&ndash;24%</td>
+        <td class="num score-cell score-3">3</td>
+        <td class="num score-cell score-3">61</td>
+      </tr>
+      <tr>
+        <td>Deportista casual / propósitos de año nuevo</td>
+        <td class="num">60M+</td>
+        <td class="num">$3&ndash;6</td>
+        <td class="num">$6&ndash;10</td>
+        <td class="num">8&ndash;12%</td>
+        <td class="num score-cell score-2">2</td>
+        <td class="num score-cell score-2">42</td>
+      </tr>
+      <tr>
+        <td>Atleta de resistencia (carrera / ciclismo)</td>
+        <td class="num">15M</td>
+        <td class="num">$8&ndash;15</td>
+        <td class="num">$20&ndash;35</td>
+        <td class="num">26&ndash;32%</td>
+        <td class="num score-cell score-2">2</td>
+        <td class="num score-cell score-2">38</td>
+      </tr>
+    </tbody>
+  </table>
+  <p class="muted" style="font-size:12px;">Puntuación = mezcla ponderada: Tamaño 20% &middot; WTP 25% &middot; (1/CAC) 15% &middot; Retención 20% &middot; Ajuste 20%. Fuentes: Statista usuarios de Salud &amp; Fitness por demografía, benchmarks de retención de Lucid, rangos CAC de Apptopia, estimación interna de ajuste de producto.</p>
+</section>
+
+<section>
+  <h2>7 &middot; Recomendación &mdash; A Quién Atacar Primero</h2>
+
+  <div class="recommendation">
+    <h3>Palanca de entrada: hombre en gimnasio, 26&ndash;38, que ya registra sus entrenamientos.</h3>
+    <p>Este segmento tiene la <b>mayor intención revelada</b> (ya paga por Hevy / Strong), el <b>menor CAC</b> (Reddit + YouTube son gratuitos), la <b>señal de WTP más clara</b> (equivalente a $79/año), y el <b>mejor ajuste de producto</b> (todos los módulos de HealthStack ya le sirven).</p>
+    <p>Una vez que dominemos esta entrada, nos expandimos hacia afuera en dos oleadas:</p>
+    <ul>
+      <li><b>Oleada 2 (meses 6&ndash;12):</b> Mujeres en levantamiento (Persona 2) &mdash; requiere trabajo de UX/comunidad pero desbloquea una cohorte de crecimiento del +160% interanual que ningún incumbente se ha ganado.</li>
+      <li><b>Oleada 3 (meses 12&ndash;24):</b> Compradores de longevidad (Persona 3) &mdash; mayor ARPU, requiere un tier Premium ($25/mes) con narrativas de IA longitudinales, importación de analítica y soporte de conserjería.</li>
+    </ul>
+    <p><b>No</b> perseguir al "deportista casual" ni al segmento GLP-1 en el año 1. CAC demasiado alto, retención demasiado baja, y el posicionamiento de marca ("atletas serios") se diluye.</p>
+  </div>
+
+  <h3>Tres tácticas GTM &mdash; específicas, medibles, este trimestre</h3>
+
+  <div class="tactic">
+    <span class="tag">Táctica 1 &middot; Distribución</span>
+    <h4>"Migra desde Hevy en 60 segundos" &mdash; importación CSV + página de comparación directa</h4>
+    <p>Desarrollar una herramienta de exportación de Hevy &rarr; importación a HealthStack. Crear una landing de comparación dirigida a términos de búsqueda "alternativa a Hevy" / "Hevy vs HealthStack" (bajo volumen pero intención extrema). Sembrarla en los hilos de r/Fitness "¿Qué app usas?" (4&ndash;6 por semana) con un soft launch. Efecto esperado: conversión del 1&ndash;3% en visita; CAC inferior a $5 para cualquier visitante de búsqueda orgánica.</p>
+  </div>
+
+  <div class="tactic">
+    <span class="tag">Táctica 2 &middot; Comunidad como adquisición</span>
+    <h4>Lanzar 25 "gym servers fundadores" con gimnasios reales en 5 ciudades</h4>
+    <p>Los gym servers son la única funcionalidad que ningún competidor puede clonar en 6 meses. Identificar 25 gimnasios independientes de gama media en Austin, Madrid, Berlín, Manchester y Toronto. Ofrecer Pro gratuito a los primeros 50 miembros de cada gimnasio. Cada gimnasio se convierte en un leaderboard cerrado + motor de retención. La retención a 30 días debería superar el &gt;40% en estas cohortes frente al 12% de referencia. Este es el foso.</p>
+  </div>
+
+  <div class="tactic">
+    <span class="tag">Táctica 3 &middot; AI Insights como motor de contenido</span>
+    <h4>"AI Insight de la Semana" publicado en TikTok + Reddit cada semana</h4>
+    <p>Tomar insights anonimizados de usuarios reales ("El press de banca de este usuario se estancó porque su sueño bajó de 7h tres semanas seguidas &mdash; aquí está el gráfico") y publicarlos como TikToks de 30 segundos + posts de texto en r/Fitness. Demuestra el diferenciador del producto (detecta patrones que los humanos no ven) mejor que cualquier lista de funcionalidades. Objetivo: 1 post viral (&gt;100k vistas) cada 6 semanas. Prepara la monetización del tier Premium cuando se lance la Oleada 3.</p>
+  </div>
+</section>
+
+<footer class="doc-foot">
+  <div>Fuentes &amp; referencias</div>
+  <ul>
+    <li>McKinsey &middot; Future of Wellness Trends 2024 / 2025 &mdash; mercado global de bienestar $1,8T, gasto generacional, segmento Optimizador Maximalista</li>
+    <li>Rock Health &middot; 10th Consumer Adoption of Digital Health Survey 2024 (n=8.000) &mdash; confianza generacional y disposición a compartir datos</li>
+    <li>Business of Apps &middot; Health &amp; Fitness App Report 2026; Statista &middot; H&amp;F Apps 2025 &mdash; demografía de uso, $3,4B de ingresos</li>
+    <li>Straits Research &middot; Fitness App Market Report 2033 &mdash; previsión $13,5B &rarr; $38B, 13% CAGR</li>
+    <li>Grand View Research &middot; US Fitness Apps Market &mdash; $12,55B para 2034</li>
+    <li>Health &amp; Fitness Association (HFA) &middot; 2025 Global Industry Report &mdash; 77M miembros en EE.UU., +19% de gasto interanual</li>
+    <li>Oura &middot; Publicación de telemetría de miembros jun. 2024&ndash;jun. 2025 &mdash; sesiones de fuerza femeninas +159,8%</li>
+    <li>Lucid &middot; Fitness App Retention Benchmarks 2025 &mdash; D30 8&ndash;12%, anual 33%, 71% WTP</li>
+    <li>JMIR mHealth &middot; PMC8317040 &mdash; determinantes de motivación en apps de fitness, 79% automonitoreo</li>
+    <li>Sensor Tower + BoringCashCow &middot; Métricas de la app Hevy feb. 2026 &mdash; 10M+ usuarios, $600k MRR</li>
+    <li>Fortune Business Insights &middot; Health &amp; Fitness Club Market 2032 &mdash; crecimiento de la cohorte 40&ndash;55</li>
+    <li>Tamaños de comunidades de Reddit obtenidos de las barras laterales públicas de subreddits, mayo 2026</li>
+  </ul>
+  <div style="margin-top:14px;">&copy; 2026 HealthStack Pro &middot; Documento de estrategia interno &middot; No distribuir</div>
+</footer>
+
+</div>
+</body>
+</html>

@@ -41,7 +41,11 @@ async def injury_risk(
     ai_router: AIRouter = Depends(get_ai_router),
 ) -> InjuryRiskResponse:
     """
-    Análisis de riesgo de lesión basado en el historial de entrenamiento.
+    Índice de Fatiga Acumulada / Sugerencia de Carga.
+
+    Estimación algorítmica de la carga de entrenamiento basada en el historial
+    de sesiones y rutinas. NO es un diagnóstico médico ni un dispositivo sanitario.
+    El campo `disclaimer` en la respuesta contiene el aviso legal obligatorio.
     Requiere JWT.
     """
     return await get_injury_risk(str(current_user["user_id"]), db, ai_router)

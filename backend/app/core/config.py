@@ -90,6 +90,15 @@ class Settings(BaseSettings):
     # ── Sentry ────────────────────────────────────────────────
     sentry_dsn: str = ""  # Vacío → Sentry desactivado
 
+    # ── Feedback Widget ───────────────────────────────────────
+    # Número de WhatsApp sin + ni espacios (ej: "34600000000")
+    feedback_whatsapp_number: str = ""
+
+    # ── Admin inicial ─────────────────────────────────────────
+    # Usadas por scripts/create_admin.py — cambia en .env antes de ejecutar.
+    admin_email: str = "admin@healthstack.app"
+    admin_initial_password: str = "HS_Admin_2026!"
+
     # ── VALIDADORES ───────────────────────────────────────────
 
     @field_validator("jwt_private_key_pem", "jwt_public_key_pem")

@@ -248,6 +248,7 @@ export function createViewer() {
   let _sweepDone     = false;
   let _observer      = null;
   let _lastOverlay   = null;
+  let _sex           = localStorage.getItem('al_sex') || null;  // 'male' | 'female' | null
 
   // ── Zoom / pan state ─────────────────────────────────────────────────────
   let _zoomGroup  = null;
@@ -401,6 +402,13 @@ export function createViewer() {
     _initTooltip();
     _initSweep();
     _initZoom();
+
+    // Aplicar clases de sexo al SVG si ya se conoce
+    if (_sex) {
+      _svg.classList.toggle('al-sex-female', _sex === 'female');
+      _svg.classList.toggle('al-sex-male',   _sex === 'male');
+      _injectSexChip();
+    }
 
     // ── Mini-leyenda de controles ──────────────────────────────
     const hint = document.createElement('div');
@@ -629,5 +637,39 @@ export function createViewer() {
     }, paths.length * 8 + 350);
   }
 
-  return { init, highlight, setOverlay, setMode, clearOverlay, reset, destroy };
+  // ── setSex (male / female) ───────────────────────────────────────────────
+  function setSex(sex) {
+    if (sex !== 'male' && sex !== 'female') return;
+    _sex = sex;
+    try { localStorage.setItem('al_sex', sex); } catch (_) {}
+    if (_svg) {
+      _svg.classList.toggle('al-sex-female', sex === 'female');
+      _svg.classList.toggle('al-sex-male',   sex === 'male');
+    }
+    _updateSexChip();
+  }
+
+  function _updateSexChip() {
+    const chip = _container?.querySelector('.al-sex-chip');
+    if (!chip) return;
+    chip.innerHTML = _sex === 'female'
+      ? '<span class="al-sex-icon">♀</span><span class="al-sex-label">Femenino</span>'
+      : '<span class="al-sex-icon">♂</span><span class="al-sex-label">Masculino</span>';
+    chip.classList.toggle('al-sex-chip--female', _sex === 'female');
+    chip.classList.toggle('al-sex-chip--male',   _sex === 'male');
+  }
+
+  function _injectSexChip() {
+    if (!_container || _container.querySelector('.al-sex-chip')) return;
+    const chip = document.createElement('div');
+    chip.className = 'al-sex-chip' + (_sex === 'female' ? ' al-sex-chip--female' : ' al-sex-chip--male');
+    chip.title = 'Modelo anatómico — configurado en tu perfil';
+    chip.setAttribute('aria-label', 'Sexo biológico del modelo');
+    chip.innerHTML = _sex === 'female'
+      ? '<span class="al-sex-icon">♀</span><span class="al-sex-label">Femenino</span>'
+      : '<span class="al-sex-icon">♂</span><span class="al-sex-label">Masculino</span>';
+    _container.appendChild(chip);
+  }
+
+  return { init, highlight, setOverlay, setMode, setSex, clearOverlay, reset, destroy };
 }

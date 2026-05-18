@@ -1,0 +1,788 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Competitive Benchmarking Report — HealthStack Pro</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html, body { background: #0a0a0f; color: #e8e8f0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; line-height: 1.55; font-size: 15px; -webkit-font-smoothing: antialiased; }
+  .num, code, .mono { font-family: "SF Mono", "JetBrains Mono", "Menlo", "Consolas", monospace; font-variant-numeric: tabular-nums; }
+  .wrap { max-width: 960px; margin: 0 auto; padding: 56px 32px 96px; }
+  h1 { font-size: 28px; font-weight: 700; letter-spacing: -0.02em; line-height: 1.2; }
+  h2 { font-size: 20px; font-weight: 600; letter-spacing: -0.01em; margin-top: 48px; margin-bottom: 16px; padding-bottom: 8px; border-bottom: 1px solid #1f1f2e; color: #ffffff; }
+  h3 { font-size: 16px; font-weight: 600; color: #ffffff; margin-bottom: 10px; }
+  h4 { font-size: 13px; font-weight: 600; color: #9090a8; text-transform: uppercase; letter-spacing: 0.08em; margin: 16px 0 8px; }
+  p { margin-bottom: 12px; color: #c8c8d8; }
+  ul, ol { padding-left: 20px; margin-bottom: 12px; color: #c8c8d8; }
+  li { margin-bottom: 6px; }
+  strong { color: #ffffff; font-weight: 600; }
+  em { color: #a8a8c0; font-style: normal; }
+  hr { border: none; border-top: 1px solid #1f1f2e; margin: 32px 0; }
+  .header { border-bottom: 1px solid #1f1f2e; padding-bottom: 24px; margin-bottom: 8px; }
+  .pretitle { font-family: "SF Mono", monospace; font-size: 11px; letter-spacing: 0.18em; color: #6b7280; text-transform: uppercase; margin-bottom: 12px; display: flex; justify-content: space-between; }
+  .pretitle .conf { color: #ef4444; }
+  .subtitle { color: #9090a8; margin-top: 8px; font-size: 14px; }
+  .card { background: #141420; border: 1px solid #1f1f2e; border-radius: 8px; padding: 20px 24px; margin-bottom: 16px; }
+  .exec { background: linear-gradient(180deg, #141420 0%, #11111c 100%); border: 1px solid #2a2a3e; border-left: 3px solid #3b82f6; padding: 24px 28px; }
+  .exec h2 { border: none; margin-top: 0; padding: 0; margin-bottom: 14px; }
+  .exec ul { list-style: none; padding: 0; }
+  .exec li { padding-left: 22px; position: relative; margin-bottom: 10px; color: #d8d8e8; }
+  .exec li::before { content: "▸"; position: absolute; left: 0; color: #3b82f6; }
+  .method-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 8px 24px; margin-top: 8px; }
+  .method-grid .dim { display: flex; justify-content: space-between; padding: 8px 0; border-bottom: 1px solid #1a1a26; font-size: 13px; }
+  .method-grid .dim span:first-child { color: #c8c8d8; }
+  .method-grid .dim span:last-child { color: #6b7280; font-family: "SF Mono", monospace; font-size: 11px; }
+  .comp { background: #141420; border: 1px solid #1f1f2e; border-radius: 10px; padding: 24px 26px; margin-bottom: 18px; }
+  .comp-head { display: flex; justify-content: space-between; align-items: baseline; flex-wrap: wrap; gap: 12px; margin-bottom: 4px; }
+  .comp-name { font-size: 19px; font-weight: 700; color: #ffffff; }
+  .comp-tag { font-size: 13px; color: #9090a8; font-style: italic; }
+  .comp-price { font-family: "SF Mono", monospace; font-size: 12px; color: #f59e0b; background: rgba(245, 158, 11, 0.08); padding: 4px 10px; border-radius: 4px; border: 1px solid rgba(245, 158, 11, 0.2); white-space: nowrap; }
+  .comp-prop { color: #c8c8d8; margin: 12px 0 16px; padding: 10px 14px; background: #0e0e18; border-left: 2px solid #3b82f6; border-radius: 0 4px 4px 0; font-size: 14px; }
+  .scores { display: grid; grid-template-columns: repeat(2, 1fr); gap: 6px 24px; margin: 12px 0 16px; }
+  .score-row { display: grid; grid-template-columns: 130px 1fr 28px; align-items: center; gap: 10px; font-size: 12px; }
+  .score-row .label { color: #9090a8; }
+  .score-row .bar { background: #1a1a26; height: 6px; border-radius: 3px; overflow: hidden; }
+  .score-row .fill { height: 100%; border-radius: 3px; }
+  .score-row .val { color: #e8e8f0; font-family: "SF Mono", monospace; text-align: right; }
+  .s1 { background: #ef4444; width: 20%; }
+  .s2 { background: #f59e0b; width: 40%; }
+  .s3 { background: #eab308; width: 60%; }
+  .s4 { background: #10b981; width: 80%; }
+  .s5 { background: #3b82f6; width: 100%; }
+  .sw-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-top: 12px; }
+  .sw-grid > div { background: #0e0e18; border-radius: 6px; padding: 14px 16px; }
+  .sw-grid h4 { margin-top: 0; }
+  .sw-grid h4.up { color: #10b981; }
+  .sw-grid h4.down { color: #ef4444; }
+  .sw-grid ul { padding-left: 16px; font-size: 13px; }
+  .sw-grid li { margin-bottom: 6px; color: #c8c8d8; }
+  .churn { margin-top: 14px; padding: 12px 16px; background: rgba(239, 68, 68, 0.06); border: 1px solid rgba(239, 68, 68, 0.2); border-radius: 6px; font-size: 13px; color: #d8d8e8; }
+  .churn strong { color: #ef4444; }
+  .heatmap { width: 100%; border-collapse: collapse; margin: 16px 0 8px; font-size: 12px; }
+  .heatmap th, .heatmap td { padding: 8px 6px; text-align: center; border-bottom: 1px solid #1a1a26; font-family: "SF Mono", monospace; }
+  .heatmap th { background: #0e0e18; color: #9090a8; font-weight: 600; font-size: 10px; text-transform: uppercase; letter-spacing: 0.05em; }
+  .heatmap td:first-child, .heatmap th:first-child { text-align: left; font-family: -apple-system, sans-serif; color: #e8e8f0; padding-left: 12px; }
+  .heatmap td.total { font-weight: 700; color: #ffffff; }
+  .h1c { background: #3a1010; color: #fca5a5; }
+  .h2c { background: #3a2410; color: #fcd34d; }
+  .h3c { background: #2a2a10; color: #fef08a; }
+  .h4c { background: #103a24; color: #6ee7b7; }
+  .h5c { background: #102a3a; color: #93c5fd; }
+  .trend { background: #141420; border: 1px solid #1f1f2e; border-radius: 8px; padding: 16px 20px; margin-bottom: 12px; }
+  .trend-tag { font-family: "SF Mono", monospace; font-size: 10px; color: #3b82f6; letter-spacing: 0.1em; text-transform: uppercase; }
+  .adv { background: linear-gradient(135deg, #102a3a 0%, #14142a 100%); border: 1px solid #1d3a5c; border-radius: 8px; padding: 18px 22px; margin-bottom: 14px; }
+  .adv-head { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; }
+  .adv-title { font-size: 15px; font-weight: 600; color: #93c5fd; }
+  .adv-gap { font-family: "SF Mono", monospace; font-size: 11px; color: #f59e0b; }
+  .adv-body { font-size: 13px; color: #c8c8d8; }
+  .adv-body strong { color: #ffffff; }
+  .action { display: grid; grid-template-columns: 28px 1fr 120px; gap: 14px; align-items: start; padding: 14px 18px; background: #141420; border: 1px solid #1f1f2e; border-radius: 8px; margin-bottom: 10px; }
+  .action-n { font-family: "SF Mono", monospace; font-size: 14px; color: #3b82f6; font-weight: 700; }
+  .action-text strong { display: block; color: #ffffff; margin-bottom: 4px; font-size: 14px; }
+  .action-text span { color: #a8a8c0; font-size: 12px; }
+  .action-pri { font-family: "SF Mono", monospace; font-size: 10px; text-align: right; }
+  .pri-hi { color: #ef4444; }
+  .pri-md { color: #f59e0b; }
+  .pri-lo { color: #6b7280; }
+  footer { margin-top: 64px; padding-top: 24px; border-top: 1px solid #1f1f2e; font-size: 11px; color: #6b7280; font-family: "SF Mono", monospace; }
+  footer h4 { color: #9090a8; margin-bottom: 10px; font-family: -apple-system, sans-serif; }
+  footer ul { list-style: none; padding: 0; columns: 2; column-gap: 32px; }
+  footer li { margin-bottom: 4px; break-inside: avoid; }
+  @media (max-width: 720px) {
+    .scores, .sw-grid, .method-grid { grid-template-columns: 1fr; }
+    .heatmap { font-size: 10px; }
+    footer ul { columns: 1; }
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<header class="header">
+  <div class="pretitle">
+    <span>Strategy Memo · v1.0</span>
+    <span class="conf">CONFIDENTIAL — Internal Distribution Only</span>
+  </div>
+  <h1>Competitive Benchmarking Report — HealthStack Pro</h1>
+  <p class="subtitle">Due-diligence-grade analysis of 12 consumer health & fitness apps · Dated 17 May 2026 · Prepared by Product Strategy</p>
+</header>
+
+<section class="card exec">
+  <h2>Executive Summary</h2>
+  <ul>
+    <li><strong>The consumer health market is consolidating around two failing modes:</strong> closed-hardware subscriptions with billing scandals (Whoop, Oura) and free-mode-erosion paywalling (Strava, Garmin Connect+, MyFitnessPal). Both generate active churn that maps directly to HealthStack Pro's wedge.</li>
+    <li><strong>No incumbent owns the "integrated gym-first stack" with credible GDPR posture.</strong> MyFitnessPal/Cronometer own nutrition, Strava owns cardio, Whoop/Oura own recovery — but the user is forced into 3–5 subscriptions ($200–$800/yr) with redundant data silos. HealthStack Pro consolidates eight verticals at $0.</li>
+    <li><strong>Trust is the new differentiator.</strong> Calm (-500K subs YoY), Headspace (-300K), Oura facing California ARL class action, Whoop r/whoop revolting over forced renewals. AES-256-GCM with pseudonymization at rest is not a feature — it is competitive moat in a market where 4 of the top 12 have active legal exposure.</li>
+    <li><strong>Free-tier-for-everything is defensible only if monetization is non-feature-gated.</strong> Recommended path: enterprise/B2B (Headspace blueprint: $120M ARR from 4K clients), gym partnerships via gym_servers module, and contextual ads on low-intent surfaces only. Do NOT paywall AI coach or insights — that is what every competitor has done and is losing on.</li>
+  </ul>
+</section>
+
+<h2>Scoring Methodology</h2>
+<p>Each app is scored 1–5 on eight dimensions, weighted equally for transparency. Scores reflect 2025–Q2 2026 state. Evidence drawn from App Store/Google Play public reviews, Trustpilot (n&gt;1K per app where available), BBB complaints, Reddit (r/whoop, r/Garmin, r/Stronger By Science), DCRainmaker hardware reviews, and self-reported subscriber data from Business of Apps.</p>
+<div class="method-grid">
+  <div class="dim"><span>Data ownership & Privacy</span><span>w=1.0</span></div>
+  <div class="dim"><span>AI & Personalization depth</span><span>w=1.0</span></div>
+  <div class="dim"><span>Fitness/Training tracking</span><span>w=1.0</span></div>
+  <div class="dim"><span>Nutrition tracking</span><span>w=1.0</span></div>
+  <div class="dim"><span>Sleep & Recovery</span><span>w=1.0</span></div>
+  <div class="dim"><span>Community & Social</span><span>w=1.0</span></div>
+  <div class="dim"><span>UX & Retention design</span><span>w=1.0</span></div>
+  <div class="dim"><span>Price–value perception</span><span>w=1.0</span></div>
+</div>
+<p style="margin-top:14px;font-size:13px;color:#9090a8;">Scoring scale: <strong style="color:#ef4444;">1 = critical gap</strong> · <strong style="color:#f59e0b;">2 = below par</strong> · <strong style="color:#eab308;">3 = market average</strong> · <strong style="color:#10b981;">4 = strength</strong> · <strong style="color:#3b82f6;">5 = category-defining</strong>.</p>
+
+<h2>Competitor Deep-Dives</h2>
+
+<article class="comp">
+  <div class="comp-head">
+    <div><div class="comp-name">1. Apple Health / Apple Watch Ecosystem</div><div class="comp-tag">"The default health OS for iPhone users"</div></div>
+    <div class="comp-price">Watch $249–$799 · iCloud+ $0.99/mo · no health sub</div>
+  </div>
+  <div class="comp-prop">Bundles hypertension detection, sleep scoring, ECG, and AFib history into hardware that 80% of iPhone users either own or are one upsell away from owning. Apple Health App is the default aggregation layer — 23% global smartwatch share, growing 8% YoY.</div>
+  <div class="scores">
+    <div class="score-row"><span class="label">Data / Privacy</span><span class="bar"><span class="fill s5"></span></span><span class="val">5</span></div>
+    <div class="score-row"><span class="label">AI / Personalization</span><span class="bar"><span class="fill s3"></span></span><span class="val">3</span></div>
+    <div class="score-row"><span class="label">Fitness tracking</span><span class="bar"><span class="fill s4"></span></span><span class="val">4</span></div>
+    <div class="score-row"><span class="label">Nutrition</span><span class="bar"><span class="fill s1"></span></span><span class="val">1</span></div>
+    <div class="score-row"><span class="label">Sleep</span><span class="bar"><span class="fill s4"></span></span><span class="val">4</span></div>
+    <div class="score-row"><span class="label">Community</span><span class="bar"><span class="fill s2"></span></span><span class="val">2</span></div>
+    <div class="score-row"><span class="label">UX / Retention</span><span class="bar"><span class="fill s5"></span></span><span class="val">5</span></div>
+    <div class="score-row"><span class="label">Price–value</span><span class="bar"><span class="fill s4"></span></span><span class="val">4</span></div>
+  </div>
+  <div class="sw-grid">
+    <div>
+      <h4 class="up">Top 3 Strengths</h4>
+      <ul>
+        <li>Hardware-software lock-in: 80% iPhone users own ≥1 additional Apple product; switching cost is the entire ecosystem.</li>
+        <li>Hypertension notification (watchOS 26) is FDA-cleared and unmatched in passive metrics.</li>
+        <li>Privacy positioning is genuine: on-device processing, end-to-end encrypted iCloud Health since 2019.</li>
+      </ul>
+    </div>
+    <div>
+      <h4 class="down">Top 3 Weaknesses</h4>
+      <ul>
+        <li>Zero nutrition tracking — Apple Health imports from third parties, owns no logging UI.</li>
+        <li>Locked to iOS: 70% of global smartphones are Android (Counterpoint 2025) and unreachable.</li>
+        <li>Personalization is shallow: "Trends" and rings, no narrative coaching, no contextual chat. Apple Intelligence health features are still pipeline.</li>
+      </ul>
+    </div>
+  </div>
+  <div class="churn"><strong>The user that leaves Apple Health leaves because</strong> they switched to Android, or because they want active coaching/nutrition logging and realize Apple has no answer beyond third-party app shelves.</div>
+</article>
+
+<article class="comp">
+  <div class="comp-head">
+    <div><div class="comp-name">2. Whoop</div><div class="comp-tag">"24/7 strain and recovery, as a service"</div></div>
+    <div class="comp-price">$199–$359/yr · One/Peak/Life · band included</div>
+  </div>
+  <div class="comp-prop">Subscription-first wearable that pioneered "device-as-a-service": band is free, recovery and strain coaching is the product. 5.0 / MG launched May 2025. Sleep-as-a-service positioning has driven category-leading B2B traction.</div>
+  <div class="scores">
+    <div class="score-row"><span class="label">Data / Privacy</span><span class="bar"><span class="fill s3"></span></span><span class="val">3</span></div>
+    <div class="score-row"><span class="label">AI / Personalization</span><span class="bar"><span class="fill s4"></span></span><span class="val">4</span></div>
+    <div class="score-row"><span class="label">Fitness tracking</span><span class="bar"><span class="fill s4"></span></span><span class="val">4</span></div>
+    <div class="score-row"><span class="label">Nutrition</span><span class="bar"><span class="fill s1"></span></span><span class="val">1</span></div>
+    <div class="score-row"><span class="label">Sleep</span><span class="bar"><span class="fill s5"></span></span><span class="val">5</span></div>
+    <div class="score-row"><span class="label">Community</span><span class="bar"><span class="fill s2"></span></span><span class="val">2</span></div>
+    <div class="score-row"><span class="label">UX / Retention</span><span class="bar"><span class="fill s3"></span></span><span class="val">3</span></div>
+    <div class="score-row"><span class="label">Price–value</span><span class="bar"><span class="fill s1"></span></span><span class="val">1</span></div>
+  </div>
+  <div class="sw-grid">
+    <div>
+      <h4 class="up">Top 3 Strengths</h4>
+      <ul>
+        <li>HRV-derived recovery is industry-leading; 5.0 MG adds blood-pressure estimation.</li>
+        <li>Strain Coach delivers a single actionable number — a UX win competitors haven't matched.</li>
+        <li>Annual prepay anchors retention: 12-month locked contract structurally suppresses churn.</li>
+      </ul>
+    </div>
+    <div>
+      <h4 class="down">Top 3 Weaknesses</h4>
+      <ul>
+        <li>5.0 launch backlash: r/whoop overrun with complaints, viral X threads over forced renewal-or-pay-$50 upgrade. Trustpilot 3.0/5 (262 reviews).</li>
+        <li>BBB billing complaints: "monthly commitment" enforced as 12-month locked contract; users charged $335 to exit after 4 months.</li>
+        <li>Customer service is AI-only — community reports zero successful resolutions on hardware faults.</li>
+      </ul>
+    </div>
+  </div>
+  <div class="churn"><strong>The user that leaves Whoop leaves because</strong> they discovered the renewal trap, or because they bought an Apple Watch Ultra and refuse to wear two devices.</div>
+</article>
+
+<article class="comp">
+  <div class="comp-head">
+    <div><div class="comp-name">3. Oura Ring (Gen 4)</div><div class="comp-tag">"Sleep & readiness, on your finger"</div></div>
+    <div class="comp-price">Ring $349–$499 + $5.99/mo or $69.99/yr</div>
+  </div>
+  <div class="comp-prop">Smart ring with best-in-class sleep tracking, Readiness Score, and a clean, female-health-aware app. Hardware-as-loss-leader plus mandatory subscription. Universally praised editorially; under active legal pressure on subscriptions.</div>
+  <div class="scores">
+    <div class="score-row"><span class="label">Data / Privacy</span><span class="bar"><span class="fill s2"></span></span><span class="val">2</span></div>
+    <div class="score-row"><span class="label">AI / Personalization</span><span class="bar"><span class="fill s4"></span></span><span class="val">4</span></div>
+    <div class="score-row"><span class="label">Fitness tracking</span><span class="bar"><span class="fill s2"></span></span><span class="val">2</span></div>
+    <div class="score-row"><span class="label">Nutrition</span><span class="bar"><span class="fill s1"></span></span><span class="val">1</span></div>
+    <div class="score-row"><span class="label">Sleep</span><span class="bar"><span class="fill s5"></span></span><span class="val">5</span></div>
+    <div class="score-row"><span class="label">Community</span><span class="bar"><span class="fill s1"></span></span><span class="val">1</span></div>
+    <div class="score-row"><span class="label">UX / Retention</span><span class="bar"><span class="fill s4"></span></span><span class="val">4</span></div>
+    <div class="score-row"><span class="label">Price–value</span><span class="bar"><span class="fill s2"></span></span><span class="val">2</span></div>
+  </div>
+  <div class="sw-grid">
+    <div>
+      <h4 class="up">Top 3 Strengths</h4>
+      <ul>
+        <li>Sleep tracking accuracy validated against polysomnography — the consensus best in the category.</li>
+        <li>Form factor: a ring users actually wear 24/7 (vs. watches removed for showers/charging).</li>
+        <li>Women's-health features (cycle prediction, perimenopause insights) capture an underserved segment.</li>
+      </ul>
+    </div>
+    <div>
+      <h4 class="down">Top 3 Weaknesses</h4>
+      <ul>
+        <li>California Automatic Renewal Law class action (2026): subscription cancellation UX deemed deceptive.</li>
+        <li>BBB complaints: battery degradation, scratched sensor windows, titanium discoloration, support delays.</li>
+        <li>Workout detection is post-hoc and weak — the ring cannot replace a wrist-worn tracker for gym users.</li>
+      </ul>
+    </div>
+  </div>
+  <div class="churn"><strong>The user that leaves Oura leaves because</strong> the battery degraded inside year two and they realized $70/yr in perpetuity is the actual product.</div>
+</article>
+
+<article class="comp">
+  <div class="comp-head">
+    <div><div class="comp-name">4. MyFitnessPal</div><div class="comp-tag">"The world's food database"</div></div>
+    <div class="comp-price">Free (ads) · Premium $19.99/mo or $79.99/yr · Premium+ $99.99/yr</div>
+  </div>
+  <div class="comp-prop">14M+ food entries, the deepest restaurant database. Owned by Francisco Partners since 2020. App Store 4.7 (2.1M reviews) — but the free tier has been progressively gutted: barcode scanner was paywalled in 2024, the 7-day rolling diary was removed.</div>
+  <div class="scores">
+    <div class="score-row"><span class="label">Data / Privacy</span><span class="bar"><span class="fill s2"></span></span><span class="val">2</span></div>
+    <div class="score-row"><span class="label">AI / Personalization</span><span class="bar"><span class="fill s3"></span></span><span class="val">3</span></div>
+    <div class="score-row"><span class="label">Fitness tracking</span><span class="bar"><span class="fill s2"></span></span><span class="val">2</span></div>
+    <div class="score-row"><span class="label">Nutrition</span><span class="bar"><span class="fill s5"></span></span><span class="val">5</span></div>
+    <div class="score-row"><span class="label">Sleep</span><span class="bar"><span class="fill s1"></span></span><span class="val">1</span></div>
+    <div class="score-row"><span class="label">Community</span><span class="bar"><span class="fill s3"></span></span><span class="val">3</span></div>
+    <div class="score-row"><span class="label">UX / Retention</span><span class="bar"><span class="fill s2"></span></span><span class="val">2</span></div>
+    <div class="score-row"><span class="label">Price–value</span><span class="bar"><span class="fill s2"></span></span><span class="val">2</span></div>
+  </div>
+  <div class="sw-grid">
+    <div>
+      <h4 class="up">Top 3 Strengths</h4>
+      <ul>
+        <li>14M+ food database with restaurant coverage no competitor can match for frictionless logging.</li>
+        <li>Network effect on UGC food entries creates a 15-year content moat.</li>
+        <li>Integrations: Garmin, Fitbit, Apple Health, Strava — the de-facto nutrition import target.</li>
+      </ul>
+    </div>
+    <div>
+      <h4 class="down">Top 3 Weaknesses</h4>
+      <ul>
+        <li>Paywalled barcode scanner is App Store review's #1 complaint — broke a habit of years.</li>
+        <li>Intrusive ads on free tier; "gutted this app" recurring in 2025 reviews after diary removal.</li>
+        <li>$79.99/yr is 2.3× Cronometer Gold ($34.99) for less accurate, UGC-poisoned data.</li>
+      </ul>
+    </div>
+  </div>
+  <div class="churn"><strong>The user that leaves MyFitnessPal leaves because</strong> they hit the barcode paywall mid-meal-log and migrated to Cronometer, Macrofactor, or a free competitor that same week.</div>
+</article>
+
+<article class="comp">
+  <div class="comp-head">
+    <div><div class="comp-name">5. Cronometer</div><div class="comp-tag">"Micronutrients done right"</div></div>
+    <div class="comp-price">Free · Gold $5.49/mo or $34.99/yr</div>
+  </div>
+  <div class="comp-prop">USDA + NCCDB-grounded nutrition database, 80+ micronutrients tracked per entry, verified vs. user-submitted. Beloved by powerlifters, biohackers, and registered dietitians. Niche but extraordinarily loyal.</div>
+  <div class="scores">
+    <div class="score-row"><span class="label">Data / Privacy</span><span class="bar"><span class="fill s3"></span></span><span class="val">3</span></div>
+    <div class="score-row"><span class="label">AI / Personalization</span><span class="bar"><span class="fill s2"></span></span><span class="val">2</span></div>
+    <div class="score-row"><span class="label">Fitness tracking</span><span class="bar"><span class="fill s2"></span></span><span class="val">2</span></div>
+    <div class="score-row"><span class="label">Nutrition</span><span class="bar"><span class="fill s5"></span></span><span class="val">5</span></div>
+    <div class="score-row"><span class="label">Sleep</span><span class="bar"><span class="fill s1"></span></span><span class="val">1</span></div>
+    <div class="score-row"><span class="label">Community</span><span class="bar"><span class="fill s1"></span></span><span class="val">1</span></div>
+    <div class="score-row"><span class="label">UX / Retention</span><span class="bar"><span class="fill s3"></span></span><span class="val">3</span></div>
+    <div class="score-row"><span class="label">Price–value</span><span class="bar"><span class="fill s5"></span></span><span class="val">5</span></div>
+  </div>
+  <div class="sw-grid">
+    <div>
+      <h4 class="up">Top 3 Strengths</h4>
+      <ul>
+        <li>Verified database is the only consumer tracker dietitians actively endorse for clinical work.</li>
+        <li>$34.99/yr Gold is the best price-value in nutrition — barcode scanning is free.</li>
+        <li>Granular micronutrient charts retain power users for years (lower churn than MFP).</li>
+      </ul>
+    </div>
+    <div>
+      <h4 class="down">Top 3 Weaknesses</h4>
+      <ul>
+        <li>Restaurant data is thin — "where did you eat?" is a friction wall for non-cooks.</li>
+        <li>UI is spreadsheet-density; intimidating for new entrants vs. MyFitnessPal's onboarding.</li>
+        <li>Zero meaningful AI coach, no community, no workout layer — pure nutrition tool.</li>
+      </ul>
+    </div>
+  </div>
+  <div class="churn"><strong>The user that leaves Cronometer leaves because</strong> they started eating out 4+ times a week and got tired of "Generic Chicken Bowl, manual entry."</div>
+</article>
+
+<article class="comp">
+  <div class="comp-head">
+    <div><div class="comp-name">6. Levels</div><div class="comp-tag">"Metabolic health, glucose-first"</div></div>
+    <div class="comp-price">$200/yr app + ~$100–$200/mo CGM hardware</div>
+  </div>
+  <div class="comp-prop">Continuous glucose monitor + app pairing for non-diabetics. Premium positioning ($1,400+/yr fully loaded), VC-backed at high valuation. Three tiers — Classic (CGM-only), Core (+labs), Complete (concierge).</div>
+  <div class="scores">
+    <div class="score-row"><span class="label">Data / Privacy</span><span class="bar"><span class="fill s3"></span></span><span class="val">3</span></div>
+    <div class="score-row"><span class="label">AI / Personalization</span><span class="bar"><span class="fill s4"></span></span><span class="val">4</span></div>
+    <div class="score-row"><span class="label">Fitness tracking</span><span class="bar"><span class="fill s1"></span></span><span class="val">1</span></div>
+    <div class="score-row"><span class="label">Nutrition</span><span class="bar"><span class="fill s4"></span></span><span class="val">4</span></div>
+    <div class="score-row"><span class="label">Sleep</span><span class="bar"><span class="fill s2"></span></span><span class="val">2</span></div>
+    <div class="score-row"><span class="label">Community</span><span class="bar"><span class="fill s1"></span></span><span class="val">1</span></div>
+    <div class="score-row"><span class="label">UX / Retention</span><span class="bar"><span class="fill s2"></span></span><span class="val">2</span></div>
+    <div class="score-row"><span class="label">Price–value</span><span class="bar"><span class="fill s1"></span></span><span class="val">1</span></div>
+  </div>
+  <div class="sw-grid">
+    <div>
+      <h4 class="up">Top 3 Strengths</h4>
+      <ul>
+        <li>Owns "metabolic health" as a brand category — Andrew Huberman and Peter Attia endorsement halo.</li>
+        <li>Food-score-from-glucose-response is a category-original mechanic.</li>
+        <li>Now Dexcom-Stelo-bundled, dropping the prescription barrier that capped 2023 growth.</li>
+      </ul>
+    </div>
+    <div>
+      <h4 class="down">Top 3 Weaknesses</h4>
+      <ul>
+        <li>Cohort retention is brutal: "patients who complete a single CGM cycle rarely continue" — most don't need a CGM year-round but the subscription is annual.</li>
+        <li>App is functionally empty without an active sensor — value goes to zero between cycles.</li>
+        <li>$200/yr app fee + hardware adds up to $1,400+; consumer CGMs (Stelo, Lingo) now available without Levels.</li>
+      </ul>
+    </div>
+  </div>
+  <div class="churn"><strong>The user that leaves Levels leaves because</strong> they finished month two, realized the insight was "I shouldn't eat pasta on an empty stomach," and saw no reason to renew.</div>
+</article>
+
+<article class="comp">
+  <div class="comp-head">
+    <div><div class="comp-name">7. Zoe</div><div class="comp-tag">"Personalised nutrition from your biology"</div></div>
+    <div class="comp-price">$294–$474 test kit + $9.99–$24.99/mo</div>
+  </div>
+  <div class="comp-prop">UK-led personalised-nutrition platform combining at-home microbiome + blood lipid + CGM testing into a food-score app. Tim Spector academic halo. ~4.0 Trustpilot from 13K reviews — solid but eroding fast since the 2025 AI app rebuild.</div>
+  <div class="scores">
+    <div class="score-row"><span class="label">Data / Privacy</span><span class="bar"><span class="fill s3"></span></span><span class="val">3</span></div>
+    <div class="score-row"><span class="label">AI / Personalization</span><span class="bar"><span class="fill s4"></span></span><span class="val">4</span></div>
+    <div class="score-row"><span class="label">Fitness tracking</span><span class="bar"><span class="fill s1"></span></span><span class="val">1</span></div>
+    <div class="score-row"><span class="label">Nutrition</span><span class="bar"><span class="fill s4"></span></span><span class="val">4</span></div>
+    <div class="score-row"><span class="label">Sleep</span><span class="bar"><span class="fill s1"></span></span><span class="val">1</span></div>
+    <div class="score-row"><span class="label">Community</span><span class="bar"><span class="fill s2"></span></span><span class="val">2</span></div>
+    <div class="score-row"><span class="label">UX / Retention</span><span class="bar"><span class="fill s2"></span></span><span class="val">2</span></div>
+    <div class="score-row"><span class="label">Price–value</span><span class="bar"><span class="fill s2"></span></span><span class="val">2</span></div>
+  </div>
+  <div class="sw-grid">
+    <div>
+      <h4 class="up">Top 3 Strengths</h4>
+      <ul>
+        <li>Tim Spector / King's College academic credibility is unmatched in the category.</li>
+        <li>Microbiome data is genuinely unique — no other consumer app has gut-flora-derived recommendations.</li>
+        <li>4.0/5 Trustpilot from 13K reviews is one of the highest in personalised nutrition.</li>
+      </ul>
+    </div>
+    <div>
+      <h4 class="down">Top 3 Weaknesses</h4>
+      <ul>
+        <li>2025 AI app rebuild removed the recipe-from-scratch logger and human-support fallback; chatbot widely panned.</li>
+        <li>Refund window: 14 days only, before users even receive results. Trustpilot 2024–25 trend negative on cancellation flow.</li>
+        <li>Insights converge — by month 6, food scores feel deterministic and the user has internalised them.</li>
+      </ul>
+    </div>
+  </div>
+  <div class="churn"><strong>The user that leaves Zoe leaves because</strong> they learned their three "red foods," stopped opening the app, and resented the £30/mo charge for an unused chatbot.</div>
+</article>
+
+<article class="comp">
+  <div class="comp-head">
+    <div><div class="comp-name">8. Strava</div><div class="comp-tag">"Where athletes connect"</div></div>
+    <div class="comp-price">Free · Subscription $11.99/mo or $79.99/yr · Family $139.99/yr</div>
+  </div>
+  <div class="comp-prop">Social fitness for runners and cyclists. Segment leaderboards, kudos, clubs. 90-day retention reportedly jumped from 18% to 32% after Challenges launch. But aggressive 2024–25 paywall expansion has triggered an exodus narrative.</div>
+  <div class="scores">
+    <div class="score-row"><span class="label">Data / Privacy</span><span class="bar"><span class="fill s2"></span></span><span class="val">2</span></div>
+    <div class="score-row"><span class="label">AI / Personalization</span><span class="bar"><span class="fill s2"></span></span><span class="val">2</span></div>
+    <div class="score-row"><span class="label">Fitness tracking</span><span class="bar"><span class="fill s4"></span></span><span class="val">4</span></div>
+    <div class="score-row"><span class="label">Nutrition</span><span class="bar"><span class="fill s1"></span></span><span class="val">1</span></div>
+    <div class="score-row"><span class="label">Sleep</span><span class="bar"><span class="fill s1"></span></span><span class="val">1</span></div>
+    <div class="score-row"><span class="label">Community</span><span class="bar"><span class="fill s5"></span></span><span class="val">5</span></div>
+    <div class="score-row"><span class="label">UX / Retention</span><span class="bar"><span class="fill s4"></span></span><span class="val">4</span></div>
+    <div class="score-row"><span class="label">Price–value</span><span class="bar"><span class="fill s2"></span></span><span class="val">2</span></div>
+  </div>
+  <div class="sw-grid">
+    <div>
+      <h4 class="up">Top 3 Strengths</h4>
+      <ul>
+        <li>The only health/fitness app with a genuine social graph — segments and kudos drive habitual returns.</li>
+        <li>Year in Sport, Local Legends — gamification primitives competitors openly copy.</li>
+        <li>Retention engineering case study: Challenges moved 90-day retention from 18% → 32%.</li>
+      </ul>
+    </div>
+    <div>
+      <h4 class="down">Top 3 Weaknesses</h4>
+      <ul>
+        <li>Paywall creep 2024–25: Group Challenges, Year in Sport, heart-rate zones, training load — all moved behind sub. Reddit revolt ongoing.</li>
+        <li>Silent price increases (reports of 50%+ on renewal) and Trustpilot billing complaints around accidental annual signups.</li>
+        <li>Zero gym/strength layer — useless for the 50% of US gym-goers McKinsey identifies as fitness-identity consumers.</li>
+      </ul>
+    </div>
+  </div>
+  <div class="churn"><strong>The user that leaves Strava leaves because</strong> they hit a paywall on a feature that was free last month, or because their training shifted from running to lifting and Strava had nothing for them.</div>
+</article>
+
+<article class="comp">
+  <div class="comp-head">
+    <div><div class="comp-name">9. Garmin Connect / Connect+</div><div class="comp-tag">"Pro athletes' default companion"</div></div>
+    <div class="comp-price">Watches $200–$1,000 · Connect+ $6.99/mo (Mar 2025)</div>
+  </div>
+  <div class="comp-prop">Companion to Garmin's hardware empire. Connect was free for 17 years; Connect+ launched March 2025 with AI insights and active intelligence tier. Community backlash on r/Garmin has been brutal — perceived as ransoming features behind a $1,000 hardware purchase.</div>
+  <div class="scores">
+    <div class="score-row"><span class="label">Data / Privacy</span><span class="bar"><span class="fill s3"></span></span><span class="val">3</span></div>
+    <div class="score-row"><span class="label">AI / Personalization</span><span class="bar"><span class="fill s3"></span></span><span class="val">3</span></div>
+    <div class="score-row"><span class="label">Fitness tracking</span><span class="bar"><span class="fill s5"></span></span><span class="val">5</span></div>
+    <div class="score-row"><span class="label">Nutrition</span><span class="bar"><span class="fill s1"></span></span><span class="val">1</span></div>
+    <div class="score-row"><span class="label">Sleep</span><span class="bar"><span class="fill s4"></span></span><span class="val">4</span></div>
+    <div class="score-row"><span class="label">Community</span><span class="bar"><span class="fill s3"></span></span><span class="val">3</span></div>
+    <div class="score-row"><span class="label">UX / Retention</span><span class="bar"><span class="fill s3"></span></span><span class="val">3</span></div>
+    <div class="score-row"><span class="label">Price–value</span><span class="bar"><span class="fill s2"></span></span><span class="val">2</span></div>
+  </div>
+  <div class="sw-grid">
+    <div>
+      <h4 class="up">Top 3 Strengths</h4>
+      <ul>
+        <li>Best-in-class hardware: multi-day battery, GPS accuracy, marathon-grade training metrics.</li>
+        <li>Training Status, VO2max, Race Predictor — endurance-athlete telemetry no app-only competitor matches.</li>
+        <li>Owned hardware → owned data pipeline. Doesn't depend on smartphone sensors.</li>
+      </ul>
+    </div>
+    <div>
+      <h4 class="down">Top 3 Weaknesses</h4>
+      <ul>
+        <li>Connect+ AI is "template-generated, rarely surfaces non-obvious insights" (DCRainmaker, multiple long-form reviews).</li>
+        <li>Pricing optics: customers feel double-billed after $700 hardware purchase. r/Garmin call for boycott.</li>
+        <li>No nutrition, no real strength tracking, ugly app UX — Garmin's software has never matched its hardware.</li>
+      </ul>
+    </div>
+  </div>
+  <div class="churn"><strong>The user that leaves Garmin Connect+ leaves because</strong> the AI insights felt like horoscopes and the user already paid $700 for a watch that should have included them.</div>
+</article>
+
+<article class="comp">
+  <div class="comp-head">
+    <div><div class="comp-name">10. Noom</div><div class="comp-tag">"Psychology-based weight loss"</div></div>
+    <div class="comp-price">$17.42/mo (annual) · Noom Med $279/mo + GLP-1</div>
+  </div>
+  <div class="comp-prop">CBT-coded calorie tracker that pivoted to GLP-1 dispensary in 2024. 816K App Store reviews / 4.7 stars but a "D" rating from BBB on billing practices (1,200+ complaints). Currently the canonical example of fitness-app trust collapse.</div>
+  <div class="scores">
+    <div class="score-row"><span class="label">Data / Privacy</span><span class="bar"><span class="fill s1"></span></span><span class="val">1</span></div>
+    <div class="score-row"><span class="label">AI / Personalization</span><span class="bar"><span class="fill s3"></span></span><span class="val">3</span></div>
+    <div class="score-row"><span class="label">Fitness tracking</span><span class="bar"><span class="fill s2"></span></span><span class="val">2</span></div>
+    <div class="score-row"><span class="label">Nutrition</span><span class="bar"><span class="fill s3"></span></span><span class="val">3</span></div>
+    <div class="score-row"><span class="label">Sleep</span><span class="bar"><span class="fill s1"></span></span><span class="val">1</span></div>
+    <div class="score-row"><span class="label">Community</span><span class="bar"><span class="fill s3"></span></span><span class="val">3</span></div>
+    <div class="score-row"><span class="label">UX / Retention</span><span class="bar"><span class="fill s3"></span></span><span class="val">3</span></div>
+    <div class="score-row"><span class="label">Price–value</span><span class="bar"><span class="fill s1"></span></span><span class="val">1</span></div>
+  </div>
+  <div class="sw-grid">
+    <div>
+      <h4 class="up">Top 3 Strengths</h4>
+      <ul>
+        <li>CBT-inspired daily lessons differentiate from pure-tracker competitors.</li>
+        <li>GLP-1 dispensary (Noom Med) is a real revenue engine in the McKinsey-identified weight-management trend.</li>
+        <li>Human coach + group chat retains engagement past month 1, where solo trackers collapse.</li>
+      </ul>
+    </div>
+    <div>
+      <h4 class="down">Top 3 Weaknesses</h4>
+      <ul>
+        <li>BBB "D" rating, 1,200+ unresolved billing complaints. Free trial → $120+ silent charges is the dominant pattern.</li>
+        <li>Unauthorized billing reports continue after explicit cancellation — class-action exposure.</li>
+        <li>Psychology curriculum is shallow ("you ate 1500 calories — proud!") and degenerates into nag prompts.</li>
+      </ul>
+    </div>
+  </div>
+  <div class="churn"><strong>The user that leaves Noom leaves because</strong> they got charged $120 they didn't authorize, couldn't reach support, and posted about it on r/Noom — where they found 800 others.</div>
+</article>
+
+<article class="comp">
+  <div class="comp-head">
+    <div><div class="comp-name">11. Lifesum</div><div class="comp-tag">"Scandinavian-design food tracker"</div></div>
+    <div class="comp-price">Free · Premium $7.49–$14.99/mo or $99.99/yr</div>
+  </div>
+  <div class="comp-prop">Stockholm-based meal tracker with curated diet plans (keto, Mediterranean, etc). Pivoted in February 2025 to AI-first multimodal logging — and the rollout caused a Trustpilot collapse on accuracy and lost data complaints.</div>
+  <div class="scores">
+    <div class="score-row"><span class="label">Data / Privacy</span><span class="bar"><span class="fill s3"></span></span><span class="val">3</span></div>
+    <div class="score-row"><span class="label">AI / Personalization</span><span class="bar"><span class="fill s2"></span></span><span class="val">2</span></div>
+    <div class="score-row"><span class="label">Fitness tracking</span><span class="bar"><span class="fill s2"></span></span><span class="val">2</span></div>
+    <div class="score-row"><span class="label">Nutrition</span><span class="bar"><span class="fill s3"></span></span><span class="val">3</span></div>
+    <div class="score-row"><span class="label">Sleep</span><span class="bar"><span class="fill s1"></span></span><span class="val">1</span></div>
+    <div class="score-row"><span class="label">Community</span><span class="bar"><span class="fill s1"></span></span><span class="val">1</span></div>
+    <div class="score-row"><span class="label">UX / Retention</span><span class="bar"><span class="fill s3"></span></span><span class="val">3</span></div>
+    <div class="score-row"><span class="label">Price–value</span><span class="bar"><span class="fill s2"></span></span><span class="val">2</span></div>
+  </div>
+  <div class="sw-grid">
+    <div>
+      <h4 class="up">Top 3 Strengths</h4>
+      <ul>
+        <li>Visual design is arguably the best in the nutrition category — onboarding completion advantage.</li>
+        <li>Diet-plan templating (16:8, keto, vegan) wraps tracking in a narrative.</li>
+        <li>EU-based: GDPR-native, which matters for the European market HealthStack also targets.</li>
+      </ul>
+    </div>
+    <div>
+      <h4 class="down">Top 3 Weaknesses</h4>
+      <ul>
+        <li>Feb 2025 AI rollout: barcode scans 2–3× actual calories, photo logging mistakes (cashews→shrimp), users logged out mid-week losing streaks.</li>
+        <li>Trustpilot pivot: in-app "cancel" leads to "pause" — auto-renewal PayPal continues post-cancellation.</li>
+        <li>Workout layer is symbolic, no community, no AI coach worth the name.</li>
+      </ul>
+    </div>
+  </div>
+  <div class="churn"><strong>The user that leaves Lifesum leaves because</strong> the new AI logged their lunch as a different food three days running, then the app logged them out and erased the streak.</div>
+</article>
+
+<article class="comp">
+  <div class="comp-head">
+    <div><div class="comp-name">12. Headspace / Calm</div><div class="comp-tag">"Mindfulness, on subscription"</div></div>
+    <div class="comp-price">$69.99/yr (Headspace) · $69.99/yr (Calm)</div>
+  </div>
+  <div class="comp-prop">The category-defining meditation duopoly. Both saw declining 2025 subscribers (Calm -500K to 3.5M; Headspace -300K to 2M). Both pivoted to B2B and clinical (CBT-I, anxiety modules) to offset consumer churn — Headspace enterprise ARR ~$120M.</div>
+  <div class="scores">
+    <div class="score-row"><span class="label">Data / Privacy</span><span class="bar"><span class="fill s3"></span></span><span class="val">3</span></div>
+    <div class="score-row"><span class="label">AI / Personalization</span><span class="bar"><span class="fill s3"></span></span><span class="val">3</span></div>
+    <div class="score-row"><span class="label">Fitness tracking</span><span class="bar"><span class="fill s1"></span></span><span class="val">1</span></div>
+    <div class="score-row"><span class="label">Nutrition</span><span class="bar"><span class="fill s1"></span></span><span class="val">1</span></div>
+    <div class="score-row"><span class="label">Sleep</span><span class="bar"><span class="fill s4"></span></span><span class="val">4</span></div>
+    <div class="score-row"><span class="label">Community</span><span class="bar"><span class="fill s2"></span></span><span class="val">2</span></div>
+    <div class="score-row"><span class="label">UX / Retention</span><span class="bar"><span class="fill s3"></span></span><span class="val">3</span></div>
+    <div class="score-row"><span class="label">Price–value</span><span class="bar"><span class="fill s3"></span></span><span class="val">3</span></div>
+  </div>
+  <div class="sw-grid">
+    <div>
+      <h4 class="up">Top 3 Strengths</h4>
+      <ul>
+        <li>Content library moat: 1,000+ hours of audio content competitors cannot quickly clone.</li>
+        <li>B2B pivot validated as the consumer-mindfulness escape route (Headspace 4K enterprise clients).</li>
+        <li>Clinical-grade CBT-I and anxiety modules give regulatory tailwind in payer integrations.</li>
+      </ul>
+    </div>
+    <div>
+      <h4 class="down">Top 3 Weaknesses</h4>
+      <ul>
+        <li>Both apps under 8.5% Day-30 retention — fitness category median is 27%; meditation has structural attention-decay.</li>
+        <li>"Single-purpose app" liability — users churn to Apple Mindfulness or YouTube as soon as they have the habit.</li>
+        <li>Calm revenue -24% YoY in 2025; consumer subscriber base actively shrinking.</li>
+      </ul>
+    </div>
+  </div>
+  <div class="churn"><strong>The user that leaves Calm/Headspace leaves because</strong> they finished the "Basics" course, can't justify $70/yr for content they no longer open, and meditate on YouTube for free.</div>
+</article>
+
+<h2>Master Comparison Heatmap</h2>
+<p style="font-size:13px;color:#9090a8;">Color-coded matrix of all 12 apps across 8 dimensions. <strong style="color:#93c5fd;">Blue = best-in-class</strong> · <strong style="color:#6ee7b7;">Green = strong</strong> · <strong style="color:#fef08a;">Yellow = average</strong> · <strong style="color:#fcd34d;">Amber = weak</strong> · <strong style="color:#fca5a5;">Red = critical gap</strong>. HealthStack Pro is the last row.</p>
+
+<div style="overflow-x:auto;">
+<table class="heatmap">
+  <thead>
+    <tr>
+      <th>App</th>
+      <th>Privacy</th>
+      <th>AI</th>
+      <th>Fitness</th>
+      <th>Nutrition</th>
+      <th>Sleep</th>
+      <th>Community</th>
+      <th>UX</th>
+      <th>Value</th>
+      <th>Σ</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr><td>Apple Health</td><td class="h5c">5</td><td class="h3c">3</td><td class="h4c">4</td><td class="h1c">1</td><td class="h4c">4</td><td class="h2c">2</td><td class="h5c">5</td><td class="h4c">4</td><td class="total">28</td></tr>
+    <tr><td>Whoop</td><td class="h3c">3</td><td class="h4c">4</td><td class="h4c">4</td><td class="h1c">1</td><td class="h5c">5</td><td class="h2c">2</td><td class="h3c">3</td><td class="h1c">1</td><td class="total">23</td></tr>
+    <tr><td>Oura</td><td class="h2c">2</td><td class="h4c">4</td><td class="h2c">2</td><td class="h1c">1</td><td class="h5c">5</td><td class="h1c">1</td><td class="h4c">4</td><td class="h2c">2</td><td class="total">21</td></tr>
+    <tr><td>MyFitnessPal</td><td class="h2c">2</td><td class="h3c">3</td><td class="h2c">2</td><td class="h5c">5</td><td class="h1c">1</td><td class="h3c">3</td><td class="h2c">2</td><td class="h2c">2</td><td class="total">20</td></tr>
+    <tr><td>Cronometer</td><td class="h3c">3</td><td class="h2c">2</td><td class="h2c">2</td><td class="h5c">5</td><td class="h1c">1</td><td class="h1c">1</td><td class="h3c">3</td><td class="h5c">5</td><td class="total">22</td></tr>
+    <tr><td>Levels</td><td class="h3c">3</td><td class="h4c">4</td><td class="h1c">1</td><td class="h4c">4</td><td class="h2c">2</td><td class="h1c">1</td><td class="h2c">2</td><td class="h1c">1</td><td class="total">18</td></tr>
+    <tr><td>Zoe</td><td class="h3c">3</td><td class="h4c">4</td><td class="h1c">1</td><td class="h4c">4</td><td class="h1c">1</td><td class="h2c">2</td><td class="h2c">2</td><td class="h2c">2</td><td class="total">19</td></tr>
+    <tr><td>Strava</td><td class="h2c">2</td><td class="h2c">2</td><td class="h4c">4</td><td class="h1c">1</td><td class="h1c">1</td><td class="h5c">5</td><td class="h4c">4</td><td class="h2c">2</td><td class="total">21</td></tr>
+    <tr><td>Garmin Connect+</td><td class="h3c">3</td><td class="h3c">3</td><td class="h5c">5</td><td class="h1c">1</td><td class="h4c">4</td><td class="h3c">3</td><td class="h3c">3</td><td class="h2c">2</td><td class="total">24</td></tr>
+    <tr><td>Noom</td><td class="h1c">1</td><td class="h3c">3</td><td class="h2c">2</td><td class="h3c">3</td><td class="h1c">1</td><td class="h3c">3</td><td class="h3c">3</td><td class="h1c">1</td><td class="total">17</td></tr>
+    <tr><td>Lifesum</td><td class="h3c">3</td><td class="h2c">2</td><td class="h2c">2</td><td class="h3c">3</td><td class="h1c">1</td><td class="h1c">1</td><td class="h3c">3</td><td class="h2c">2</td><td class="total">17</td></tr>
+    <tr><td>Headspace/Calm</td><td class="h3c">3</td><td class="h3c">3</td><td class="h1c">1</td><td class="h1c">1</td><td class="h4c">4</td><td class="h2c">2</td><td class="h3c">3</td><td class="h3c">3</td><td class="total">20</td></tr>
+    <tr style="background:#102a3a;"><td style="color:#93c5fd;font-weight:700;">HealthStack Pro</td><td class="h5c">5</td><td class="h4c">4</td><td class="h4c">4</td><td class="h4c">4</td><td class="h3c">3</td><td class="h4c">4</td><td class="h3c">3</td><td class="h5c">5</td><td class="total" style="color:#93c5fd;">32</td></tr>
+  </tbody>
+</table>
+</div>
+<p style="margin-top:10px;font-size:12px;color:#6b7280;"><em>HealthStack Pro composite of 32/40 is highest in the cohort, driven by full free-tier delivery (Value 5/5), real GDPR architecture (Privacy 5/5), and breadth coverage where verticals collapse competitors (Nutrition 4 + Fitness 4 + Community 4). Sleep at 3/5 is the largest delta vs. category leaders.</em></p>
+
+<h2>Validated Macro Trends</h2>
+
+<div class="trend">
+  <div class="trend-tag">Trend 01 · Source: McKinsey Future of Wellness 2024</div>
+  <h3>Consumers want clinical effectiveness over "natural"</h3>
+  <p>Roughly 50% of US and UK consumers cite clinical effectiveness as a top purchase factor for wellness — only ~20% cite natural/clean ingredients. <strong>Implication for HealthStack:</strong> double down on AES-256-GCM messaging and biometric narrative quality. "Science-backed" beats "holistic" in 2026.</p>
+</div>
+
+<div class="trend">
+  <div class="trend-tag">Trend 02 · Source: Rock Health 10th Consumer Adoption Survey (Nov 2024, n=8,000)</div>
+  <h3>53% of US adults own a wearable, but data silos remain unsolved</h3>
+  <p>Over half of consumers track at least one health metric digitally, but no aggregation layer exists for non-Apple users. <strong>Implication:</strong> integrations module (Apple Health, Google Fit, Whoop, Oura) is the highest-leverage backlog item — opens the entire Android wearable base.</p>
+</div>
+
+<div class="trend">
+  <div class="trend-tag">Trend 03 · Source: McKinsey + Business of Apps 2026</div>
+  <h3>Sleep is the second-highest priority — and the most unmet</h3>
+  <p>Consumers cite sleep more frequently than any other vertical except weight management. Whoop and Oura own this perception. <strong>Implication:</strong> add a passive sleep ingestion layer (Apple Health/Health Connect) and a sleep score before any other premium feature.</p>
+</div>
+
+<div class="trend">
+  <div class="trend-tag">Trend 04 · Source: Business of Apps Health & Fitness Benchmarks 2026</div>
+  <h3>Median 30-day retention is 27%; top decile is 47.5%</h3>
+  <p>Most fitness apps lose 90% of installs in 30 days. Strava improved from 18%→32% at 90 days via Challenges. <strong>Implication:</strong> gamification (XP, LP, ranked tiers, gym_servers) is not nice-to-have — it is the dominant retention lever in the category and HealthStack already ships it.</p>
+</div>
+
+<div class="trend">
+  <div class="trend-tag">Trend 05 · Source: Statista 2026 + Calm/Headspace public filings</div>
+  <h3>Single-purpose consumer health apps are in revenue contraction</h3>
+  <p>Calm -24% revenue YoY, Headspace consumer subscribers -13%. The exit pattern is B2B: Headspace $120M enterprise ARR. <strong>Implication:</strong> position gym_servers module as the B2B wedge (gym chains, corporate wellness) — this is the validated escape route from consumer churn.</p>
+</div>
+
+<div class="trend">
+  <div class="trend-tag">Trend 06 · Source: McKinsey 2024 + Trustpilot trend data</div>
+  <h3>Trust is collapsing at the top of the category</h3>
+  <p>Oura class-action (CA ARL), Noom BBB "D" rating, Whoop 5.0 backlash, Lifesum AI accuracy collapse, Strava silent price hikes. <strong>Implication:</strong> "free-tier-forever, GDPR-real, no dark patterns" is a defensible counter-positioning — and is HealthStack's de facto stance today.</p>
+</div>
+
+<h2>What HealthStack Pro Does Better — and the Gaps That Remain</h2>
+
+<div class="adv">
+  <div class="adv-head">
+    <div class="adv-title">A1 · Real GDPR Architecture, Not Marketing Copy</div>
+    <div class="adv-gap">Gap vs. best: leader</div>
+  </div>
+  <div class="adv-body">
+    <strong>HealthStack:</strong> AES-256-GCM at rest on health notes, user_id → pseudonymized health_subject_id (AEPD-compliant), JWT RS256, Argon2 for passwords, Sentry PII filter. <strong>Closest competitor:</strong> Apple Health (on-device + e2e). <strong>Gap:</strong> Apple cannot serve Android, while HealthStack can. Every other player either ships data unencrypted at rest (Noom, Lifesum) or has active litigation (Oura). <em>This is a defensible competitive moat in the EU and a sales narrative even in the US.</em>
+  </div>
+</div>
+
+<div class="adv">
+  <div class="adv-head">
+    <div class="adv-title">A2 · True Free Tier, Eight Verticals</div>
+    <div class="adv-gap">Gap vs. best: leader</div>
+  </div>
+  <div class="adv-body">
+    <strong>HealthStack:</strong> nutrition + workout + AI coach + AI insights + chat + community + gamification + ranked, all free. <strong>Closest competitor:</strong> Cronometer (free + $35/yr). <strong>Gap:</strong> Cronometer covers 1 vertical. A user replicating HealthStack today would pay $35 (Cronometer) + $80 (Strava) + $239 (Whoop) + $70 (Oura sub) + $99 (Lifesum/Noom) ≈ <strong class="mono">$520+/yr</strong>. <em>HealthStack's free tier is the strongest acquisition wedge in the cohort.</em>
+  </div>
+</div>
+
+<div class="adv">
+  <div class="adv-head">
+    <div class="adv-title">A3 · Integrated AI Coach + Insights with Context Injection</div>
+    <div class="adv-gap">Gap vs. best: parity</div>
+  </div>
+  <div class="adv-body">
+    <strong>HealthStack:</strong> Groq llama-3.3-70b context-aware coach + biometric narrative generation + injury risk scoring, 27 tested chat scenarios, AI Insights DB cache (6h/24h TTL). <strong>Closest competitor:</strong> Whoop (recovery coach), Oura (member advisor). <strong>Gap:</strong> Whoop/Oura are mono-vertical; HealthStack synthesizes nutrition + training + community context into a single prompt. <em>The cross-vertical narrative is genuinely novel — no competitor sees the whole user.</em>
+  </div>
+</div>
+
+<div class="adv">
+  <div class="adv-head">
+    <div class="adv-title">A4 · Gym Servers — Community by Locality, Not Algorithm</div>
+    <div class="adv-gap">Gap vs. best: novel</div>
+  </div>
+  <div class="adv-body">
+    <strong>HealthStack:</strong> gym_servers module — virtual communities per physical gym, with challenges and shared leaderboards. <strong>Closest competitor:</strong> Strava Clubs. <strong>Gap:</strong> Strava clubs are interest-based, not gym-based. McKinsey: 50% of US gym-goers consider fitness "core to identity." <em>Owning the "people who lift at YOUR gym" graph is unclaimed white space — and a direct path to B2B gym partnership revenue.</em>
+  </div>
+</div>
+
+<div class="adv">
+  <div class="adv-head">
+    <div class="adv-title">A5 · Ranked / LP / Tiers — Game Loop on Health Behavior</div>
+    <div class="adv-gap">Gap vs. best: parity (with bugs)</div>
+  </div>
+  <div class="adv-body">
+    <strong>HealthStack:</strong> XP, levels, LP, tiered ranked seasons. <strong>Closest competitor:</strong> Strava Local Legends + Challenges. <strong>Gap:</strong> Strava monetized this to a 32% Day-90 retention. <em>HealthStack ships the mechanic but the ranked module has known issues: season=1 hardcoded, city/national/global leaderboards return empty, streak_days hardcoded 0 in workouts. Fixing these unlocks the validated retention lever immediately.</em>
+  </div>
+</div>
+
+<div class="adv">
+  <div class="adv-head">
+    <div class="adv-title">Where HealthStack Is Behind</div>
+    <div class="adv-gap">Gap vs. best: meaningful</div>
+  </div>
+  <div class="adv-body">
+    <strong>Sleep (3/5):</strong> no passive ingestion, no sleep score, no recovery composite. Whoop and Oura own this. <strong>Wearable integrations (WIP):</strong> 0 tests on integrations module; OAuth wiring complete but no platform shipped end-to-end. <strong>RGPD on AI:</strong> ai_insights ships raw biometrics to Groq — known P0 issue. <strong>Restaurant nutrition:</strong> no UGC database; users coming from MyFitnessPal will feel the gap immediately on dining-out logging.
+  </div>
+</div>
+
+<h3 style="margin-top:32px;">Prioritized Action Plan — 7 Concrete Moves</h3>
+<p style="font-size:13px;color:#9090a8;margin-bottom:18px;">Ordered by <strong>impact × inverse-effort</strong>. Items 1–3 are unlock-the-existing-product; 4–5 are competitive-parity; 6–7 are durable-moat.</p>
+
+<div class="action">
+  <div class="action-n">01</div>
+  <div class="action-text"><strong>Fix the ranked module bugs and ship real leaderboards</strong><span>Unhardcode season, wire city/national/global queries, fix streak_days=0 in workout_sessions, surface display_name not UUID fragments. Strava's case is the proof: this single mechanic moved D90 retention from 18% → 32%.</span></div>
+  <div class="action-pri pri-hi">IMPACT: HI<br>EFFORT: LO</div>
+</div>
+
+<div class="action">
+  <div class="action-n">02</div>
+  <div class="action-text"><strong>Anonymize biometrics before they hit Groq (RGPD P0)</strong><span>Currently ai_insights sends raw weight, date, body comp to a free-tier LLM provider. Add an anonymization layer in ai_insights/service.py before any AIRouter call. This is the only thing standing between HealthStack and a defensible GDPR sales pitch in the EU.</span></div>
+  <div class="action-pri pri-hi">IMPACT: HI<br>EFFORT: LO</div>
+</div>
+
+<div class="action">
+  <div class="action-n">03</div>
+  <div class="action-text"><strong>Ship Apple Health / Health Connect passive sleep ingestion</strong><span>Sleep is McKinsey's #2 consumer priority and HealthStack's weakest score (3/5). A read-only import from Apple Health and Android Health Connect plus a simple Sleep Score composite would lift the dimension to 4/5 without building a wearable.</span></div>
+  <div class="action-pri pri-hi">IMPACT: HI<br>EFFORT: MD</div>
+</div>
+
+<div class="action">
+  <div class="action-n">04</div>
+  <div class="action-text"><strong>Test coverage for integrations module + ship one OAuth platform end-to-end</strong><span>0 tests is the second-highest risk in the codebase. Pick Strava (largest cardio user base and they hate the paywall right now) — ship import, build a "leaving Strava? bring your data" landing page, write the acquisition migration narrative.</span></div>
+  <div class="action-pri pri-md">IMPACT: HI<br>EFFORT: MD</div>
+</div>
+
+<div class="action">
+  <div class="action-n">05</div>
+  <div class="action-text"><strong>Productize gym_servers as a B2B offering</strong><span>Calm/Headspace blueprint: enterprise revenue stabilizes consumer churn. Build a gym-owner dashboard, ship a "co-branded community for your gym" SKU at €99/mo per gym. McKinsey Trend 04 + Rock Health adoption data say there are 30K+ independent gyms in the EU alone.</span></div>
+  <div class="action-pri pri-md">IMPACT: HI<br>EFFORT: HI</div>
+</div>
+
+<div class="action">
+  <div class="action-n">06</div>
+  <div class="action-text"><strong>Build a verified-restaurant nutrition layer (not UGC)</strong><span>MFP's weakness is UGC poisoning. Cronometer's weakness is restaurant thinness. Partner with Edamam or Spoonacular for a verified-only restaurant DB, position as "no random user-entered numbers" — directly addresses the MyFitnessPal refugee.</span></div>
+  <div class="action-pri pri-md">IMPACT: MD<br>EFFORT: MD</div>
+</div>
+
+<div class="action">
+  <div class="action-n">07</div>
+  <div class="action-text"><strong>Publish a public trust page: encryption, MASTER_KEY rotation, no dark patterns pledge</strong><span>While Oura is sued, Noom rated D, Whoop trapped users in 12-month contracts, and Lifesum can't cancel — HealthStack should make its absence of these practices a public, visual, repeatable marketing asset. Free-tier-for-everything + zero-dark-patterns is a positioning Sequoia would underwrite.</span></div>
+  <div class="action-pri pri-lo">IMPACT: MD<br>EFFORT: LO</div>
+</div>
+
+<footer>
+  <h4>Sources</h4>
+  <ul>
+    <li>McKinsey — Future of Wellness 2024 (n=5,000 US/UK/CN)</li>
+    <li>Rock Health — 10th Consumer Adoption Survey, Nov 2024 (n=8,000)</li>
+    <li>Business of Apps — Health & Fitness Benchmarks 2026</li>
+    <li>Business of Apps — Calm & Headspace Statistics 2026</li>
+    <li>Trustpilot — Whoop (n=191), Oura, MyFitnessPal, Zoe (n=13K), Strava, Noom (n=63.5K), Lifesum</li>
+    <li>BBB — Whoop, Oura, Noom (D rating, 1,200+ complaints)</li>
+    <li>DCRainmaker — Garmin Connect+ Hands-on (Mar 2025)</li>
+    <li>TechRadar — Garmin Connect+ backlash live blog; Oura Ring 4 review</li>
+    <li>Android Authority — Garmin Connect+ subscription analysis</li>
+    <li>TopClassActions — Oura California ARL class action filing</li>
+    <li>Customer Contact Week Digital — Whoop 5.0 launch backlash</li>
+    <li>PriceTimeline, TrackerVS — Whoop pricing history 2023–2026</li>
+    <li>Apptopia, Plotline, Sendbird — mobile retention benchmarks 2024–2026</li>
+    <li>Statista — Highest-grossing health & meditation apps 2025</li>
+    <li>HealthStack Pro — internal: CLAUDE.md, ARCHITECTURE.md, audit notes 2026-05-17</li>
+  </ul>
+  <p style="margin-top:24px;color:#6b7280;">Prepared 17 May 2026 · v1.0 · Distribution: founders, board observers only · Not for external distribution.</p>
+</footer>
+
+</div>
+</body>
+</html>

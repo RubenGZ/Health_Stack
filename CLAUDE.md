@@ -205,7 +205,13 @@ asyncio_default_test_loop_scope = session   ← sin esto asyncpg explota
 
 **El backend corre en una Raspberry Pi**, no en local. NUNCA pedir al usuario que ejecute migraciones, tests o comandos de servidor en su máquina Windows local.
 
-**Comandos siempre en el Pi** (vía SSH o docker exec):
+### 🚀 DEPLOY — SIEMPRE USAR ESTE COMANDO (nunca docker compose up suelto)
+
+```bash
+bash ~/healthstack-pi-server/scripts/update.sh
+```
+
+**Comandos puntuales en el Pi** (vía SSH o docker exec):
 ```bash
 # Migración
 docker exec healthstack_backend alembic upgrade head
@@ -213,8 +219,8 @@ docker exec healthstack_backend alembic upgrade head
 # Tests
 docker exec healthstack_backend python -m pytest -v --tb=short
 
-# Actualizar código
-git pull && docker compose up -d --build
+# Crear/elevar admin
+docker exec healthstack_backend python -m scripts.create_admin
 ```
 
 **Máquina local de Ruben (Windows)** = solo para editar código con Claude Code. No tiene PostgreSQL ni venv funcional para el proyecto.

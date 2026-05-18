@@ -33,6 +33,10 @@ async function _doInit(container) {
     await _viewer.init(container);
     _initialized = true;
 
+    // Cargar sexo biológico del perfil (endpoint /api/v1/auth/me)
+    // Permite personalizar el modelo anatómico sin preguntar al usuario
+    _fetchAndSetSex().catch(() => {/* silencioso si no hay token */});
+
     if (_pendingHighlight) {
       const { id, muscles } = _pendingHighlight;
       _pendingHighlight = null;
@@ -43,6 +47,33 @@ async function _doInit(container) {
     _initialized = false;
     throw err;
   }
+}
+
+async function _fetchAndSetSex() {
+  // Usar la API global si existe (retrocompatible con auth.js / api.js)
+  const token = (typeof API !== 'undefined' && API.getToken?.())
+    || localStorage.getItem('hs_access_token')
+    || localStorage.getItem('access_token');
+  if (!token) return;
+
+  // Primero intentar leer del cache local (reduce llamadas API)
+  const cached = localStorage.getItem('al_sex');
+  if (cached === 'male' || cached === 'female') {
+    _viewer?.setSex(cached);
+    return;
+  }
+
+  try {
+    const BASE = (typeof CONFIG !== 'undefined' && CONFIG.API_BASE) || '/api/v1';
+    const res  = await fetch(`${BASE}/auth/me`, {
+      headers: { Authorization: `Bearer ${token}` },
+    });
+    if (!res.ok) return;
+    const user = await res.json();
+    if (user.biological_sex === 'male' || user.biological_sex === 'female') {
+      _viewer?.setSex(user.biological_sex);
+    }
+  } catch (_) { /* sin conectividad o sin onboarding completado */ }
 }
 
 async function highlight(exerciseId, dbMuscles = []) {

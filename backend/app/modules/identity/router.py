@@ -48,6 +48,8 @@ from app.modules.identity.schemas import (
     ForgotPasswordResponse,
     LoginRequest,
     LoginResponse,
+    OnboardingRequest,
+    OnboardingResponse,
     RefreshRequest,
     RegisterRequest,
     RegisterResponse,
@@ -152,6 +154,43 @@ async def me(
         # Caso extremo: el token es válido pero el usuario fue eliminado
         raise UserNotFoundError("El usuario asociado al token no existe.")
     return UserPublicResponse.model_validate(user)
+
+
+# ── POST /onboarding ─────────────────────────────────────────────────────────
+
+@router.post(
+    "/onboarding",
+    response_model=OnboardingResponse,
+    status_code=status.HTTP_200_OK,
+    summary="Completar perfil de onboarding",
+    description=(
+        "Guarda el perfil biométrico inicial del usuario (sexo biológico, fecha de "
+        "nacimiento, peso, altura, nivel de actividad, objetivo). "
+        "También siembra un registro baseline en health.health_records (datos seudonimizados). "
+        "Solo puede llamarse una vez — si onboarding_completed ya es True, el endpoint "
+        "actualiza igualmente el perfil (idempotente). "
+        "Requiere Bearer token."
+    ),
+)
+async def complete_onboarding(
+    body: OnboardingRequest,
+    current_user: CurrentUser,
+    db: DBSession,
+    crypto: CryptoService = Depends(get_crypto_service),
+) -> OnboardingResponse:
+    """
+    Flujo de onboarding:
+    1. Actualiza biological_sex, birth_date, weight, height, activity_level,
+       primary_fitness_goal y onboarding_completed = True en public.users
+    2. Resuelve el health_subject_id del usuario via CryptoService
+    3. Inserta un HealthRecord baseline en health.health_records
+    """
+    return await IdentityService.complete_onboarding(
+        db=db,
+        user_id=str(current_user["user_id"]),
+        request=body,
+        crypto=crypto,
+    )
 
 
 # ── POST /refresh ─────────────────────────────────────────────────────────────

@@ -1,0 +1,631 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<title>Informe de Estrategia de Monetización — HealthStack Pro</title>
+<style>
+  :root {
+    --bg: #0a0a0f;
+    --card: #141420;
+    --card-2: #1a1a28;
+    --border: #24243a;
+    --text: #e8e8f0;
+    --muted: #8a8aa0;
+    --blue: #3b82f6;
+    --green: #10b981;
+    --amber: #f59e0b;
+    --red: #ef4444;
+    --mono: ui-monospace, "SF Mono", SFMono-Regular, Menlo, Consolas, "Liberation Mono", monospace;
+  }
+  * { box-sizing: border-box; }
+  html, body {
+    margin: 0;
+    padding: 0;
+    background: var(--bg);
+    color: var(--text);
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
+    font-size: 15px;
+    line-height: 1.6;
+    -webkit-font-smoothing: antialiased;
+  }
+  .wrap {
+    max-width: 960px;
+    margin: 0 auto;
+    padding: 56px 32px 96px;
+  }
+  header.doc-head {
+    border-bottom: 1px solid var(--border);
+    padding-bottom: 28px;
+    margin-bottom: 40px;
+  }
+  .eyebrow {
+    font-family: var(--mono);
+    font-size: 11px;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--muted);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 18px;
+  }
+  .confidential {
+    color: var(--red);
+    border: 1px solid var(--red);
+    padding: 3px 8px;
+    border-radius: 3px;
+    font-weight: 600;
+  }
+  h1 {
+    font-size: 34px;
+    line-height: 1.2;
+    font-weight: 700;
+    margin: 0 0 12px;
+    letter-spacing: -0.02em;
+  }
+  h1 .sub {
+    color: var(--blue);
+  }
+  .doc-meta {
+    font-family: var(--mono);
+    font-size: 12px;
+    color: var(--muted);
+  }
+  h2 {
+    font-size: 22px;
+    font-weight: 700;
+    margin: 56px 0 20px;
+    letter-spacing: -0.01em;
+    border-left: 3px solid var(--blue);
+    padding-left: 14px;
+  }
+  h3 {
+    font-size: 16px;
+    font-weight: 600;
+    color: var(--text);
+    margin: 24px 0 10px;
+  }
+  h4 {
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--muted);
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    margin: 20px 0 8px;
+  }
+  p { margin: 0 0 14px; }
+  .muted { color: var(--muted); }
+  .card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 24px 26px;
+    margin: 16px 0;
+  }
+  .card.accent-blue { border-left: 3px solid var(--blue); }
+  .card.accent-green { border-left: 3px solid var(--green); }
+  .card.accent-amber { border-left: 3px solid var(--amber); }
+  .card.accent-red { border-left: 3px solid var(--red); }
+  ul.summary {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+  }
+  ul.summary li {
+    padding: 12px 0 12px 28px;
+    position: relative;
+    border-bottom: 1px solid var(--border);
+  }
+  ul.summary li:last-child { border-bottom: none; }
+  ul.summary li:before {
+    content: "▸";
+    position: absolute;
+    left: 6px;
+    top: 12px;
+    color: var(--blue);
+    font-family: var(--mono);
+  }
+  ul.summary li strong { color: var(--text); }
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 14px 0 24px;
+    font-size: 13px;
+  }
+  th, td {
+    text-align: left;
+    padding: 10px 12px;
+    border-bottom: 1px solid var(--border);
+  }
+  th {
+    background: var(--card-2);
+    color: var(--muted);
+    font-weight: 600;
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    border-bottom: 1px solid var(--border);
+  }
+  td.num, th.num { font-family: var(--mono); text-align: right; }
+  tbody tr:hover { background: rgba(59, 130, 246, 0.04); }
+  .pill {
+    display: inline-block;
+    padding: 2px 8px;
+    font-family: var(--mono);
+    font-size: 10px;
+    border-radius: 3px;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    font-weight: 600;
+  }
+  .pill.free { background: rgba(16,185,129,0.15); color: var(--green); }
+  .pill.paid { background: rgba(245,158,11,0.15); color: var(--amber); }
+  .pill.power { background: rgba(239,68,68,0.15); color: var(--red); }
+  .pill.b2b { background: rgba(59,130,246,0.15); color: var(--blue); }
+  .grid-3 {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 16px;
+    margin: 20px 0;
+  }
+  .scen-card h3 {
+    margin-top: 0;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  .price {
+    font-family: var(--mono);
+    font-size: 28px;
+    font-weight: 700;
+    margin: 8px 0 4px;
+    letter-spacing: -0.02em;
+  }
+  .price-sub {
+    font-family: var(--mono);
+    font-size: 12px;
+    color: var(--muted);
+    margin-bottom: 14px;
+  }
+  .kv {
+    display: flex;
+    justify-content: space-between;
+    padding: 6px 0;
+    border-bottom: 1px dashed var(--border);
+    font-size: 13px;
+  }
+  .kv:last-child { border-bottom: none; }
+  .kv .v { font-family: var(--mono); color: var(--text); }
+  .kpi-row {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 12px;
+    margin: 16px 0 24px;
+  }
+  .kpi {
+    background: var(--card-2);
+    padding: 14px 16px;
+    border-radius: 6px;
+    border: 1px solid var(--border);
+  }
+  .kpi .label {
+    font-size: 10px;
+    color: var(--muted);
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    margin-bottom: 4px;
+  }
+  .kpi .value {
+    font-family: var(--mono);
+    font-size: 20px;
+    font-weight: 700;
+  }
+  .kpi .value.blue { color: var(--blue); }
+  .kpi .value.green { color: var(--green); }
+  .kpi .value.amber { color: var(--amber); }
+  .kpi .value.red { color: var(--red); }
+  .risk {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 18px;
+    padding: 14px 0;
+    border-bottom: 1px solid var(--border);
+  }
+  .risk:last-child { border-bottom: none; }
+  .risk .r-title { font-weight: 600; color: var(--red); margin-bottom: 4px; font-size: 14px; }
+  .risk .m-title { font-weight: 600; color: var(--green); margin-bottom: 4px; font-size: 14px; }
+  footer {
+    margin-top: 64px;
+    padding-top: 24px;
+    border-top: 1px solid var(--border);
+    font-size: 12px;
+    color: var(--muted);
+  }
+  footer h4 { margin-top: 0; }
+  footer ol { padding-left: 18px; line-height: 1.7; }
+  footer a { color: var(--blue); text-decoration: none; }
+  .callout {
+    background: linear-gradient(180deg, rgba(239,68,68,0.08), rgba(239,68,68,0.02));
+    border: 1px solid rgba(239,68,68,0.3);
+    border-radius: 6px;
+    padding: 18px 22px;
+    margin: 16px 0;
+  }
+  .callout strong { color: var(--red); }
+  .callout-green {
+    background: linear-gradient(180deg, rgba(16,185,129,0.08), rgba(16,185,129,0.02));
+    border: 1px solid rgba(16,185,129,0.3);
+    border-radius: 6px;
+    padding: 18px 22px;
+    margin: 16px 0;
+  }
+  .callout-green strong { color: var(--green); }
+  .feature-table td:first-child { font-weight: 600; width: 28%; }
+  @media (max-width: 720px) {
+    .grid-3 { grid-template-columns: 1fr; }
+    .kpi-row { grid-template-columns: 1fr 1fr; }
+    .risk { grid-template-columns: 1fr; }
+    h1 { font-size: 26px; }
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<header class="doc-head">
+  <div class="eyebrow">
+    <span>Informe de Estrategia de Monetización</span>
+    <span class="confidential">Confidencial</span>
+  </div>
+  <h1>HealthStack Pro <span class="sub">// Estrategia de Monetización</span></h1>
+  <div class="doc-meta">Elaborado: 2026-05-17 &nbsp;·&nbsp; Autor: Nota del Operador &nbsp;·&nbsp; Estado: Listo para decisión</div>
+</header>
+
+<section>
+  <h2>1. Resumen Ejecutivo</h2>
+  <div class="card">
+    <ul class="summary">
+      <li><strong>Estás dejando dinero sobre la mesa.</strong> El 100% de las funcionalidades de HealthStack Pro son actualmente gratuitas. Apps comparables (Strava, MyFitnessPal, Headspace) monetizan entre el 1,7% y el 5% de los MAU a $60–$80/año. Con un escenario conservador de 10k MAU, el coste de oportunidad es de ~$10–25k ARR mensual sin capturar.</li>
+      <li><strong>La IA es la palanca.</strong> El coaching generativo y las narrativas biométricas (tus módulos AI Coach + AI Insights) son el paywall más defendible en las apps de salud de 2025–2026. Sensor Tower atribuye el crecimiento de ingresos del 24,5% interanual en apps de fitness en gran medida a las funcionalidades de IA. Cobra por la IA, regala el seguimiento.</li>
+      <li><strong>Modelo recomendado: freemium híbrido + prioridad al pago anual.</strong> Tier gratuito suficientemente profundo para ganar retención (registro, entrenamientos básicos, comunidad). Premium a <strong>€7,99/mes o €59,99/año</strong> (37% de descuento anual). Conversión objetivo: 3,5–5,0% de MAU → de pago en el mes 12.</li>
+      <li><strong>Segunda palanca de ingresos: servidores de gimnasio B2B2C.</strong> Vende comunidades de gimnasio con marca propia a €49–€99/mes por gimnasio (white-label). Cinco gimnasios ancla = ~€4k MRR con CAC casi nulo. Esta es la apuesta asimétrica.</li>
+    </ul>
+  </div>
+</section>
+
+<section>
+  <h2>2. Estado Actual — El Coste de lo Gratuito</h2>
+  <div class="callout">
+    <strong>HealthStack Pro actualmente no monetiza nada.</strong> Cada módulo — registros de salud, nutrición, entrenamientos, AI coach, AI insights, servidores de gimnasio, ranked, comunidad — se encuentra en el tier gratuito sin ningún paywall ni publicidad activa en producción (los IDs de AdSense siguen siendo marcadores de posición según <code>frontend/.env.adsense</code>). El endpoint de geo-pricing existe, pero resuelve a una landing page que solo promete planes "Gratuitos" (<code>PLAN_OK[0] = all true</code>).
+  </div>
+  <p>Usando referencias del sector: una app de bienestar con 10k MAU y un modelo solo gratuito captura aproximadamente <strong>€0 en ARR de suscripciones</strong> mientras consume coste de inferencia de Groq en cada llamada a AI Coach y AI Insights. AI Insights en particular envía prompts a un nivel de LLM de pago para usuarios que contribuyen cero LTV. Con los precios de Groq para llama-3.3-70b-versatile y ~3 generaciones de insights por WAU al mes, una base de 10k MAU implica €350–€900/mes en coste bruto de inferencia sin ningún ingreso compensatorio.</p>
+  <div class="kpi-row">
+    <div class="kpi"><div class="label">Módulos en producción</div><div class="value blue">10</div></div>
+    <div class="kpi"><div class="label">Funcionalidades detrás de paywall</div><div class="value red">0</div></div>
+    <div class="kpi"><div class="label">Flujos de ingresos activos</div><div class="value red">0</div></div>
+    <div class="kpi"><div class="label">Coste inferencia / MAU / mes</div><div class="value amber">€0,04–0,09</div></div>
+  </div>
+</section>
+
+<section>
+  <h2>3. Referencias del Sector (2025)</h2>
+  <h3>Los ocho actores que importan</h3>
+  <table>
+    <thead>
+      <tr>
+        <th>Empresa</th>
+        <th>Modelo</th>
+        <th class="num">Precio (USD)</th>
+        <th class="num">ARPU / año</th>
+        <th class="num">Gratuito→Pago</th>
+        <th class="num">Ingresos anuales</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr><td>Whoop</td><td>Suscripción incluida con hardware</td><td class="num">$199–$359/año</td><td class="num">~$280</td><td class="num">n/a (solo pago)</td><td class="num">$1.100M (2025)</td></tr>
+      <tr><td>Oura</td><td>Hardware + $5,99/mes</td><td class="num">$71,88/año</td><td class="num">~$72 (solo sub)</td><td class="num">~80% dispositivo→sub</td><td class="num">~$1.000M (2025E)</td></tr>
+      <tr><td>MyFitnessPal</td><td>Freemium por niveles</td><td class="num">$19,99/mes · $79,99/año</td><td class="num">~$80</td><td class="num">~3–4%</td><td class="num">~$300M</td></tr>
+      <tr><td>Strava</td><td>Freemium</td><td class="num">$11,99/mes · $79,99/año</td><td class="num">~$80 (premium) · $23–33 combinado</td><td class="num">1,7%</td><td class="num">$275M (2024)</td></tr>
+      <tr><td>Headspace</td><td>Freemium + de por vida</td><td class="num">$12,99/mes · $69,99/año</td><td class="num">~$70</td><td class="num">~3–5%</td><td class="num">~$220M</td></tr>
+      <tr><td>Calm</td><td>Freemium + de por vida</td><td class="num">$69,99/año · $299 de por vida</td><td class="num">~$70</td><td class="num">~4%</td><td class="num">~$300M</td></tr>
+      <tr><td>Noom</td><td>Solo pago, precio por cohorte</td><td class="num">$17–$70/mes</td><td class="num">~$200 (retención corta)</td><td class="num">n/a (solo pago)</td><td class="num">~$400M</td></tr>
+      <tr><td>Levels</td><td>Premium + hardware</td><td class="num">$199/año + $199/mes CGM</td><td class="num">~$2.500</td><td class="num">n/a (solo pago)</td><td class="num">~$80M (est.)</td></tr>
+    </tbody>
+  </table>
+
+  <h3>Referencias de conversión gratuito→pago (RevenueCat / Sensor Tower 2025)</h3>
+  <table>
+    <thead>
+      <tr><th>Cohorte</th><th class="num">Prueba→pago (mediana)</th><th class="num">Top 10%</th><th>Notas</th></tr>
+    </thead>
+    <tbody>
+      <tr><td>Salud y Fitness — todos</td><td class="num">39,9%</td><td class="num">68,3%</td><td>De los que inician prueba, no del total MAU</td></tr>
+      <tr><td>iOS vs Android</td><td class="num">~2× iOS</td><td class="num">—</td><td>La mezcla de canales importa</td></tr>
+      <tr><td>Pruebas de 17–32 días</td><td class="num">45,7%</td><td class="num">—</td><td>Las pruebas más largas convierten mejor</td></tr>
+      <tr><td>Pruebas de ≤4 días</td><td class="num">26,8%</td><td class="num">—</td><td>No usar pruebas cortas</td></tr>
+      <tr><td>MAU freemium→pago (combinado)</td><td class="num">2–5%</td><td class="num">8–10%</td><td>Strava 1,7%; MyFitnessPal ~3,5%</td></tr>
+    </tbody>
+  </table>
+
+  <h3>Verificación de la realidad de retención</h3>
+  <table>
+    <thead>
+      <tr><th>Ventana</th><th class="num">Mediana Salud y Fitness</th><th class="num">Cuartil superior</th></tr>
+    </thead>
+    <tbody>
+      <tr><td>Día 1</td><td class="num">20–27%</td><td class="num">35%</td></tr>
+      <tr><td>Día 7</td><td class="num">~7%</td><td class="num">15%</td></tr>
+      <tr><td>Día 30</td><td class="num">3–4%</td><td class="num">8–10%</td></tr>
+      <tr><td>Día 90</td><td class="num">~31% (subconjunto aún activo)</td><td class="num">40%+</td></tr>
+      <tr><td>Día 365</td><td class="num">~20% (salud)</td><td class="num">30%+</td></tr>
+    </tbody>
+  </table>
+
+  <h3>Qué está ganando en 2025</h3>
+  <ul>
+    <li><strong>Niveles premium con IA como prioridad.</strong> Sensor Tower: los ingresos de Salud y Fitness crecen un +24,5% interanual atribuido en gran medida a funcionalidades de IA detrás del paywall. a16z lo llama "La Gran Expansión" — retención de ingresos >100% mediante híbridos de uso + suscripción.</li>
+    <li><strong>Precios con prioridad anual y descuento elevado.</strong> Headspace cobra 5,39× el precio mensual por el anual; Calm y Noom fijan el precio anual entre 3 y 5 veces el mensual para asegurar caja y reducir la exposición al churn.</li>
+    <li><strong>Suscripciones incluidas con hardware.</strong> Whoop y Oura — pero con alto coste de capital. No es tu camino.</li>
+    <li><strong>SKUs de acceso "de por vida" con fuga controlada.</strong> Headspace $399, Calm $299. Genera el 10–15% de los ingresos de usuarios avanzados; producto de cola útil.</li>
+    <li><strong>Planes familiares.</strong> Strava lo lanzó a $139,99/año en julio de 2024. Aumenta el LTV por hogar captado en más del 60%.</li>
+  </ul>
+</section>
+
+<section>
+  <h2>4. Clasificación de Funcionalidades — Gratuito vs Pago</h2>
+  <p>El principio: <em>el tier gratuito debe ser suficientemente adictivo para impulsar la retención en el Día 30 y el boca a boca; el pago debe apuntar a los momentos de mayor carga cognitiva y mayor valor percibido</em> — narrativas de IA, análisis longitudinal y coaching.</p>
+
+  <table class="feature-table">
+    <thead>
+      <tr><th>Funcionalidad (módulo)</th><th>Nivel</th><th>Justificación</th></tr>
+    </thead>
+    <tbody>
+      <tr><td>Registros de salud (cifrados) — <code>health</code></td><td><span class="pill free">Gratuito</span></td><td>Moat de confianza y RGPD. Poner un paywall en registros cifrados sería percibido como hostil y arruinaría el onboarding.</td></tr>
+      <tr><td>Registro de sesiones de entrenamiento — <code>workout_sessions</code></td><td><span class="pill free">Gratuito</span></td><td>Bucle central de retención. Strava y MyFitnessPal mantienen el registro básico gratuito; es el gancho del hábito diario.</td></tr>
+      <tr><td>Rutinas (básicas, ≤3 activas) — <code>routines</code></td><td><span class="pill free">Gratuito</span></td><td>Gratis para probar programas. El límite de 3 rutinas activas impulsa la mejora de plan.</td></tr>
+      <tr><td>Rutinas (ilimitadas + importar/exportar)</td><td><span class="pill paid">Premium</span></td><td>Restricción para usuarios avanzados. Similar a la barrera de "construcción de rutas" de Strava.</td></tr>
+      <tr><td>Seguimiento de nutrición (básico, manual)</td><td><span class="pill free">Gratuito</span></td><td>Debe competir con el tier gratuito de MyFitnessPal o nadie se registrará.</td></tr>
+      <tr><td>Nutrición — escaneo de códigos de barras, recetas IA, coaching de macros</td><td><span class="pill paid">Premium</span></td><td>Es exactamente aquí donde MFP cobra $80/año. Iguala la referencia del sector.</td></tr>
+      <tr><td>Feed de comunidad + me gustas — <code>community</code></td><td><span class="pill free">Gratuito</span></td><td>Los efectos de red requieren acceso abierto. Nunca pongas un paywall en lo social.</td></tr>
+      <tr><td>XP / niveles de gamificación — <code>gamification</code></td><td><span class="pill free">Gratuito</span></td><td>Mecánica de retención. Los usuarios gratuitos acumulando XP son buenos para el funnel gratuito→pago.</td></tr>
+      <tr><td>Ranked (LP, niveles de temporada, tablas de clasificación)</td><td><span class="pill paid">Premium</span></td><td>Cohorte competitiva = mayor disposición a pagar. Precedente de los segmentos de Strava. Los usuarios gratuitos solo ven el ranking local.</td></tr>
+      <tr><td>AI Coach — chat con contexto (5 mensajes/día) — <code>ai_coach</code></td><td><span class="pill free">Gratuito</span></td><td>Anzuelo. 5 mensajes/día permiten a los usuarios sentir la magia; el disparador de conversión llega al límite.</td></tr>
+      <tr><td>AI Coach — ilimitado + memoria + generación de planes</td><td><span class="pill paid">Premium</span></td><td>Mayor valor percibido, mayor coste marginal. Se paga solo.</td></tr>
+      <tr><td>AI Insights — narrativas biométricas, riesgo de lesión — <code>ai_insights</code></td><td><span class="pill paid">Premium</span></td><td>La funcionalidad más diferenciada. Bloqueada completamente detrás del paywall tras una única vista previa gratuita.</td></tr>
+      <tr><td>Chat con IA contextual — <code>chat</code></td><td><span class="pill free">Gratuito</span></td><td>Orientado al público. Superficie de adquisición. Mantener gratuito con límite de uso.</td></tr>
+      <tr><td>Servidores de gimnasio — unirse a uno existente</td><td><span class="pill free">Gratuito</span></td><td>Efectos de red. Los miembros deben poder unirse gratis.</td></tr>
+      <tr><td>Servidores de gimnasio — crear / administrar / con marca propia</td><td><span class="pill b2b">B2B2C</span></td><td>Vender al propietario del gimnasio a €49–€99/mes. SKU separado.</td></tr>
+      <tr><td>Integraciones — Apple Health / Garmin / 1 plataforma</td><td><span class="pill free">Gratuito</span></td><td>Una integración gratuita desbloquea el flujo de datos y demuestra el valor.</td></tr>
+      <tr><td>Integraciones — sincronización multiplataforma, exportación CSV</td><td><span class="pill paid">Premium</span></td><td>Necesidad de usuarios avanzados; coste de desarrollo incremental mínimo; disparador de mejora de plan relevante.</td></tr>
+      <tr><td>Acceso a API / white-label</td><td><span class="pill power">Pro/B2B</span></td><td>SKU separado a €299+/mes. Entrenadores, clínicas, pequeños estudios.</td></tr>
+    </tbody>
+  </table>
+</section>
+
+<section>
+  <h2>5. Tres Escenarios de Precios</h2>
+  <div class="grid-3">
+    <div class="card scen-card accent-green">
+      <h3>Conservador <span class="pill free">Volumen</span></h3>
+      <div class="price">€4,99<span style="font-size:14px;color:var(--muted)">/mes</span></div>
+      <div class="price-sub">o €39,99/año — ahorra 33%</div>
+      <div class="kv"><span>Objetivo</span><span class="v">Mercado masivo UE</span></div>
+      <div class="kv"><span>Tier gratuito</span><span class="v">Generoso</span></div>
+      <div class="kv"><span>Restricciones Premium</span><span class="v">Solo cuotas de IA</span></div>
+      <div class="kv"><span>Prueba</span><span class="v">14 días</span></div>
+      <div class="kv"><span>Conversión estimada</span><span class="v">5,0–6,0%</span></div>
+      <div class="kv"><span>ARPU combinado/año</span><span class="v">€2,20</span></div>
+      <div class="kv"><span>ARPU Premium/año</span><span class="v">€44</span></div>
+    </div>
+
+    <div class="card scen-card accent-blue">
+      <h3>Base <span class="pill paid">Recomendado</span></h3>
+      <div class="price">€7,99<span style="font-size:14px;color:var(--muted)">/mes</span></div>
+      <div class="price-sub">o €59,99/año — ahorra 37%</div>
+      <div class="kv"><span>Objetivo</span><span class="v">Asiduo al gimnasio</span></div>
+      <div class="kv"><span>Tier gratuito</span><span class="v">Núcleo retentivo</span></div>
+      <div class="kv"><span>Restricciones Premium</span><span class="v">IA + ranked + nutrición</span></div>
+      <div class="kv"><span>Prueba</span><span class="v">21 días</span></div>
+      <div class="kv"><span>Conversión estimada</span><span class="v">3,5–4,5%</span></div>
+      <div class="kv"><span>ARPU combinado/año</span><span class="v">€2,50</span></div>
+      <div class="kv"><span>ARPU Premium/año</span><span class="v">€66</span></div>
+    </div>
+
+    <div class="card scen-card accent-amber">
+      <h3>Agresivo <span class="pill power">IA-first</span></h3>
+      <div class="price">€12,99<span style="font-size:14px;color:var(--muted)">/mes</span></div>
+      <div class="price-sub">o €99/año — ahorra 36% · De por vida €299</div>
+      <div class="kv"><span>Objetivo</span><span class="v">Usuario avanzado cuantificado</span></div>
+      <div class="kv"><span>Tier gratuito</span><span class="v">Restrictivo</span></div>
+      <div class="kv"><span>Restricciones Premium</span><span class="v">La mayoría de IA detrás del paywall</span></div>
+      <div class="kv"><span>Prueba</span><span class="v">7 días, sin tarjeta</span></div>
+      <div class="kv"><span>Conversión estimada</span><span class="v">2,0–3,0%</span></div>
+      <div class="kv"><span>ARPU combinado/año</span><span class="v">€2,40</span></div>
+      <div class="kv"><span>ARPU Premium/año</span><span class="v">€110</span></div>
+    </div>
+  </div>
+  <p class="muted" style="font-size:12px;">Las estimaciones de conversión están ancladas en las medianas de RevenueCat 2025 para Salud y Fitness (prueba 39,9%), ajustadas para una base de MAU freemium, la sensibilidad de precio en la UE y la ausencia de una retención por hardware. La conversión prueba→pago solo aplica al subconjunto de usuarios gratuitos que inician una prueba (estimado en 8–15% del MAU mensual).</p>
+</section>
+
+<section>
+  <h2>6. Proyección Financiera — 24 Meses</h2>
+  <p>Modelado sobre el escenario <strong>Base</strong>. El crecimiento de MAU está impulsado por adquisición orgánica y de pago a €1,20–€1,80 de CPI combinado (apps de Salud y Fitness en UE, 2025). La conversión Premium sube del 1,0% en M1 al 4,0% en M12 a medida que el funnel madura y se optimizan las ubicaciones de prueba/paywall.</p>
+
+  <table>
+    <thead>
+      <tr>
+        <th>Mes</th>
+        <th class="num">MAU (Cons.)</th>
+        <th class="num">MAU (Base)</th>
+        <th class="num">MAU (Agres.)</th>
+        <th class="num">Conv %</th>
+        <th class="num">Pago (Base)</th>
+        <th class="num">MRR (Base)</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr><td>M1</td><td class="num">2.000</td><td class="num">1.500</td><td class="num">1.000</td><td class="num">1,0%</td><td class="num">15</td><td class="num">€90</td></tr>
+      <tr><td>M3</td><td class="num">5.500</td><td class="num">4.200</td><td class="num">2.800</td><td class="num">1,8%</td><td class="num">76</td><td class="num">€455</td></tr>
+      <tr><td>M6</td><td class="num">12.000</td><td class="num">9.500</td><td class="num">6.800</td><td class="num">2,8%</td><td class="num">266</td><td class="num">€1.595</td></tr>
+      <tr><td>M9</td><td class="num">19.500</td><td class="num">16.200</td><td class="num">12.400</td><td class="num">3,5%</td><td class="num">567</td><td class="num">€3.400</td></tr>
+      <tr><td>M12</td><td class="num">28.000</td><td class="num">24.000</td><td class="num">19.500</td><td class="num">4,0%</td><td class="num">960</td><td class="num">€5.760</td></tr>
+      <tr><td>M15</td><td class="num">36.500</td><td class="num">32.000</td><td class="num">27.500</td><td class="num">4,2%</td><td class="num">1.344</td><td class="num">€8.065</td></tr>
+      <tr><td>M18</td><td class="num">45.000</td><td class="num">40.500</td><td class="num">36.000</td><td class="num">4,5%</td><td class="num">1.822</td><td class="num">€10.935</td></tr>
+      <tr><td>M21</td><td class="num">52.000</td><td class="num">48.000</td><td class="num">44.000</td><td class="num">4,6%</td><td class="num">2.208</td><td class="num">€13.250</td></tr>
+      <tr><td>M24</td><td class="num">58.000</td><td class="num">55.000</td><td class="num">52.000</td><td class="num">4,8%</td><td class="num">2.640</td><td class="num">€15.840</td></tr>
+    </tbody>
+  </table>
+
+  <div class="kpi-row">
+    <div class="kpi"><div class="label">ARR — Fin Año 1 (Base)</div><div class="value blue">€69k</div></div>
+    <div class="kpi"><div class="label">ARR — Fin Año 2 (Base)</div><div class="value green">€190k</div></div>
+    <div class="kpi"><div class="label">MRR de break-even</div><div class="value amber">~€4,5k</div></div>
+    <div class="kpi"><div class="label">ETA break-even</div><div class="value blue">M10–M11</div></div>
+  </div>
+
+  <p class="muted" style="font-size:12px;">El break-even asume un OpEx mensual de ~€4,5k (margen de Pi/hosting, inferencia de Groq, Sentry/observabilidad, compensación de AdSense de ~€800/mes a escala, dominio y herramientas). El ARR del Año 2 excluye los ingresos de servidores de gimnasio B2B2C y los ingresos por publicidad; incluyendo ambos, el ARR realista del Año 2 en el escenario Base es de €240–€280k. ARR del escenario Agresivo en el Año 2: €310–€360k. ARR conservador en el Año 2: €165–€200k (mayor MAU compensado por precio más bajo).</p>
+</section>
+
+<section>
+  <h2>7. Modelo Recomendado</h2>
+  <div class="callout-green">
+    <strong>Recomendación: lanzar el escenario Base.</strong> €7,99/mes o €59,99/año (37% de descuento anual, promocionado con fuerza tras la prueba). Prueba de 21 días, sin tarjeta de crédito por adelantado. SKU opcional de Acceso de Por Vida a €249 lanzado en el Mes 6 una vez observada la elasticidad de precios.
+  </div>
+
+  <h3>HealthStack Gratuito — qué obtienen los usuarios sin pagar</h3>
+  <ul>
+    <li>Registro ilimitado de entrenamientos + 3 rutinas activas (el hábito diario)</li>
+    <li>Seguimiento básico de nutrición, entrada manual, historial de los últimos 30 días</li>
+    <li>Registros de salud cifrados, plenos derechos RGPD (este es tu moat de confianza — nunca lo toques)</li>
+    <li>Feed de comunidad, publicaciones, me gustas, seguimiento (los efectos de red necesitan acceso abierto)</li>
+    <li>XP/niveles de gamificación (un usuario gratuito acumulando XP es un futuro usuario de pago)</li>
+    <li>AI Coach: 5 mensajes/día, sin memoria entre sesiones</li>
+    <li>1 generación de AI Insights/mes (una vista previa de la magia)</li>
+    <li>Ranked: clasificación local del gimnasio visible, nacional/global difuminada</li>
+    <li>Una integración (Apple Health <em>o</em> Garmin, no ambas)</li>
+    <li>Unirse a servidores de gimnasio existentes (no puede crear)</li>
+  </ul>
+  <p class="muted" style="font-size:13px;">¿Por qué tanto gratis? Porque la retención en el Día 30 en tu categoría es del 3–4% de mediana. Necesitas que el tier gratuito sea suficientemente profundo para que el hábito se forme antes de que empiece la prueba. Un tier gratuito débil es la razón número 1 por la que las apps de salud para consumidores mueren en los primeros 90 días tras el lanzamiento.</p>
+
+  <h3>HealthStack Premium — €7,99/mes o €59,99/año</h3>
+  <ul>
+    <li><strong>AI Coach ilimitado</strong>, con memoria persistente + generación de planes (la funcionalidad estrella)</li>
+    <li><strong>AI Insights ilimitado</strong> — narrativas biométricas, puntuación de riesgo de lesión, informes semanales (el diferenciador que ningún competidor en la UE tiene)</li>
+    <li>Rutinas ilimitadas, importar/exportar, compartir públicamente</li>
+    <li>Nutrición: escaneo de códigos de barras, creador de recetas, coaching de macros, historial completo</li>
+    <li>Ranked con visibilidad completa: tablas de clasificación nacionales + globales, recompensas de temporada</li>
+    <li>Integraciones multiplataforma + exportación CSV de todos los datos</li>
+    <li>Vista completa del historial de salud del último año + gráficos de tendencias</li>
+    <li>Experiencia sin publicidad</li>
+  </ul>
+
+  <h3>Flujos de ingresos adyacentes a incorporar</h3>
+  <div class="card accent-blue">
+    <h4>B2B2C — Servidores de Gimnasio Pro (€49–€99/mes por gimnasio)</h4>
+    <p>Comunidad con marca para propietarios de gimnasios: logo personalizado, retos específicos del gimnasio, panel de análisis de miembros, plantillas de entrenamiento white-label opcionales. Cinco gimnasios ancla en España a €79/mes combinado = €4.700 ARR con un CAC prácticamente nulo (captación directa a propietarios de boxes). Esta es la apuesta asimétrica — TAM pequeño pero muy alta disposición a pagar y churn casi nulo (los gimnasios no cambian de software a la ligera).</p>
+  </div>
+  <div class="card accent-blue">
+    <h4>Acceso a API / plan Pro (€299/mes)</h4>
+    <p>Para entrenadores independientes, pequeños estudios y usuarios avanzados del yo cuantificado. Acceso de lectura a los datos agregados de sus miembros + acceso de escritura para enviar entrenamientos. Nicho, pero 10–20 clientes = €36–€72k ARR con ingeniería incremental mínima (la API ya existe).</p>
+  </div>
+  <div class="card accent-blue">
+    <h4>AdSense (ya integrado)</h4>
+    <p>Activar solo en el tier gratuito. Realista con 25k MAU: €600–€1.200/mes. Relevante en los primeros meses como compensación de costes fijos; marginal en comparación con las suscripciones a escala. Desactivar automáticamente para usuarios Premium.</p>
+  </div>
+  <div class="card accent-blue">
+    <h4>SKU de Acceso de Por Vida (Mes 6)</h4>
+    <p>€249 pago único. Headspace y Calm validan que esto genera el 10–15% de los ingresos de una cohorte de usuarios avanzados que se autoselecciona. Lanzar tras observar 6 meses de datos de churn para fijar el precio correctamente en relación con el LTV esperado.</p>
+  </div>
+</section>
+
+<section>
+  <h2>8. Riesgos y Mitigaciones</h2>
+  <div class="card">
+    <div class="risk">
+      <div>
+        <div class="r-title">Riesgo 1 — Bloqueador RGPD/ai_insights</div>
+        <p style="margin:0;font-size:13px;">Los datos biométricos se envían actualmente al tier gratuito de Groq sin anonimización (según <code>CLAUDE.md</code> RGPD P0). No se puede monetizar AI Insights hasta que se resuelva — un usuario de la UE de pago tiene mayor legitimidad para demandar que uno gratuito.</p>
+      </div>
+      <div>
+        <div class="m-title">Mitigación</div>
+        <p style="margin:0;font-size:13px;">Bloquear el lanzamiento del paywall hasta que se implemente la capa de anonimización en <code>ai_insights/service.py</code>. Hashear user_id, eliminar nombres/emails, enviar solo biométricos numéricos. Añadir punto de control de revisión DPA en la lista de verificación de lanzamiento.</p>
+      </div>
+    </div>
+    <div class="risk">
+      <div>
+        <div class="r-title">Riesgo 2 — MyFitnessPal recorta precios en nutrición</div>
+        <p style="margin:0;font-size:13px;">MFP tiene la mayor base de datos de alimentos del mundo. Competir frontalmente es perder.</p>
+      </div>
+      <div>
+        <div class="m-title">Mitigación</div>
+        <p style="margin:0;font-size:13px;">No competir en escala de base de datos. Competir en integración (nutrición + entrenamiento + IA en una sola vista) y postura RGPD europea. Posicionar a MFP como fragmentado; HealthStack como unificado.</p>
+      </div>
+    </div>
+    <div class="risk">
+      <div>
+        <div class="r-title">Riesgo 3 — El coste de inferencia de IA se dispara</div>
+        <p style="margin:0;font-size:13px;">Si se abusa de la cuota de AI Coach del tier gratuito, la factura de Groq podría superar los ingresos de suscripción.</p>
+      </div>
+      <div>
+        <div class="m-title">Mitigación</div>
+        <p style="margin:0;font-size:13px;">Límites de uso diario estrictos por user_id (5 mensajes/día gratuito, 100/día premium). Pasar al tier de pago de Groq con alertas de facturación a €200/€500/€1.000. Cachear prompts comunes (ya hecho para Insights).</p>
+      </div>
+    </div>
+    <div class="risk">
+      <div>
+        <div class="r-title">Riesgo 4 — Tier gratuito demasiado escaso, destruye el funnel</div>
+        <p style="margin:0;font-size:13px;">Una colocación agresiva del paywall podría hundir la retención en el Día 30 del 3–4% a &lt;2%.</p>
+      </div>
+      <div>
+        <div class="m-title">Mitigación</div>
+        <p style="margin:0;font-size:13px;">Realizar prueba A/B del paywall duro vs suave durante los primeros 90 días. Medir cohortes de Día 7/Día 30 por exposición al nivel. Estar dispuesto a devolver funcionalidades al tier gratuito si la retención se desploma.</p>
+      </div>
+    </div>
+    <div class="risk">
+      <div>
+        <div class="r-title">Riesgo 5 — Disposición a pagar en la UE por debajo de los valores de EE.UU.</div>
+        <p style="margin:0;font-size:13px;">Los datos de RevenueCat se orientan a EE.UU. Los consumidores europeos pagan entre un 20 y un 40% menos por el mismo SKU.</p>
+      </div>
+      <div>
+        <div class="m-title">Mitigación</div>
+        <p style="margin:0;font-size:13px;">El endpoint de geo-pricing ya está construido — aprovéchalo. UK €8,99, DE/ES €7,99, PL €5,99, CH €11,99. Lanzar precios localizados desde el primer día.</p>
+      </div>
+    </div>
+    <div class="risk">
+      <div>
+        <div class="r-title">Riesgo 6 — Comisión del 30% de Apple/Google</div>
+        <p style="margin:0;font-size:13px;">Las suscripciones dentro de la app cuestan entre el 15 y el 30% de los ingresos.</p>
+      </div>
+      <div>
+        <div class="m-title">Mitigación</div>
+        <p style="margin:0;font-size:13px;">Vender principalmente a través de la web (Stripe, comisión del 2,9%). Las apps móviles soportan el inicio de sesión pero redirigen el flujo de compra a la web donde los TOS lo permiten. La DMA de la UE en 2025 hace esto defendible.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <h4>Fuentes</h4>
+  <ol>
+    <li>Sacra — Ingresos, valoración y financiación de Whoop (sacra.com/c/whoop/)</li>
+    <li>Sensor Tower — Estado de las Apps Móviles de Salud y Fitness 2025; análisis del aumento de ingresos impulsado por IA</li>
+    <li>RevenueCat — Estado de las Apps de Suscripción 2025 (medianas de prueba→pago, decil superior, efectos de duración de la prueba)</li>
+    <li>Business of Apps — Referencias de Apps de Salud y Fitness 2026; Estadísticas de Ingresos y Uso de Apps de Fitness 2026</li>
+    <li>Contrary Research — Análisis del negocio de Strava (historial freemium, conversión del 1,7%, ingresos de $275M en 2024)</li>
+    <li>The5krunner — Análisis del expediente de OPV de Strava, enero de 2026</li>
+    <li>SBI Growth — Análisis de Precios de Headspace y Calm (ratios anuales, precios de por vida)</li>
+    <li>Mirava — Referencias 2025: Apps de Salud y Fitness</li>
+    <li>a16z — "La Gran Expansión: Una Nueva Era del Software para el Consumidor" (sept. 2025); Salud del Consumidor: Áreas de Oportunidad</li>
+    <li>Nutrisense Journal &amp; Levels Support — Precios de Levels CGM 2025 ($199/año membresía + $199/mes CGM)</li>
+    <li>Forbes / ATFW — Encuesta generacional de disposición a pagar (Gen Z $7.856/año en salud)</li>
+    <li>McKinsey — Tendencias del Futuro del Bienestar 2025</li>
+    <li>Liu, Xie &amp; Or (2024), Sage / PMC — "Disposición a pagar por apps de salud" (58,9% dispuestos, correlatos sociodemográficos)</li>
+    <li>Lucid / UXCam / Sendbird — Referencias de Retención de Apps Móviles 2025/2026 por industria (Salud y Fitness Día 1/Día 7/Día 30)</li>
+    <li>Yahoo Finance — Recaudación de $575M de Whoop a valoración de $10.100M, crecimiento del 103% interanual (2025)</li>
+  </ol>
+  <p style="margin-top:18px;">Elaborado únicamente para uso interno. Las cifras son estimaciones del operador ancladas en referencias públicas citadas; los supuestos del modelo financiero son explícitos y revisables. No constituye asesoramiento de inversión.</p>
+</footer>
+
+</div>
+</body>
+</html>

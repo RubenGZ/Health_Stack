@@ -293,3 +293,66 @@
   opacity: 0;
   animation: al-sweep-in 0.25s ease forwards;
 }
+
+/* ── Sex chip — indicador de modelo anatómico ───────────────────────────────── */
+.al-sex-chip {
+  position: absolute;
+  top: 8px;
+  right: 10px;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: 3px 8px 3px 6px;
+  border-radius: 20px;
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  pointer-events: none;
+  z-index: 10;
+  border: 1px solid transparent;
+  transition: background 0.3s, border-color 0.3s, color 0.3s;
+}
+
+.al-sex-chip .al-sex-icon {
+  font-size: 12px;
+  line-height: 1;
+}
+
+.al-sex-chip .al-sex-label {
+  line-height: 1;
+}
+
+/* Masculino — acento azul-morado */
+.al-sex-chip--male {
+  background: rgba(124, 107, 255, 0.15);
+  border-color: rgba(124, 107, 255, 0.35);
+  color: #a89aff;
+}
+
+/* Femenino — acento rosa-magenta */
+.al-sex-chip--female {
+  background: rgba(236, 72, 153, 0.12);
+  border-color: rgba(236, 72, 153, 0.30);
+  color: #f0abcf;
+}
+
+/* Variación visual del SVG para modelos femeninos:
+   glow rosa en lugar de morado en el estado has-highlight */
+.al-svg-chart.al-sex-female {
+  /* Nada en el SVG en sí — el tinte lo hace el contenedor */
+}
+
+.al-svg-viewer:has(.al-sex-chip--female).has-highlight {
+  border-color: rgba(236, 72, 153, 0.30);
+  box-shadow:
+    0 0 0 1px rgba(236, 72, 153, 0.10),
+    0 0 18px rgba(236, 72, 153, 0.12),
+    0 0 40px rgba(236, 72, 153, 0.05),
+    inset 0 1px 0 rgba(255, 255, 255, 0.05);
+}
+
+/* Fallback para browsers sin :has() support (Chrome <105, Firefox <121) */
+@supports not selector(:has(a)) {
+  .al-svg-viewer.has-highlight { /* usa el glow default morado */ }
+}

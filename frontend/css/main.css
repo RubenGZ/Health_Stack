@@ -4372,4 +4372,444 @@ select.form-input option { background: var(--bg-surface); color: var(--text-prim
 .rk-modal-header { display: flex; justify-content: space-between; align-items: center; padding: 14px 16px; border-bottom: 1px solid rgba(255,255,255,0.07); font-weight: 600; }
 .rk-modal-close { background: none; border: none; color: rgba(255,255,255,0.5); cursor: pointer; font-size: 18px; line-height: 1; }
 .rk-modal-body { padding: 16px; overflow-y: auto; }
+
+/* ============================================================
+   REHAB LOGGER — rehabLogger.js
+   Matches onboarding wizard + gamification card design language
+   ============================================================ */
+
+/* Wizard shell */
+.rehab-wizard {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+  background: var(--bg-surface, #0c0c1e);
+  border-radius: var(--radius-lg, 16px);
+  overflow: hidden;
+  border: 1px solid rgba(124,107,255,0.18);
+}
+
+/* Progress bar */
+.rehab-wizard-progress { padding: 16px 20px 0; }
+.rehab-wizard-bar {
+  height: 4px;
+  background: rgba(255,255,255,0.07);
+  border-radius: 99px;
+  overflow: hidden;
+}
+.rehab-wizard-fill {
+  height: 100%;
+  background: linear-gradient(90deg, #7c6bff, #a78bfa);
+  border-radius: 99px;
+  transition: width 0.35s ease;
+}
+.rehab-wizard-label {
+  font-size: 11px;
+  color: rgba(255,255,255,0.35);
+  margin-top: 6px;
+  letter-spacing: .04em;
+  text-transform: uppercase;
+}
+
+/* Wizard body + footer */
+.rehab-wizard-body { padding: 20px; flex: 1; }
+.rehab-wizard-footer {
+  display: flex;
+  gap: 10px;
+  padding: 14px 20px;
+  border-top: 1px solid rgba(255,255,255,0.06);
+  justify-content: flex-end;
+}
+
+/* Step header */
+.rehab-step-header { margin-bottom: 18px; }
+.rehab-step-emoji { font-size: 28px; line-height: 1; margin-bottom: 6px; }
+.rehab-step-title {
+  font-size: 18px;
+  font-weight: 700;
+  color: rgba(255,255,255,0.92);
+  margin: 0 0 4px;
+}
+.rehab-step-sub {
+  font-size: 13px;
+  color: rgba(255,255,255,0.45);
+  margin: 0;
+  line-height: 1.45;
+}
+
+/* Option grid */
+.rehab-options {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.rehab-options--grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
+  gap: 8px;
+}
+.rehab-opt {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  padding: 12px 10px;
+  background: rgba(255,255,255,0.04);
+  border: 1px solid rgba(255,255,255,0.07);
+  border-radius: var(--radius, 10px);
+  cursor: pointer;
+  transition: background .15s, border-color .15s, transform .1s;
+  text-align: center;
+  color: rgba(255,255,255,0.75);
+  font-size: 13px;
+  font-weight: 500;
+  user-select: none;
+}
+.rehab-opt:hover { background: rgba(124,107,255,0.1); border-color: rgba(124,107,255,0.35); }
+.rehab-opt.selected {
+  background: rgba(124,107,255,0.18);
+  border-color: #7c6bff;
+  color: #fff;
+  transform: scale(1.02);
+}
+.rehab-opt-emoji { font-size: 22px; line-height: 1; }
+.rehab-opt-label { line-height: 1.3; }
+
+/* Pain slider */
+.rehab-pain-row { display: flex; flex-direction: column; gap: 8px; }
+.rehab-pain-label { font-size: 13px; color: rgba(255,255,255,0.6); font-weight: 500; }
+.rehab-pain-value {
+  font-size: 28px;
+  font-weight: 800;
+  color: #7c6bff;
+  line-height: 1;
+  text-align: center;
+}
+.rehab-pain-slider {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 100%;
+  height: 6px;
+  border-radius: 99px;
+  background: rgba(255,255,255,0.1);
+  outline: none;
+  cursor: pointer;
+}
+.rehab-pain-slider::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: #7c6bff;
+  box-shadow: 0 0 0 3px rgba(124,107,255,0.25);
+  cursor: pointer;
+  transition: box-shadow .15s;
+}
+.rehab-pain-slider::-webkit-slider-thumb:hover { box-shadow: 0 0 0 5px rgba(124,107,255,0.35); }
+.rehab-pain-scale {
+  display: flex;
+  justify-content: space-between;
+  font-size: 11px;
+  color: rgba(255,255,255,0.3);
+}
+
+/* Form fields */
+.rehab-field { display: flex; flex-direction: column; gap: 6px; margin-bottom: 14px; }
+.rehab-field-label {
+  font-size: 12px;
+  font-weight: 600;
+  color: rgba(255,255,255,0.5);
+  text-transform: uppercase;
+  letter-spacing: .05em;
+}
+.rehab-optional { font-weight: 400; font-size: 10px; color: rgba(255,255,255,0.3); }
+.rehab-input-row { display: flex; gap: 8px; align-items: center; }
+.rehab-input {
+  flex: 1;
+  background: rgba(255,255,255,0.05);
+  border: 1px solid rgba(255,255,255,0.1);
+  border-radius: var(--radius, 10px);
+  color: rgba(255,255,255,0.88);
+  font-size: 14px;
+  padding: 10px 12px;
+  outline: none;
+  transition: border-color .15s;
+  font-family: inherit;
+}
+.rehab-input:focus { border-color: #7c6bff; box-shadow: 0 0 0 2px rgba(124,107,255,0.15); }
+.rehab-input-unit { font-size: 12px; color: rgba(255,255,255,0.35); white-space: nowrap; }
+.rehab-textarea {
+  resize: vertical;
+  min-height: 80px;
+}
+
+/* Disclaimer box */
+.rehab-disclaimer-box {
+  background: rgba(124,107,255,0.07);
+  border: 1px solid rgba(124,107,255,0.2);
+  border-radius: var(--radius, 10px);
+  padding: 12px 14px;
+  font-size: 12px;
+  color: rgba(255,255,255,0.5);
+  line-height: 1.5;
+  margin-top: 4px;
+}
+
+/* Result card */
+.rehab-result {
+  background: var(--bg-surface, #0c0c1e);
+  border: 1px solid rgba(124,107,255,0.18);
+  border-radius: var(--radius-lg, 16px);
+  overflow: hidden;
+}
+.rehab-result-header {
+  padding: 16px 18px;
+  border-bottom: 1px solid rgba(255,255,255,0.06);
+  background: rgba(124,107,255,0.06);
+}
+.rehab-result-title-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 6px;
+}
+.rehab-result-title {
+  font-size: 17px;
+  font-weight: 700;
+  color: rgba(255,255,255,0.92);
+  flex: 1;
+}
+.rehab-result-meta {
+  font-size: 12px;
+  color: rgba(255,255,255,0.4);
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+.rehab-result-footer {
+  padding: 12px 18px;
+  border-top: 1px solid rgba(255,255,255,0.06);
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+/* Badges */
+.rehab-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 3px 9px;
+  border-radius: 99px;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: .04em;
+  text-transform: uppercase;
+}
+.rehab-badge--pro {
+  background: rgba(245,158,11,0.15);
+  color: #f59e0b;
+  border: 1px solid rgba(245,158,11,0.35);
+}
+.rehab-badge--free {
+  background: rgba(255,255,255,0.06);
+  color: rgba(255,255,255,0.4);
+  border: 1px solid rgba(255,255,255,0.1);
+}
+
+/* Phase blocks */
+.rehab-phase {
+  padding: 14px 18px;
+  border-bottom: 1px solid rgba(255,255,255,0.05);
+}
+.rehab-phase:last-child { border-bottom: none; }
+.rehab-phase-header {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+  margin-bottom: 10px;
+}
+.rehab-phase-num {
+  font-size: 11px;
+  font-weight: 700;
+  color: #7c6bff;
+  text-transform: uppercase;
+  letter-spacing: .07em;
+}
+.rehab-phase-name {
+  font-size: 14px;
+  font-weight: 600;
+  color: rgba(255,255,255,0.85);
+  flex: 1;
+}
+.rehab-phase-meta { font-size: 11px; color: rgba(255,255,255,0.35); }
+
+/* Precautions */
+.rehab-precautions {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  margin-bottom: 12px;
+}
+.rehab-precaution {
+  display: flex;
+  align-items: flex-start;
+  gap: 6px;
+  font-size: 12px;
+  color: rgba(255,255,255,0.55);
+  line-height: 1.4;
+}
+.rehab-precaution::before {
+  content: "⚠️";
+  font-size: 11px;
+  margin-top: 1px;
+  flex-shrink: 0;
+}
+
+/* Exercise cards */
+.rehab-exercises { display: flex; flex-direction: column; gap: 10px; }
+.rehab-exercise {
+  background: rgba(255,255,255,0.03);
+  border: 1px solid rgba(255,255,255,0.06);
+  border-radius: var(--radius, 10px);
+  padding: 12px 14px;
+}
+.rehab-exercise-name {
+  font-size: 13px;
+  font-weight: 600;
+  color: rgba(255,255,255,0.85);
+  margin-bottom: 3px;
+}
+.rehab-exercise-desc {
+  font-size: 12px;
+  color: rgba(255,255,255,0.45);
+  line-height: 1.45;
+  margin-bottom: 6px;
+}
+.rehab-exercise-meta {
+  font-size: 11px;
+  color: #7c6bff;
+  font-weight: 500;
+}
+.rehab-progression {
+  font-size: 11px;
+  color: rgba(255,255,255,0.35);
+  margin-top: 4px;
+  font-style: italic;
+}
+
+/* Advice block */
+.rehab-advice {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  padding: 10px 12px;
+  background: rgba(255,255,255,0.03);
+  border-radius: var(--radius, 10px);
+  font-size: 12px;
+  color: rgba(255,255,255,0.55);
+  line-height: 1.5;
+  margin-top: 4px;
+}
+.rehab-advice-icon { font-size: 15px; flex-shrink: 0; margin-top: 1px; }
+
+/* Red flags */
+.rehab-red-flags {
+  background: rgba(239,68,68,0.08);
+  border: 1px solid rgba(239,68,68,0.25);
+  border-radius: var(--radius, 10px);
+  padding: 12px 14px;
+  margin-top: 14px;
+}
+.rehab-red-flags-title {
+  font-size: 12px;
+  font-weight: 700;
+  color: #ef4444;
+  text-transform: uppercase;
+  letter-spacing: .05em;
+  margin-bottom: 8px;
+}
+.rehab-red-flag {
+  font-size: 12px;
+  color: rgba(255,255,255,0.6);
+  line-height: 1.45;
+  padding: 3px 0;
+  display: flex;
+  gap: 6px;
+  align-items: flex-start;
+}
+.rehab-red-flag::before { content: "🚩"; font-size: 11px; flex-shrink: 0; margin-top: 1px; }
+
+/* Legal disclaimer */
+.rehab-legal-disclaimer {
+  font-size: 11px;
+  color: rgba(255,255,255,0.25);
+  line-height: 1.5;
+  padding: 10px 0 2px;
+  text-align: center;
+}
+
+/* Upgrade hint */
+.rehab-upgrade-hint {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 12px 14px;
+  background: rgba(245,158,11,0.07);
+  border: 1px solid rgba(245,158,11,0.2);
+  border-radius: var(--radius, 10px);
+  font-size: 12px;
+  color: rgba(255,255,255,0.6);
+  margin-top: 10px;
+}
+
+/* Preset list */
+.rehab-preset-list { display: flex; flex-direction: column; gap: 8px; }
+.rehab-preset-card {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  padding: 12px 14px;
+  background: rgba(255,255,255,0.03);
+  border: 1px solid rgba(255,255,255,0.07);
+  border-radius: var(--radius, 10px);
+  cursor: pointer;
+  transition: background .15s, border-color .15s;
+}
+.rehab-preset-card:hover {
+  background: rgba(124,107,255,0.09);
+  border-color: rgba(124,107,255,0.3);
+}
+.rehab-preset-title {
+  font-size: 14px;
+  font-weight: 600;
+  color: rgba(255,255,255,0.85);
+}
+.rehab-preset-meta { font-size: 12px; color: rgba(255,255,255,0.38); }
+
+/* State screens */
+.rehab-loading, .rehab-empty, .rehab-error {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  padding: 40px 20px;
+  text-align: center;
+  color: rgba(255,255,255,0.4);
+  font-size: 13px;
+}
+.rehab-error { color: rgba(239,68,68,0.7); }
+.rehab-error-icon { font-size: 28px; }
+
+/* Shake animation (validation error) */
+@keyframes rehab-shake {
+  0%, 100% { transform: translateX(0); }
+  20%       { transform: translateX(-6px); }
+  40%       { transform: translateX(6px); }
+  60%       { transform: translateX(-4px); }
+  80%       { transform: translateX(4px); }
+}
+.rehab-shake { animation: rehab-shake 0.4s ease; }
 .rk-create-form { display: flex; flex-direction: column; gap: 10px; }

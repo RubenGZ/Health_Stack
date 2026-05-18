@@ -20,14 +20,32 @@ RELACIÓN ENTRE TABLAS:
 
 from __future__ import annotations
 
-from datetime import UTC, datetime
+from datetime import UTC, date, datetime
+from decimal import Decimal
 import uuid
 
-from sqlalchemy import Boolean, DateTime, ForeignKey, String, Text
+from sqlalchemy import Boolean, Date, DateTime, Enum, ForeignKey, Numeric, String, Text
 from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from app.shared.base_model import Base, TimestampMixin, UUIDPrimaryKeyMixin
+
+# ── Enums de onboarding ───────────────────────────────────────────────────────
+BiologicalSexEnum = Enum(
+    "male", "female",
+    name="biological_sex_enum",
+    schema="public",
+)
+ActivityLevelEnum = Enum(
+    "sedentary", "lightly_active", "moderately_active", "very_active",
+    name="activity_level_enum",
+    schema="public",
+)
+FitnessGoalEnum = Enum(
+    "lose_fat", "maintain", "gain_muscle", "increase_strength",
+    name="fitness_goal_enum",
+    schema="public",
+)
 
 
 class RefreshToken(UUIDPrimaryKeyMixin, TimestampMixin, Base):
@@ -188,6 +206,52 @@ class User(UUIDPrimaryKeyMixin, TimestampMixin, Base):
     last_login_at: Mapped[datetime | None] = mapped_column(
         DateTime(timezone=True),
         nullable=True,
+    )
+
+    # ── Perfil de onboarding (datos de preferencia, no Art. 9 RGPD) ──────────
+
+    biological_sex: Mapped[str | None] = mapped_column(
+        BiologicalSexEnum,
+        nullable=True,
+        comment="Sexo biológico: 'male' | 'female'. Usado para modelo AnatomyLens y zonas cardíacas.",
+    )
+
+    birth_date: Mapped[date | None] = mapped_column(
+        Date,
+        nullable=True,
+        comment="Fecha de nacimiento. Edad calculada dinámicamente.",
+    )
+
+    current_weight_kg: Mapped[Decimal | None] = mapped_column(
+        Numeric(5, 2),
+        nullable=True,
+        comment="Peso baseline del perfil (kg). Los registros históricos van en health.health_records.",
+    )
+
+    height_cm: Mapped[Decimal | None] = mapped_column(
+        Numeric(5, 1),
+        nullable=True,
+        comment="Altura en cm.",
+    )
+
+    activity_level: Mapped[str | None] = mapped_column(
+        ActivityLevelEnum,
+        nullable=True,
+        comment="Nivel de actividad: sedentary | lightly_active | moderately_active | very_active.",
+    )
+
+    primary_fitness_goal: Mapped[str | None] = mapped_column(
+        FitnessGoalEnum,
+        nullable=True,
+        comment="Objetivo principal: lose_fat | maintain | gain_muscle | increase_strength.",
+    )
+
+    onboarding_completed: Mapped[bool] = mapped_column(
+        Boolean,
+        nullable=False,
+        default=False,
+        server_default="false",
+        comment="True cuando el usuario completa el flujo de onboarding de 1 minuto.",
     )
 
     # ── Relaciones ────────────────────────────────────────────────────────────

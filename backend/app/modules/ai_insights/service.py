@@ -3,7 +3,7 @@ app/modules/ai_insights/service.py
 ====================================
 Tres análisis de IA sobre los datos del usuario:
   - Narración de biomarcadores (últimos 30 días)
-  - Riesgo de lesión (basado en rutinas + frecuencia)
+  - Índice de Fatiga Acumulada / Sugerencia de Carga (antes "injury risk")
   - Micro-objetivos semanales (basado en nivel/XP/peso)
 
 Migrado en Bloque D: usa AIRouter en lugar de llamar Groq directamente.
@@ -19,8 +19,16 @@ El UPSERT garantiza una sola fila por (user_id, insight_type).
 Todos los fallbacks de templates se mantienen intactos — si TODOS los
 providers fallan, los endpoints devuelven respuestas útiles sin IA.
 
-TODO: P0-RGPD — estos endpoints envían datos biométricos a free tiers.
-      Ver PRIVACY.md en app/services/ai_router/ antes de producción real.
+PRIVACIDAD — Pipeline de anonimización (RGPD Art. 25 / AEPD):
+  Antes de enviar cualquier dato a proveedores externos (Groq/Gemini),
+  _build_anonymous_ai_context() filtra y mapea los datos del usuario.
+  Garantías:
+    ✓ NO se envía: user_id, email, display_name, health_subject_id
+    ✓ NO se envía: notes_encrypted ni ningún campo de texto libre personal
+    ✓ SÍ se envía: valores numéricos (peso en kg, conteos, nivel, XP)
+    ✓ SÍ se envía: nombres de ejercicios (terminología fitness, no PII)
+  Esta capa es explícita e independiente del schema de BD —
+  aunque se añadan columnas PII al modelo, no llegan a la IA.
 """
 
 from __future__ import annotations
@@ -49,6 +57,53 @@ from app.services.ai_router.router import AIRouter
 from app.services.ai_router.schemas import AIMessage, AIRequest, AIUseCase
 
 logger = logging.getLogger(__name__)
+
+# ── Anonimización — RGPD Art. 25 ─────────────────────────────────────────────
+
+def _build_anonymous_ai_context(
+    *,
+    weight_values_kg: list[float],
+    workout_count_30d: int,
+    workout_count_7d: int,
+    gamification_level: int,
+    gamification_xp: int,
+    gamification_streak: int,
+    exercise_names: list[str] | None = None,
+) -> dict:
+    """
+    Construye el contexto que se enviará a proveedores de IA externos.
+
+    GARANTÍAS DE PRIVACIDAD:
+    - Solo acepta parámetros nombrados explícitos (no acepta dicts libres)
+    - Nunca incluye: user_id, email, display_name, health_subject_id,
+      notes_encrypted, ni ningún texto libre del usuario
+    - Los exercise_names son términos fitness (ej. "press banca"), no PII
+
+    Returns:
+        dict con claves seguras para insertar en prompts de IA.
+    """
+    ctx: dict = {
+        "workout_count_30d": int(workout_count_30d),
+        "workout_count_7d": int(workout_count_7d),
+        "gamification_level": int(gamification_level),
+        "gamification_xp": int(gamification_xp),
+        "gamification_streak": int(gamification_streak),
+    }
+
+    if weight_values_kg:
+        # Solo valores numéricos — nunca fechas que puedan correlacionar identidad
+        ctx["weight_first_kg"] = round(float(weight_values_kg[0]), 1)
+        ctx["weight_last_kg"] = round(float(weight_values_kg[-1]), 1)
+        ctx["weight_delta_kg"] = round(float(weight_values_kg[-1]) - float(weight_values_kg[0]), 1)
+        ctx["weight_records_count"] = len(weight_values_kg)
+
+    if exercise_names:
+        # Limitar a 10 nombres, solo nombres de ejercicio (no notas del usuario)
+        safe_names = [str(n)[:50] for n in exercise_names[:10] if n and isinstance(n, str)]
+        ctx["exercise_names"] = safe_names
+
+    return ctx
+
 
 # ── TTLs por tipo de insight ──────────────────────────────────────────────────
 
@@ -233,20 +288,29 @@ async def get_biomarker_narrative(
             highlights=["Registra tu peso diariamente", "Completa al menos 3 entrenamientos esta semana"],
         )
 
-    weights = [(str(r.recorded_date), float(r.weight_kg)) for r in weight_records if r.weight_kg]
+    weight_values = [float(r.weight_kg) for r in weight_records if r.weight_kg]
+
+    # ── Construir contexto anonimizado — NUNCA enviar PII a la IA ────────────
+    ctx = _build_anonymous_ai_context(
+        weight_values_kg=weight_values,
+        workout_count_30d=workout_count,
+        workout_count_7d=0,
+        gamification_level=gamification["level"],
+        gamification_xp=gamification["xp"],
+        gamification_streak=gamification["streak"],
+    )
+
     weight_summary = ""
-    if weights:
-        first_w, last_w = weights[0][1], weights[-1][1]
-        delta = last_w - first_w
+    if weight_values:
         weight_summary = (
-            f"Peso inicial: {first_w}kg, peso actual: {last_w}kg, "
-            f"cambio: {delta:+.1f}kg en {len(weights)} registros.\n"
+            f"Peso inicial: {ctx['weight_first_kg']}kg, peso actual: {ctx['weight_last_kg']}kg, "
+            f"cambio: {ctx['weight_delta_kg']:+.1f}kg en {ctx['weight_records_count']} registros.\n"
         )
 
     prompt = f"""Eres un analista de salud y fitness. Analiza estos datos de los últimos 30 días y genera un resumen narrativo conciso.
 
-{weight_summary}Entrenamientos completados este mes: {workout_count}
-Nivel en la app: {gamification['level']}, racha: {gamification['streak']} días
+{weight_summary}Entrenamientos completados este mes: {ctx['workout_count_30d']}
+Nivel en la app: {ctx['gamification_level']}, racha: {ctx['gamification_streak']} días
 
 Responde EXACTAMENTE en este formato JSON (sin bloques de código):
 {{
@@ -288,8 +352,8 @@ Responde EXACTAMENTE en este formato JSON (sin bloques de código):
             pass
 
     # ── 5. Fallback de templates ──────────────────────────────────────────────
-    if weights:
-        delta = weights[-1][1] - weights[0][1]
+    if weight_values:
+        delta = weight_values[-1] - weight_values[0]
         trend = "declining" if delta > 0.5 else ("improving" if delta < -0.5 else "stable")
     else:
         trend = "stable"
@@ -343,17 +407,27 @@ async def get_injury_risk(
         pass
 
     sessions = latest_json.get("sessions", [])
-    exercise_names: list[str] = []
+    raw_exercise_names: list[str] = []
     for s in sessions:
         for ex in s.get("exercises", []):
-            exercise_names.append(ex.get("name", ""))
+            raw_exercise_names.append(ex.get("name", ""))
 
-    exercise_summary = ", ".join(exercise_names[:10]) if exercise_names else "rutina genérica"
+    # ── Construir contexto anonimizado — NUNCA enviar PII a la IA ────────────
+    ctx = _build_anonymous_ai_context(
+        weight_values_kg=[],
+        workout_count_30d=0,
+        workout_count_7d=workouts_this_week,
+        gamification_level=0,
+        gamification_xp=0,
+        gamification_streak=0,
+        exercise_names=raw_exercise_names,
+    )
+    exercise_summary = ", ".join(ctx.get("exercise_names", [])) or "rutina genérica"
 
-    prompt = f"""Eres un fisioterapeuta deportivo experto. Analiza este plan de entrenamiento y detecta riesgos de lesión.
+    prompt = f"""Eres un especialista en readaptación deportiva. Analiza este plan de entrenamiento y evalúa la carga acumulada.
 
 Ejercicios en la rutina: {exercise_summary}
-Entrenamientos esta semana: {workouts_this_week} de 7 días
+Entrenamientos esta semana: {ctx['workout_count_7d']} de 7 días
 
 Responde EXACTAMENTE en este formato JSON (sin bloques de código):
 {{

@@ -10,7 +10,7 @@ export async function init(container) {
 
   if (token) {
     try {
-      const resp = await fetch('/api/v1/workout/sessions?page=1&page_size=20', {
+      const resp = await fetch('/api/v1/workout/sessions?page=1&per_page=20', {
         headers: { Authorization: `Bearer ${token}` },
       });
       if (resp.ok) {

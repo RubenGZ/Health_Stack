@@ -109,12 +109,21 @@ async def get_exercise_history(
     user_id: uuid.UUID,
     exercise_key: str,
 ) -> list[dict]:
+    """Historial de progresión por sesión con 1RM correcto.
+
+    IMPORTANTE: no se puede calcular el 1RM máximo con GROUP BY + max(weight) y
+    max(reps) por separado — esos máximos pueden venir de sets distintos y producen
+    un 1RM inflado. En su lugar se leen todos los sets individuales y se agrupan
+    en Python para calcular Epley set a set y tomar el máximo real.
+    """
+    from collections import defaultdict
+
     result = await db.execute(
         select(
+            WorkoutSession.id.label("session_id"),
             WorkoutSession.started_at,
-            func.max(ExerciseSet.weight_kg).label("max_weight_kg"),
-            func.max(ExerciseSet.reps).label("max_reps"),
-            func.sum(ExerciseSet.weight_kg * ExerciseSet.reps).label("total_volume_kg"),
+            ExerciseSet.weight_kg,
+            ExerciseSet.reps,
         )
         .join(WorkoutSession.exercises)
         .join(SessionExercise.sets)
@@ -123,19 +132,40 @@ async def get_exercise_history(
             SessionExercise.exercise_key == exercise_key,
             ExerciseSet.is_warmup == False,  # noqa: E712
         )
-        .group_by(WorkoutSession.started_at, WorkoutSession.id)
         .order_by(WorkoutSession.started_at)
     )
     rows = result.all()
-    return [
-        {
-            "date": r.started_at.strftime("%Y-%m-%d"),
-            "max_weight_kg": float(r.max_weight_kg),
-            "max_reps": int(r.max_reps),
-            "total_volume_kg": float(r.total_volume_kg),
-        }
-        for r in rows
-    ]
+
+    # Agrupar sets por sesión
+    sessions_map: dict[int, dict] = {}
+    session_order: list[int] = []
+    for r in rows:
+        sid = r.session_id
+        if sid not in sessions_map:
+            sessions_map[sid] = {
+                "started_at": r.started_at,
+                "sets": [],
+            }
+            session_order.append(sid)
+        sessions_map[sid]["sets"].append((float(r.weight_kg), int(r.reps)))
+
+    def epley(w: float, reps: int) -> float:
+        return w if reps <= 1 else w * (1 + reps / 30)
+
+    output = []
+    for sid in session_order:
+        data = sessions_map[sid]
+        sets = data["sets"]
+        best_set = max(sets, key=lambda s: epley(s[0], s[1]))
+        total_volume = sum(w * r for w, r in sets)
+        output.append({
+            "date": data["started_at"].strftime("%Y-%m-%d"),
+            "max_weight_kg": best_set[0],
+            "max_reps": best_set[1],
+            "total_volume_kg": round(total_volume, 2),
+        })
+
+    return output
 
 
 async def get_best_1rm(

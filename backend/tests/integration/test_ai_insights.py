@@ -4,8 +4,6 @@ tests/integration/test_ai_insights.py
 Tests de integración para el módulo ai_insights.
 """
 
-from unittest.mock import AsyncMock, MagicMock, patch
-
 import pytest
 
 
@@ -65,8 +63,11 @@ class TestAiInsights:
         assert "week_summary" in data
 
     async def test_biomarker_narrative_ai_mocked(self, client, auth_headers):
-        """Con AI mockeada (httpx intercepta Gemini/Groq) devuelve el JSON parseado."""
-        # Seed a gamification event so the service bypasses the insufficient_data guard
+        """AIRouter inyectado con RecorderAIRouter → endpoint parsea el JSON devuelto."""
+        from app.main import app as fastapi_app
+        from app.services.ai_router.schemas import AIResponse
+
+        # Seed para superar el guard de insufficient_data
         await client.post(
             "/api/v1/gamification/action",
             json={"action": "routine"},
@@ -79,22 +80,25 @@ class TestAiInsights:
             ' "highlights": ["3 entrenamientos", "peso estable", "buena racha"]}'
         )
 
-        mock_resp = MagicMock()
-        mock_resp.status_code = 200
-        mock_resp.json.return_value = {"choices": [{"message": {"content": ai_json}}]}
-        mock_resp.raise_for_status = MagicMock()
+        class _NarrativeRecorder:
+            async def call(self, *, use_case, request, user_id=None):
+                return AIResponse(
+                    content=ai_json,
+                    provider_used="recorder",
+                    model_used="recorder",
+                    tokens_used=0,
+                    fallback_triggered=False,
+                )
 
-        with patch("httpx.AsyncClient") as mock_cls:
-            mock_ctx = AsyncMock()
-            mock_ctx.__aenter__ = AsyncMock(return_value=mock_ctx)
-            mock_ctx.__aexit__ = AsyncMock(return_value=False)
-            mock_ctx.post = AsyncMock(return_value=mock_resp)
-            mock_cls.return_value = mock_ctx
-
+        original = getattr(fastapi_app.state, "ai_router", None)
+        fastapi_app.state.ai_router = _NarrativeRecorder()
+        try:
             resp = await client.get(
                 "/api/v1/ai-insights/biomarker-narrative",
                 headers=auth_headers,
             )
+        finally:
+            fastapi_app.state.ai_router = original
 
         assert resp.status_code == 200
         data = resp.json()
@@ -103,7 +107,10 @@ class TestAiInsights:
         assert len(data["highlights"]) == 3
 
     async def test_weekly_goals_ai_mocked(self, client, auth_headers):
-        """Con AI mockeada (httpx intercepta Gemini/Groq) devuelve los 3 goals personalizados."""
+        """AIRouter inyectado devuelve 3 goals personalizados → endpoint los parsea."""
+        from app.main import app as fastapi_app
+        from app.services.ai_router.schemas import AIResponse
+
         ai_json = (
             '{"goals": ['
             '{"goal": "Completar 4 entrenamientos", "reasoning": "Subir de 3 a 4", "category": "training"},'
@@ -112,22 +119,25 @@ class TestAiInsights:
             '], "week_summary": "¡Esta semana, a por todas!"}'
         )
 
-        mock_resp = MagicMock()
-        mock_resp.status_code = 200
-        mock_resp.json.return_value = {"choices": [{"message": {"content": ai_json}}]}
-        mock_resp.raise_for_status = MagicMock()
+        class _GoalsRecorder:
+            async def call(self, *, use_case, request, user_id=None):
+                return AIResponse(
+                    content=ai_json,
+                    provider_used="recorder",
+                    model_used="recorder",
+                    tokens_used=0,
+                    fallback_triggered=False,
+                )
 
-        with patch("httpx.AsyncClient") as mock_cls:
-            mock_ctx = AsyncMock()
-            mock_ctx.__aenter__ = AsyncMock(return_value=mock_ctx)
-            mock_ctx.__aexit__ = AsyncMock(return_value=False)
-            mock_ctx.post = AsyncMock(return_value=mock_resp)
-            mock_cls.return_value = mock_ctx
-
+        original = getattr(fastapi_app.state, "ai_router", None)
+        fastapi_app.state.ai_router = _GoalsRecorder()
+        try:
             resp = await client.get(
                 "/api/v1/ai-insights/weekly-goals",
                 headers=auth_headers,
             )
+        finally:
+            fastapi_app.state.ai_router = original
 
         assert resp.status_code == 200
         data = resp.json()
@@ -136,20 +146,22 @@ class TestAiInsights:
         assert data["week_summary"] == "¡Esta semana, a por todas!"
 
     async def test_injury_risk_all_providers_timeout_fallback(self, client, auth_headers):
-        """Timeout de todos los providers → fallback graceful, no 500."""
-        import httpx
+        """AIRouter lanza excepción → injury-risk devuelve fallback graceful, no 500."""
+        from app.main import app as fastapi_app
 
-        with patch("httpx.AsyncClient") as mock_cls:
-            mock_ctx = AsyncMock()
-            mock_ctx.__aenter__ = AsyncMock(return_value=mock_ctx)
-            mock_ctx.__aexit__ = AsyncMock(return_value=False)
-            mock_ctx.post = AsyncMock(side_effect=httpx.TimeoutException("timeout"))
-            mock_cls.return_value = mock_ctx
+        class _ErrorRouter:
+            async def call(self, *, use_case, request, user_id=None):
+                raise RuntimeError("All providers timed out")
 
+        original = getattr(fastapi_app.state, "ai_router", None)
+        fastapi_app.state.ai_router = _ErrorRouter()
+        try:
             resp = await client.get(
                 "/api/v1/ai-insights/injury-risk",
                 headers=auth_headers,
             )
+        finally:
+            fastapi_app.state.ai_router = original
 
         assert resp.status_code == 200
         data = resp.json()
@@ -243,7 +255,10 @@ class TestAiInsights:
             )
 
     async def test_weekly_goals_cache_hit_skips_ai(self, client, auth_headers):
-        """Segunda llamada idéntica usa caché — la IA no se vuelve a invocar."""
+        """Segunda llamada idéntica usa caché — el AIRouter NO se vuelve a invocar."""
+        from app.main import app as fastapi_app
+        from app.services.ai_router.schemas import AIResponse
+
         ai_json = (
             '{"goals": ['
             '{"goal": "Objetivo cacheado", "reasoning": "Test", "category": "training"},'
@@ -252,33 +267,33 @@ class TestAiInsights:
             '], "week_summary": "Semana desde caché"}'
         )
 
-        mock_resp = MagicMock()
-        mock_resp.status_code = 200
-        mock_resp.json.return_value = {"choices": [{"message": {"content": ai_json}}]}
-        mock_resp.raise_for_status = MagicMock()
-
         call_count = 0
 
-        async def mock_post(*args, **kwargs):
-            nonlocal call_count
-            call_count += 1
-            return mock_resp
+        class _CountingRecorder:
+            async def call(self, *, use_case, request, user_id=None):
+                nonlocal call_count
+                call_count += 1
+                return AIResponse(
+                    content=ai_json,
+                    provider_used="recorder",
+                    model_used="recorder",
+                    tokens_used=0,
+                    fallback_triggered=False,
+                )
 
-        with patch("httpx.AsyncClient") as mock_cls:
-            mock_ctx = AsyncMock()
-            mock_ctx.__aenter__ = AsyncMock(return_value=mock_ctx)
-            mock_ctx.__aexit__ = AsyncMock(return_value=False)
-            mock_ctx.post = mock_post
-            mock_cls.return_value = mock_ctx
-
-            # Primera llamada → llama a la IA, guarda en caché
+        original = getattr(fastapi_app.state, "ai_router", None)
+        fastapi_app.state.ai_router = _CountingRecorder()
+        try:
+            # Primera llamada → invoca AIRouter, guarda en caché
             resp1 = await client.get("/api/v1/ai-insights/weekly-goals", headers=auth_headers)
-            # Segunda llamada → debe venir de caché, no llamar a la IA
+            # Segunda llamada → debe venir de caché, AIRouter no se invoca
             resp2 = await client.get("/api/v1/ai-insights/weekly-goals", headers=auth_headers)
+        finally:
+            fastapi_app.state.ai_router = original
 
         assert resp1.status_code == 200
         assert resp2.status_code == 200
-        # La IA solo debería haberse llamado UNA vez (la segunda viene de caché)
-        assert call_count <= 1, f"La IA se llamó {call_count} veces — la caché no funcionó"
+        # El AIRouter solo debe haberse invocado UNA vez (la segunda viene de caché)
+        assert call_count <= 1, f"El AIRouter se invocó {call_count} veces — la caché no funcionó"
         # Ambas respuestas deben ser coherentes
         assert resp1.json()["week_summary"] == resp2.json()["week_summary"]

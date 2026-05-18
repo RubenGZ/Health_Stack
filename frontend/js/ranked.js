@@ -134,14 +134,16 @@ function noGymPanel() {
 async function openGymLeaderboard(container, gymId) {
   try {
     const data = await rkFetchJSON(`/api/v1/ranked/leaderboard?queue=competitive&scope=gym&gym_id=${gymId}`);
+    const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
     const rows = data.entries.map((e, i) => {
       const medal = i === 0 ? '🥇' : i === 1 ? '🥈' : i === 2 ? '🥉' : `${i+1}.`;
       const tier  = TIER_LABELS[e.tier] || e.tier;
       const divNums = ['I','II','III','IV'];
       const div   = e.division ? ` ${divNums[e.division-1]}` : '';
+      // esc(e.username) — display_name viene del usuario, podría contener <script>
       return `<div class="rk-lb-row${e.rank === data.my_rank ? ' rk-lb-me' : ''}">
         <span class="rk-lb-rank">${medal}</span>
-        <span class="rk-lb-name">${e.username}</span>
+        <span class="rk-lb-name">${esc(e.username)}</span>
         <span class="rk-lb-tier">${tier}${div}</span>
         <span class="rk-lb-lp">${e.lp} LP</span>
       </div>`;
@@ -157,9 +159,11 @@ async function openSparring(container, gymId) {
     const data = await rkFetchJSON(`/api/v1/gym-servers/${gymId}/sparrings`);
     const goals = { strength:'Fuerza', volume:'Volumen', health:'Salud' };
     const times = { morning:'Mañana', afternoon:'Tarde', evening:'Noche' };
+    const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
     const cards = data.map(m => {
+      const name = esc(m.display_name || 'Atleta');
       return `<div class="rk-sparring-card">
-        <span class="rk-sparring-name">${m.user_id}</span>
+        <span class="rk-sparring-name">${name}</span>
         <span class="rk-sparring-meta">${times[m.schedule] || '—'} · ${goals[m.goal] || '—'}</span>
         ${m.contact && /^https?:\/\//i.test(m.contact) ? `<a class="rk-sparring-contact" href="${m.contact.replace(/"/g,'%22')}" target="_blank" rel="noopener noreferrer">Contactar</a>` : ''}
       </div>`;

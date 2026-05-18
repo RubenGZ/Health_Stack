@@ -103,7 +103,8 @@ async def get_sparrings(
     rows = await svc.get_sparrings(db, gym_id, user_id)
     return [
         {
-            "user_id": str(r["membership"].user_id),
+            # display_name (no UUID) — evita filtrar PII a otros miembros del gym
+            "display_name": r["user"].display_name or "Atleta",
             "schedule": r["membership"].training_schedule,
             "goal": r["membership"].training_goal,
             "contact": r["membership"].contact_info,

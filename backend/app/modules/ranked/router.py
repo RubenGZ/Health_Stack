@@ -81,9 +81,11 @@ async def get_leaderboard(
         total = len(rows)
         for i, row in enumerate(rows, 1):
             p = row["profile"]
+            u = row["user"]
+            display = u.display_name or "Atleta"
             entries.append(LeaderboardEntry(
                 rank=i,
-                username=str(p.user_id)[:8] + "...",
+                username=display,
                 tier=p.tier,
                 division=p.division,
                 lp=p.lp,
@@ -100,7 +102,7 @@ async def get_leaderboard(
         for i, row in enumerate(rows, 1):
             p = row["profile"]
             u = row["user"]
-            display = u.display_name or (str(p.user_id)[:8] + "…")
+            display = u.display_name or "Atleta"
             entries.append(LeaderboardEntry(
                 rank=i,
                 username=display,

@@ -15,6 +15,7 @@ from app.modules.gym_servers.models import (
     GymMembership,
     GymServer,
 )
+from app.modules.identity.models import User
 
 
 def _generate_invite_code(length: int = 8) -> str:
@@ -84,15 +85,24 @@ async def join_gym(
 async def get_sparrings(
     db: AsyncSession, gym_id: int, requesting_user_id: uuid.UUID,
 ) -> list[dict]:
-    """Miembros del gym con perfil público, excepto el usuario que pide."""
+    """Miembros del gym con perfil público, excepto el usuario que pide.
+
+    JOIN con User para incluir display_name — el frontend lo necesita para
+    no mostrar UUIDs en la lista de sparring (visible para otros miembros).
+    """
     result = await db.execute(
-        select(GymMembership).where(
+        select(GymMembership, User)
+        .join(User, User.id == GymMembership.user_id)
+        .where(
             GymMembership.gym_id == gym_id,
             GymMembership.profile_public.is_(True),
             GymMembership.user_id != requesting_user_id,
         )
     )
-    return [{"membership": m} for m in result.scalars().all()]
+    return [
+        {"membership": r.GymMembership, "user": r.User}
+        for r in result.all()
+    ]
 
 
 async def create_challenge(

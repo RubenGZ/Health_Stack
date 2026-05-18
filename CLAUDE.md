@@ -74,15 +74,16 @@ Cada módulo en `backend/app/modules/<nombre>/`:
 
 `ranked`:
 - `season = 1` hardcodeado (tabla RankedSeason existe pero nunca se consulta)
-- Leaderboard solo funciona con `scope=gym`; city/national/global devuelven [] vacío silencioso
-- Usernames en leaderboard muestran fragmentos UUID, no `display_name`
+- `scope` city/national/global comparten implementación (todos llaman a `get_global_leaderboard`); cuando existan tablas de city/national se diferenciarán
 - `MAX_LP_PER_WEEK = 60` y `lp_week` nunca se aplican (código muerto)
+- ✅ Usernames en leaderboard muestran `display_name` (resuelto 2026-05-18)
 
 `gym_servers`:
 - Sin `response_model` en 5 de 7 endpoints (no aparecen en OpenAPI)
 - `GymChampionBadge` tabla huérfana (sin endpoints)
 - Sin endpoint para descubrir gyms públicos ni para abandonar un gym
 - Progreso de retos no se registra (`GymChallenge.contribution` nunca se actualiza)
+- ✅ Sparring list devuelve `display_name` en lugar del UUID del usuario (resuelto 2026-05-18)
 
 `integrations`:
 - CSRF OAuth2 callback CORREGIDO 2026-05-17 (antes hacía `uuid.UUID(state)` con un HMAC hex → siempre ValueError)
@@ -183,6 +184,8 @@ asyncio_default_test_loop_scope = session   ← sin esto asyncpg explota
 | `routine_id: Optional[int]` en workout schema | ORM usa UUID, schema usaba int → insert fallaba | Cambiado a `Optional[uuid.UUID]` en schemas.py |
 | Bucle infinito landing → app | `auth-gate.js` no whitelistaba `?action=register` | Whitelist añadida + `?v=2` cache-bust + SW bumped a v15 |
 | RGPD P0: ai_insights enviaba PII a IA externa | `get_weekly_goals` no usaba `_build_anonymous_ai_context` | Refactorizado + test `test_ai_prompts_never_contain_pii` añadido (2026-05-18) |
+| Ranked leaderboard mostraba fragmentos UUID | `get_gym_leaderboard` no hacía JOIN con User; router truncaba `user_id[:8]+"..."` | JOIN con User + usar `display_name or "Atleta"` + regression test (2026-05-18) |
+| Sparring list filtraba UUIDs a otros miembros | `gym_servers/router.py:get_sparrings` devolvía `str(membership.user_id)` | Cambiado a `display_name`, eliminado campo `user_id`; XSS escape en frontend + test (2026-05-18) |
 
 ---
 
@@ -303,6 +306,7 @@ Si se añaden features premium futuras, se agregan como índice 4+ en PLAN_OK.
 - Integrations CSV OOM fix: `file.read(_MAX_CSV + 1)` ✅
 - Smoke test script: `scripts/smoke_test.py` — cubre 17 módulos, sin deps externas ✅
 - RGPD P0 ai_insights: `get_weekly_goals` ahora pasa por `_build_anonymous_ai_context` + test `test_ai_prompts_never_contain_pii` que verifica que ningún UUID/email/display_name llega al prompt enviado a IA externa ✅ (2026-05-18)
+- Ranked + Gym sparring: leaderboard y sparring list ahora muestran `display_name` en lugar de UUID; XSS escape añadido en el frontend (`esc()` function); 2 regression tests añadidos ✅ (2026-05-18)
 
 ### 🗒️ Smoke test (ejecutar en Pi)
 ```bash

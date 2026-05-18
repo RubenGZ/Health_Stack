@@ -34,11 +34,16 @@ def _tier_order_expr(queue: str):
 async def get_gym_leaderboard(
     db: AsyncSession, gym_id: int, queue: str, limit: int = 50
 ) -> list[dict]:
-    """Top usuarios del gym por tier (desc) y LP (desc) en la cola dada."""
+    """Top usuarios del gym por tier (desc) y LP (desc) en la cola dada.
+
+    Hace JOIN con User para incluir display_name — necesario para no mostrar
+    fragmentos UUID en el leaderboard visible al usuario.
+    """
     tier_order = _tier_order_expr(queue)
     result = await db.execute(
-        select(RankedProfile, GymMembership)
+        select(RankedProfile, GymMembership, User)
         .join(GymMembership, GymMembership.user_id == RankedProfile.user_id)
+        .join(User, User.id == RankedProfile.user_id)
         .where(
             GymMembership.gym_id == gym_id,
             RankedProfile.queue == queue,
@@ -51,6 +56,7 @@ async def get_gym_leaderboard(
         {
             "profile": r.RankedProfile,
             "membership": r.GymMembership,
+            "user": r.User,
         }
         for r in rows
     ]

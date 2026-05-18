@@ -63,14 +63,14 @@ Cada módulo en `backend/app/modules/<nombre>/`:
 | gym_servers       | `/api/v1/gym-servers`    | JWT           | ⚠️ WIP           | 4     |
 | integrations      | `/api/v1/integrations`   | JWT           | ⚠️ WIP           | 0     |
 
-*ai_insights: 2 tests con mocks muertos (httpx en lugar de AIRouter) — validan fallback, no el path real.
+*ai_insights: ✅ todos los mocks httpx migrados a RecorderAIRouter (2026-05-18).
 †workout_sessions: `routine_id` era `Optional[int]` en schema vs `UUID` en ORM — corregido 2026-05-17.
 
 **Issues conocidos por módulo WIP:**
 
 `workout_sessions`:
-- `streak_days: 0` hardcodeado → ranked LP bonus por racha nunca se activa
-- `get_exercise_history`: Epley calcula sobre max_weight y max_reps por separado (can give wrong 1RM)
+- ✅ `streak_days` ahora lee del GamificationRepository (antes hardcodeado a 0)
+- ✅ `get_exercise_history`: Epley ahora calcula por set en Python, no max(weight)×max(reps) SQL independientes (corregido 2026-05-18)
 
 `ranked`:
 - `season = 1` hardcodeado (tabla RankedSeason existe pero nunca se consulta)
@@ -282,15 +282,13 @@ Si se añaden features premium futuras, se agregan como índice 4+ en PLAN_OK.
 
 ### 🟡 Trabajo de código pendiente (ordenado por impacto)
 5. **Tests integrations**: 0 tests para OAuth2/sync/CSV — módulo completamente sin cobertura
-6. **Ranked — leaderboard completo**: city/national/global devuelven [] vacío (solo gym funciona)
-7. **Ranked — temporadas reales**: `season = 1` hardcodeado, `RankedSeason` inerte
-8. **workout_sessions — streak real**: conectar racha de gamification para LP ranked
-9. **ai_insights tests**: migrar 2 mocks httpx muertos a `app.state.ai_router` (como hace ai_coach)
-10. **Rotación de MASTER_KEY** — documentar procedimiento de re-cifrado
-11. **Visor anatómico** — rediseño disruptivo y profesional (brainstorming pendiente)
-12. **Fórmula IMC mejorada** — mejorar cálculo y visualización en la interfaz
+6. **Ranked — temporadas reales**: `season = 1` hardcodeado, `RankedSeason` inerte
+7. **Rotación de MASTER_KEY** — documentar procedimiento de re-cifrado
+8. **Visor anatómico** — rediseño disruptivo y profesional (brainstorming pendiente)
+9. **Fórmula IMC mejorada** — mejorar cálculo y visualización en la interfaz
+10. **gym_servers**: sin endpoint para descubrir gyms públicos ni para abandonar un gym
 
-### ✅ Ya hecho (actualizado 2026-05-17)
+### ✅ Ya hecho (actualizado 2026-05-18)
 - CI/CD: `.github/workflows/ci.yml` con tests + security scan + push a GHCR ✅
 - Prometheus: cableado en `main.py` ✅
 - ruff + mypy: configurados en `pyproject.toml` ✅
@@ -305,8 +303,12 @@ Si se añaden features premium futuras, se agregan como índice 4+ en PLAN_OK.
 - Integrations OAuth2 CSRF callback corregido: `_verify_state()` real ✅
 - Integrations CSV OOM fix: `file.read(_MAX_CSV + 1)` ✅
 - Smoke test script: `scripts/smoke_test.py` — cubre 17 módulos, sin deps externas ✅
-- RGPD P0 ai_insights: `get_weekly_goals` ahora pasa por `_build_anonymous_ai_context` + test `test_ai_prompts_never_contain_pii` que verifica que ningún UUID/email/display_name llega al prompt enviado a IA externa ✅ (2026-05-18)
-- Ranked + Gym sparring: leaderboard y sparring list ahora muestran `display_name` en lugar de UUID; XSS escape añadido en el frontend (`esc()` function); 2 regression tests añadidos ✅ (2026-05-18)
+- RGPD P0 ai_insights: pipeline anonimización en los 3 endpoints + `test_ai_prompts_never_contain_pii` ✅ (2026-05-18)
+- Ranked + Gym sparring: `display_name` en leaderboard y sparring; XSS escape frontend; 2 regression tests ✅ (2026-05-18)
+- workout/repository: Epley 1RM correcto (set-a-set en Python, no max(w)×max(r) SQL) ✅ (2026-05-18)
+- workout streak: `streak_days` conectado a GamificationRepository (antes hardcoded a 0) ✅ (2026-05-18)
+- ai_insights tests: 4 mocks httpx muertos migrados a RecorderAIRouter; imports muertos eliminados ✅ (2026-05-18)
+- workoutHistory.js: parámetro `page_size` → `per_page` corregido ✅ (2026-05-18)
 
 ### 🗒️ Smoke test (ejecutar en Pi)
 ```bash

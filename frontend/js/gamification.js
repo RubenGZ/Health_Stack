@@ -100,9 +100,15 @@ const Gamification = (function () {
     const cfg = XP_ACTIONS[action];
     if (!cfg) return;
 
-    // Si es once=true y ya se realizó, no dar más XP
+    // Si es once=true, comprobar que no se haya otorgado ya
     if (cfg.once) {
-      if (action === 'tdee'    && state.tdeeCalc)    return;
+      if (action === 'tdee'  && state.tdeeCalc)    return;
+      // login: el guard de lastLogin en init() es suficiente para el flujo normal,
+      // pero si addXP('login') se llama directamente desde otro lugar usamos el mismo guard
+      if (action === 'login') {
+        const today = new Date().toDateString();
+        if (state.lastLogin === today) return;
+      }
     }
 
     // Actualizar contadores de estado

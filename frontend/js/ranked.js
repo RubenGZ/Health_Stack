@@ -33,12 +33,16 @@ async function rkFetchJSON(url, options = {}) {
   return resp.json();
 }
 
+let _rankLoading = false;
+
 async function initRanked(container) {
+  if (_rankLoading) return; // prevent concurrent duplicate requests on fast nav
   const token = localStorage.getItem('hs_access_token') || sessionStorage.getItem('hs_access_token');
   if (!token) {
     container.innerHTML = '<p class="rk-error">Inicia sesión para ver tu ranking.</p>';
     return;
   }
+  _rankLoading = true;
   container.innerHTML = '<div class="rk-loading">Cargando rankeds...</div>';
   try {
     const [profile, gyms] = await Promise.all([
@@ -48,6 +52,8 @@ async function initRanked(container) {
     renderRanked(container, profile, gyms);
   } catch (e) {
     container.innerHTML = '<p class="rk-error">No se pudo cargar el ranking. Inicia sesión primero.</p>';
+  } finally {
+    _rankLoading = false;
   }
 }
 
@@ -155,7 +161,7 @@ async function openSparring(container, gymId) {
       return `<div class="rk-sparring-card">
         <span class="rk-sparring-name">${m.user_id}</span>
         <span class="rk-sparring-meta">${times[m.schedule] || '—'} · ${goals[m.goal] || '—'}</span>
-        ${m.contact ? `<a class="rk-sparring-contact" href="${m.contact}" target="_blank">Contactar</a>` : ''}
+        ${m.contact && /^https?:\/\//i.test(m.contact) ? `<a class="rk-sparring-contact" href="${m.contact.replace(/"/g,'%22')}" target="_blank" rel="noopener noreferrer">Contactar</a>` : ''}
       </div>`;
     }).join('');
     showModal('Buscar Sparring', cards || '<p style="color:rgba(255,255,255,0.5)">Ningún miembro ha activado su perfil aún.</p>');

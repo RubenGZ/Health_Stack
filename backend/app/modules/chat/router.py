@@ -20,8 +20,10 @@ from __future__ import annotations
 import json
 import logging
 import re
+import time
+from collections import defaultdict
 
-from fastapi import APIRouter, Depends, Request
+from fastapi import APIRouter, Depends, HTTPException, Request
 from fastapi.responses import JSONResponse
 from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
 from pydantic import BaseModel, Field
@@ -36,6 +38,24 @@ from app.session import DBSession
 
 logger = logging.getLogger(__name__)
 router = APIRouter()
+
+# ── Chat-specific rate limiter (in-memory, per IP) ────────────────────────────
+# Limits: 10 messages/minute per IP for unauthenticated users, 30/min for auth.
+# This is tighter than the global 200/min and protects LLM API costs.
+_CHAT_WINDOW = 60        # seconds
+_CHAT_LIMIT_ANON = 10
+_CHAT_LIMIT_AUTH = 30
+_chat_counters: dict[str, list[float]] = defaultdict(list)
+
+def _check_chat_rate(ip: str, authenticated: bool) -> None:
+    now = time.monotonic()
+    calls = _chat_counters[ip]
+    # Drop entries older than the window
+    _chat_counters[ip] = [t for t in calls if now - t < _CHAT_WINDOW]
+    limit = _CHAT_LIMIT_AUTH if authenticated else _CHAT_LIMIT_ANON
+    if len(_chat_counters[ip]) >= limit:
+        raise HTTPException(status_code=429, detail="Demasiados mensajes. Espera un momento.")
+    _chat_counters[ip].append(now)
 
 # Esquema Bearer opcional — no lanza 403 si falta el token
 _optional_bearer = HTTPBearer(auto_error=False)
@@ -177,14 +197,20 @@ async def chat_message(
     (peso, PR, entreno completado, sueño). El frontend lo usa para mostrar
     una pill de confirmación antes de guardar.
     """
+    # ── Rate limit por IP (más estricto que el global 200/min) ──────────────────
+    client_ip = request.headers.get("X-Forwarded-For", request.client.host if request.client else "unknown")
+    client_ip = client_ip.split(",")[0].strip()  # first IP from proxy chain
+
     # ── Resolver contexto de usuario (opcional) ───────────────────────────────
     system_prompt = _BASE_SYSTEM_PROMPT
+    user_is_authenticated = False
 
     if credentials is not None:
         try:
             payload = decode_token(credentials.credentials)
             if payload.get("type") == "access":
                 user_id = payload["sub"]
+                user_is_authenticated = True
                 context_block = await build_user_context(user_id, db)
                 if context_block:
                     system_prompt = context_block + "\n\n" + _BASE_SYSTEM_PROMPT
@@ -192,6 +218,8 @@ async def chat_message(
         except Exception:
             # Token inválido/expirado → chat anónimo sin bloquear
             pass
+
+    _check_chat_rate(client_ip, user_is_authenticated)
 
     # ── Construir mensajes para el AIRouter ───────────────────────────────────
     messages = [AIMessage(role="system", content=system_prompt)]

@@ -8,7 +8,7 @@ from __future__ import annotations
 
 import uuid
 
-from sqlalchemy import and_, func, select
+from sqlalchemy import and_, func, select, update
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.modules.community.models import CommunityLike, CommunityPost
@@ -105,24 +105,31 @@ class CommunityRepository:
         )
         existing_like = result.scalar_one_or_none()
 
-        # Obtener el post para actualizar el contador
-        post_result = await db.execute(
-            select(CommunityPost).where(CommunityPost.id == pid)
+        # Verificar que el post existe (sin cargar el objeto en memoria)
+        post_exists = await db.execute(
+            select(CommunityPost.id).where(CommunityPost.id == pid)
         )
-        post = post_result.scalar_one_or_none()
-        if post is None:
+        if post_exists.scalar_one_or_none() is None:
             return False
 
         if existing_like:
-            # Quitar like
+            # Quitar like — decremento atómico en SQL para evitar lost-update
             await db.delete(existing_like)
-            post.likes_count = max(0, post.likes_count - 1)
+            await db.execute(
+                update(CommunityPost)
+                .where(CommunityPost.id == pid)
+                .values(likes_count=func.greatest(0, CommunityPost.likes_count - 1))
+            )
             await db.flush()
             return False
         else:
-            # Añadir like
+            # Añadir like — incremento atómico en SQL
             like = CommunityLike(user_id=uid, post_id=pid)
             db.add(like)
-            post.likes_count += 1
+            await db.execute(
+                update(CommunityPost)
+                .where(CommunityPost.id == pid)
+                .values(likes_count=CommunityPost.likes_count + 1)
+            )
             await db.flush()
             return True

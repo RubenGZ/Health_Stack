@@ -97,14 +97,18 @@ const API = (function () {
 
     // Token expirado → renovar una vez
     if (res.status === 401 && getRefresh()) {
-      const renewed = await tryRefresh();
-      if (renewed) {
+      const refreshResult = await tryRefresh();
+      if (refreshResult === 'ok') {
         headers['Authorization'] = `Bearer ${getToken()}`;
         res = await fetch(url, { ...options, headers });
-      } else {
+      } else if (refreshResult === 'invalid') {
+        // Server explicitly rejected the refresh token — user must log in again
         clearAuth();
         window.dispatchEvent(new Event('hs:logout'));
         return null;
+      } else {
+        // 'network' — offline or server error; preserve session, let the request fail
+        throw new Error('Sin conexión — inténtalo de nuevo');
       }
     }
 
@@ -122,19 +126,24 @@ const API = (function () {
     return res.status === 204 ? null : res.json();
   }
 
+  // Returns: 'ok' | 'invalid' | 'network'
+  // Only 'invalid' (explicit 4xx from server) should log the user out.
+  // 'network' (timeout, offline) should preserve the session.
   async function tryRefresh() {
     try {
       const res = await fetch(`${BASE_URL}/auth/refresh`, {
         method:  'POST',
         headers: { 'Content-Type': 'application/json' },
         body:    JSON.stringify({ refresh_token: getRefresh() }),
+        signal:  AbortSignal.timeout(5000),
       });
-      if (!res.ok) return false;
+      if (res.status === 401 || res.status === 403) return 'invalid';
+      if (!res.ok) return 'network'; // 5xx or other transient
       const data = await res.json();
       localStorage.setItem(TOKEN_KEY, data.access_token);
-      return true;
+      return 'ok';
     } catch {
-      return false;
+      return 'network'; // timeout or offline
     }
   }
 

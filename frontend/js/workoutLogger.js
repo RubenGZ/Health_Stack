@@ -567,4 +567,16 @@ export function init(container) {
   _wlViewer = null;
   const draft = Session.getDraft();
   if (draft) { _session = draft; renderActive(); } else { renderIdle(); }
+
+  // Show a persistent in-UI banner when localStorage is full
+  document.addEventListener('hs:storage-full', () => {
+    const banner = _root?.querySelector('#wl-storage-warn');
+    if (!banner) {
+      const b = document.createElement('div');
+      b.id = 'wl-storage-warn';
+      b.style.cssText = 'background:#ef4444;color:#fff;padding:8px 14px;border-radius:8px;font-size:12px;margin-bottom:8px;text-align:center';
+      b.textContent = '⚠️ Almacenamiento lleno — el progreso de esta sesión puede no guardarse. Libera espacio o finaliza la sesión.';
+      _root?.prepend(b);
+    }
+  }, { once: true });
 }

@@ -12,20 +12,20 @@ const EXERCISE_NAME_MAP = {
   'press inclinado': 'press_banca_inclinado', 'aperturas': 'aperturas_mancuernas',
   'fondos': 'fondos_pecho', 'fondos pecho': 'fondos_pecho',
   'flexiones diamante': 'flexiones_diamante', 'dominadas': 'dominadas_pronas',
-  'remo barra': 'remo_barra', 'jalon': 'jalon_pecho', 'jalon': 'jalon_pecho',
+  'remo barra': 'remo_barra', 'jalon': 'jalon_pecho',
   'remo mancuerna': 'remo_mancuerna', 'peso muerto': 'peso_muerto_convencional',
   'press militar': 'press_militar_barra', 'elevaciones laterales': 'elevaciones_laterales',
-  'pajaros': 'pajaros_mancuernas', 'pajaros': 'pajaros_mancuernas',
+  'pajaros': 'pajaros_mancuernas',
   'face pull': 'face_pull', 'curl barra': 'curl_barra', 'curl martillo': 'curl_martillo',
-  'extension triceps': 'extension_triceps_polea', 'extension triceps': 'extension_triceps_polea',
-  'press frances': 'press_frances', 'press frances': 'press_frances',
+  'extension triceps': 'extension_triceps_polea',
+  'press frances': 'press_frances',
   'plancha': 'plancha', 'crunch': 'crunch', 'ab wheel': 'ab_wheel',
   'plancha lateral': 'plancha_lateral', 'sentadilla': 'sentadilla',
   'prensa': 'prensa_piernas', 'extension cuadriceps': 'extension_cuadriceps',
-  'extension cuadriceps': 'extension_cuadriceps', 'curl femoral': 'curl_femoral_tumbado',
-  'sentadilla bulgara': 'sentadilla_bulgara', 'sentadilla bulgara': 'sentadilla_bulgara',
+  'curl femoral': 'curl_femoral_tumbado',
+  'sentadilla bulgara': 'sentadilla_bulgara',
   'hip thrust': 'hip_thrust', 'kickback': 'kickback_cable',
-  'puente gluteos': 'puente_gluteos', 'puente gluteos': 'puente_gluteos',
+  'puente gluteos': 'puente_gluteos',
   'burpees': 'burpees', 'comba': 'jump_rope', 'remo maquina': 'remo_maquina',
 };
 
@@ -40,7 +40,24 @@ export function getDraft() {
   try { return JSON.parse(localStorage.getItem(DRAFT_KEY) || 'null'); } catch { return null; }
 }
 export function saveDraft(session) {
-  try { localStorage.setItem(DRAFT_KEY, JSON.stringify(session)); } catch {}
+  try {
+    localStorage.setItem(DRAFT_KEY, JSON.stringify(session));
+  } catch (err) {
+    if (err && err.name === 'QuotaExceededError') {
+      // Pruning old history may free enough space — attempt once
+      try {
+        const hist = JSON.parse(localStorage.getItem('hs_workout_sessions_local') || '[]');
+        if (hist.length > 5) {
+          localStorage.setItem('hs_workout_sessions_local', JSON.stringify(hist.slice(0, 5)));
+          localStorage.setItem(DRAFT_KEY, JSON.stringify(session)); // retry
+          return;
+        }
+      } catch { /* nada */ }
+      // If still failing, notify the user so they don't lose data silently
+      document.dispatchEvent(new CustomEvent('hs:storage-full'));
+      console.warn('[WorkoutSession] localStorage lleno — draft no guardado');
+    }
+  }
 }
 export function clearDraft() { localStorage.removeItem(DRAFT_KEY); }
 

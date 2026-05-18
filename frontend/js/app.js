@@ -183,9 +183,13 @@
 
   // ── Welcome card ───────────────────────────────────────────
   function updateWelcomeCard() {
+    const _t  = window.t || (k => k);
     const user = JSON.parse(localStorage.getItem('hs_user') || 'null');
     const hour = new Date().getHours();
-    const greet = hour < 6 ? 'Buenas noches' : hour < 13 ? 'Buenos días' : hour < 20 ? 'Buenas tardes' : 'Buenas noches';
+    const greet = hour < 6  ? _t('dashboard.greet_evening')
+                : hour < 13 ? _t('dashboard.greet_morning')
+                : hour < 20 ? _t('dashboard.greet_afternoon')
+                :              _t('dashboard.greet_evening');
     const greetEl = document.getElementById('welcome-greeting');
     const nameEl  = document.getElementById('welcome-name');
     const streakEl = document.getElementById('welcome-streak');
@@ -193,7 +197,7 @@
     if (nameEl && user?.username) nameEl.textContent = user.username;
     if (streakEl) {
       const streak = JSON.parse(localStorage.getItem('hs_gamification') || 'null')?.streak_days;
-      streakEl.textContent = streak != null ? `${streak} días` : '—';
+      streakEl.textContent = streak != null ? `${streak} ${_t('dashboard.days')}` : '—';
     }
   }
 
@@ -218,15 +222,16 @@
   }
 
   function getLevel(xp) {
+    const _t = window.t || (k => k);
     const levels = [
-      { name: 'Novato',      min: 0    },
-      { name: 'Aprendiz',    min: 500  },
-      { name: 'Competidor',  min: 1500 },
-      { name: 'Atleta',      min: 3000 },
-      { name: 'Campeón',     min: 6000 },
-      { name: 'Élite',       min: 10000},
-      { name: 'Maestro',     min: 15000},
-      { name: 'Leyenda',     min: 25000},
+      { name: _t('gamification.level_novato'),      min: 0    },
+      { name: _t('gamification.level_aprendiz'),    min: 500  },
+      { name: _t('gamification.level_competidor'),  min: 1500 },
+      { name: _t('gamification.level_atleta'),      min: 3000 },
+      { name: _t('gamification.level_campeon'),     min: 6000 },
+      { name: _t('gamification.level_elite'),       min: 10000},
+      { name: _t('gamification.level_maestro'),     min: 15000},
+      { name: _t('gamification.level_leyenda'),     min: 25000},
     ];
     return [...levels].reverse().find(l => xp >= l.min) || levels[0];
   }
@@ -772,7 +777,7 @@
   }
 
   // Re-render greeting when language changes
-  document.addEventListener('languagechange', () => initDashboard());
+  document.addEventListener('languagechange', () => { initDashboard(); updateWelcomeCard(); initUserChip(); });
 
   // ── Admin nav visibility ──────────────────────────────────
   // Muestra el link "Admin Panel" en el sidebar solo si el JWT

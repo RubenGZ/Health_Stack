@@ -35,7 +35,7 @@ const FeedbackWidget = (function () {
       .fw-btn {
         position: fixed;
         bottom: 24px;
-        left: 20px;
+        right: 96px;
         z-index: 8000;
         display: flex;
         align-items: center;
@@ -89,8 +89,8 @@ const FeedbackWidget = (function () {
         -webkit-backdrop-filter: blur(6px);
         display: flex;
         align-items: flex-end;
-        justify-content: flex-start;
-        padding: 0 0 90px 20px;
+        justify-content: flex-end;
+        padding: 0 96px 90px 0;
         opacity: 0;
         transition: opacity 0.2s ease;
         pointer-events: none;
@@ -284,9 +284,9 @@ const FeedbackWidget = (function () {
         color: #fca5a5;
       }
 
-      /* Responsive: desktop moves modal next to button */
+      /* Responsive: modal anchored above feedback button (bottom-right) */
       @media (min-width: 600px) {
-        .fw-overlay { padding: 0 0 90px 20px; }
+        .fw-overlay { padding: 0 96px 90px 0; }
       }
     `;
   }

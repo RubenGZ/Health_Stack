@@ -164,7 +164,7 @@
       </a>
 
       <!-- ── NUTRICIÓN ────────────────────────────────────────── -->
-      <div class="nav-group-label">Nutrición</div>
+      <div class="nav-group-label" data-i18n="nav.group_nutrition">Nutrición</div>
 
       <a class="nav-item" data-section="nutricion" href="#nutricion">
         <span class="nav-icon">
@@ -188,7 +188,7 @@
       </a>
 
       <!-- ── TIMING ─────────────────────────────────────────────── -->
-      <div class="nav-group-label">Timing</div>
+      <div class="nav-group-label" data-i18n="nav.group_timing">Timing</div>
 
       <a class="nav-item" data-section="timing" href="#timing">
         <span class="nav-icon">
@@ -198,7 +198,7 @@
       </a>
 
       <!-- ── ANÁLISIS ─────────────────────────────────────────── -->
-      <div class="nav-group-label">Análisis</div>
+      <div class="nav-group-label" data-i18n="nav.group_analysis">Análisis</div>
 
       <a class="nav-item" data-section="peso" href="#peso">
         <span class="nav-icon">
@@ -211,7 +211,7 @@
         <span class="nav-icon">
           <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 3v18h18"/><path d="M7 16l4-4 4 4 4-4"/></svg>
         </span>
-        <span class="nav-label">Composición</span>
+        <span class="nav-label" data-i18n="nav.bodycomp">Composición</span>
       </a>
 
       <a class="nav-item" data-section="fatigue" href="#fatigue">
@@ -225,14 +225,14 @@
         <span class="nav-icon">
           <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
         </span>
-        <span class="nav-label">Plateau Radar</span>
+        <span class="nav-label" data-i18n="nav.plateau">Plateau Radar</span>
       </a>
 
       <a class="nav-item" data-section="sessionreplay" href="#sessionreplay">
         <span class="nav-icon">
           <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="5 3 19 12 5 21 5 3"/></svg>
         </span>
-        <span class="nav-label">Replay Sesión</span>
+        <span class="nav-label" data-i18n="nav.sessionreplay">Replay Sesión</span>
       </a>
 
       <a class="nav-item" data-section="receipt" href="#receipt">
@@ -243,7 +243,7 @@
       </a>
 
       <!-- ── COMUNIDAD ────────────────────────────────────────── -->
-      <div class="nav-group-label">Comunidad</div>
+      <div class="nav-group-label" data-i18n="nav.group_community">Comunidad</div>
 
       <a class="nav-item" data-section="comunidad" href="#comunidad">
         <span class="nav-icon">
@@ -256,11 +256,11 @@
         <span class="nav-icon">
           <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
         </span>
-        <span class="nav-label">Rankeds</span>
+        <span class="nav-label" data-i18n="nav.ranked">Rankeds</span>
       </a>
 
       <!-- ── LOGROS ───────────────────────────────────────────── -->
-      <div class="nav-group-label">Logros</div>
+      <div class="nav-group-label" data-i18n="nav.group_achievements">Logros</div>
 
       <a class="nav-item" data-section="gamificacion" href="#gamificacion">
         <span class="nav-icon">
@@ -369,12 +369,12 @@
       <!-- Mini gráfico de evolución del peso -->
       <div class="card" style="margin-bottom:16px;padding:14px 16px 10px">
         <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px">
-          <span style="font-size:12px;font-weight:600;color:var(--text-secondary);letter-spacing:.05em;text-transform:uppercase">Evolución del peso</span>
-          <button class="btn btn--ghost btn--xs" onclick="document.querySelector('[data-section=peso]').click()" style="font-size:11px">Ver todo →</button>
+          <span data-i18n="dashboard.weight_evolution" style="font-size:12px;font-weight:600;color:var(--text-secondary);letter-spacing:.05em;text-transform:uppercase">Evolución del peso</span>
+          <button class="btn btn--ghost btn--xs" data-i18n="dashboard.view_all" onclick="document.querySelector('[data-section=peso]').click()" style="font-size:11px">Ver todo →</button>
         </div>
         <div style="position:relative;height:80px">
           <canvas id="mini-weight-chart" style="width:100%;height:80px"></canvas>
-          <p id="mini-chart-empty" style="display:none;margin:0;text-align:center;color:var(--text-secondary);font-size:13px;padding-top:20px">Sin datos de peso aún</p>
+          <p id="mini-chart-empty" data-i18n="dashboard.mini_chart_empty" style="display:none;margin:0;text-align:center;color:var(--text-secondary);font-size:13px;padding-top:20px">Sin datos de peso aún</p>
         </div>
       </div>
 
@@ -390,7 +390,7 @@
         <div class="ai-insights-header">
           <div class="ai-insights-title">
             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2a7 7 0 0 1 7 7c0 2.4-1.2 4.5-3 5.7V17a2 2 0 0 1-2 2H10a2 2 0 0 1-2-2v-2.3C6.2 13.5 5 11.4 5 9a7 7 0 0 1 7-7z"/><line x1="10" y1="21" x2="14" y2="21"/></svg>
-            <span>Análisis IA de tu semana</span>
+            <span data-i18n="dashboard.ai_title">Análisis IA de tu semana</span>
           </div>
           <button class="btn btn--ghost btn--xs" id="btn-refresh-insights" title="Actualizar análisis">
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="23 4 23 10 17 10"/><path d="M20.5 16a9 9 0 1 1-1.4-8.1"/></svg>
@@ -399,7 +399,7 @@
         <div id="ai-insights-content" class="ai-insights-content">
           <div class="ai-insights-loading">
             <div class="ai-insights-spinner"></div>
-            <span>Generando tu análisis personalizado…</span>
+            <span data-i18n="dashboard.ai_loading">Generando tu análisis personalizado…</span>
           </div>
         </div>
       </div>

@@ -119,13 +119,13 @@
       </a>
 
       <!-- ── ENTRENA ──────────────────────────────────────────── -->
-      <div class="nav-group-label">Entrena</div>
+      <div class="nav-group-label" data-i18n="nav.group_train">Entrena</div>
 
-      <a class="nav-item" data-section="workout" href="#workout">
+      <a class="nav-item" data-section="rutinas" href="#rutinas">
         <span class="nav-icon">
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6.5 6.5h11M6.5 17.5h11M3 12h2m14 0h2"/><circle cx="5" cy="12" r="2"/><circle cx="19" cy="12" r="2"/></svg>
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>
         </span>
-        <span class="nav-label">Entrenos</span>
+        <span class="nav-label" data-i18n="nav.routines">Rutinas</span>
       </a>
 
       <a class="nav-item" data-section="ejercicios" href="#ejercicios">
@@ -135,25 +135,32 @@
         <span class="nav-label" data-i18n="nav.exercises">Ejercicios</span>
       </a>
 
-      <a class="nav-item" data-section="rutinas" href="#rutinas">
+      <a class="nav-item" data-section="workout" href="#workout">
         <span class="nav-icon">
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6.5 6.5h11M6.5 17.5h11M3 12h2m14 0h2"/><circle cx="5" cy="12" r="2"/><circle cx="19" cy="12" r="2"/></svg>
         </span>
-        <span class="nav-label" data-i18n="nav.routines">Rutinas</span>
+        <span class="nav-label" data-i18n="nav.workout">Entrenos</span>
+      </a>
+
+      <a class="nav-item" data-section="rehab" href="#rehab">
+        <span class="nav-icon">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4.5 12.5l4 4L19 7"/><circle cx="12" cy="12" r="10"/></svg>
+        </span>
+        <span class="nav-label" data-i18n="nav.rehab">Rehabilitación</span>
       </a>
 
       <a class="nav-item" data-section="records" href="#records">
         <span class="nav-icon">
           <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M8.21 13.89L7 23l5-3 5 3-1.21-9.12"/><path d="M15 7a3 3 0 1 0-6 0 3 3 0 0 0 6 0z"/><path d="M12 4v3"/></svg>
         </span>
-        <span class="nav-label">Records 1RM</span>
+        <span class="nav-label" data-i18n="nav.records">Records 1RM</span>
       </a>
 
       <a class="nav-item" data-section="deload" href="#deload">
         <span class="nav-icon">
           <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22V12"/><path d="M5 12H2a10 10 0 0 0 20 0h-3"/><path d="M12 2v4"/><path d="M4.93 4.93l2.83 2.83"/><path d="M19.07 4.93l-2.83 2.83"/></svg>
         </span>
-        <span class="nav-label">Auto-Deload</span>
+        <span class="nav-label" data-i18n="nav.deload">Auto-Deload</span>
       </a>
 
       <!-- ── NUTRICIÓN ────────────────────────────────────────── -->
@@ -211,7 +218,7 @@
         <span class="nav-icon">
           <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg>
         </span>
-        <span class="nav-label">Fatiga</span>
+        <span class="nav-label" data-i18n="nav.fatigue">Fatiga Acumulada</span>
       </a>
 
       <a class="nav-item" data-section="plateau" href="#plateau">
@@ -1022,8 +1029,8 @@
     <section id="section-workout" class="section">
       <header class="section-header">
         <div>
-          <h1 class="section-title">Entrenos</h1>
-          <p class="section-subtitle">Registra tus sesiones y sigue tu progresión de carga</p>
+          <h1 class="section-title" data-i18n="nav.workout">Entrenos</h1>
+          <p class="section-subtitle" data-i18n="workout.subtitle">Registra tus sesiones y sigue tu progresión de carga</p>
         </div>
       </header>
       <div id="workout-logger-root"></div>
@@ -1209,12 +1216,28 @@
     </div>
   </footer>
 
+    <!-- ── REHABILITACIÓN ───────────────────────────────────── -->
+    <section id="section-rehab" class="section">
+      <header class="section-header">
+        <div>
+          <h1 class="section-title" data-i18n="nav.rehab">Rehabilitación</h1>
+          <p class="section-subtitle" data-i18n="rehab.subtitle">Seguimiento de lesiones y protocolos de recuperación</p>
+        </div>
+      </header>
+      <div id="rehab-root" class="section-content">
+        <div class="empty-state">
+          <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+          <p data-i18n="rehab.empty">No hay protocolos activos. Añade una lesión para comenzar el seguimiento.</p>
+        </div>
+      </div>
+    </section>
+
     <!-- ── RECORDS 1RM ──────────────────────────────────────── -->
     <section id="section-records" class="section">
       <header class="section-header">
         <div>
-          <h1 class="section-title">Records 1RM</h1>
-          <p class="section-subtitle">Tu fuerza máxima estimada por ejercicio · Fórmula de Epley</p>
+          <h1 class="section-title" data-i18n="nav.records">Records 1RM</h1>
+          <p class="section-subtitle" data-i18n="records.subtitle">Tu fuerza máxima estimada por ejercicio · Fórmula de Epley</p>
         </div>
         <div class="header-actions">
           <button class="btn btn--primary" id="btn-open-rm-form">
@@ -1264,8 +1287,8 @@
     <section id="section-fatigue" class="section">
       <header class="section-header">
         <div>
-          <h1 class="section-title">Fatigue Heatmap</h1>
-          <p class="section-subtitle">Estado de recuperación muscular · basado en tus registros</p>
+          <h1 class="section-title" data-i18n="nav.fatigue">Fatiga Acumulada</h1>
+          <p class="section-subtitle" data-i18n="fatigue.subtitle">Estado de recuperación muscular · basado en tus registros</p>
         </div>
       </header>
       <div id="fatigue-root"></div>
@@ -1522,6 +1545,7 @@
   <script defer src="js/gamification.js"></script>
   <script defer src="js/chatbot.js?v=4"></script>
   <script defer src="js/community.js"></script>
+  <script defer src="js/rehabLogger.js"></script>
   <script defer src="js/onboarding.js?v=3"></script>
   <script defer src="js/supplements.js?v=3"></script>
   <script defer src="js/myRecipes.js?v=4"></script>

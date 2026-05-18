@@ -339,9 +339,21 @@ const Onboarding = (function () {
     }
   }
 
+  // ── Notificar al backend que el onboarding fue completado ────
+  function syncToServer() {
+    const token = localStorage.getItem('hs_access_token') || sessionStorage.getItem('hs_access_token');
+    if (!token) return; // usuario anónimo — solo localStorage
+    fetch('/api/v1/auth/onboarding', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
+      body: JSON.stringify({ completed: true }),
+    }).catch(() => {}); // fire-and-forget
+  }
+
   // ── Cerrar modal y marcar como completado ─────────────────
   function finish() {
     localStorage.setItem(LS_FLAG, '1');
+    syncToServer();
     const modal = document.getElementById('onboarding-modal');
     const hasTDEE = answers['ob-weight'] && answers.goal;
 
@@ -373,8 +385,15 @@ const Onboarding = (function () {
   }
 
   // ── Init ──────────────────────────────────────────────────
-  function init() {
-    // No mostrar si el usuario ya completó el onboarding
+  // serverCompleted: boolean from backend (GET /auth/me → onboarding_completed).
+  // If explicitly false, server wins over localStorage (so returning users
+  // whose localStorage flag got cleared still see the wizard).
+  function init(serverCompleted) {
+    // Server flag is authoritative: if server says NOT done, force the wizard.
+    if (serverCompleted === false) {
+      localStorage.removeItem(LS_FLAG); // clear stale local flag
+    }
+    // No mostrar si ya completó el onboarding (local O servidor)
     if (isOnboarded()) return;
 
     // Esperar a que el DOM esté completamente listo y los módulos cargados
@@ -385,5 +404,5 @@ const Onboarding = (function () {
   }
 
   // API pública — permite forzar el onboarding desde consola en desarrollo
-  return { init, reset: () => { localStorage.removeItem(LS_FLAG); init(); } };
+  return { init, reset: () => { localStorage.removeItem(LS_FLAG); init(false); } };
 })();

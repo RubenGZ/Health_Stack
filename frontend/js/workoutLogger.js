@@ -397,9 +397,9 @@ function renderSets(ex) {
     container.appendChild(row);
   });
 
-  // Bind inputs
+  // Bind inputs — use 'input' for number fields (fires on every keystroke, not just blur)
   container.querySelectorAll('[data-field]').forEach(inp => {
-    const event = inp.type === 'checkbox' ? 'change' : 'change';
+    const event = inp.type === 'checkbox' ? 'change' : 'input';
     inp.addEventListener(event, e => {
       const { key, idx, field } = e.target.dataset;
       const val = field === 'isWarmup' ? e.target.checked
@@ -422,6 +422,17 @@ function renderSets(ex) {
       const s = ex2.sets[+idx];
       if (!s) return;
       const wasDone = !!s.completedAt;
+
+      // Flush current DOM values before completing — guards against focus jump
+      // (user types weight → clicks ✓ without blurring the input first)
+      if (!wasDone) {
+        const row = btn.closest('.wl-set-row');
+        const weightInp = row?.querySelector('[data-field="weightKg"]');
+        const repsInp   = row?.querySelector('[data-field="reps"]');
+        if (weightInp) Session.updateSet(_session, key, +idx, { weightKg: parseFloat(weightInp.value) || 0 });
+        if (repsInp)   Session.updateSet(_session, key, +idx, { reps: parseInt(repsInp.value) || 0 });
+      }
+
       Session.updateSet(_session, key, +idx, {
         completedAt: wasDone ? null : new Date().toISOString(),
       });

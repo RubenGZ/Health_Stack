@@ -655,8 +655,23 @@
     if (typeof Supplements        !== 'undefined') Supplements.init();
     if (typeof MyRecipes          !== 'undefined') MyRecipes.init();
     if (typeof TimingPlanner      !== 'undefined') TimingPlanner.init();
-    // Onboarding al final — necesita que todos los módulos estén listos para pre-rellenarlos
-    if (typeof Onboarding         !== 'undefined') Onboarding.init();
+    // Onboarding al final — necesita que todos los módulos estén listos para pre-rellenarlos.
+    // Pasar onboarding_completed del servidor si el usuario ya está logueado
+    // (el campo viene en el objeto user guardado en localStorage por saveAuth).
+    if (typeof Onboarding !== 'undefined') {
+      const _obUser = (typeof API !== 'undefined') ? API.getUser?.() : null;
+      const _obServerDone = _obUser ? _obUser.onboarding_completed : undefined;
+      Onboarding.init(_obServerDone);
+    }
+
+    // Re-check onboarding after login (in case user logs in and server says NOT done)
+    window.addEventListener('hs:login', function () {
+      if (typeof Onboarding === 'undefined') return;
+      const u = (typeof API !== 'undefined') ? API.getUser?.() : null;
+      if (u && u.onboarding_completed === false) {
+        Onboarding.init(false); // force show
+      }
+    });
 
     initUserChip();
     updateWelcomeCard();
@@ -671,6 +686,8 @@
 
     // Plan gating — must run after DOM is ready
     if (typeof Plan !== 'undefined') Plan.init();
+
+    if (typeof RehabLogger !== 'undefined') RehabLogger.mount('rehab-root');
 
     // API backend monitor — after Plan so _applyPlanFromUser can access Plan methods
     if (typeof API !== 'undefined') API.init();

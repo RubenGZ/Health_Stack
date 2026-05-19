@@ -1,6 +1,8 @@
 var Readiness = (function () {
   'use strict';
 
+  function _t(key) { return (window.t && window.t(key)) || key; }
+
   function computeScore() {
     var entries = typeof WeightTracker !== 'undefined' ? WeightTracker.getAll() : [];
     if (!entries.length) return null;
@@ -25,9 +27,9 @@ var Readiness = (function () {
   }
 
   function getLabel(score) {
-    if (score >= 80) return { badge: 'push',     badgeText: '🔥 Listo para rendir', rec: 'Entrena al máximo hoy',   sub: 'Tu cuerpo está recuperado y en forma. Sesión intensa recomendada.' };
-    if (score >= 50) return { badge: 'moderate', badgeText: '⚡ Carga moderada',    rec: 'Entrena a ritmo moderado', sub: 'Buena forma pero reserva energía. Técnica y volumen medio.' };
-    return              { badge: 'rest',     badgeText: '🌙 Descanso activo',   rec: 'Recuperación activa',      sub: 'Prioriza movilidad, estiramientos o un paseo ligero hoy.' };
+    if (score >= 80) return { badge: 'push',     badgeText: _t('readiness.push_badge'),     rec: _t('readiness.push_rec'),     sub: _t('readiness.push_sub') };
+    if (score >= 50) return { badge: 'moderate', badgeText: _t('readiness.moderate_badge'), rec: _t('readiness.moderate_rec'), sub: _t('readiness.moderate_sub') };
+    return              { badge: 'rest',     badgeText: _t('readiness.rest_badge'),     rec: _t('readiness.rest_rec'),     sub: _t('readiness.rest_sub') };
   }
 
   function getStrokeColor(score) {
@@ -77,6 +79,8 @@ var Readiness = (function () {
 
   function init() {
     render(computeScore());
+    // Re-render when language changes
+    document.addEventListener('languagechange', function () { render(computeScore()); });
   }
 
   return { init: init };

@@ -4,6 +4,8 @@ var Records = (function () {
   var LS_KEY   = 'hs_pr_records';
   var _wired   = false;
 
+  function _t(key) { return (window.t && window.t(key)) || key; }
+
   function load() {
     try {
       var raw = localStorage.getItem(LS_KEY);
@@ -76,7 +78,7 @@ var Records = (function () {
     var names = Object.keys(data.exercises);
 
     if (!names.length) {
-      container.innerHTML = '<p class="rm-empty">Aún no tienes records.<br>Añade tu primer intento para empezar.</p>';
+      container.innerHTML = '<p class="rm-empty">' + _t('records.empty') + '</p>';
       return;
     }
 
@@ -89,7 +91,7 @@ var Records = (function () {
       html += '<h3 class="rm-exercise-name">' + escHtml(name);
       html += ' <span class="rm-best-badge">1RM: ' + bestRM + ' kg</span></h3>';
       html += '<table class="rm-table"><thead><tr>';
-      html += '<th>Fecha</th><th>Peso levantado</th><th>Reps</th><th>1RM estimado</th><th></th>';
+      html += '<th>' + _t('records.col_date') + '</th><th>' + _t('records.col_weight') + '</th><th>' + _t('records.col_reps') + '</th><th>' + _t('records.col_1rm') + '</th><th></th>';
       html += '</tr></thead><tbody>';
 
       entries.forEach(function (e) {
@@ -99,7 +101,7 @@ var Records = (function () {
         html += '<td>' + e.weight + ' kg</td>';
         html += '<td>' + e.reps + '</td>';
         html += '<td class="rm-1rm-val">' + e.rm + ' kg' + (isPR ? ' 🏆' : '') + '</td>';
-        html += '<td><button class="rm-delete-btn" data-exercise="' + escAttr(name) + '" data-id="' + escAttr(e.id) + '" title="Eliminar">✕</button></td>';
+        html += '<td><button class="rm-delete-btn" data-exercise="' + escAttr(name) + '" data-id="' + escAttr(e.id) + '" title="✕">✕</button></td>';
         html += '</tr>';
       });
 
@@ -139,9 +141,9 @@ var Records = (function () {
       var weight   = parseFloat(document.getElementById('rm-weight').value);
       var reps     = parseInt(document.getElementById('rm-reps').value, 10);
 
-      if (!exercise) { alert('Introduce el nombre del ejercicio.'); return; }
-      if (!weight || weight <= 0) { alert('Introduce un peso válido.'); return; }
-      if (!reps || reps < 1 || reps > 30) { alert('Las repeticiones deben ser entre 1 y 30.'); return; }
+      if (!exercise) { alert(_t('records.alert_exercise')); return; }
+      if (!weight || weight <= 0) { alert(_t('records.alert_weight')); return; }
+      if (!reps || reps < 1 || reps > 30) { alert(_t('records.alert_reps')); return; }
 
       addEntry(exercise, weight, reps);
       document.getElementById('rm-exercise').value = '';
@@ -155,6 +157,8 @@ var Records = (function () {
   function init() {
     renderLeaderboard();
     initForm();
+    // Re-render table headers on language change
+    document.addEventListener('languagechange', function () { renderLeaderboard(); });
   }
 
   return { init: init };

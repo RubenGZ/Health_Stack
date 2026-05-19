@@ -12,10 +12,12 @@ var RestTimer = (function () {
     return Math.floor(s / 60) + ':' + (s % 60 < 10 ? '0' : '') + (s % 60);
   }
 
+  function _t(key) { return (window.t && window.t(key)) || key; }
+
   function setType(reps, rpe) {
-    if (reps <= 5 && (rpe === null || rpe >= 8)) return { label: 'Fuerza',       seconds: 210, color: '#f87171' };
-    if (reps <= 12)                               return { label: 'Hipertrofia',  seconds: 90,  color: '#22d3ee' };
-    return                                               { label: 'Accesorio',    seconds: 60,  color: '#34d399' };
+    if (reps <= 5 && (rpe === null || rpe >= 8)) return { label: _t('rest_timer.strength'),    seconds: 210, color: '#f87171' };
+    if (reps <= 12)                               return { label: _t('rest_timer.hypertrophy'), seconds: 90,  color: '#22d3ee' };
+    return                                               { label: _t('rest_timer.accessory'),   seconds: 60,  color: '#34d399' };
   }
 
   function beep(freq, dur) {
@@ -51,15 +53,15 @@ var RestTimer = (function () {
       _warned = true;
       beep(880, 0.15);
       if (navigator.vibrate) navigator.vibrate(100);
-      if (hint) hint.textContent = '¡Prepárate!';
+      if (hint) hint.textContent = _t('rest_timer.ready');
     }
     if (_remaining <= 0) {
       stopTimer();
       beep(660, 0.25);
       setTimeout(function () { beep(880, 0.3); }, 280);
       if (navigator.vibrate) navigator.vibrate([150, 80, 150]);
-      if (lbl)  lbl.textContent  = '¡Listo!';
-      if (hint) hint.textContent = 'Descanso completado';
+      if (lbl)  lbl.textContent  = _t('rest_timer.done');
+      if (hint) hint.textContent = _t('rest_timer.completed');
     }
   }
 
@@ -108,7 +110,7 @@ var RestTimer = (function () {
     document.getElementById('rest-start-btn')?.addEventListener('click', function () {
       var reps = parseInt(document.getElementById('rt-reps').value, 10);
       var rpe  = parseFloat(document.getElementById('rt-rpe').value) || null;
-      if (!reps || reps < 1) { alert('Introduce las repeticiones realizadas.'); return; }
+      if (!reps || reps < 1) { alert(_t('rest_timer.alert_reps')); return; }
       startTimer(reps, rpe);
     });
   }

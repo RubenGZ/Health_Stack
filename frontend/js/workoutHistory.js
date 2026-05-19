@@ -1,7 +1,8 @@
 // frontend/js/workoutHistory.js
 
 export async function init(container) {
-  container.innerHTML = '<p class="wl-history-empty" style="opacity:0.5">Cargando historial...</p>';
+  const _wht = window.t || (k => k);
+  container.innerHTML = '<p class="wl-history-empty" style="opacity:0.5">' + _wht('workout.loading') + '</p>';
 
   const token =
     localStorage.getItem('hs_access_token') ||
@@ -39,22 +40,25 @@ export async function init(container) {
   }
 
   if (!sessions.length) {
-    container.innerHTML = '<p class="wl-history-empty">Aún no hay sesiones registradas.</p>';
+    container.innerHTML = '<p class="wl-history-empty">' + _wht('workout.empty') + '</p>';
     return;
   }
 
   container.innerHTML = `
-    <h3 class="wl-history-title">Historial reciente</h3>
+    <h3 class="wl-history-title">${_wht('workout.history_title')}</h3>
     <div class="wl-session-list">${sessions.map(sessionCard).join('')}</div>
     <div class="wl-chart-section">
-      <label class="wl-chart-label">Progresión de volumen por sesión:</label>
+      <label class="wl-chart-label">${_wht('workout.chart_label')}</label>
       <canvas id="wl-chart" class="wl-chart" height="160"></canvas>
     </div>`;
   drawVolumeChart(container, sessions);
 }
 
 function sessionCard(s) {
-  const date = new Date(s.startedAt).toLocaleDateString('es-ES', {
+  const _LOCALE_MAP = { es:'es-ES', en:'en-GB', fr:'fr-FR', de:'de-DE', it:'it-IT' };
+  const _lang = window.getLanguage ? window.getLanguage() : 'es';
+  const _locale = _LOCALE_MAP[_lang] || 'es-ES';
+  const date = new Date(s.startedAt).toLocaleDateString(_locale, {
     weekday: 'short',
     day: 'numeric',
     month: 'short',
@@ -87,7 +91,7 @@ function drawVolumeChart(container, sessions) {
   if (points.length < 2) {
     ctx.fillStyle = 'rgba(255,255,255,0.3)';
     ctx.font = '12px system-ui';
-    ctx.fillText('Necesitas ≥2 sesiones con datos para ver el gr\xe1fico.', 16, 80);
+    ctx.fillText((window.t && window.t('workout.chart_min')) || 'Need ≥2 sessions to see the chart.', 16, 80);
     return;
   }
 
@@ -117,7 +121,9 @@ function drawVolumeChart(container, sessions) {
     ctx.font = '10px system-ui';
     ctx.fillText(`${p.val}kg`, toX(i) - 14, toY(p.val) - 8);
 
-    const label = p.date.toLocaleDateString('es-ES', { day: 'numeric', month: 'short' });
+    const _lm2 = { es:'es-ES', en:'en-GB', fr:'fr-FR', de:'de-DE', it:'it-IT' };
+    const _l2 = _lm2[window.getLanguage ? window.getLanguage() : 'es'] || 'es-ES';
+    const label = p.date.toLocaleDateString(_l2, { day: 'numeric', month: 'short' });
     ctx.fillStyle = 'rgba(255,255,255,0.4)';
     ctx.fillText(label, toX(i) - 14, H - 8);
   });

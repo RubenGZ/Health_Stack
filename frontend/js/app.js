@@ -331,8 +331,9 @@
 
     var goalDate   = new Date(t0 + daysToGoal * 86400000);
     var ratePerWeek = +(slope * 7).toFixed(2);
-    var months     = ['ene','feb','mar','abr','may','jun','jul','ago','sep','oct','nov','dic'];
-    var dateStr    = goalDate.getDate() + ' ' + months[goalDate.getMonth()] + ' ' + goalDate.getFullYear();
+    var _lang      = window.getLanguage ? window.getLanguage() : 'es';
+    var _localeMap = { es:'es-ES', en:'en-GB', fr:'fr-FR', de:'de-DE', it:'it-IT' };
+    var dateStr    = goalDate.toLocaleDateString(_localeMap[_lang] || 'es-ES', { day:'numeric', month:'short', year:'numeric' });
 
     return { goal: goal.toFixed(1), dateStr: dateStr, ratePerWeek: ratePerWeek };
   }
@@ -362,14 +363,15 @@
             changeEl.style.color = delta <= 0 ? 'var(--emerald)' : 'var(--accent)';
           }
         } else {
-          if (changeEl) changeEl.textContent = `${entries.length} registros totales`;
+          if (changeEl) changeEl.textContent = `${entries.length} ${window.t ? window.t('dashboard.stat_records_ph') : 'registros totales'}`;
         }
       } else {
-        if (changeEl) changeEl.textContent = 'Primer registro';
+        if (changeEl) changeEl.textContent = window.t ? window.t('dashboard.first_entry') : 'Primer registro';
       }
     }
 
     // Registros totales
+    const _wt = window.t || (k => k);
     const recEl = document.getElementById('stat-records');
     if (recEl) animateCountUp(recEl, entries.length, 500);
     const recLbl = document.getElementById('stat-records-label');
@@ -378,7 +380,8 @@
         const d = new Date(e.date);
         return `${d.getFullYear()}-${getWeekNumber(d)}`;
       }));
-      recLbl.textContent = `${weeks.size} semana${weeks.size !== 1 ? 's' : ''} con datos`;
+      const weeksKey = weeks.size === 1 ? 'dashboard.weeks_one' : 'dashboard.weeks_many';
+      recLbl.textContent = _wt(weeksKey).replace('{n}', weeks.size);
     }
 
     // IMC — necesita altura guardada por onboarding o TDEE
@@ -391,10 +394,11 @@
       const bmi = kg / (m * m);
       animateCountUp(bmiEl, bmi.toFixed(1), 700);
       if (bmiLbl) {
-        const cat = bmi < 18.5 ? 'Bajo peso'
-                  : bmi < 25   ? 'Normopeso'
-                  : bmi < 30   ? 'Sobrepeso'
-                  : 'Obesidad';
+        const _bt = window.t || (k => k);
+        const cat = bmi < 18.5 ? _bt('dashboard.bmi_underweight')
+                  : bmi < 25   ? _bt('dashboard.bmi_normal')
+                  : bmi < 30   ? _bt('dashboard.bmi_overweight')
+                  : _bt('dashboard.bmi_obese');
         bmiLbl.textContent  = cat;
         bmiLbl.style.color  = bmi >= 18.5 && bmi < 25 ? 'var(--emerald)' : 'var(--amber)';
       }
@@ -406,7 +410,7 @@
     const tdeeLbl = document.getElementById('stat-tdee-label');
     if (tdeeEl && tdeeVal) {
       animateCountUp(tdeeEl, `${Math.round(tdeeVal)} kcal`, 700);
-      if (tdeeLbl) { tdeeLbl.textContent = 'TDEE calculado'; tdeeLbl.style.color = 'var(--emerald)'; }
+      if (tdeeLbl) { tdeeLbl.textContent = window.t ? window.t('dashboard.tdee_calculated') : 'TDEE calculado'; tdeeLbl.style.color = 'var(--emerald)'; }
     }
 
     // Mini gráfico de peso
@@ -423,11 +427,18 @@
             '<div class="projection-icon">📈</div>',
             '<div class="projection-body">',
               '<p class="projection-headline">',
-                'A este ritmo llegarás a <span class="projection-highlight">' + proj.goal + ' kg</span>',
-                ' el <span class="projection-highlight">' + proj.dateStr + '</span>',
+                (function(){
+                  var _pt = window.t || (k=>k);
+                  return _pt('dashboard.projection_to')
+                    .replace('{goal}', '<span class="projection-highlight">' + proj.goal + ' kg</span>')
+                    .replace('{date}', '<span class="projection-highlight">' + proj.dateStr + '</span>');
+                })(),
               '</p>',
               '<p class="projection-detail">',
-                'Perdiendo ~' + Math.abs(proj.ratePerWeek) + ' kg/semana · basado en tus últimos registros',
+                (function(){
+                  var _pr = window.t || (k=>k);
+                  return _pr('dashboard.projection_rate').replace('{rate}', Math.abs(proj.ratePerWeek));
+                })(),
               '</p>',
             '</div>',
           '</div>',
@@ -508,53 +519,59 @@
     // Insight text y color
     let icon, message, color;
     const absRate = Math.abs(rate);
+    const _it = window.t || (k => k);
+    const _msg = (key, vals) => {
+      let s = _it(key);
+      if (vals) Object.entries(vals).forEach(([k,v]) => { s = s.replace('{'+k+'}', v); });
+      return s;
+    };
 
     if (goal.startsWith('deficit')) {
       if (rate < -0.8) {
         icon = '⚠️'; color = 'var(--amber)';
-        message = `Estás perdiendo <strong>${absRate.toFixed(2)} kg/sem</strong> — ritmo algo rápido. Considera aumentar 100-150 kcal para preservar músculo.`;
+        message = _msg('dashboard.insight_deficit_fast', { rate: absRate.toFixed(2) });
       } else if (rate < -0.15) {
         icon = '🎯'; color = 'var(--emerald)';
-        message = `Perdiendo <strong>${absRate.toFixed(2)} kg/sem</strong> — ritmo óptimo para déficit. ¡Sigue así!`;
+        message = _msg('dashboard.insight_deficit_ok', { rate: absRate.toFixed(2) });
       } else if (rate >= -0.15 && rate <= 0.1) {
         icon = '📊'; color = 'var(--secondary)';
-        message = `Peso estable (${rate >= 0 ? '+' : ''}${rate.toFixed(2)} kg/sem). Si tu objetivo es perder, prueba reducir 150-200 kcal o añadir cardio.`;
+        message = _msg('dashboard.insight_deficit_stable', { delta: (rate >= 0 ? '+' : '') + rate.toFixed(2) });
       } else {
         icon = '📈'; color = 'var(--accent)';
-        message = `Ganando <strong>${absRate.toFixed(2)} kg/sem</strong>. Revisa tu balance calórico si quieres bajar de peso.`;
+        message = _msg('dashboard.insight_deficit_gaining', { rate: absRate.toFixed(2) });
       }
     } else if (goal.startsWith('surplus')) {
       if (rate > 0.5) {
         icon = '⚠️'; color = 'var(--amber)';
-        message = `Ganando <strong>${absRate.toFixed(2)} kg/sem</strong> — ritmo algo rápido. Podrías acumular más grasa. Reduce 100-150 kcal.`;
+        message = _msg('dashboard.insight_surplus_fast', { rate: absRate.toFixed(2) });
       } else if (rate > 0.1) {
         icon = '💪'; color = 'var(--emerald)';
-        message = `Ganando <strong>${absRate.toFixed(2)} kg/sem</strong> — bulk limpio perfecto. ¡Sigue así!`;
+        message = _msg('dashboard.insight_surplus_ok', { rate: absRate.toFixed(2) });
       } else {
         icon = '📊'; color = 'var(--secondary)';
-        message = `Peso casi estable (${rate >= 0 ? '+' : ''}${rate.toFixed(2)} kg/sem). Si quieres ganar masa, añade 100-200 kcal.`;
+        message = _msg('dashboard.insight_surplus_stable', { delta: (rate >= 0 ? '+' : '') + rate.toFixed(2) });
       }
     } else {
       // Mantener
       if (Math.abs(rate) <= 0.2) {
         icon = '⚖️'; color = 'var(--emerald)';
-        message = `Peso muy estable (<strong>±${absRate.toFixed(2)} kg/sem</strong>). ¡Mantenimiento perfecto!`;
+        message = _msg('dashboard.insight_maintain_ok', { rate: absRate.toFixed(2) });
       } else {
         icon = '📊'; color = 'var(--secondary)';
-        message = `Variación de <strong>${rate >= 0 ? '+' : ''}${rate.toFixed(2)} kg/sem</strong>. Ajusta tu ingesta si quieres más estabilidad.`;
+        message = _msg('dashboard.insight_maintain_drift', { delta: (rate >= 0 ? '+' : '') + rate.toFixed(2) });
       }
     }
 
     const totalStr = delta >= 0
-      ? `+${delta.toFixed(1)} kg en ${Math.round(days)} días`
-      : `${delta.toFixed(1)} kg en ${Math.round(days)} días`;
+      ? `+${delta.toFixed(1)} kg / ${Math.round(days)} d`
+      : `${delta.toFixed(1)} kg / ${Math.round(days)} d`;
 
     wrap.style.display = '';
     wrap.innerHTML = `
       <div class="insight-card" style="--insight-color:${color}">
         <span class="insight-icon">${icon}</span>
         <div class="insight-body">
-          <div class="insight-title">Análisis de tu progreso</div>
+          <div class="insight-title">${_it('dashboard.insight_title')}</div>
           <div class="insight-msg">${message}</div>
         </div>
         <span class="insight-total">${totalStr}</span>

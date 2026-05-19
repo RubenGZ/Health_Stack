@@ -67,11 +67,15 @@ const Community = (function () {
 
   // ── Formato de tiempo relativo ────────────────────────────
   function timeAgo(ts) {
+    const _t = (key, n) => {
+      const s = (window.t && window.t(key)) || key;
+      return n !== undefined ? s.replace('{n}', n) : s;
+    };
     const diff = (Date.now() - ts) / 1000;
-    if (diff < 60)    return 'ahora mismo';
-    if (diff < 3600)  return `hace ${Math.floor(diff / 60)} min`;
-    if (diff < 86400) return `hace ${Math.floor(diff / 3600)} h`;
-    return `hace ${Math.floor(diff / 86400)} días`;
+    if (diff < 60)    return _t('community.time_now');
+    if (diff < 3600)  return _t('community.time_min', Math.floor(diff / 60));
+    if (diff < 86400) return _t('community.time_h',   Math.floor(diff / 3600));
+    return _t('community.time_days', Math.floor(diff / 86400));
   }
 
   // ── Render feed ───────────────────────────────────────────

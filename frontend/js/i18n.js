@@ -176,7 +176,14 @@
 
   function updateLangBtn() {
     const btn = document.getElementById('hs-lang-btn')
-    if (btn) btn.innerHTML = `${FLAGS[current]} <span>${LABELS[current]}</span>`
+    if (!btn) return
+    // Reconstruct full button content including the chevron SVG,
+    // so the hs-lang-chevron element is never lost after language changes.
+    btn.innerHTML = `${FLAGS[current]} <span>${LABELS[current]}</span>
+      <svg style="margin-left:auto;width:12px;height:12px;transition:transform .2s" id="hs-lang-chevron"
+        fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+        <path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7"/>
+      </svg>`
   }
 
   /* ── Language Selector (injected into sidebar footer) ───────── */
@@ -227,15 +234,17 @@
       const ch  = document.getElementById('hs-lang-chevron')
       const open = dd.style.display === 'none'
       dd.style.display = open ? 'block' : 'none'
-      ch.style.transform = open ? 'rotate(180deg)' : ''
+      if (ch) ch.style.transform = open ? 'rotate(180deg)' : ''
     })
 
     // Select language
     wrap.querySelectorAll('[data-lang]').forEach(btn => {
       btn.addEventListener('click', () => {
         setLanguage(btn.dataset.lang)
-        document.getElementById('hs-lang-dd').style.display = 'none'
-        document.getElementById('hs-lang-chevron').style.transform = ''
+        const _dd = document.getElementById('hs-lang-dd')
+        const _ch = document.getElementById('hs-lang-chevron')
+        if (_dd) _dd.style.display = 'none'
+        if (_ch) _ch.style.transform = ''
         // Re-render active section hint
         document.querySelectorAll('[data-lang]').forEach(b => {
           b.querySelector('svg')?.remove()

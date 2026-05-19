@@ -27,6 +27,8 @@
       workout: { subtitle:'Registra tus sesiones y sigue tu progresión de carga' },
       records: { subtitle:'Tu fuerza máxima estimada por ejercicio · Fórmula de Epley' },
       fatigue: { subtitle:'Estado de recuperación muscular · basado en tus registros' },
+      ai_insights: { current_status:'Estado actual', injury_risk:'Riesgo de lesión', weekly_goals:'Objetivos de esta semana', risk_low:'Bajo', risk_medium:'Medio', risk_high:'Alto', loading:'Generando tu análisis personalizado…', error:'No se pudo cargar el análisis. Inténtalo más tarde.' },
+      pwa: { install_title:'Instala HealthStack Pro', install_desc:'Acceso offline, carga instantánea y sin navegador', install_btn:'Instalar', close:'Cerrar' },
     },
 
     /* ── ENGLISH ──────────────────────────────────────────────── */
@@ -49,6 +51,8 @@
       workout: { subtitle:'Log your sessions and track progressive overload' },
       records: { subtitle:'Your estimated 1RM per exercise · Epley formula' },
       fatigue: { subtitle:'Muscle recovery status · based on your session logs' },
+      ai_insights: { current_status:'Current status', injury_risk:'Injury risk', weekly_goals:'Goals for this week', risk_low:'Low', risk_medium:'Medium', risk_high:'High', loading:'Generating your personalized analysis…', error:'Could not load the analysis. Please try again later.' },
+      pwa: { install_title:'Install HealthStack Pro', install_desc:'Offline access, instant loading, no browser needed', install_btn:'Install', close:'Close' },
     },
 
     /* ── FRANÇAIS ─────────────────────────────────────────────── */
@@ -71,6 +75,8 @@
       workout: { subtitle:'Enregistrez vos séances et suivez votre progression' },
       records: { subtitle:'Votre 1RM estimé par exercice · Formule Epley' },
       fatigue: { subtitle:'État de récupération musculaire · basé sur vos séances' },
+      ai_insights: { current_status:'État actuel', injury_risk:'Risque de blessure', weekly_goals:'Objectifs de cette semaine', risk_low:'Faible', risk_medium:'Moyen', risk_high:'Élevé', loading:'Génération de votre analyse personnalisée…', error:"Impossible de charger l'analyse. Réessayez plus tard." },
+      pwa: { install_title:'Installer HealthStack Pro', install_desc:'Accès hors ligne, chargement instantané, sans navigateur', install_btn:'Installer', close:'Fermer' },
     },
 
     /* ── DEUTSCH ──────────────────────────────────────────────── */
@@ -93,6 +99,8 @@
       workout: { subtitle:'Erfasse deine Einheiten und verfolge die progressive Überlastung' },
       records: { subtitle:'Dein geschätztes 1RM pro Übung · Epley-Formel' },
       fatigue: { subtitle:'Muskelregeneration · basierend auf deinen Trainingsprotokollen' },
+      ai_insights: { current_status:'Aktueller Status', injury_risk:'Verletzungsrisiko', weekly_goals:'Ziele dieser Woche', risk_low:'Niedrig', risk_medium:'Mittel', risk_high:'Hoch', loading:'Deine personalisierte Analyse wird erstellt…', error:'Analyse konnte nicht geladen werden. Bitte später erneut versuchen.' },
+      pwa: { install_title:'HealthStack Pro installieren', install_desc:'Offline-Zugriff, sofortiges Laden, kein Browser nötig', install_btn:'Installieren', close:'Schließen' },
     },
 
     /* ── ITALIANO ─────────────────────────────────────────────── */
@@ -115,6 +123,8 @@
       workout: { subtitle:'Registra le tue sessioni e monitora la progressione di carico' },
       records: { subtitle:'Il tuo 1RM stimato per esercizio · Formula Epley' },
       fatigue: { subtitle:'Stato di recupero muscolare · basato sui tuoi allenamenti' },
+      ai_insights: { current_status:'Stato attuale', injury_risk:'Rischio di infortuni', weekly_goals:'Obiettivi di questa settimana', risk_low:'Basso', risk_medium:'Medio', risk_high:'Alto', loading:'Generazione della tua analisi personalizzata…', error:"Impossibile caricare l'analisi. Riprova più tardi." },
+      pwa: { install_title:'Installa HealthStack Pro', install_desc:'Accesso offline, caricamento istantaneo, senza browser', install_btn:'Installa', close:'Chiudi' },
     },
 
   } /* /LOCALES */

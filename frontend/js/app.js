@@ -583,15 +583,16 @@
     const banner = document.getElementById('pwa-install-banner');
     if (!banner) return;
 
+    const _t = window.t || (k => k);
     banner.innerHTML = `
       <div class="pwa-banner">
         <span class="pwa-icon">📲</span>
         <div class="pwa-info">
-          <strong>Instala HealthStack Pro</strong>
-          <small>Acceso offline, carga instantánea y sin navegador</small>
+          <strong>${_t('pwa.install_title')}</strong>
+          <small>${_t('pwa.install_desc')}</small>
         </div>
-        <button class="btn btn--primary btn--sm" id="pwa-install-btn">Instalar</button>
-        <button class="pwa-dismiss" id="pwa-dismiss" title="Cerrar">✕</button>
+        <button class="btn btn--primary btn--sm" id="pwa-install-btn">${_t('pwa.install_btn')}</button>
+        <button class="pwa-dismiss" id="pwa-dismiss" title="${_t('pwa.close')}">✕</button>
       </div>`;
 
     banner.style.display = '';

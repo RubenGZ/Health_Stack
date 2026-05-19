@@ -11,6 +11,10 @@
   const CACHE_KEY = 'ai_insights_cache';
   const CACHE_TTL = 6 * 60 * 60 * 1000; // 6 hours
 
+  function t(key) {
+    return (window.t && window.t(key)) || key;
+  }
+
   function getToken() {
     return localStorage.getItem('hs_access_token') || '';
   }
@@ -52,8 +56,9 @@
       medium: 'background:rgba(245,158,11,0.15);color:#f59e0b',
       high:   'background:rgba(239,68,68,0.15);color:#ef4444',
     };
-    const label = { low: 'Bajo', medium: 'Medio', high: 'Alto' };
-    return `<span class="ai-risk-badge" style="${map[level] || ''}">${label[level] || level}</span>`;
+    const labelKey = { low: 'ai_insights.risk_low', medium: 'ai_insights.risk_medium', high: 'ai_insights.risk_high' };
+    const label = t(labelKey[level] || level);
+    return `<span class="ai-risk-badge" style="${map[level] || ''}">${label}</span>`;
   }
 
   function categoryIcon(cat) {
@@ -66,10 +71,14 @@
     return map[cat] || '🎯';
   }
 
+  // Store last data so we can re-render on language change without re-fetching
+  let _lastData = null;
+
   function renderInsights(data) {
     const el = document.getElementById('ai-insights-content');
     if (!el) return;
 
+    _lastData = data;
     const { narrative, risk, goals } = data;
     let html = '<div class="ai-insights-sections">';
 
@@ -77,7 +86,7 @@
     if (narrative && narrative.narrative) {
       html += `
         <div class="ai-section">
-          <div class="ai-section-label">📊 Estado actual ${trendIcon(narrative.trend)}</div>
+          <div class="ai-section-label">📊 ${t('ai_insights.current_status')} ${trendIcon(narrative.trend)}</div>
           <p class="ai-narrative">${narrative.narrative}</p>
           ${narrative.highlights?.length ? `
             <ul class="ai-highlights">
@@ -90,7 +99,7 @@
     if (risk) {
       html += `
         <div class="ai-section">
-          <div class="ai-section-label">🛡️ Riesgo de lesión ${riskBadge(risk.overall_risk)}</div>
+          <div class="ai-section-label">🛡️ ${t('ai_insights.injury_risk')} ${riskBadge(risk.overall_risk)}</div>
           <p class="ai-narrative">${risk.summary}</p>
           ${risk.risk_flags?.length ? `
             <div class="ai-risk-flags">
@@ -108,7 +117,7 @@
     if (goals && goals.goals?.length) {
       html += `
         <div class="ai-section">
-          <div class="ai-section-label">🎯 Objetivos de esta semana</div>
+          <div class="ai-section-label">🎯 ${t('ai_insights.weekly_goals')}</div>
           <div class="ai-goals">
             ${goals.goals.map(g => `
               <div class="ai-goal-item">
@@ -130,7 +139,7 @@
   function renderError() {
     const el = document.getElementById('ai-insights-content');
     if (el) {
-      el.innerHTML = '<p class="ai-insights-error">No se pudo cargar el análisis. Inténtalo más tarde.</p>';
+      el.innerHTML = `<p class="ai-insights-error">${t('ai_insights.error')}</p>`;
     }
   }
 
@@ -140,7 +149,7 @@
       el.innerHTML = `
         <div class="ai-insights-loading">
           <div class="ai-insights-spinner"></div>
-          <span>Generando tu análisis personalizado…</span>
+          <span>${t('ai_insights.loading')}</span>
         </div>`;
     }
   }
@@ -195,8 +204,12 @@
     }
 
     // Re-load after login
-    // Load when user logs in (storage event from same tab after saveAuth)
     window.addEventListener('hs:login', () => loadInsights(true));
+
+    // Re-render labels on language change (without re-fetching)
+    document.addEventListener('languagechange', () => {
+      if (_lastData) renderInsights(_lastData);
+    });
   }
 
   if (document.readyState === 'loading') {

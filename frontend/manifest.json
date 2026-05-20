@@ -1,37 +1,50 @@
 {
+  "id": "/",
   "name": "HealthStack Pro",
   "short_name": "HealthStack",
-  "description": "Tu plataforma de fitness inteligente — tracking, nutrición, rutinas y comunidad",
+  "description": "Intelligent athletic training, sports rehabilitation, and dynamic 3D anatomy tracking.",
   "start_url": "/",
+  "scope": "/",
   "display": "standalone",
+  "orientation": "portrait",
   "background_color": "#07070f",
-  "theme_color": "#0891b2",
-  "orientation": "portrait-primary",
-  "categories": ["health", "fitness", "lifestyle"],
+  "theme_color": "#6c63ff",
+  "categories": ["health", "sports"],
   "lang": "es",
   "icons": [
     {
-      "src": "icons/icon.svg",
+      "src": "/icons/icon-192.png",
+      "type": "image/png",
+      "sizes": "192x192",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/icons/icon-512.png",
+      "type": "image/png",
+      "sizes": "512x512",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/icons/icon.svg",
       "sizes": "any",
       "type": "image/svg+xml",
-      "purpose": "any maskable"
+      "purpose": "any"
     }
   ],
-  "screenshots": [],
   "shortcuts": [
     {
       "name": "Registrar peso",
       "short_name": "Peso",
       "description": "Añadir un registro de peso",
       "url": "/#peso",
-      "icons": [{ "src": "icons/icon.svg", "sizes": "any" }]
+      "icons": [{ "src": "/icons/icon-192.png", "sizes": "192x192" }]
     },
     {
       "name": "Rutinas",
       "short_name": "Rutinas",
       "description": "Generar mi rutina semanal",
       "url": "/#rutinas",
-      "icons": [{ "src": "icons/icon.svg", "sizes": "any" }]
+      "icons": [{ "src": "/icons/icon-192.png", "sizes": "192x192" }]
     }
   ]
 }

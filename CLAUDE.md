@@ -186,10 +186,12 @@ asyncio_default_test_loop_scope = session   ← sin esto asyncpg explota
 | RGPD P0: ai_insights enviaba PII a IA externa | `get_weekly_goals` no usaba `_build_anonymous_ai_context` | Refactorizado + test `test_ai_prompts_never_contain_pii` añadido (2026-05-18) |
 | Ranked leaderboard mostraba fragmentos UUID | `get_gym_leaderboard` no hacía JOIN con User; router truncaba `user_id[:8]+"..."` | JOIN con User + usar `display_name or "Atleta"` + regression test (2026-05-18) |
 | Sparring list filtraba UUIDs a otros miembros | `gym_servers/router.py:get_sparrings` devolvía `str(membership.user_id)` | Cambiado a `display_name`, eliminado campo `user_id`; XSS escape en frontend + test (2026-05-18) |
+| 500 en móvil | `nginx.cloudflare.conf` (config real de la Pi via ops docker-compose) tenía `map $is_mobile` + `return 302 /mobile/` apuntando a directorio inexistente; además `mobile-redirect.js` en `index.html` creaba bucle infinito | Eliminados `map`, `if`, `location /mobile/` de los 3 configs nginx; eliminado script tag de `index.html`; `mobile-redirect.js` → no-op; SW bumped a v24 (2026-05-20) |
+| Cambio de idioma requería Ctrl+Shift+R | `applyTranslations()` solo actualiza atributos `[data-i18n]`; texto renderizado por JS no se actualizaba | `setLanguage()` añade `setTimeout(() => location.reload(), 120)` en `i18n.js` (2026-05-20) |
 
 ---
 
-## Infraestructura — Estado (2026-05-17)
+## Infraestructura — Estado (2026-05-20)
 
 | Item | Estado | Notas |
 |------|--------|-------|
@@ -202,7 +204,7 @@ asyncio_default_test_loop_scope = session   ← sin esto asyncpg explota
 | Sentry | ✅ Cableado | Filtro PII activo (RGPD Art. 28) |
 | Alembic migraciones | ✅ 4 migraciones | Última: `ai_insights_cache` (d4e5f6a7b8c0) |
 | Redis (rate limiting prod) | ⚠️ Configurado no activo | En Pi usa in-memory (Redis unhealthy en Pi) |
-| Service Worker | ✅ `healthstack-v15` | Bumped para limpiar cache de auth-gate.js roto |
+| Service Worker | ✅ `healthstack-v24` | v24: fix mobile redirect + i18n reload (2026-05-20) |
 
 **Contenedor PostgreSQL:** `healthstack_db`
 **Crear BD test:** `docker exec healthstack_db psql -U postgres -c "CREATE DATABASE healthstack_test;"`

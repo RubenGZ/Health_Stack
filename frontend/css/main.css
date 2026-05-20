@@ -2834,6 +2834,32 @@ select.form-input option { background: var(--bg-surface); color: var(--text-prim
 }
 .pwa-dismiss:hover { color: var(--text-primary); background: var(--glass-hover); }
 
+/* iOS Safari — banner con flecha apuntando a la barra inferior */
+#pwa-install-banner {
+  position: relative;
+}
+.pwa-banner--ios {
+  background: linear-gradient(135deg, rgba(108,99,255,.18), rgba(8,145,178,.14));
+  border: 1px solid rgba(108,99,255,.4);
+}
+.pwa-banner--ios .pwa-info small {
+  font-size: .8rem;
+  color: var(--text-primary);
+  opacity: .85;
+}
+.pwa-ios-arrow {
+  text-align: center;
+  font-size: 1.2rem;
+  color: var(--primary);
+  animation: bounce-down .9s ease-in-out infinite;
+  line-height: 1;
+  margin-top: 2px;
+}
+@keyframes bounce-down {
+  0%, 100% { transform: translateY(0);   opacity: 1;   }
+  50%       { transform: translateY(5px); opacity: .6; }
+}
+
 /* ============================================================
    HISTORIAL DE RUTINAS
    ============================================================ */

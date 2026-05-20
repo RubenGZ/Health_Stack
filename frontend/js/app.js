@@ -583,7 +583,19 @@
   // ── PWA Install Prompt ─────────────────────────────────────
   let _deferredInstallPrompt = null;
 
+  // Detecta iOS Safari (no Chrome en iOS, no Android)
+  function _isIosSafari() {
+    const ua = navigator.userAgent;
+    const isIos = /iphone|ipad|ipod/i.test(ua);
+    // En iOS, Chrome/Firefox incluyen "CriOS" o "FxiOS"
+    const isSafari = isIos && !/CriOS|FxiOS|EdgiOS|OPiOS/i.test(ua);
+    // No mostrar si ya está instalada como PWA (standalone)
+    const isStandalone = window.navigator.standalone === true;
+    return isSafari && !isStandalone;
+  }
+
   function initPWAInstall() {
+    // Android / Chrome desktop: banner nativo
     window.addEventListener('beforeinstallprompt', e => {
       e.preventDefault();
       _deferredInstallPrompt = e;
@@ -594,6 +606,11 @@
       const banner = document.getElementById('pwa-install-banner');
       if (banner) banner.style.display = 'none';
     });
+
+    // iOS Safari: no hay beforeinstallprompt — mostramos guía manual
+    if (_isIosSafari()) {
+      showInstallBanner();
+    }
   }
 
   function showInstallBanner() {
@@ -603,16 +620,35 @@
     if (!banner) return;
 
     const _t = window.t || (k => k);
-    banner.innerHTML = `
-      <div class="pwa-banner">
-        <span class="pwa-icon">📲</span>
-        <div class="pwa-info">
-          <strong>${_t('pwa.install_title')}</strong>
-          <small>${_t('pwa.install_desc')}</small>
+    const isIos = _isIosSafari();
+
+    if (isIos) {
+      // Banner iOS: guía visual con el icono de Share de Safari
+      banner.innerHTML = `
+        <div class="pwa-banner pwa-banner--ios">
+          <span class="pwa-icon">📲</span>
+          <div class="pwa-info">
+            <strong>${_t('pwa.install_title')}</strong>
+            <small>
+              Toca <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" style="vertical-align:middle;margin:0 2px"><path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8"/><polyline points="16 6 12 2 8 6"/><line x1="12" y1="2" x2="12" y2="15"/></svg>
+              <strong>Compartir</strong> → <strong>Añadir a inicio</strong>
+            </small>
+          </div>
+          <button class="pwa-dismiss" id="pwa-dismiss" title="${_t('pwa.close')}">✕</button>
         </div>
-        <button class="btn btn--primary btn--sm" id="pwa-install-btn">${_t('pwa.install_btn')}</button>
-        <button class="pwa-dismiss" id="pwa-dismiss" title="${_t('pwa.close')}">✕</button>
-      </div>`;
+        <div class="pwa-ios-arrow">▼</div>`;
+    } else {
+      banner.innerHTML = `
+        <div class="pwa-banner">
+          <span class="pwa-icon">📲</span>
+          <div class="pwa-info">
+            <strong>${_t('pwa.install_title')}</strong>
+            <small>${_t('pwa.install_desc')}</small>
+          </div>
+          <button class="btn btn--primary btn--sm" id="pwa-install-btn">${_t('pwa.install_btn')}</button>
+          <button class="pwa-dismiss" id="pwa-dismiss" title="${_t('pwa.close')}">✕</button>
+        </div>`;
+    }
 
     banner.style.display = '';
 

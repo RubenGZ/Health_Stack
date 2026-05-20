@@ -40,6 +40,11 @@
   --transition:     all 0.22s cubic-bezier(0.4, 0, 0.2, 1);
   --transition-slow:all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
 
+  /* ── Timing profesional (rediseño v28) ── */
+  --dur-fast:  150ms;
+  --dur-base:  220ms;
+  --ease-out:  cubic-bezier(0.25, 0.46, 0.45, 0.94);
+
   --mesh-1: radial-gradient(ellipse 60% 50% at 75% 20%, rgba(8,145,178,0.18) 0%, transparent 65%);
   --mesh-2: radial-gradient(ellipse 45% 40% at 20% 80%, rgba(22,163,74,0.10) 0%, transparent 60%);
   --mesh-3: radial-gradient(ellipse 35% 30% at 90% 70%, rgba(34,211,238,0.08) 0%, transparent 55%);
@@ -282,9 +287,16 @@ canvas { display: block; }
   display: none;
   padding: 32px 32px 48px;
   max-width: 1200px;
-  animation: fadeIn 0.3s ease;
 }
 .section.active { display: block; }
+.section.section--visible {
+  animation: sectionReveal var(--dur-base) var(--ease-out) both;
+}
+
+@keyframes sectionReveal {
+  from { opacity: 0; transform: translateY(10px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
 
 @keyframes fadeIn {
   from { opacity: 0; transform: translateY(8px); }
@@ -348,6 +360,19 @@ canvas { display: block; }
   transition: var(--transition);
 }
 .card:hover { border-color: rgba(34, 211, 238, 0.18); }
+
+/* Card scroll reveal (JS añade card--will-reveal + card--revealed) */
+.card.card--will-reveal {
+  opacity: 0;
+  transform: translateY(8px);
+  transition: opacity var(--dur-base) var(--ease-out),
+              transform var(--dur-base) var(--ease-out),
+              border-color 0.22s ease;
+}
+.card.card--will-reveal.card--revealed {
+  opacity: 1;
+  transform: none;
+}
 .card-header {
   display: flex;
   align-items: center;
@@ -806,7 +831,25 @@ select.form-input option { background: var(--bg-surface); color: var(--text-prim
   border: 1px solid transparent;
   outline: none;
   white-space: nowrap;
+  position: relative;
+  overflow: hidden;
 }
+.btn:active {
+  transform: scale(0.97);
+  transition: transform var(--dur-fast);
+}
+/* Ripple sutil en press */
+.btn::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background: radial-gradient(circle, rgba(255,255,255,0.12) 0%, transparent 70%);
+  opacity: 0;
+  transition: opacity var(--dur-fast);
+  pointer-events: none;
+}
+.btn:active::after { opacity: 1; }
 .btn--primary {
   background: linear-gradient(135deg, var(--primary), #8b5cf6);
   color: white;
@@ -2271,6 +2314,60 @@ select.form-input option { background: var(--bg-surface); color: var(--text-prim
   .ob-modal   { border-radius: var(--radius-lg); }
 }
 
+/* ── Slide transitions entre pasos ── */
+.ob-slide-out-left  { animation: obSlideOutLeft  140ms var(--ease-out) both; }
+.ob-slide-out-right { animation: obSlideOutRight 140ms var(--ease-out) both; }
+.ob-slide-in-right  { animation: obSlideInRight  140ms var(--ease-out) both; }
+.ob-slide-in-left   { animation: obSlideInLeft   140ms var(--ease-out) both; }
+@keyframes obSlideOutLeft  { to   { opacity: 0; transform: translateX(-28px); } }
+@keyframes obSlideOutRight { to   { opacity: 0; transform: translateX(28px);  } }
+@keyframes obSlideInRight  { from { opacity: 0; transform: translateX(28px);  } }
+@keyframes obSlideInLeft   { from { opacity: 0; transform: translateX(-28px); } }
+
+/* ── Estado completado (checkmark) ── */
+.ob-done-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 16px;
+  padding: 32px 0;
+}
+.ob-done-text {
+  font-size: 1rem;
+  font-weight: 700;
+  color: var(--text-primary);
+  letter-spacing: -0.02em;
+}
+.ob-checkmark {
+  width: 64px;
+  height: 64px;
+}
+.ob-checkmark__circle {
+  stroke: var(--primary);
+  stroke-width: 2;
+  stroke-dasharray: 166;
+  stroke-dashoffset: 166;
+  animation: ob-stroke 0.5s cubic-bezier(0.65, 0, 0.45, 1) forwards;
+}
+.ob-checkmark__check {
+  stroke: var(--secondary);
+  stroke-width: 2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  stroke-dasharray: 48;
+  stroke-dashoffset: 48;
+  animation: ob-stroke 0.35s cubic-bezier(0.65, 0, 0.45, 1) 0.4s forwards;
+}
+@keyframes ob-stroke {
+  to { stroke-dashoffset: 0; }
+}
+
+/* Ocultar el emoji grande del step (eliminado del HTML, clase de seguridad) */
+.ob-step-emoji { display: none; }
+/* Ocultar emoji dentro de opciones si algún módulo los renderiza */
+.ob-opt-emoji { display: none; }
+
 /* ============================================================
    AFILIACIÓN — Cards de producto patrocinado
    ============================================================ */
@@ -2406,6 +2503,64 @@ select.form-input option { background: var(--bg-surface); color: var(--text-prim
 .section-subtitle-banner { margin-bottom:24px; }
 .section-subtitle-banner h2 { font-size:1.5rem; font-weight:700; color:var(--text-primary); margin-bottom:6px; }
 .section-subtitle-banner p  { color:var(--text-secondary); font-size:0.9rem; }
+
+/* ── Perfil footer card ─────────────────────────────────────── */
+.perfil-footer-card {
+  margin-top: 32px;
+  padding: 16px 20px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+.perfil-footer-links {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.perfil-footer-pill {
+  padding: 5px 14px;
+  border-radius: 99px;
+  border: 1px solid var(--glass-border);
+  background: transparent;
+  color: var(--text-muted);
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  cursor: pointer;
+  transition: color var(--dur-fast), border-color var(--dur-fast);
+  text-decoration: none;
+  display: inline-block;
+}
+.perfil-footer-pill:hover {
+  color: var(--text-secondary);
+  border-color: var(--primary);
+}
+.perfil-feedback-btn {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  border: 1px solid var(--glass-border);
+  background: transparent;
+  color: var(--text-muted);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: color var(--dur-fast), border-color var(--dur-fast), background var(--dur-fast);
+  flex-shrink: 0;
+}
+.perfil-feedback-btn:hover {
+  color: var(--primary);
+  border-color: var(--primary);
+  background: var(--primary-light);
+}
+.perfil-footer-version {
+  font-size: 0.7rem;
+  color: var(--text-muted);
+  white-space: nowrap;
+}
 
 /* ============================================================
    MACRO INFO CARDS (FitSciPro captura A)
@@ -4867,6 +5022,9 @@ select.form-input option { background: var(--bg-surface); color: var(--text-prim
   #mobile-bottom-nav { display: flex; }
   /* Ocultar sidebar horizontal que CSS convierte en scroll row */
   .sidebar { display: none !important; }
+  /* Ocultar footer y FAB de feedback en móvil (van a Perfil) */
+  #app-footer { display: none !important; }
+  #fw-trigger-btn { display: none !important; }
 }
 
 #mobile-bottom-nav.mbn--hidden {
@@ -4892,8 +5050,31 @@ select.form-input option { background: var(--bg-surface); color: var(--text-prim
   min-width: 0;
 }
 
+.mbn-tab {
+  position: relative;
+}
+.mbn-tab::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 50%;
+  width: 0;
+  height: 2px;
+  background: var(--primary);
+  border-radius: 0 0 2px 2px;
+  transform: translateX(-50%) scaleX(0);
+  transform-origin: center;
+  transition: transform var(--dur-fast) var(--ease-out),
+              width var(--dur-fast) var(--ease-out);
+}
+
 .mbn-tab--active {
   color: var(--primary);
+  transition: color var(--dur-fast) var(--ease-out);
+}
+.mbn-tab--active::before {
+  width: 24px;
+  transform: translateX(-50%) scaleX(1);
 }
 
 .mbn-tab:active { opacity: 0.7; }

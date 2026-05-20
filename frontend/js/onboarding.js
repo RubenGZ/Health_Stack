@@ -149,8 +149,11 @@ const Onboarding = (function () {
     if (next)  next.textContent = currentStep === total - 1 ? '¡Empezar! 🚀' : 'Continuar →';
     if (!body) return;
 
+    // Mostrar "Omitir" solo en el primer paso
+    const skipBtn = document.getElementById('ob-skip-btn');
+    if (skipBtn) skipBtn.style.visibility = currentStep === 0 ? 'visible' : 'hidden';
+
     let html = `
-      <div class="ob-step-emoji">${step.emoji}</div>
       <h2 class="ob-step-title" id="ob-title">${step.title}</h2>
       <p class="ob-step-sub">${step.subtitle}</p>
     `;
@@ -158,7 +161,6 @@ const Onboarding = (function () {
     if (step.type === 'options') {
       html += `<div class="ob-options">` + step.options.map(o => `
         <button class="ob-option${answers[step.id] == o.value ? ' selected' : ''}" data-val="${o.value}">
-          <span class="ob-opt-emoji">${o.emoji}</span>
           <span class="ob-opt-label">${o.label}</span>
           <span class="ob-opt-hint">${o.hint}</span>
         </button>`).join('') + `</div>`;
@@ -201,16 +203,34 @@ const Onboarding = (function () {
     }
   }
 
+  // ── Animación de slide entre pasos ───────────────────────
+  function slideToStep(dir) {
+    // dir: 'next' | 'prev'
+    const body = document.getElementById('ob-body');
+    if (!body) { renderStep(); return; }
+    const outClass = dir === 'next' ? 'ob-slide-out-left' : 'ob-slide-out-right';
+    const inClass  = dir === 'next' ? 'ob-slide-in-right' : 'ob-slide-in-left';
+    body.classList.add(outClass);
+    setTimeout(() => {
+      body.classList.remove(outClass);
+      renderStep();
+      body.classList.add(inClass);
+      requestAnimationFrame(() => {
+        requestAnimationFrame(() => body.classList.remove(inClass));
+      });
+    }, 140);
+  }
+
   // ── Navegar ───────────────────────────────────────────────
   function prevStep() {
-    if (currentStep > 0) { currentStep--; renderStep(); }
+    if (currentStep > 0) { currentStep--; slideToStep('prev'); }
   }
 
   function nextStep() {
     if (!validate()) return;
     if (currentStep < STEPS.length - 1) {
       currentStep++;
-      renderStep();
+      slideToStep('next');
     } else {
       applyAnswers();
       finish();
@@ -384,20 +404,40 @@ const Onboarding = (function () {
   function finish() {
     localStorage.setItem(LS_FLAG, '1');
     syncToServer();
-    const modal = document.getElementById('onboarding-modal');
+    const overlay = document.getElementById('onboarding-modal');
     const hasTDEE = answers['ob-weight'] && answers.goal;
 
-    if (modal) {
-      modal.classList.add('ob-exit');
-      setTimeout(() => {
-        modal.remove();
+    if (overlay) {
+      // Mostrar checkmark antes de cerrar
+      const body = document.getElementById('ob-body');
+      if (body) {
+        body.innerHTML = `
+          <div class="ob-done-state">
+            <svg class="ob-checkmark" viewBox="0 0 52 52">
+              <circle class="ob-checkmark__circle" cx="26" cy="26" r="25" fill="none"/>
+              <path class="ob-checkmark__check" fill="none" d="M14.1 27.2l7.1 7.2 16.7-16.8"/>
+            </svg>
+            <p class="ob-done-text">¡Perfil listo!</p>
+          </div>
+        `;
+      }
+      // Ocultar footer y skip durante el checkmark
+      const footer = overlay.querySelector('.ob-footer');
+      const skip   = document.getElementById('ob-skip-btn');
+      if (footer) footer.style.display = 'none';
+      if (skip)   skip.style.display   = 'none';
 
-        // Navigate to nutrición so the user sees their TDEE + macros immediately
-        if (hasTDEE) {
-          const nutriNav = document.querySelector('[data-section="nutricion"]');
-          if (nutriNav) nutriNav.click();
-        }
-      }, 420);
+      setTimeout(() => {
+        overlay.classList.add('ob-exit');
+        setTimeout(() => {
+          overlay.remove();
+          // Navigate to nutrición so the user sees their TDEE + macros immediately
+          if (hasTDEE) {
+            const nutriNav = document.querySelector('[data-section="nutricion"]');
+            if (nutriNav) nutriNav.click();
+          }
+        }, 420);
+      }, 900);
     }
 
     // Mostrar mensaje de bienvenida en el stat del dashboard
@@ -405,7 +445,7 @@ const Onboarding = (function () {
     const sal  = hour < 13 ? 'Buenos días' : hour < 20 ? 'Buenas tardes' : 'Buenas noches';
     const greeting = document.getElementById('dashboard-greeting');
     if (greeting && answers['ob-weight']) {
-      greeting.textContent = `${sal}, bienvenido/a a HealthStack 🎉`;
+      greeting.textContent = `${sal}, bienvenido/a a HealthStack`;
       setTimeout(() => {
         const user = typeof API !== 'undefined' ? API.getUser?.() : null;
         const name = user?.display_name || 'Atleta';

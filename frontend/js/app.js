@@ -28,7 +28,7 @@
     // Ocultar todas las secciones
     SECTIONS.forEach(id => {
       const el = document.getElementById(`section-${id}`);
-      if (el) el.classList.remove('active');
+      if (el) { el.classList.remove('active'); el.classList.remove('section--visible'); }
     });
 
     // Activar la sección destino
@@ -36,6 +36,8 @@
     if (target) {
       target.classList.add('active');
       window.scrollTo({ top: 0, behavior: 'smooth' });
+      // Añadir clase de transición en el siguiente frame para que el navegador la pinte
+      requestAnimationFrame(() => target.classList.add('section--visible'));
     }
 
     // Actualizar nav items
@@ -736,14 +738,46 @@
       Onboarding.init(_obServerDone);
     }
 
-    // Re-check onboarding after login (in case user logs in and server says NOT done)
+    // Re-check onboarding after login — también trigger si no hay TDEE guardado (flujo MVP)
     window.addEventListener('hs:login', function () {
       if (typeof Onboarding === 'undefined') return;
       const u = (typeof API !== 'undefined') ? API.getUser?.() : null;
-      if (u && u.onboarding_completed === false) {
+      const hasTDEE = localStorage.getItem('hs_tdee');
+      if ((u && u.onboarding_completed === false) || !hasTDEE) {
         Onboarding.init(false); // force show
       }
     });
+
+    // ── IntersectionObserver — card scroll reveal ─────────────
+    if ('IntersectionObserver' in window) {
+      const cardObserver = new IntersectionObserver((entries) => {
+        entries.forEach((entry, i) => {
+          if (entry.isIntersecting) {
+            const delay = Math.min(i, 5) * 60; // stagger 60ms, máx 5 cards
+            setTimeout(() => {
+              entry.target.classList.add('card--revealed');
+            }, delay);
+            cardObserver.unobserve(entry.target);
+          }
+        });
+      }, { threshold: 0.08 });
+
+      // Observar todas las cards del documento
+      document.querySelectorAll('.card').forEach(card => {
+        card.classList.add('card--will-reveal');
+        cardObserver.observe(card);
+      });
+
+      // Re-observar cards dentro de secciones al navegar (pueden cargarse dinámicamente)
+      window.addEventListener('hs:section-changed', function () {
+        setTimeout(() => {
+          document.querySelectorAll('.card:not(.card--will-reveal)').forEach(card => {
+            card.classList.add('card--will-reveal');
+            cardObserver.observe(card);
+          });
+        }, 50);
+      });
+    }
 
     initUserChip();
     updateWelcomeCard();
@@ -773,6 +807,16 @@
           Plan.showUpgradeModal('restimer');
         }
       }, true); // capture before restTimer.js listener
+    }
+
+    // ── Botón circular de feedback en sección Perfil ──────────
+    const perfilFeedbackBtn = document.getElementById('perfil-feedback-btn');
+    if (perfilFeedbackBtn) {
+      perfilFeedbackBtn.addEventListener('click', () => {
+        if (typeof FeedbackWidget !== 'undefined' && FeedbackWidget.open) {
+          FeedbackWidget.open();
+        }
+      });
     }
 
     console.log('%c HealthStack Pro v2.0 ', 'background:#6c63ff;color:white;padding:4px 8px;border-radius:4px;font-weight:bold');

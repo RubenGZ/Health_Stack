@@ -95,13 +95,17 @@ const Onboarding = (function () {
       <div class="ob-modal" role="dialog" aria-modal="true" aria-labelledby="ob-title">
         <div class="ob-header">
           <div class="ob-logo">
-            <svg width="28" height="28" viewBox="0 0 32 32" fill="none">
-              <path d="M16 3L29 9.5V22.5L16 29L3 22.5V9.5L16 3Z" stroke="url(#obg)" stroke-width="2" fill="none"/>
-              <path d="M8 16H24M16 8V24" stroke="url(#obg)" stroke-width="2" stroke-linecap="round"/>
-              <defs><linearGradient id="obg" x1="3" y1="3" x2="29" y2="29">
-                <stop offset="0%" stop-color="#6c63ff"/>
-                <stop offset="100%" stop-color="#00d2ff"/>
-              </linearGradient></defs>
+            <svg width="28" height="28" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <rect width="32" height="32" rx="8" fill="url(#obhgrad)"/>
+              <rect x="7"    y="5.5" width="4.5" height="21" rx="2" fill="white"/>
+              <rect x="20.5" y="5.5" width="4.5" height="21" rx="2" fill="white"/>
+              <rect x="7"    y="13"  width="18"  height="6"  rx="2" fill="white"/>
+              <defs>
+                <linearGradient id="obhgrad" x1="0" y1="0" x2="32" y2="32" gradientUnits="userSpaceOnUse">
+                  <stop offset="0%"   stop-color="#0891b2"/>
+                  <stop offset="100%" stop-color="#22d3ee"/>
+                </linearGradient>
+              </defs>
             </svg>
           </div>
           <span class="ob-brand">HealthStack Pro</span>

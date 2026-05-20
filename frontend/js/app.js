@@ -6,6 +6,8 @@
 (function () {
   'use strict';
 
+  function _t(key) { return (window.t && window.t(key)) || key; }
+
   // ── Navegación SPA ─────────────────────────────────────────
   const SECTIONS = [
     'dashboard','peso','nutricion','ejercicios',
@@ -641,11 +643,11 @@
       <a class="sponsor-card" href="${sp.url}" target="_blank" rel="sponsored noopener">
         <span class="sponsor-logo">${sp.logo}</span>
         <div class="sponsor-info">
-          <span class="sponsor-label">Recomendado por HealthStack</span>
+          <span class="sponsor-label">${_t('sponsor.recommended')}</span>
           <strong>${sp.name}</strong>
           <small>${sp.tagline}</small>
         </div>
-        <span class="sponsor-cta">Ver ofertas →</span>
+        <span class="sponsor-cta">${_t('sponsor.see_offers')}</span>
       </a>`;
   }
 

@@ -1,6 +1,11 @@
 var SessionReplay = (function () {
   'use strict';
 
+  function _t(key) { return (window.t && window.t(key)) || key; }
+
+  var _LOCALE_MAP = { es:'es-ES', en:'en-GB', fr:'fr-FR', de:'de-DE', it:'it-IT' };
+  function _locale() { return _LOCALE_MAP[window.getLanguage ? window.getLanguage() : 'es'] || 'es-ES'; }
+
   var LS_KEY      = 'hs_session_log';   // [{id, date, name, sets:[{exercise,weight,reps,note,noteBlob,ts}]}]
   var MAX_NOTE_MS = 5000;               // 5 s voice cap
   var _recorder    = null;
@@ -88,12 +93,12 @@ var SessionReplay = (function () {
     if (!container) return;
     var session = getActive();
     if (!session || !session.sets.length) {
-      container.innerHTML = '<p class="sr-empty">Añade series con el formulario para empezar el diario.</p>';
+      container.innerHTML = '<p class="sr-empty">' + _t('session_replay.empty_timeline') + '</p>';
       return;
     }
 
     var html = session.sets.map(function (set, i) {
-      var time = new Date(set.ts).toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit' });
+      var time = new Date(set.ts).toLocaleTimeString(_locale(), { hour: '2-digit', minute: '2-digit' });
       var hasNote = set.noteBlob || set.note;
       return '<div class="sr-set-item">'
         + '<div class="sr-set-dot"></div>'
@@ -145,18 +150,18 @@ var SessionReplay = (function () {
     sessions.sort(function (a, b) { return new Date(b.date) - new Date(a.date); });
 
     if (!sessions.length) {
-      container.innerHTML = '<p class="sr-empty">Sin sesiones previas aún.</p>';
+      container.innerHTML = '<p class="sr-empty">' + _t('session_replay.empty_history') + '</p>';
       return;
     }
 
     var html = sessions.slice(0, 10).map(function (s) {
-      var d = new Date(s.date).toLocaleDateString('es-ES', { weekday: 'short', day: 'numeric', month: 'short' });
+      var d = new Date(s.date).toLocaleDateString(_locale(), { weekday: 'short', day: 'numeric', month: 'short' });
       return '<div class="sr-hist-item">'
         + '<div class="sr-hist-info">'
-        + '<span class="sr-hist-name">' + escHtml(s.name || 'Sesión') + '</span>'
-        + '<span class="sr-hist-date">' + d + ' · ' + s.sets.length + ' series</span>'
+        + '<span class="sr-hist-name">' + escHtml(s.name || _t('session_replay.session_prefix')) + '</span>'
+        + '<span class="sr-hist-date">' + d + ' · ' + _t('session_replay.series').replace('{n}', s.sets.length) + '</span>'
         + '</div>'
-        + '<button class="sr-hist-del btn btn--ghost" data-id="' + escAttr(s.id) + '">Borrar</button>'
+        + '<button class="sr-hist-del btn btn--ghost" data-id="' + escAttr(s.id) + '">' + _t('session_replay.delete_btn') + '</button>'
         + '</div>';
     }).join('');
 
@@ -187,7 +192,7 @@ var SessionReplay = (function () {
       _sessionName = todaySess.name;
     } else {
       _sessionId   = genId();
-      _sessionName = 'Sesión ' + new Date().toLocaleDateString('es-ES', { weekday: 'long', day: 'numeric', month: 'short' });
+      _sessionName = _t('session_replay.session_prefix') + ' ' + new Date().toLocaleDateString(_locale(), { weekday: 'long', day: 'numeric', month: 'short' });
       sessions.push({ id: _sessionId, date: new Date().toISOString(), name: _sessionName, sets: [] });
       saveSessions(sessions);
     }

@@ -5,6 +5,8 @@
 const Exercises = (function () {
   'use strict';
 
+  function _t(key) { return (window.t && window.t(key)) || key; }
+
   // ── AnatomyLens SVG viewer (lazy) ────────────────────────────────────────
   let _lens = null;
   async function getLens() {
@@ -361,7 +363,7 @@ const Exercises = (function () {
     if (!grid) return;
     const list = filtered();
     if (!list.length) {
-      grid.innerHTML = '<p style="color:var(--text-muted);grid-column:1/-1;padding:24px">No se encontraron ejercicios.</p>';
+      grid.innerHTML = '<p style="color:var(--text-muted);grid-column:1/-1;padding:24px">' + _t('exercises.no_results') + '</p>';
       return;
     }
     grid.innerHTML = list.map(ex => `
@@ -375,7 +377,7 @@ const Exercises = (function () {
           <span class="ex-equip">${ex.equipment}</span>
         </div>
         <p class="ex-desc">${ex.desc}</p>
-        ${ex.video_url ? `<a class="ex-video-link" href="${ex.video_url}" target="_blank" rel="noopener" onclick="event.stopPropagation()">▶ Ver técnica</a>` : ''}
+        ${ex.video_url ? `<a class="ex-video-link" href="${ex.video_url}" target="_blank" rel="noopener" onclick="event.stopPropagation()">▶ ${_t('exercises.see_technique')}</a>` : ''}
       </div>
     `).join('');
 
@@ -475,7 +477,7 @@ const Exercises = (function () {
       <a class="affiliate-card" href="${a.url}" target="_blank" rel="sponsored noopener">
         <span class="aff-icon">${a.icon}</span>
         <div class="aff-info">
-          <span class="aff-label">Equipamiento recomendado</span>
+          <span class="aff-label">${_t('exercises.equipment')}</span>
           <strong>${a.name}</strong>
           <small>${a.desc}</small>
         </div>

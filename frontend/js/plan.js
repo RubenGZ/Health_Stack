@@ -6,6 +6,8 @@
 var Plan = (function () {
   'use strict';
 
+  function _t(key) { return (window.t && window.t(key)) || key; }
+
   var LS_KEY = 'hs_plan'; // 'free' | 'pro' | 'elite'
 
   // Minimum plan required per section ID
@@ -27,21 +29,23 @@ var Plan = (function () {
   var LABELS   = { free: 'Starter', pro: 'Pro', elite: 'Elite' };
   var COLORS   = { free: '#64748b', pro: '#6c63ff', elite: '#f59e0b' };
 
-  var FEATURE_NAMES = {
-    'timing':        'Horario Óptimo de Nutrición',
-    'records':       'Records & 1RM Tracker',
-    'receipt':       'Athlete Receipt semanal',
-    'fatigue':       'Fatigue Heatmap muscular',
-    'plateau':       'Plateau Radar con diagnóstico',
-    'sessionreplay': 'Session Replay + notas de voz',
-    'bodycomp':      'Body-Comp Forecast (US Navy)',
-    'deload':        'Auto-Deload Detector IA',
-    'restimer':      'Rest Timer inteligente',
-    'autopilot':     'Macro Autopilot IA',
-  };
+  function getFeatureNames() {
+    return {
+      'timing':        _t('plan.feat_timing'),
+      'records':       _t('plan.feat_records'),
+      'receipt':       _t('plan.feat_receipt'),
+      'fatigue':       _t('plan.feat_fatigue'),
+      'plateau':       _t('plan.feat_plateau'),
+      'sessionreplay': _t('plan.feat_sessionreplay'),
+      'bodycomp':      _t('plan.feat_bodycomp'),
+      'deload':        _t('plan.feat_deload'),
+      'restimer':      _t('plan.feat_restimer'),
+      'autopilot':     _t('plan.feat_autopilot'),
+    };
+  }
 
-  var PRO_PERKS   = ['Horario Óptimo', 'Records & 1RM', 'Athlete Receipt', 'Rest Timer', 'Macro Autopilot'];
-  var ELITE_PERKS = ['Fatigue Heatmap', 'Plateau Radar', 'Session Replay', 'Body-Comp Forecast', 'Auto-Deload'];
+  function getProPerks()   { return [_t('plan.perk_timing'), _t('plan.perk_records'), _t('plan.perk_receipt'), _t('plan.perk_restimer'), _t('plan.perk_autopilot')]; }
+  function getElitePerks() { return [_t('plan.perk_fatigue'), _t('plan.perk_plateau'), _t('plan.perk_sessionreplay'), _t('plan.perk_bodycomp'), _t('plan.perk_deload')]; }
 
   // ── Core getters ────────────────────────────────────────────
   function get()  { return localStorage.getItem(LS_KEY) || 'free'; }
@@ -65,8 +69,8 @@ var Plan = (function () {
   function showUpgradeModal(featureKey, onUnlock) {
     var needPlan  = REQUIRED[featureKey] || 'pro';
     var isEliteFt = needPlan === 'elite';
-    var featName  = FEATURE_NAMES[featureKey] || featureKey;
-    var perks     = isEliteFt ? ELITE_PERKS : PRO_PERKS;
+    var featName  = getFeatureNames()[featureKey] || featureKey;
+    var perks     = isEliteFt ? getElitePerks() : getProPerks();
     var color     = isEliteFt ? COLORS.elite : COLORS.pro;
     var icon      = isEliteFt ? '👑' : '⚡';
     var label     = isEliteFt ? 'Elite' : 'Pro';
@@ -79,17 +83,17 @@ var Plan = (function () {
     overlay.className = 'plan-modal-overlay';
     overlay.setAttribute('role', 'dialog');
     overlay.setAttribute('aria-modal', 'true');
-    overlay.setAttribute('aria-label', 'Actualiza tu plan');
+    overlay.setAttribute('aria-label', _t('plan.aria_upgrade'));
 
     overlay.innerHTML = [
       '<div class="plan-modal">',
-        '<button class="plan-modal-close" id="plan-modal-close" aria-label="Cerrar">✕</button>',
+        '<button class="plan-modal-close" id="plan-modal-close" aria-label="' + _t('plan.aria_close') + '">✕</button>',
 
         '<div class="plan-modal-icon" style="color:' + color + '">' + icon + '</div>',
         '<div class="plan-modal-badge" style="background:' + color + '">Plan ' + label + '</div>',
 
         '<h2 class="plan-modal-title">' + featName + '</h2>',
-        '<p class="plan-modal-desc">Desbloquea <strong>' + featName + '</strong> y mucho más con el plan <strong>' + label + '</strong>.</p>',
+        '<p class="plan-modal-desc">' + _t('plan.desc').replace('{feat}', '<strong>' + featName + '</strong>').replace('{plan}', '<strong>' + label + '</strong>') + '</p>',
 
         '<ul class="plan-modal-perks">',
           perks.map(function (p) {
@@ -100,15 +104,15 @@ var Plan = (function () {
         '<div class="plan-modal-actions">',
           '<a href="https://healthstack.pro/#pricing" target="_blank" rel="noopener"',
           '   class="btn btn--primary plan-modal-cta" style="--btn-bg:' + color + '">',
-            'Ver planes de precio →',
+            _t('plan.see_pricing'),
           '</a>',
           '<button class="plan-modal-demo" id="plan-modal-demo">',
-            'Continuar en modo demo (sin límites)',
+            _t('plan.demo_btn'),
           '</button>',
         '</div>',
 
         '<p class="plan-modal-note">',
-          '¿Ya tienes cuenta? <a href="https://healthstack.pro/login" target="_blank">Inicia sesión</a>',
+          _t('plan.already_account') + ' <a href="https://healthstack.pro/login" target="_blank">' + _t('plan.login_link') + '</a>',
         '</p>',
       '</div>',
     ].join('');

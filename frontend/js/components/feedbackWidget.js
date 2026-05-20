@@ -16,6 +16,8 @@
 const FeedbackWidget = (function () {
   'use strict';
 
+  function _t(key) { return (window.t && window.t(key)) || key; }
+
   // ── Config ─────────────────────────────────────────────────────────────────
   const BASE = (typeof CONFIG !== 'undefined' && CONFIG.API_BASE) || '/api/v1';
   const WIDGET_VERSION = '1.0.0'; // bump si cambias el DOM para invalidar caché
@@ -322,15 +324,15 @@ const FeedbackWidget = (function () {
         <button class="fw-option fw-option--bug" id="fw-bug-btn" type="button">
           <span class="fw-option-icon">🐛</span>
           <span class="fw-option-text">
-            <span class="fw-option-label">Bug / Algo no funciona</span>
-            <span class="fw-option-hint">Abre WhatsApp con contexto pre-rellenado</span>
+            <span class="fw-option-label">${_t('feedback.opt_bug_label')}</span>
+            <span class="fw-option-hint">${_t('feedback.opt_bug_hint')}</span>
           </span>
         </button>
         <button class="fw-option fw-option--idea" id="fw-idea-btn" type="button">
           <span class="fw-option-icon">💡</span>
           <span class="fw-option-text">
-            <span class="fw-option-label">Sugerencia / Idea</span>
-            <span class="fw-option-hint">Envíanos tu idea directamente</span>
+            <span class="fw-option-label">${_t('feedback.opt_idea_label')}</span>
+            <span class="fw-option-hint">${_t('feedback.opt_idea_hint')}</span>
           </span>
         </button>
       </div>
@@ -351,22 +353,22 @@ const FeedbackWidget = (function () {
     modal.querySelector('.fw-modal-body').innerHTML = `
       <div class="fw-suggestion-panel">
         <button class="fw-suggestion-back" id="fw-back-btn" type="button">
-          ← Volver
+          ${_t('feedback.back')}
         </button>
         <label class="fw-suggestion-label">
-          Cuéntanos tu idea o sugerencia
+          ${_t('feedback.suggestion_label')}
         </label>
         <textarea
           class="fw-textarea"
           id="fw-suggestion-text"
-          placeholder="¿Qué mejorarías? ¿Qué te falta? ¿Qué te encantó?"
+          placeholder="${_t('feedback.placeholder')}"
           maxlength="${MAX}"
           autocomplete="off"
         ></textarea>
         <div class="fw-send-row">
           <span class="fw-char-count" id="fw-char-count">0 / ${MAX}</span>
           <button class="fw-send-btn" id="fw-send-btn" type="button" disabled>
-            Enviar →
+            ${_t('feedback.send')}
           </button>
         </div>
         <div id="fw-feedback-status"></div>
@@ -400,7 +402,7 @@ const FeedbackWidget = (function () {
     if (!text || text.length < 5) return;
 
     sendBtn.disabled = true;
-    sendBtn.textContent = 'Enviando…';
+    sendBtn.textContent = _t('feedback.sending');
 
     // Formato seguro: prefijo #feedback para fácil búsqueda en la BD
     // Nunca enviamos datos biométricos, solo el texto libre del usuario
@@ -420,7 +422,7 @@ const FeedbackWidget = (function () {
       if (res.ok) {
         statusEl.innerHTML = `
           <div class="fw-success-msg">
-            ✅ ¡Gracias por tu feedback! Lo revisaremos pronto.
+            ${_t('feedback.success')}
           </div>
         `;
         // Cerrar automáticamente tras 2.5 segundos
@@ -432,15 +434,15 @@ const FeedbackWidget = (function () {
       // Fallback: WhatsApp si falla la API (sin conexión, sin auth, etc.)
       statusEl.innerHTML = `
         <div class="fw-error-msg">
-          No se pudo enviar. <a href="${_buildWhatsAppUrl('idea')}"
+          ${_t('feedback.error_send')} <a href="${_buildWhatsAppUrl('idea')}"
             target="_blank" rel="noopener noreferrer"
             style="color:#c4b5fd;text-decoration:underline">
-            Enviar por WhatsApp
+            ${_t('feedback.whatsapp_link')}
           </a>
         </div>
       `;
       sendBtn.disabled  = false;
-      sendBtn.textContent = 'Enviar →';
+      sendBtn.textContent = _t('feedback.send');
     }
   }
 
@@ -450,6 +452,13 @@ const FeedbackWidget = (function () {
     const overlay = document.getElementById('fw-overlay');
     if (!overlay) return;
     const modal = overlay.querySelector('.fw-modal');
+    // Actualizar textos del header con el idioma activo
+    const titleEl = modal.querySelector('.fw-modal-title');
+    const subtitleEl = modal.querySelector('.fw-modal-subtitle');
+    const closeBtn = modal.querySelector('.fw-close-btn');
+    if (titleEl) titleEl.textContent = _t('feedback.modal_title');
+    if (subtitleEl) subtitleEl.textContent = _t('feedback.modal_subtitle');
+    if (closeBtn) closeBtn.setAttribute('aria-label', _t('feedback.close_aria'));
     // Reset al estado inicial
     _renderOptions(modal);
     // Animar apertura en el próximo frame
@@ -494,14 +503,24 @@ const FeedbackWidget = (function () {
     btn.id        = 'fw-trigger-btn';
     btn.className = 'fw-btn';
     btn.type      = 'button';
-    btn.setAttribute('aria-label', 'Dar feedback al equipo');
+    btn.setAttribute('aria-label', _t('feedback.btn_aria'));
     btn.innerHTML = `
       <span class="fw-btn-icon">💬</span>
-      <span>Dar Feedback</span>
+      <span>${_t('feedback.btn_label')}</span>
       <span class="fw-alpha-badge">alpha</span>
     `;
     btn.addEventListener('click', _open);
     document.body.appendChild(btn);
+
+    // Actualizar label del botón al cambiar idioma
+    document.addEventListener('languagechange', function () {
+      const triggerBtn = document.getElementById('fw-trigger-btn');
+      if (triggerBtn) {
+        triggerBtn.setAttribute('aria-label', _t('feedback.btn_aria'));
+        const labelSpan = triggerBtn.querySelectorAll('span')[1];
+        if (labelSpan) labelSpan.textContent = _t('feedback.btn_label');
+      }
+    });
 
     // ── Overlay + modal ───────────────────────────────────────────────────────
     const overlay = document.createElement('div');
@@ -509,16 +528,16 @@ const FeedbackWidget = (function () {
     overlay.className = 'fw-overlay';
     overlay.setAttribute('role', 'dialog');
     overlay.setAttribute('aria-modal', 'true');
-    overlay.setAttribute('aria-label', 'Panel de feedback');
+    overlay.setAttribute('aria-label', _t('feedback.modal_aria'));
     overlay.innerHTML = `
       <div class="fw-modal">
         <div class="fw-modal-header">
           <div>
-            <p class="fw-modal-title">Comparte tu opinión</p>
-            <p class="fw-modal-subtitle">Alpha · Tu feedback mejora la app</p>
+            <p class="fw-modal-title">${_t('feedback.modal_title')}</p>
+            <p class="fw-modal-subtitle">${_t('feedback.modal_subtitle')}</p>
           </div>
           <button class="fw-close-btn" id="fw-close-btn"
-                  type="button" aria-label="Cerrar">✕</button>
+                  type="button" aria-label="${_t('feedback.close_aria')}">✕</button>
         </div>
         <div class="fw-modal-body"></div>
       </div>

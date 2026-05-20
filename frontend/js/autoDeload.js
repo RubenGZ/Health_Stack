@@ -1,6 +1,8 @@
 var AutoDeload = (function () {
   'use strict';
 
+  function _t(key) { return (window.t && window.t(key)) || key; }
+
   // ── Thresholds ────────────────────────────────────────────────
   var READINESS_LOW      = 60;   // % below which readiness signal fires
   var READINESS_DAYS     = 5;    // consecutive days below threshold to fire
@@ -148,7 +150,7 @@ var AutoDeload = (function () {
     var sets = routine.exercises
       ? routine.exercises.map(function (ex) {
           var sets = Math.max(1, Math.round((ex.sets || 3) * DELOAD_VOLUME_PCT / 100));
-          return ex.name + ' — ' + sets + ' series al ' + DELOAD_VOLUME_PCT + '% peso';
+          return ex.name + ' — ' + _t('deload.series_at').replace('{sets}', sets).replace('{pct}', DELOAD_VOLUME_PCT);
         })
       : [];
 
@@ -167,7 +169,7 @@ var AutoDeload = (function () {
         // sR (readiness bajo) → fatiga sistémica general: grupos principales
         if (sR.fires) {
           ['back', 'quads', 'chest', 'shoulders'].forEach(function (g) {
-            overlayData.push({ key: g, intensity: 0.80, status: 'tired', label: 'Fatiga sistémica' });
+            overlayData.push({ key: g, intensity: 0.80, status: 'tired', label: _t('deload.systemic_fatigue') });
           });
         }
 
@@ -175,8 +177,8 @@ var AutoDeload = (function () {
         if (sL.fires) {
           ['chest', 'back', 'shoulders'].forEach(function (g) {
             var ex = overlayData.find(function (d) { return d.key === g; });
-            if (!ex) overlayData.push({ key: g, intensity: 0.65, status: 'recovering', label: 'Caída de carga' });
-            else { ex.intensity = Math.min(1, ex.intensity + 0.10); ex.label = 'Fatiga + caída de carga'; }
+            if (!ex) overlayData.push({ key: g, intensity: 0.65, status: 'recovering', label: _t('deload.load_drop') });
+            else { ex.intensity = Math.min(1, ex.intensity + 0.10); ex.label = _t('deload.systemic_fatigue') + ' + ' + _t('deload.load_drop'); }
           });
         }
 
@@ -184,7 +186,7 @@ var AutoDeload = (function () {
         if (sP.fires) {
           ['quads', 'back', 'glutes'].forEach(function (g) {
             var ex = overlayData.find(function (d) { return d.key === g; });
-            if (!ex) overlayData.push({ key: g, intensity: 0.70, status: 'tired', label: 'Estancamiento detectado' });
+            if (!ex) overlayData.push({ key: g, intensity: 0.70, status: 'tired', label: _t('deload.plateau_detected') });
             else { ex.intensity = Math.min(1, ex.intensity + 0.15); }
           });
         }
@@ -209,7 +211,7 @@ var AutoDeload = (function () {
     var needsDeload = firedCount >= 2;
 
     var status = needsDeload ? 'red' : firedCount === 1 ? 'amber' : 'green';
-    var statusLabel = needsDeload ? 'Deload recomendado' : firedCount === 1 ? 'Seguimiento recomendado' : 'En forma';
+    var statusLabel = needsDeload ? _t('deload.status_red') : firedCount === 1 ? _t('deload.status_amber') : _t('deload.status_green');
     var statusColor = status === 'red' ? '#f87171' : status === 'amber' ? '#fbbf24' : '#10b981';
 
     var deloadHint = needsDeload ? buildDeloadHint() : null;
@@ -217,35 +219,37 @@ var AutoDeload = (function () {
     var html = '<div class="dl-header">'
       + '<div class="dl-status-dot" style="background:' + statusColor + ';box-shadow:0 0 10px ' + statusColor + '80"></div>'
       + '<div><div class="dl-status-label" style="color:' + statusColor + '">' + statusLabel + '</div>'
-      + '<div class="dl-subtitle">' + firedCount + ' de 3 señales activas</div></div>'
+      + '<div class="dl-subtitle">' + _t('deload.signals_active').replace('{n}', firedCount) + '</div></div>'
       + '</div>'
       + '<div class="dl-signals">'
       + renderSignal(
-          'Readiness',
+          _t('deload.signal_readiness'),
           sR.fires,
           sR.avgScore !== null
-            ? 'Media ' + sR.avgScore + '% · ' + sR.consecutiveLowDays + ' días bajos'
-            : 'Sin datos suficientes'
+            ? _t('deload.readiness_detail').replace('{avg}', sR.avgScore).replace('{days}', sR.consecutiveLowDays)
+            : _t('deload.no_data')
         )
       + renderSignal(
-          'Carga semanal',
+          _t('deload.signal_load'),
           sL.fires,
           sL.lastWeek > 0
-            ? 'Esta semana ' + sL.thisWeek + ' vs anterior ' + sL.lastWeek + (sL.dropPct > 0 ? ' (−' + sL.dropPct + '%)' : '')
-            : 'Sin historial previo'
+            ? (sL.dropPct > 0
+                ? _t('deload.load_detail').replace('{this}', sL.thisWeek).replace('{prev}', sL.lastWeek).replace('{drop}', sL.dropPct)
+                : _t('deload.load_no_drop').replace('{this}', sL.thisWeek).replace('{prev}', sL.lastWeek))
+            : _t('deload.no_prev_week')
         )
       + renderSignal(
-          'Progresión 1RM',
+          _t('deload.signal_1rm'),
           sP.fires,
           sP.totalTracked > 0
-            ? sP.stalledCount + ' de ' + sP.totalTracked + ' ejercicios estancados'
-            : 'Sin registros de marca'
+            ? _t('deload.plateau_detail').replace('{stalled}', sP.stalledCount).replace('{total}', sP.totalTracked)
+            : _t('deload.no_records')
         )
       + '</div>';
 
     if (deloadHint) {
       html += '<div class="dl-plan">'
-        + '<div class="dl-plan-title">Semana deload sugerida — ' + escHtml(deloadHint.name) + '</div>';
+        + '<div class="dl-plan-title">' + _t('deload.plan_title').replace('{name}', escHtml(deloadHint.name)) + '</div>';
       if (deloadHint.exercises.length) {
         html += '<ul class="dl-plan-list">'
           + deloadHint.exercises.map(function (e) {
@@ -253,7 +257,7 @@ var AutoDeload = (function () {
             }).join('')
           + '</ul>';
       } else {
-        html += '<p class="dl-plan-empty">Añade ejercicios a tu rutina para ver el plan detallado.</p>';
+        html += '<p class="dl-plan-empty">' + _t('deload.plan_empty') + '</p>';
       }
       html += '</div>';
     }
@@ -295,6 +299,7 @@ var AutoDeload = (function () {
     var root = document.getElementById('deload-root');
     if (!root) return;
     render(root);
+    document.addEventListener('languagechange', function () { render(root); });
   }
 
   return { init: init };

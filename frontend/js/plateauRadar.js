@@ -1,6 +1,8 @@
 var PlateauRadar = (function () {
   'use strict';
 
+  function _t(key) { return (window.t && window.t(key)) || key; }
+
   var PLATEAU_THRESHOLD_PCT = 0.4;  // weekly gain < 0.4% = plateau
   var WINDOW_DAYS = 56;             // 8 weeks
 
@@ -29,7 +31,7 @@ var PlateauRadar = (function () {
     try { prs = JSON.parse(localStorage.getItem('hs_pr_records') || '{}'); } catch (e) {}
     var exEntries = (prs.exercises || {})[exName] || [];
     var last28 = exEntries.filter(function (e) { return new Date(e.date) >= cut28; });
-    if (last28.length < 2) causes.push('Baja frecuencia: menos de 2 sesiones en las últimas 4 semanas.');
+    if (last28.length < 2) causes.push(_t('plateau.low_freq'));
 
     // Deload overdue: if no gap > 7 days in last 35 days, deload overdue
     var allExercises = Object.values((prs.exercises) || {});
@@ -44,7 +46,7 @@ var PlateauRadar = (function () {
     for (var j = 1; j < recent.length; j++) {
       if ((recent[j] - recent[j-1]) / 86400000 >= 7) { hadRest = true; break; }
     }
-    if (!hadRest && recent.length >= 3) causes.push('Sin semana de descanso en las últimas 5 semanas — considera un deload.');
+    if (!hadRest && recent.length >= 3) causes.push(_t('plateau.no_deload'));
 
     // Caloric deficit + weight stall
     var weightEntries = [];
@@ -54,10 +56,10 @@ var PlateauRadar = (function () {
     if (weightEntries.length >= 5 && tdeeData.goal && tdeeData.goal.indexOf('deficit') !== -1) {
       var last5 = weightEntries.slice(-5);
       var wSlope = last5[last5.length-1].weight - last5[0].weight;
-      if (wSlope >= 0) causes.push('Peso estancado en fase de déficit — puede estar limitando la recuperación muscular.');
+      if (wSlope >= 0) causes.push(_t('plateau.weight_stall'));
     }
 
-    if (!causes.length) causes.push('Considera variar el esquema de series/rep (e.g. cambiar de 4×8 a 5×5 o 3×12).');
+    if (!causes.length) causes.push(_t('plateau.vary_scheme'));
     return causes;
   }
 
@@ -93,7 +95,7 @@ var PlateauRadar = (function () {
 
     var results = analyzeExercises();
     if (!results.length) {
-      root.innerHTML = '<p class="plateau-empty">Necesitas al menos 3 registros por ejercicio en las últimas 8 semanas.<br>Añade intentos en la sección Records 1RM.</p>';
+      root.innerHTML = '<p class="plateau-empty">' + _t('plateau.empty').replace('\n', '<br>') + '</p>';
       return;
     }
 
@@ -103,7 +105,7 @@ var PlateauRadar = (function () {
     var html = '';
 
     if (!stalled.length) {
-      html += '<div class="plateau-all-good">✅ Todos tus levantamientos muestran progresión. ¡Sigue así!</div>';
+      html += '<div class="plateau-all-good">' + _t('plateau.all_good') + '</div>';
     }
 
     html += '<div class="plateau-grid">';
@@ -114,8 +116,8 @@ var PlateauRadar = (function () {
         ? '+' + r.weeklyGain.toFixed(2) + ' kg/sem'
         : r.weeklyGain.toFixed(2) + ' kg/sem';
       html += '<div class="plateau-card plateau-card--stalled">';
-      html += '<div class="plateau-card-head"><span class="plateau-card-name">' + escHtml(r.name) + '</span><span class="plateau-badge plateau-badge--stalled">⚠ Estancado</span></div>';
-      html += '<div class="plateau-rm">1RM actual: <strong>' + r.currentRM.toFixed(1) + ' kg</strong> · ' + r.dataPoints + ' registros</div>';
+      html += '<div class="plateau-card-head"><span class="plateau-card-name">' + escHtml(r.name) + '</span><span class="plateau-badge plateau-badge--stalled">' + _t('plateau.badge_stalled') + '</span></div>';
+      html += '<div class="plateau-rm">' + _t('plateau.current_rm') + ' <strong>' + r.currentRM.toFixed(1) + ' kg</strong> · ' + _t('plateau.records_count').replace('{n}', r.dataPoints) + '</div>';
       html += '<div class="plateau-trend plateau-trend--flat">' + trendStr + ' <small style="font-size:13px;font-weight:400">(' + r.weeklyPct.toFixed(2) + '%)</small></div>';
       html += '<div class="plateau-causes">' + causes.map(function (c) { return '<div class="plateau-cause">' + escHtml(c) + '</div>'; }).join('') + '</div>';
       html += '</div>';
@@ -124,8 +126,8 @@ var PlateauRadar = (function () {
     healthy.forEach(function (r) {
       var trendStr = '+' + r.weeklyGain.toFixed(2) + ' kg/sem';
       html += '<div class="plateau-card plateau-card--gaining">';
-      html += '<div class="plateau-card-head"><span class="plateau-card-name">' + escHtml(r.name) + '</span><span class="plateau-badge plateau-badge--gaining">↑ Progresando</span></div>';
-      html += '<div class="plateau-rm">1RM actual: <strong>' + r.currentRM.toFixed(1) + ' kg</strong> · ' + r.dataPoints + ' registros</div>';
+      html += '<div class="plateau-card-head"><span class="plateau-card-name">' + escHtml(r.name) + '</span><span class="plateau-badge plateau-badge--gaining">' + _t('plateau.badge_progressing') + '</span></div>';
+      html += '<div class="plateau-rm">' + _t('plateau.current_rm') + ' <strong>' + r.currentRM.toFixed(1) + ' kg</strong> · ' + _t('plateau.records_count').replace('{n}', r.dataPoints) + '</div>';
       html += '<div class="plateau-trend plateau-trend--pos">' + trendStr + ' <small style="font-size:13px;font-weight:400">(+' + r.weeklyPct.toFixed(2) + '%/sem)</small></div>';
       html += '</div>';
     });
@@ -134,7 +136,10 @@ var PlateauRadar = (function () {
     root.innerHTML = html;
   }
 
-  function init() { render(); }
+  function init() {
+    render();
+    document.addEventListener('languagechange', render);
+  }
 
   return { init: init };
 })();

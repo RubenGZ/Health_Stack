@@ -1,6 +1,11 @@
 var FatigueHeatmap = (function () {
   'use strict';
 
+  function _t(key, n) {
+    var s = (window.t && window.t(key)) || key;
+    return n !== undefined ? s.replace('{n}', n) : s;
+  }
+
   var MUSCLE_MAP = {
     chest:      ['Press banca','Press inclinado','Aperturas','Press pecho','Fondos','Pecho'],
     back:       ['Peso muerto','Remo con barra','Dominadas','Dominadas lastradas','Pull-up','Remo','Espalda','Jalón'],
@@ -16,7 +21,20 @@ var FatigueHeatmap = (function () {
 
   var RECOVERY_H = { chest:60, back:72, shoulders:48, biceps:48, triceps:48, quads:72, hamstrings:72, glutes:72, core:36, calves:36 };
 
-  var LABELS = { chest:'Pecho', back:'Espalda', shoulders:'Hombros', biceps:'Bíceps', triceps:'Tríceps', quads:'Cuádriceps', hamstrings:'Isquios', glutes:'Glúteos', core:'Core', calves:'Gemelos' };
+  function getLabels() {
+    return {
+      chest:     _t('fatigue.muscle_chest'),
+      back:      _t('fatigue.muscle_back'),
+      shoulders: _t('fatigue.muscle_shoulders'),
+      biceps:    _t('fatigue.muscle_biceps'),
+      triceps:   _t('fatigue.muscle_triceps'),
+      quads:     _t('fatigue.muscle_quads'),
+      hamstrings:_t('fatigue.muscle_hamstrings'),
+      glutes:    _t('fatigue.muscle_glutes'),
+      core:      _t('fatigue.muscle_core'),
+      calves:    _t('fatigue.muscle_calves'),
+    };
+  }
 
   function getLastTrained() {
     var lastTrained = {}; // muscle → Date
@@ -67,7 +85,7 @@ var FatigueHeatmap = (function () {
   }
 
   function getStatus(muscle, lastTrained) {
-    if (!lastTrained[muscle]) return { pct: null, color: 'rgba(255,255,255,0.06)', label: 'Sin datos' };
+    if (!lastTrained[muscle]) return { pct: null, color: 'rgba(255,255,255,0.06)', label: _t('fatigue.no_data_short') };
     var hoursElapsed = (Date.now() - lastTrained[muscle].getTime()) / 3600000;
     var recoveryH = RECOVERY_H[muscle] || 48;
     var pct = Math.min(hoursElapsed / recoveryH * 100, 100);
@@ -76,7 +94,7 @@ var FatigueHeatmap = (function () {
               : pct >= 50  ? 'rgba(245,158,11,0.6)'
                            : 'rgba(248,113,113,0.75)';
     var daysAgo = Math.round(hoursElapsed / 24);
-    var label = daysAgo === 0 ? 'Hoy' : daysAgo === 1 ? 'Ayer' : 'Hace ' + daysAgo + ' días';
+    var label = daysAgo === 0 ? _t('fatigue.today') : daysAgo === 1 ? _t('fatigue.yesterday') : _t('fatigue.days_ago', daysAgo);
     return { pct: Math.round(pct), color: color, label: label };
   }
 
@@ -92,15 +110,16 @@ var FatigueHeatmap = (function () {
 
     var hasData = Object.keys(lastTrained).length > 0;
     if (!hasData) {
-      root.innerHTML = '<p class="fatigue-empty">Añade registros en Records 1RM para ver tu estado de recuperación muscular.</p>';
+      root.innerHTML = '<p class="fatigue-empty">' + _t('fatigue.no_data_empty') + '</p>';
       return;
     }
 
+    var LABELS = getLabels();
     // Lista de recovery — se mantiene igual que antes
     var listHTML = '<div class="fatigue-list">'
       + Object.keys(LABELS).map(function (m) {
           var s       = muscles[m];
-          var pctText = s.pct !== null ? s.pct + '% recuperado' : 'Sin datos';
+          var pctText = s.pct !== null ? _t('fatigue.pct_recovered', s.pct) : _t('fatigue.no_data_short');
           return '<div class="fatigue-item">'
             + '<div class="fatigue-item-dot" style="background:' + s.color + '"></div>'
             + '<div class="fatigue-item-body">'
@@ -144,7 +163,12 @@ var FatigueHeatmap = (function () {
     }
   }
 
-  function init() { render().catch(function(e) { console.warn('[FatigueHeatmap] render failed:', e); }); }
+  function init() {
+    render().catch(function(e) { console.warn('[FatigueHeatmap] render failed:', e); });
+    document.addEventListener('languagechange', function() {
+      render().catch(function(e) { console.warn('[FatigueHeatmap] render failed:', e); });
+    });
+  }
 
   return { init: init };
 })();

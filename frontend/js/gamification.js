@@ -5,29 +5,31 @@
 const Gamification = (function () {
   'use strict';
 
+  function _t(key) { return (window.t && window.t(key)) || key; }
+
   const LS_KEY      = 'hs_gami';
   const LS_CHALL    = 'hs_challenges';
 
   // ── Niveles ───────────────────────────────────────────────
   const LEVELS = [
-    { level: 1, name: 'Novato',     min: 0,     color: '#94a3b8', icon: '🌱' },
-    { level: 2, name: 'Aprendiz',   min: 500,   color: '#10b981', icon: '⚡' },
-    { level: 3, name: 'Competidor', min: 1500,  color: '#3b82f6', icon: '🔵' },
-    { level: 4, name: 'Atleta',     min: 3000,  color: '#6c63ff', icon: '🏅' },
-    { level: 5, name: 'Campeón',    min: 6000,  color: '#f59e0b', icon: '🏆' },
-    { level: 6, name: 'Élite',      min: 10000, color: '#ff6584', icon: '💎' },
-    { level: 7, name: 'Maestro',    min: 15000, color: '#a78bfa', icon: '⭐' },
-    { level: 8, name: 'Leyenda',    min: 25000, color: '#00d2ff', icon: '👑' },
+    { level: 1, nameKey: 'gamification.level_novato',     min: 0,     color: '#94a3b8', icon: '🌱' },
+    { level: 2, nameKey: 'gamification.level_aprendiz',   min: 500,   color: '#10b981', icon: '⚡' },
+    { level: 3, nameKey: 'gamification.level_competidor', min: 1500,  color: '#3b82f6', icon: '🔵' },
+    { level: 4, nameKey: 'gamification.level_atleta',     min: 3000,  color: '#6c63ff', icon: '🏅' },
+    { level: 5, nameKey: 'gamification.level_campeon',    min: 6000,  color: '#f59e0b', icon: '🏆' },
+    { level: 6, nameKey: 'gamification.level_elite',      min: 10000, color: '#ff6584', icon: '💎' },
+    { level: 7, nameKey: 'gamification.level_maestro',    min: 15000, color: '#a78bfa', icon: '⭐' },
+    { level: 8, nameKey: 'gamification.level_leyenda',    min: 25000, color: '#00d2ff', icon: '👑' },
   ];
 
   // ── Acciones con XP ───────────────────────────────────────
   const XP_ACTIONS = {
-    weight:    { xp: 50,  label: 'Registro de peso',      once: false },
-    tdee:      { xp: 100, label: 'Calcular TDEE',         once: true  },
-    routine:   { xp: 150, label: 'Generar rutina',         once: false },
-    planner:   { xp: 75,  label: 'Completar semana en planner', once: false },
-    post:      { xp: 30,  label: 'Publicar en comunidad', once: false },
-    login:     { xp: 10,  label: 'Sesión diaria',         once: true  },
+    weight:    { xp: 50,  labelKey: 'gamification.xp_weight',  once: false },
+    tdee:      { xp: 100, labelKey: 'gamification.xp_tdee',    once: true  },
+    routine:   { xp: 150, labelKey: 'gamification.xp_routine', once: false },
+    planner:   { xp: 75,  labelKey: 'gamification.xp_planner', once: false },
+    post:      { xp: 30,  labelKey: 'gamification.xp_post',    once: false },
+    login:     { xp: 10,  labelKey: 'gamification.xp_login',   once: true  },
   };
 
   // ── Badges ────────────────────────────────────────────────
@@ -134,7 +136,7 @@ const Gamification = (function () {
     window.dispatchEvent(new CustomEvent('hs:xp-updated', { detail: { xp: state.xp } }));
 
     // Mostrar toast XP
-    showXPToast(cfg.xp, cfg.label);
+    showXPToast(cfg.xp, _t(cfg.labelKey));
   }
 
   // ── Toast de XP ──────────────────────────────────────────
@@ -195,7 +197,7 @@ const Gamification = (function () {
           c.done = true;
           state.xp += 200; // bonus por completar desafío
           saveState();
-          showBadgeToast({ icon: '🏆', name: '¡Desafío completado!', desc: `${c.name} — +200 XP bonus` });
+          showBadgeToast({ icon: '🏆', name: _t('gamification.challenge_done_title'), desc: `${c.name} — +200 XP bonus` });
         }
       }
     });
@@ -214,10 +216,10 @@ const Gamification = (function () {
 
     // Level hero
     setText('gami-level-badge', lv.level);
-    setText('gami-level-name',  `${lv.icon} ${lv.name}`);
-    setText('gami-xp-label',    `${state.xp} XP total`);
+    setText('gami-level-name',  `${lv.icon} ${_t(lv.nameKey)}`);
+    setText('gami-xp-label',    `${state.xp} XP`);
     setText('gami-xp-current',  `${state.xp} XP`);
-    setText('gami-xp-next',     next ? `${next.min} XP — ${next.name}` : 'Nivel máximo');
+    setText('gami-xp-next',     next ? `${next.min} XP — ${_t(next.nameKey)}` : _t('gamification.max_level'));
 
     const fill = document.getElementById('gami-xp-fill');
     if (fill) {
@@ -249,7 +251,7 @@ const Gamification = (function () {
     // Semana label
     const now = new Date();
     const weekLabel = document.getElementById('gami-week-label');
-    if (weekLabel) weekLabel.textContent = `Semana ${getWeek(now)}`;
+    if (weekLabel) weekLabel.textContent = _t('gamification.week_label').replace('{n}', getWeek(now));
   }
 
   function setText(id, val) {
@@ -291,7 +293,7 @@ const Gamification = (function () {
             </div>
             <div class="challenge-meta">
               <span>${c.progress} / ${c.target} ${c.unit}</span>
-              ${c.done ? '<span class="challenge-done-tag">✓ Completado</span>' : '<span>+200 XP al completar</span>'}
+              ${c.done ? `<span class="challenge-done-tag">${_t('gamification.challenge_completed_tag')}</span>` : `<span>${_t('gamification.challenge_xp_hint')}</span>`}
             </div>
           </div>
         </div>`;
@@ -329,6 +331,7 @@ const Gamification = (function () {
     checkBadges();
     render();
     listenEvents();
+    document.addEventListener('languagechange', render);
 
     // Login diario
     const today = new Date().toDateString();

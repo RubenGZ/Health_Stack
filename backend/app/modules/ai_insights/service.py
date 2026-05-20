@@ -258,12 +258,16 @@ async def _get_saved_routines(db: AsyncSession, user_id: str) -> list[SavedRouti
 
 # ── Biomarker Narrator ────────────────────────────────────────────────────────
 
+_LANG_NAMES = {"es": "Spanish", "en": "English", "fr": "French", "de": "German", "it": "Italian"}
+
+
 async def get_biomarker_narrative(
     user_id: str,
     db: AsyncSession,
     ai_router: AIRouter,
+    lang: str = "es",
 ) -> BiomarkerNarratorResponse:
-    _CACHE_KEY = "biomarker_narrative"
+    _CACHE_KEY = f"biomarker_narrative_{lang}"
 
     # ── 1. Intentar caché ─────────────────────────────────────────────────────
     cached = await _cache_get(db, user_id, _CACHE_KEY)
@@ -307,17 +311,20 @@ async def get_biomarker_narrative(
             f"cambio: {ctx['weight_delta_kg']:+.1f}kg en {ctx['weight_records_count']} registros.\n"
         )
 
-    prompt = f"""Eres un analista de salud y fitness. Analiza estos datos de los últimos 30 días y genera un resumen narrativo conciso.
+    lang_name = _LANG_NAMES.get(lang, "Spanish")
+    prompt = f"""You are a health and fitness analyst. Analyze the last 30 days of data and generate a concise narrative summary.
 
-{weight_summary}Entrenamientos completados este mes: {ctx['workout_count_30d']}
-Nivel en la app: {ctx['gamification_level']}, racha: {ctx['gamification_streak']} días
+{weight_summary}Workouts completed this month: {ctx['workout_count_30d']}
+App level: {ctx['gamification_level']}, streak: {ctx['gamification_streak']} days
 
-Responde EXACTAMENTE en este formato JSON (sin bloques de código):
+Respond EXACTLY in this JSON format (no code blocks):
 {{
-  "narrative": "3-4 frases en español describiendo el progreso del usuario de forma motivadora y honesta",
-  "trend": "improving" o "declining" o "stable" o "insufficient_data",
-  "highlights": ["punto clave 1", "punto clave 2", "punto clave 3"]
-}}"""
+  "narrative": "3-4 sentences describing the user's progress in a motivating and honest way",
+  "trend": "improving" or "declining" or "stable" or "insufficient_data",
+  "highlights": ["key point 1", "key point 2", "key point 3"]
+}}
+
+IMPORTANT: Write all text values in {lang_name}."""
 
     # ── 3. Llamar a la IA ─────────────────────────────────────────────────────
     raw: str | None = None
@@ -375,8 +382,9 @@ async def get_injury_risk(
     user_id: str,
     db: AsyncSession,
     ai_router: AIRouter,
+    lang: str = "es",
 ) -> InjuryRiskResponse:
-    _CACHE_KEY = "injury_risk"
+    _CACHE_KEY = f"injury_risk_{lang}"
 
     # ── 1. Intentar caché ─────────────────────────────────────────────────────
     cached = await _cache_get(db, user_id, _CACHE_KEY)
@@ -424,21 +432,23 @@ async def get_injury_risk(
     )
     exercise_summary = ", ".join(ctx.get("exercise_names", [])) or "rutina genérica"
 
-    prompt = f"""Eres un especialista en readaptación deportiva. Analiza este plan de entrenamiento y evalúa la carga acumulada.
+    lang_name = _LANG_NAMES.get(lang, "Spanish")
+    prompt = f"""You are a sports rehabilitation specialist. Analyze this training plan and evaluate the accumulated load.
 
-Ejercicios en la rutina: {exercise_summary}
-Entrenamientos esta semana: {ctx['workout_count_7d']} de 7 días
+Exercises in the routine: {exercise_summary}
+Workouts this week: {ctx['workout_count_7d']} out of 7 days
 
-Responde EXACTAMENTE en este formato JSON (sin bloques de código):
+Respond EXACTLY in this JSON format (no code blocks):
 {{
   "risk_flags": [
-    {{"muscle_group": "nombre", "risk_level": "low|medium|high", "detail": "qué observas", "recommendation": "qué hacer"}}
+    {{"muscle_group": "name", "risk_level": "low|medium|high", "detail": "what you observe", "recommendation": "what to do"}}
   ],
-  "overall_risk": "low" o "medium" o "high",
-  "summary": "1-2 frases resumiendo el estado general"
+  "overall_risk": "low" or "medium" or "high",
+  "summary": "1-2 sentences summarizing the general status"
 }}
 
-Máximo 3 risk_flags. Si no hay riesgos claros, devuelve risk_flags vacío con overall_risk "low"."""
+Maximum 3 risk_flags. If no clear risks, return empty risk_flags with overall_risk "low".
+IMPORTANT: Write all text values in {lang_name}."""
 
     # ── 3. Llamar a la IA ─────────────────────────────────────────────────────
     raw: str | None = None
@@ -496,8 +506,9 @@ async def get_weekly_goals(
     user_id: str,
     db: AsyncSession,
     ai_router: AIRouter,
+    lang: str = "es",
 ) -> WeeklyGoalsResponse:
-    _CACHE_KEY = "weekly_goals"
+    _CACHE_KEY = f"weekly_goals_{lang}"
 
     # ── 1. Intentar caché ─────────────────────────────────────────────────────
     cached = await _cache_get(db, user_id, _CACHE_KEY)
@@ -534,22 +545,24 @@ async def get_weekly_goals(
     if weight_values:
         weight_line = f"- Peso reciente: {ctx['weight_last_kg']}kg (cambio {ctx['weight_delta_kg']:+.1f}kg)\n"
 
-    prompt = f"""Eres un coach de fitness personal. Genera 3 micro-objetivos específicos y alcanzables para esta semana.
+    lang_name = _LANG_NAMES.get(lang, "Spanish")
+    prompt = f"""You are a personal fitness coach. Generate 3 specific and achievable micro-goals for this week.
 
-Datos del usuario:
-- Nivel: {ctx['gamification_level']}, XP total: {ctx['gamification_xp']}
-- Racha actual: {ctx['gamification_streak']} días
-- Entrenamientos la semana pasada: {ctx['workout_count_7d']}
+User data:
+- Level: {ctx['gamification_level']}, total XP: {ctx['gamification_xp']}
+- Current streak: {ctx['gamification_streak']} days
+- Workouts last week: {ctx['workout_count_7d']}
 {weight_line}
-Responde EXACTAMENTE en este formato JSON (sin bloques de código):
+Respond EXACTLY in this JSON format (no code blocks):
 {{
   "goals": [
-    {{"goal": "objetivo concreto en español", "reasoning": "por qué este objetivo ahora", "category": "weight|training|nutrition|recovery"}},
+    {{"goal": "specific goal", "reasoning": "why this goal now", "category": "weight|training|nutrition|recovery"}},
     {{"goal": "...", "reasoning": "...", "category": "..."}},
     {{"goal": "...", "reasoning": "...", "category": "..."}}
   ],
-  "week_summary": "1 frase motivadora para esta semana"
-}}"""
+  "week_summary": "1 motivating sentence for this week"
+}}
+IMPORTANT: Write all text values in {lang_name}."""
 
     # ── 3. Llamar a la IA ─────────────────────────────────────────────────────
     raw: str | None = None

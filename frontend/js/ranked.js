@@ -1,6 +1,8 @@
 // frontend/js/ranked.js
 // Panel de rankeds: dos colas + gym server UI + sparring search + leaderboard modal.
 
+function _t(key) { return (window.t && window.t(key)) || key; }
+
 const TIER_COLORS = {
   // Normal
   novato:       '#6b7280', regular:      '#10b981', constante:    '#22d3ee',
@@ -39,11 +41,11 @@ async function initRanked(container) {
   if (_rankLoading) return; // prevent concurrent duplicate requests on fast nav
   const token = localStorage.getItem('hs_access_token') || sessionStorage.getItem('hs_access_token');
   if (!token) {
-    container.innerHTML = '<p class="rk-error">Inicia sesión para ver tu ranking.</p>';
+    container.innerHTML = '<p class="rk-error">' + _t('ranked.login_required') + '</p>';
     return;
   }
   _rankLoading = true;
-  container.innerHTML = '<div class="rk-loading">Cargando rankeds...</div>';
+  container.innerHTML = '<div class="rk-loading">' + _t('ranked.loading') + '</div>';
   try {
     const [profile, gyms] = await Promise.all([
       rkFetchJSON('/api/v1/ranked/profile'),
@@ -51,7 +53,7 @@ async function initRanked(container) {
     ]);
     renderRanked(container, profile, gyms);
   } catch (e) {
-    container.innerHTML = '<p class="rk-error">No se pudo cargar el ranking. Inicia sesión primero.</p>';
+    container.innerHTML = '<p class="rk-error">' + _t('ranked.error') + '</p>';
   } finally {
     _rankLoading = false;
   }
@@ -102,8 +104,8 @@ function queueCard(label, q) {
 
 function lockedCard() {
   return `<div class="rk-queue-card rk-locked">
-    <p class="rk-locked-msg">🔒 Cola Competitivo</p>
-    <p class="rk-locked-hint">Llega a <strong>Comprometido</strong> en Normal para desbloquear.</p>
+    <p class="rk-locked-msg">${_t('ranked.locked_title')}</p>
+    <p class="rk-locked-hint">${_t('ranked.locked_hint')}</p>
   </div>`;
 }
 
@@ -111,22 +113,22 @@ function gymPanel(gym) {
   return `<div class="rk-gym-panel">
     <div class="rk-gym-header">
       <span class="rk-gym-name">🏋️ ${gym.name}</span>
-      <span class="rk-gym-code">Código: <strong>${gym.invite_code}</strong></span>
+      <span class="rk-gym-code">${_t('ranked.gym_code')} <strong>${gym.invite_code}</strong></span>
     </div>
     <div class="rk-gym-actions">
-      <button class="btn btn--ghost btn--sm rk-action" data-gym-id="${gym.id}">🏆 Leaderboard</button>
-      <button class="btn btn--ghost btn--sm rk-action" data-sparring-gym="${gym.id}">🤝 Buscar Sparring</button>
+      <button class="btn btn--ghost btn--sm rk-action" data-gym-id="${gym.id}">${_t('ranked.leaderboard_btn')}</button>
+      <button class="btn btn--ghost btn--sm rk-action" data-sparring-gym="${gym.id}">${_t('ranked.find_sparring')}</button>
     </div>
   </div>`;
 }
 
 function noGymPanel() {
   return `<div class="rk-no-gym">
-    <p>Aún no perteneces a ningún gym. ¡Crea uno o únete con un código!</p>
-    <button class="btn btn--primary btn--sm" id="rk-create-gym">+ Crear Gym</button>
+    <p>${_t('ranked.no_gym')}</p>
+    <button class="btn btn--primary btn--sm" id="rk-create-gym">${_t('ranked.create_gym')}</button>
     <div class="rk-join-form">
-      <input type="text" id="rk-join-code" placeholder="Código de invitación" class="wl-input" maxlength="12" />
-      <button class="btn btn--ghost btn--sm" id="rk-join-btn">Unirse</button>
+      <input type="text" id="rk-join-code" placeholder="${_t('ranked.join_code_ph')}" class="wl-input" maxlength="12" />
+      <button class="btn btn--ghost btn--sm" id="rk-join-btn">${_t('ranked.join')}</button>
     </div>
   </div>`;
 }
@@ -148,38 +150,38 @@ async function openGymLeaderboard(container, gymId) {
         <span class="rk-lb-lp">${e.lp} LP</span>
       </div>`;
     }).join('');
-    showModal('Leaderboard Competitivo', rows || '<p style="color:rgba(255,255,255,0.5)">Sin participantes aún.</p>');
+    showModal(_t('ranked.lb_title'), rows || '<p style="color:rgba(255,255,255,0.5)">' + _t('ranked.lb_empty') + '</p>');
   } catch (e) {
-    showModal('Error', '<p>No se pudo cargar el leaderboard.</p>');
+    showModal('Error', '<p>' + _t('ranked.error') + '</p>');
   }
 }
 
 async function openSparring(container, gymId) {
   try {
     const data = await rkFetchJSON(`/api/v1/gym-servers/${gymId}/sparrings`);
-    const goals = { strength:'Fuerza', volume:'Volumen', health:'Salud' };
-    const times = { morning:'Mañana', afternoon:'Tarde', evening:'Noche' };
+    const goals = { strength: _t('ranked.goal_strength'), volume: _t('ranked.goal_volume'), health: _t('ranked.goal_health') };
+    const times = { morning: _t('ranked.time_morning'), afternoon: _t('ranked.time_afternoon'), evening: _t('ranked.time_evening') };
     const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
     const cards = data.map(m => {
       const name = esc(m.display_name || 'Atleta');
       return `<div class="rk-sparring-card">
         <span class="rk-sparring-name">${name}</span>
         <span class="rk-sparring-meta">${times[m.schedule] || '—'} · ${goals[m.goal] || '—'}</span>
-        ${m.contact && /^https?:\/\//i.test(m.contact) ? `<a class="rk-sparring-contact" href="${m.contact.replace(/"/g,'%22')}" target="_blank" rel="noopener noreferrer">Contactar</a>` : ''}
+        ${m.contact && /^https?:\/\//i.test(m.contact) ? `<a class="rk-sparring-contact" href="${m.contact.replace(/"/g,'%22')}" target="_blank" rel="noopener noreferrer">${_t('ranked.sparring_contact')}</a>` : ''}
       </div>`;
     }).join('');
-    showModal('Buscar Sparring', cards || '<p style="color:rgba(255,255,255,0.5)">Ningún miembro ha activado su perfil aún.</p>');
+    showModal(_t('ranked.sparring_title'), cards || '<p style="color:rgba(255,255,255,0.5)">' + _t('ranked.sparring_empty') + '</p>');
   } catch (e) {
-    showModal('Error', '<p>No se pudo cargar el sparring.</p>');
+    showModal('Error', '<p>' + _t('ranked.error') + '</p>');
   }
 }
 
 function openCreateGym(container) {
-  showModal('Crear Gym', `
+  showModal(_t('ranked.create_gym_title'), `
     <div class="rk-create-form">
-      <input id="rk-gym-name" class="wl-input" placeholder="Nombre del gym" maxlength="80" />
-      <input id="rk-gym-city" class="wl-input" placeholder="Ciudad (opcional)" maxlength="80" />
-      <button class="btn btn--primary btn--sm" id="rk-gym-submit">Crear</button>
+      <input id="rk-gym-name" class="wl-input" placeholder="${_t('ranked.gym_name_ph')}" maxlength="80" />
+      <input id="rk-gym-city" class="wl-input" placeholder="${_t('ranked.gym_city_ph')}" maxlength="80" />
+      <button class="btn btn--primary btn--sm" id="rk-gym-submit">${_t('ranked.create_btn')}</button>
     </div>`);
   document.getElementById('rk-gym-submit')?.addEventListener('click', async () => {
     const name = document.getElementById('rk-gym-name')?.value?.trim();
@@ -193,7 +195,7 @@ function openCreateGym(container) {
       closeModal();
       initRanked(container);
     } catch (e) {
-      alert('Error creando gym: ' + e.message);
+      alert(_t('ranked.error_create') + e.message);
     }
   });
 }
@@ -208,7 +210,7 @@ async function joinGym(container) {
     });
     initRanked(container);
   } catch (e) {
-    alert('Código inválido o gym no encontrado.');
+    alert(_t('ranked.error_join'));
   }
 }
 

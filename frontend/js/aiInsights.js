@@ -8,8 +8,12 @@
   'use strict';
 
   const BASE = '/api/v1/ai-insights';
-  const CACHE_KEY = 'ai_insights_cache';
+  const CACHE_KEY_PREFIX = 'ai_insights_cache_';
   const CACHE_TTL = 6 * 60 * 60 * 1000; // 6 hours
+
+  function _cacheKey() {
+    return CACHE_KEY_PREFIX + ((window.getLanguage && window.getLanguage()) || 'es');
+  }
 
   function t(key) {
     return (window.t && window.t(key)) || key;
@@ -26,11 +30,12 @@
   async function fetchInsights() {
     const token = getToken();
     const headers = { Authorization: `Bearer ${token}` };
+    const lang = (window.getLanguage && window.getLanguage()) || 'es';
 
     const [narrative, risk, goals] = await Promise.allSettled([
-      fetch(`${BASE}/biomarker-narrative`, { headers }).then(r => r.ok ? r.json() : null),
-      fetch(`${BASE}/injury-risk`,         { headers }).then(r => r.ok ? r.json() : null),
-      fetch(`${BASE}/weekly-goals`,         { headers }).then(r => r.ok ? r.json() : null),
+      fetch(`${BASE}/biomarker-narrative?lang=${lang}`, { headers }).then(r => r.ok ? r.json() : null),
+      fetch(`${BASE}/injury-risk?lang=${lang}`,         { headers }).then(r => r.ok ? r.json() : null),
+      fetch(`${BASE}/weekly-goals?lang=${lang}`,        { headers }).then(r => r.ok ? r.json() : null),
     ]);
 
     return {
@@ -160,10 +165,10 @@
     const card = document.getElementById('ai-insights-card');
     if (card) card.style.display = '';
 
-    // Check cache
+    // Check cache (per-language key)
     if (!force) {
       try {
-        const cached = JSON.parse(localStorage.getItem(CACHE_KEY) || 'null');
+        const cached = JSON.parse(localStorage.getItem(_cacheKey()) || 'null');
         if (cached && Date.now() - cached.ts < CACHE_TTL) {
           renderInsights(cached.data);
           return;
@@ -175,7 +180,7 @@
 
     try {
       const data = await fetchInsights();
-      localStorage.setItem(CACHE_KEY, JSON.stringify({ ts: Date.now(), data }));
+      localStorage.setItem(_cacheKey(), JSON.stringify({ ts: Date.now(), data }));
       renderInsights(data);
     } catch (err) {
       console.warn('[aiInsights] error:', err);
@@ -206,9 +211,12 @@
     // Re-load after login
     window.addEventListener('hs:login', () => loadInsights(true));
 
-    // Re-render labels on language change (without re-fetching)
+    // On language change: try cache for new language, else re-fetch from AI
     document.addEventListener('languagechange', () => {
-      if (_lastData) renderInsights(_lastData);
+      const activeSection = document.querySelector('.section.active');
+      if (activeSection?.id === 'section-dashboard') {
+        loadInsights(false); // will use per-language cache if available
+      }
     });
   }
 

@@ -1,6 +1,11 @@
 var BodyCompForecast = (function () {
   'use strict';
 
+  function _t(key) { return (window.t && window.t(key)) || key; }
+
+  var _LOCALE_MAP = { es:'es-ES', en:'en-GB', fr:'fr-FR', de:'de-DE', it:'it-IT' };
+  function _locale() { return _LOCALE_MAP[window.getLanguage ? window.getLanguage() : 'es'] || 'es-ES'; }
+
   var LS_KEY = 'hs_body_measurements';
   var DAYS   = 84; // 12 weeks
 
@@ -96,7 +101,7 @@ var BodyCompForecast = (function () {
     var xTickSvg = xTicks.map(function (d) {
       return '<text x="' + sx(d).toFixed(1) + '" y="' + (H - 4) + '" text-anchor="middle" '
         + 'fill="rgba(255,255,255,0.35)" font-size="10">'
-        + (d === 0 ? 'Hoy' : 'S' + (d / 7)) + '</text>';
+        + (d === 0 ? _t('body_comp.today') : 'S' + (d / 7)) + '</text>';
     }).join('');
 
     // y-axis ticks
@@ -116,7 +121,7 @@ var BodyCompForecast = (function () {
     var refY = sy(currentBF).toFixed(1);
     var refLine = '<line x1="' + PAD.left + '" y1="' + refY + '" x2="' + (PAD.left + cw) + '" y2="' + refY
       + '" stroke="rgba(255,255,255,0.18)" stroke-width="1" stroke-dasharray="4 3"/>'
-      + '<text x="' + (PAD.left + cw + 2) + '" y="' + (parseFloat(refY) + 3) + '" fill="rgba(255,255,255,0.4)" font-size="9">Actual</text>';
+      + '<text x="' + (PAD.left + cw + 2) + '" y="' + (parseFloat(refY) + 3) + '" fill="rgba(255,255,255,0.4)" font-size="9">' + _t('body_comp.actual_label') + '</text>';
 
     return '<svg viewBox="0 0 ' + W + ' ' + H + '" xmlns="http://www.w3.org/2000/svg" '
       + 'style="width:100%;height:auto;display:block;">'
@@ -146,7 +151,7 @@ var BodyCompForecast = (function () {
     // ── If no measurements yet, show setup form ───────────────
     if (!m || !m.height) {
       root.innerHTML = '<div class="bcf-setup">'
-        + '<p class="bcf-setup-lead">Introduce tus medidas para activar la proyección de composición corporal.</p>'
+        + '<p class="bcf-setup-lead">' + _t('body_comp.setup_lead') + '</p>'
         + renderForm(null)
         + '</div>';
       wireForm(root, m, weightEntries, last28);
@@ -155,7 +160,7 @@ var BodyCompForecast = (function () {
 
     var bf = navyBF(m);
     if (bf === null || bf < 2 || bf > 50) {
-      root.innerHTML = '<div class="bcf-setup"><p class="bcf-setup-lead">Las medidas introducidas no producen un % grasa válido. Revísalas.</p>'
+      root.innerHTML = '<div class="bcf-setup"><p class="bcf-setup-lead">' + _t('body_comp.invalid') + '</p>'
         + renderForm(m) + '</div>';
       wireForm(root, m, weightEntries, last28);
       return;
@@ -178,7 +183,7 @@ var BodyCompForecast = (function () {
     var goalBF  = Math.max(5, Math.round(bf) - 2);
     var tDate   = targetDate(bandCurrent, goalBF);
     var tDateStr = tDate
-      ? tDate.toLocaleDateString('es-ES', { day: 'numeric', month: 'long' })
+      ? tDate.toLocaleDateString(_locale(), { day: 'numeric', month: 'long' })
       : 'más de 12 semanas';
 
     // calories needed to hit aggressive band at 84 days
@@ -188,15 +193,15 @@ var BodyCompForecast = (function () {
     root.innerHTML = ''
       + '<div class="bcf-headline">'
       + '<span class="bcf-bf-val">' + bf.toFixed(1) + '<span class="bcf-bf-unit">% BF</span></span>'
-      + '<span class="bcf-target-line">A este ritmo llegas al ' + goalBF + '% el <strong>' + tDateStr + '</strong></span>'
+      + '<span class="bcf-target-line">' + _t('body_comp.at_rate').replace('{goal}', goalBF).replace('{date}', '<strong>' + tDateStr + '</strong>') + '</span>'
       + '</div>'
       + '<div class="bcf-chart-wrap">' + buildChart({ aggressive: bandAggressive, current: bandCurrent, sustainable: bandSustainable }, bf) + '</div>'
       + '<div class="bcf-legend">'
-      + '<span class="bcf-leg bcf-leg--current"><span class="bcf-leg-dot"></span>Ritmo actual → ' + curFinalBF.toFixed(1) + '% en 12s</span>'
-      + '<span class="bcf-leg bcf-leg--agg"><span class="bcf-leg-dot"></span>Agresivo (−500 kcal) → ' + aggFinalBF.toFixed(1) + '% en 12s</span>'
-      + '<span class="bcf-leg bcf-leg--sus"><span class="bcf-leg-dot"></span>Sostenible</span>'
+      + '<span class="bcf-leg bcf-leg--current"><span class="bcf-leg-dot"></span>' + _t('body_comp.legend_current').replace('{n}', curFinalBF.toFixed(1)) + '</span>'
+      + '<span class="bcf-leg bcf-leg--agg"><span class="bcf-leg-dot"></span>' + _t('body_comp.legend_agg').replace('{n}', aggFinalBF.toFixed(1)) + '</span>'
+      + '<span class="bcf-leg bcf-leg--sus"><span class="bcf-leg-dot"></span>' + _t('body_comp.legend_sus') + '</span>'
       + '</div>'
-      + '<details class="bcf-details"><summary>Editar medidas</summary>'
+      + '<details class="bcf-details"><summary>' + _t('body_comp.edit_measures') + '</summary>'
       + renderForm(m)
       + '</details>';
 
@@ -207,21 +212,21 @@ var BodyCompForecast = (function () {
     var v = m || {};
     return '<form class="bcf-form" id="bcf-form">'
       + '<div class="bcf-form-row">'
-      + '<label class="bcf-label">Sexo</label>'
+      + '<label class="bcf-label">' + _t('body_comp.gender') + '</label>'
       + '<div class="bcf-radio-group">'
-      + '<label><input type="radio" name="bcf-gender" value="m"' + (v.gender !== 'f' ? ' checked' : '') + '> Hombre</label>'
-      + '<label><input type="radio" name="bcf-gender" value="f"' + (v.gender === 'f' ? ' checked' : '') + '> Mujer</label>'
+      + '<label><input type="radio" name="bcf-gender" value="m"' + (v.gender !== 'f' ? ' checked' : '') + '> ' + _t('body_comp.male') + '</label>'
+      + '<label><input type="radio" name="bcf-gender" value="f"' + (v.gender === 'f' ? ' checked' : '') + '> ' + _t('body_comp.female') + '</label>'
       + '</div></div>'
       + '<div class="bcf-form-grid">'
-      + field('Altura (cm)', 'bcf-height', v.height, 'number', '150', '220')
-      + field('Cuello (cm)', 'bcf-neck', v.neck, 'number', '25', '60')
-      + field('Cintura (cm)', 'bcf-waist', v.waist, 'number', '50', '150')
+      + field(_t('body_comp.height'), 'bcf-height', v.height, 'number', '150', '220')
+      + field(_t('body_comp.neck'), 'bcf-neck', v.neck, 'number', '25', '60')
+      + field(_t('body_comp.waist'), 'bcf-waist', v.waist, 'number', '50', '150')
       + '<div class="bcf-field bcf-field--hip"' + (v.gender !== 'f' ? ' style="display:none"' : '') + '>'
-      + '<label class="bcf-field-label">Cadera (cm)</label>'
+      + '<label class="bcf-field-label">' + _t('body_comp.hip') + '</label>'
       + '<input class="bcf-input" id="bcf-hip" type="number" min="60" max="160" value="' + (v.hip || '') + '">'
       + '</div>'
       + '</div>'
-      + '<button type="submit" class="btn btn--primary bcf-submit">Calcular proyección</button>'
+      + '<button type="submit" class="btn btn--primary bcf-submit">' + _t('body_comp.submit') + '</button>'
       + '</form>';
   }
 
@@ -257,7 +262,7 @@ var BodyCompForecast = (function () {
         updatedAt: new Date().toISOString(),
       };
       if (!m.height || !m.neck || !m.waist) {
-        alert('Introduce altura, cuello y cintura como mínimo.');
+        alert(_t('body_comp.alert_measures'));
         return;
       }
       localStorage.setItem(LS_KEY, JSON.stringify(m));
@@ -270,6 +275,7 @@ var BodyCompForecast = (function () {
     var root = document.getElementById('bcf-root');
     if (!root) return;
     render(root);
+    document.addEventListener('languagechange', function () { render(root); });
   }
 
   return { init: init };

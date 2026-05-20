@@ -220,8 +220,14 @@
     if (!LOCALES[code]) return
     current = code
     localStorage.setItem('hs-app-lang', code)
+    // applyTranslations() updates [data-i18n] elements and fires the event so
+    // modules with languagechange listeners can react immediately.
+    // The reload ensures every JS-rendered module (without a listener) also
+    // reinitializes with the correct locale. Short delay lets the dropdown
+    // animate closed before the page reloads.
     applyTranslations()
     document.dispatchEvent(new CustomEvent('languagechange', { detail: { lang: code } }))
+    setTimeout(() => location.reload(), 120)
   }
 
   function updateLangBtn() {

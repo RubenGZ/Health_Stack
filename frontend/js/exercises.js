@@ -412,6 +412,12 @@ const Exercises = (function () {
       // lens es el visor SVG body-muscles. Si lanza es un error inesperado;
       // no caer al SVG simple (está oculto) — loguear y seguir.
       await lens.highlight(ex.id, ex.muscles);
+      // En móvil: desplazar el visor anatómico a la vista para que sea visible
+      if (window.matchMedia('(max-width: 768px)').matches) {
+        const viewer = document.querySelector('#section-ejercicios .anatomy-lens-container')
+                    || document.getElementById('anatomy-svg-wrap');
+        if (viewer) viewer.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+      }
       return;  // AnatomyLens manejó leyenda + hint
     }
 
@@ -527,5 +533,10 @@ const Exercises = (function () {
   // Expone el DB para que workoutLogger pueda hacer autocomplete
   function getDB() { return DB; }
 
-  return { init, getDB };
+  // Refresca el grid (llamado al navegar a la sección)
+  function refreshLayout() {
+    renderGrid();
+  }
+
+  return { init, getDB, refreshLayout };
 })();

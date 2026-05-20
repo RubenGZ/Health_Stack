@@ -10,7 +10,7 @@ const RoutineGenerator = (function () {
 
   const LS_KEY      = 'hs_routine';
   const LS_HISTORY  = 'hs_routine_history';
-  const HISTORY_MAX = 5;
+  const HISTORY_MAX = 1; // Tier gratuito: máximo 1 rutina IA guardada
 
   // ── Cuestionario con metodología de entrenador de élite ──────────
   const STEPS = [
@@ -881,23 +881,79 @@ const RoutineGenerator = (function () {
     if (typeof Gamification !== 'undefined') Gamification.addXP('routine');
     document.dispatchEvent(new CustomEvent('routineGenerated', { detail: { routine } }));
     localStorage.setItem(LS_KEY, JSON.stringify({ routine, ts: Date.now() }));
-    saveToHistory(routine);
-    renderHistory();
+
+    // Free-tier: verificar límite de 1 rutina + pedir nombre personalizado
+    const existingHistory = JSON.parse(localStorage.getItem(LS_HISTORY) || '[]');
+    if (existingHistory.length >= HISTORY_MAX) {
+      _promptSaveRoutine(routine, true); // true = ya hay una existente
+    } else {
+      _promptSaveRoutine(routine, false);
+    }
+  }
+
+  // ── Modal de guardado con nombre personalizado ─────────────
+  function _promptSaveRoutine(routine, hasExisting) {
+    // Crear mini-modal inline
+    const existingModal = document.getElementById('save-routine-modal');
+    if (existingModal) existingModal.remove();
+
+    const modal = document.createElement('div');
+    modal.id = 'save-routine-modal';
+    modal.style.cssText = `
+      position:fixed;inset:0;z-index:1000;display:flex;align-items:center;justify-content:center;
+      background:rgba(0,0,0,.6);backdrop-filter:blur(4px);padding:16px;
+    `;
+    const gMap = { hypertrophy:'Hipertrofia', strength:'Fuerza', fat_loss:'Pérd. grasa', athletic:'Atlético', recomposition:'Recomposición' };
+    const defaultName = `${gMap[routine.answers?.goal] || 'Rutina'} ${routine.answers?.days || '?'}d — ${new Date().toLocaleDateString('es-ES', { day:'2-digit', month:'short' })}`;
+    const warningHtml = hasExisting
+      ? `<p style="color:#f59e0b;font-size:.82rem;margin-bottom:12px;background:rgba(245,158,11,.1);padding:8px 12px;border-radius:8px;border:1px solid rgba(245,158,11,.3)">
+           ⚠️ <strong>Tier gratuito — 1 rutina máx.</strong> La rutina anterior será reemplazada.
+         </p>`
+      : '';
+    modal.innerHTML = `
+      <div style="background:var(--bg-surface);border:1px solid var(--glass-border);border-radius:16px;padding:24px;max-width:400px;width:100%">
+        <h3 style="margin-bottom:8px;font-size:1rem">💾 Guardar rutina</h3>
+        ${warningHtml}
+        <label style="font-size:.82rem;color:var(--text-secondary);display:block;margin-bottom:6px">Nombre de la rutina</label>
+        <input id="routine-name-input" class="form-input" type="text"
+               value="${defaultName}" style="margin-bottom:16px;width:100%"
+               maxlength="60">
+        <div style="display:flex;gap:10px;justify-content:flex-end">
+          <button id="routine-save-cancel" class="btn btn--ghost btn--sm">Cancelar</button>
+          <button id="routine-save-confirm" class="btn btn--primary btn--sm">Guardar</button>
+        </div>
+      </div>`;
+    document.body.appendChild(modal);
+
+    const input = modal.querySelector('#routine-name-input');
+    input?.select();
+
+    modal.querySelector('#routine-save-cancel').addEventListener('click', () => modal.remove());
+    modal.querySelector('#routine-save-confirm').addEventListener('click', () => {
+      const name = input?.value.trim() || defaultName;
+      saveToHistory(routine, name);
+      renderHistory();
+      modal.remove();
+    });
+    // Cerrar al hacer click fuera
+    modal.addEventListener('click', e => { if (e.target === modal) modal.remove(); });
   }
 
   // ── Historial ─────────────────────────────────────────────────────────────
-  function saveToHistory(routine) {
+  function saveToHistory(routine, customName) {
     try {
-      const history = JSON.parse(localStorage.getItem(LS_HISTORY) || '[]');
+      // Free tier: reemplazar historia existente (no acumular)
       const gMap = { hypertrophy:'Hipertrofia', strength:'Fuerza', fat_loss:'Pérdida de grasa', athletic:'Atlético', recomposition:'Recomposición' };
       const lMap = { beginner:'Principiante', intermediate:'Intermedio', advanced:'Avanzado' };
-      history.unshift({
+      const autoLabel = `${gMap[routine.answers?.goal] || 'Rutina'} · ${lMap[routine.answers?.level] || ''} · ${routine.answers?.days || '?'} días`;
+      const entry = {
         ts:    Date.now(),
-        label: `${gMap[routine.answers?.goal] || 'Rutina'} · ${lMap[routine.answers?.level] || ''} · ${routine.answers?.days || '?'} días`,
+        label: customName || autoLabel,
         days:  routine.answers?.days,
         routine,
-      });
-      localStorage.setItem(LS_HISTORY, JSON.stringify(history.slice(0, HISTORY_MAX)));
+      };
+      // Sustituir historia completa (tier gratuito = 1 rutina máx.)
+      localStorage.setItem(LS_HISTORY, JSON.stringify([entry]));
     } catch { /* ignorar */ }
   }
 
@@ -909,7 +965,7 @@ const RoutineGenerator = (function () {
       if (!history.length) { wrap.style.display = 'none'; return; }
       wrap.style.display = '';
       wrap.innerHTML = `
-        <h3 class="history-title">Historial de rutinas</h3>
+        <h3 class="history-title">Mis rutinas guardadas <span style="font-size:.75rem;color:var(--text-muted);font-weight:400">(Tier gratuito: 1 máx.)</span></h3>
         <div class="history-list">
           ${history.map((h, i) => `
             <div class="history-item" data-idx="${i}">
@@ -917,7 +973,12 @@ const RoutineGenerator = (function () {
                 <span class="history-label">${h.label}</span>
                 <span class="history-date">${new Date(h.ts).toLocaleDateString('es-ES', { day:'2-digit', month:'short', year:'numeric' })}</span>
               </div>
-              <button class="btn btn--ghost btn--sm history-load-btn" data-idx="${i}">Cargar</button>
+              <div style="display:flex;gap:6px">
+                <button class="btn btn--ghost btn--sm history-load-btn" data-idx="${i}">Cargar</button>
+                <button class="btn btn--sm history-del-btn" data-idx="${i}"
+                        style="background:rgba(239,68,68,.1);color:#ef4444;border:1px solid rgba(239,68,68,.3)"
+                        title="Eliminar rutina">🗑</button>
+              </div>
             </div>`).join('')}
         </div>`;
       wrap.querySelectorAll('.history-load-btn').forEach(btn => {
@@ -925,6 +986,26 @@ const RoutineGenerator = (function () {
           const idx  = parseInt(btn.dataset.idx);
           const hist = JSON.parse(localStorage.getItem(LS_HISTORY) || '[]');
           if (hist[idx]) showResult(hist[idx].routine);
+        });
+      });
+      wrap.querySelectorAll('.history-del-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+          const idx  = parseInt(btn.dataset.idx);
+          const hist = JSON.parse(localStorage.getItem(LS_HISTORY) || '[]');
+          if (!hist[idx]) return;
+          if (!confirm(`¿Eliminar "${hist[idx].label}"?`)) return;
+          hist.splice(idx, 1);
+          localStorage.setItem(LS_HISTORY, JSON.stringify(hist));
+          // Si la rutina activa es la que se borra, ocultarla
+          const saved = JSON.parse(localStorage.getItem(LS_KEY) || 'null');
+          if (!hist.length) {
+            localStorage.removeItem(LS_KEY);
+            const resultEl = document.getElementById('routine-result');
+            if (resultEl) resultEl.style.display = 'none';
+            const questionnaire = document.getElementById('routine-questionnaire');
+            if (questionnaire) questionnaire.style.display = '';
+          }
+          renderHistory();
         });
       });
     } catch { wrap.style.display = 'none'; }

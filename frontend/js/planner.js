@@ -479,16 +479,18 @@ const MealPlanner = (function () {
     // Construir lista de recetas
     const list = document.getElementById('planner-sheet-list');
     list.innerHTML = '';
+    const userRecs = typeof MyRecipes !== 'undefined'
+      ? MyRecipes.getRecipes()
+      : (JSON.parse(localStorage.getItem('hs_my_recipes') || '[]'));
     const allRecipes = [
-      ...RECIPES.map(r => ({ id: r.id, name: r.name })),
-      ...(JSON.parse(localStorage.getItem('hs_user_recipes') || '[]'))
-        .map(r => ({ id: `user_${r.id}`, name: r.name })),
+      ...RECIPES.map(r => ({ id: r.id, name: r.name, kcal: r.kcal })),
+      ...userRecs.map(r => ({ id: `user_${r.id}`, name: r.name, kcal: r.kcal || '?' })),
     ];
     allRecipes.forEach(r => {
       const btn = document.createElement('button');
       btn.className = 'btn btn--ghost btn--sm';
-      btn.style.cssText = 'text-align:left;width:100%;justify-content:flex-start';
-      btn.textContent = r.name;
+      btn.style.cssText = 'text-align:left;width:100%;justify-content:flex-start;display:flex;justify-content:space-between;align-items:center';
+      btn.innerHTML = `<span>${r.name}</span><span style="color:var(--amber);font-size:.75rem;margin-left:8px">${r.kcal} kcal</span>`;
       btn.addEventListener('click', () => {
         plan[cellKey] = r.id;
         save(); renderGrid(); renderMacros();

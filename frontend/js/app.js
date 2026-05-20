@@ -100,6 +100,17 @@
         RankedModule.init(rankedRoot);
       }
     }
+    // Suplementos: re-inicializar si el grid está vacío o aún muestra "Cargando"
+    if (sectionId === 'suplementos' && typeof Supplements !== 'undefined') {
+      const sg = document.getElementById('suppl-grid');
+      if (sg && (!sg.children.length || sg.querySelector('.suppl-loading'))) {
+        Supplements.init();
+      }
+    }
+    // Ejercicios: re-renderizar al navegar (por si cambia el viewport)
+    if (sectionId === 'ejercicios' && typeof Exercises !== 'undefined') {
+      Exercises.refreshLayout?.();
+    }
   }
 
   function initNavigation() {

@@ -25,21 +25,45 @@ const Onboarding = (function () {
       ],
     },
     {
+      id:       'sex',
+      emoji:    '🧬',
+      title:    '¿Cuál es tu sexo biológico?',
+      subtitle: 'Necesario para calcular tu metabolismo basal con la fórmula Mifflin-St Jeor.',
+      type:     'options',
+      options: [
+        { value: 'male',   emoji: '♂️', label: 'Hombre', hint: 'Fórmula: 10P + 6.25T - 5E + 5' },
+        { value: 'female', emoji: '♀️', label: 'Mujer',  hint: 'Fórmula: 10P + 6.25T - 5E - 161' },
+      ],
+    },
+    {
       id:       'body',
       emoji:    '📏',
-      title:    '¿Cuál es tu peso y talla actuales?',
+      title:    '¿Cuál es tu peso, talla y edad?',
       subtitle: 'Solo para calcular tu TDEE y BMI. Puedes cambiarlo en cualquier momento.',
       type:     'inputs',
       fields: [
-        { id: 'ob-weight', label: 'Peso', unit: 'kg',  type: 'number', min: 30,  max: 300, placeholder: '70' },
-        { id: 'ob-height', label: 'Talla', unit: 'cm', type: 'number', min: 100, max: 250, placeholder: '175' },
-        { id: 'ob-age',    label: 'Edad', unit: 'años',type: 'number', min: 14,  max: 99,  placeholder: '25' },
+        { id: 'ob-weight', label: 'Peso actual', unit: 'kg',   type: 'number', min: 30,  max: 300, placeholder: 'ej: 75' },
+        { id: 'ob-height', label: 'Talla',       unit: 'cm',   type: 'number', min: 100, max: 250, placeholder: 'ej: 175' },
+        { id: 'ob-age',    label: 'Edad',        unit: 'años', type: 'number', min: 14,  max: 99,  placeholder: 'ej: 28' },
+      ],
+    },
+    {
+      id:       'activity',
+      emoji:    '⚡',
+      title:    '¿Cuál es tu nivel de actividad diaria?',
+      subtitle: 'Incluye tanto el trabajo como el ejercicio habitual.',
+      type:     'options',
+      options: [
+        { value: 1.2,   emoji: '🛋️', label: 'Sedentario',        hint: 'Trabajo de escritorio, poco movimiento' },
+        { value: 1.375, emoji: '🚶', label: 'Poco activo',        hint: '1-3 días/semana de ejercicio ligero' },
+        { value: 1.55,  emoji: '🏃', label: 'Moderadamente activo', hint: '3-5 días/semana de ejercicio moderado' },
+        { value: 1.725, emoji: '💪', label: 'Muy activo',          hint: '6-7 días/semana de ejercicio intenso' },
       ],
     },
     {
       id:       'schedule',
       emoji:    '🗓',
-      title:    '¿Cuántos días a la semana entrenas?',
+      title:    '¿Cuántos días a la semana entrenas en el gym?',
       subtitle: 'Usamos esto para generar tu primera rutina personalizada.',
       type:     'options',
       options: [
@@ -86,7 +110,7 @@ const Onboarding = (function () {
 
         <div class="ob-progress">
           <div class="ob-prog-bar"><div class="ob-prog-fill" id="ob-prog-fill"></div></div>
-          <span class="ob-prog-label" id="ob-prog-label">Paso 1 de 3</span>
+          <span class="ob-prog-label" id="ob-prog-label">Paso 1 de 5</span>
         </div>
 
         <div class="ob-body" id="ob-body"></div>
@@ -246,9 +270,10 @@ const Onboarding = (function () {
   // Activity multiplier mapped from training days per week
   const ACTIVITY_MAP = { 2: 1.375, 3: 1.55, 4: 1.725, 5: 1.9 };
 
-  function calcTDEEFromAnswers(weight, height, age, goal, activity = 1.55) {
-    // Mifflin-St Jeor (asumimos male por defecto si no hay dato de sexo)
-    const bmr    = 10 * weight + 6.25 * height - 5 * age + 5;
+  function calcTDEEFromAnswers(weight, height, age, goal, activity = 1.55, sex = 'male') {
+    // Mifflin-St Jeor — male: +5, female: -161
+    const sexOffset = sex === 'female' ? -161 : 5;
+    const bmr    = 10 * weight + 6.25 * height - 5 * age + sexOffset;
     const tdee   = Math.round(bmr * activity);
     const delta  = GOAL_DELTA[goal] || 0;
     const target = tdee + delta;
@@ -266,6 +291,7 @@ const Onboarding = (function () {
     const h = answers['ob-height'];
     const a = answers['ob-age'];
     const g = answers.goal;
+    const sex = answers.sex || 'male';
 
     // 1. Registrar el peso de hoy automáticamente
     if (w && typeof WeightTracker !== 'undefined') {
@@ -285,11 +311,11 @@ const Onboarding = (function () {
     // 4. Calcular y persistir TDEE directamente (sin pasar por el form HTML)
     //    El form puede tener opciones i18n vacías en este momento; lo bypaseamos.
     if (w && h && a && g) {
-      const activity = ACTIVITY_MAP[answers.schedule] || 1.55;
-      const result = calcTDEEFromAnswers(w, h, a, g, activity);
+      const activity = answers.activity || ACTIVITY_MAP[answers.schedule] || 1.55;
+      const result = calcTDEEFromAnswers(w, h, a, g, activity, sex);
       const tdeeData = {
-        sex: 'male', age: a, weight: w, height: h,
-        activity: 1.55, goal: g,
+        sex, age: a, weight: w, height: h,
+        activity, goal: g,
         bmr: result.bmr, tdee: result.tdee, target: result.target,
         macros: {
           proteinG: result.proteinG, proteinKcal: result.proteinG * 4,
@@ -329,8 +355,12 @@ const Onboarding = (function () {
         if (statTdee) statTdee.textContent = `${result.target} kcal`;
       }, 200);
 
-      // Notificar al resto de módulos
+      // Notificar al resto de módulos y forzar re-render de MacroCalc
       window.dispatchEvent(new CustomEvent('hs:tdee-calculated'));
+      // MacroCalc.init() re-carga los datos guardados y actualiza la pantalla
+      if (typeof MacroCalc !== 'undefined') {
+        setTimeout(() => MacroCalc.init(), 250);
+      }
     }
 
     // 5. XP de bienvenida

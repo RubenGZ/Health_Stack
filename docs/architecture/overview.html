@@ -397,8 +397,8 @@ code {
 <!-- NAV -->
 <nav class="nav">
   <div class="nav-logo">
-    <div class="nav-logo-title">HealthStack Pro V2</div>
-    <div class="nav-logo-sub">Arquitectura Técnica — v1.0</div>
+    <div class="nav-logo-title">HealthStack Pro V1</div>
+    <div class="nav-logo-sub">Arquitectura Técnica — May 2026</div>
   </div>
 
   <div class="nav-section">
@@ -440,19 +440,21 @@ code {
 
 <!-- HEADER -->
 <div class="doc-header" id="overview">
-  <div class="doc-tag"><div class="doc-tag-dot"></div>Documento de Arquitectura Senior — Confidencial</div>
-  <h1 class="doc-title">HealthStack Pro <span>V2</span><br>Especificación Técnica Completa</h1>
+  <div class="doc-tag"><div class="doc-tag-dot"></div>Documento de Arquitectura — Actualizado 20 May 2026</div>
+  <h1 class="doc-title">HealthStack Pro <span>V1</span><br>Especificación Técnica Completa</h1>
   <p style="color:var(--text2); max-width:700px; font-size:0.92rem">
-    Plataforma de Nutrición y Entrenamiento Inteligente diseñada con cumplimiento estricto de la
-    normativa española <strong>RGPD/AEPD</strong>, arquitectura de capas, seudonimización de datos
-    biométricos y patron Strategy para el motor nutricional intercambiable.
+    Plataforma de Salud y Entrenamiento Inteligente construida con <strong>Vanilla JS SPA + FastAPI + PostgreSQL 17</strong>.
+    Cumplimiento estricto de la normativa española <strong>RGPD/AEPD</strong>, arquitectura de 4 capas,
+    seudonimización AES-256-GCM, IA multilingüe (Groq LLaMA 3.3 70B) y PWA installable con Service Worker.
+    Desplegado en <strong>Raspberry Pi + Cloudflare Tunnel</strong>.
   </p>
   <div class="doc-meta">
-    <span>📅 2025</span>
-    <span>🏗️ Next.js 14 + FastAPI</span>
-    <span>🗄️ PostgreSQL + Prisma ORM</span>
-    <span>🔐 AES-256-GCM + TLS 1.3</span>
-    <span>🇪🇺 Hetzner EU — RGPD Compliant</span>
+    <span>📅 May 2026</span>
+    <span>🏗️ Vanilla JS SPA + FastAPI 0.111</span>
+    <span>🗄️ PostgreSQL 17 + SQLAlchemy 2.0 async</span>
+    <span>🔐 AES-256-GCM + JWT RS256 + Argon2id</span>
+    <span>📱 PWA · SW v22 · 5 idiomas i18n</span>
+    <span>🥧 Raspberry Pi · Cloudflare Tunnel · RGPD</span>
   </div>
 </div>
 
@@ -460,38 +462,39 @@ code {
 <div class="arch-diagram">
   <div class="arch-separator">CAPA DE CLIENTE</div>
   <div class="arch-row">
-    <div class="arch-box client">Next.js 14<div class="arch-box-label">App Router + TypeScript</div></div>
-    <div class="arch-box client">React Query<div class="arch-box-label">Estado del servidor</div></div>
-    <div class="arch-box client">Zustand<div class="arch-box-label">Estado global</div></div>
+    <div class="arch-box client">Vanilla JS SPA<div class="arch-box-label">frontend/ · 30+ módulos JS</div></div>
+    <div class="arch-box client">Service Worker v22<div class="arch-box-label">Cache-first · PWA offline</div></div>
+    <div class="arch-box client">Landing React+Vite<div class="arch-box-label">landing/ · Tailwind</div></div>
   </div>
-  <div class="arch-row"><span class="arch-arrow">↓ HTTPS / TLS 1.3</span></div>
+  <div class="arch-row"><span class="arch-arrow">↓ HTTPS / Cloudflare Tunnel</span></div>
   <div class="arch-separator">CAPA DE GATEWAY</div>
   <div class="arch-row">
-    <div class="arch-box gateway">Nginx<div class="arch-box-label">Reverse Proxy + Rate Limit</div></div>
-    <div class="arch-box gateway">JWT Middleware<div class="arch-box-label">Auth + Roles</div></div>
+    <div class="arch-box gateway">Nginx<div class="arch-box-label">Reverse Proxy · Security Headers</div></div>
+    <div class="arch-box gateway">JWT RS256 Middleware<div class="arch-box-label">Auth + Roles + Rate Limit</div></div>
+    <div class="arch-box gateway">Cloudflare Tunnel<div class="arch-box-label">HTTPS sin IP pública</div></div>
   </div>
   <div class="arch-row"><span class="arch-arrow">↓ Red Docker interna</span></div>
-  <div class="arch-separator">CAPA DE SERVICIOS</div>
+  <div class="arch-separator">CAPA DE SERVICIOS (16 módulos)</div>
   <div class="arch-row">
-    <div class="arch-box service">FastAPI<div class="arch-box-label">Servicio Principal</div></div>
-    <div class="arch-box service">NutritionService<div class="arch-box-label">Strategy Pattern</div></div>
-    <div class="arch-box service">CryptoService<div class="arch-box-label">Llave de Cruce AES-256</div></div>
-    <div class="arch-box service">WorkoutEngine<div class="arch-box-label">Algoritmo dinámico</div></div>
+    <div class="arch-box service">FastAPI 0.111<div class="arch-box-label">11 prod · 4 WIP · 1 aux</div></div>
+    <div class="arch-box service">CryptoService<div class="arch-box-label">AES-256-GCM pseudonimización</div></div>
+    <div class="arch-box service">AIRouter (Groq)<div class="arch-box-label">LLaMA 3.3 70B · 5 idiomas</div></div>
+    <div class="arch-box service">WorkoutEngine<div class="arch-box-label">Epley 1RM · streak · gamification</div></div>
   </div>
-  <div class="arch-row"><span class="arch-arrow">↓ SQLAlchemy / Prisma</span></div>
-  <div class="arch-separator">CAPA DE DATOS (Aislada por seudonimización)</div>
+  <div class="arch-row"><span class="arch-arrow">↓ SQLAlchemy 2.0 async · asyncpg</span></div>
+  <div class="arch-separator">CAPA DE DATOS (Aislada por seudonimización AEPD)</div>
   <div class="arch-row">
-    <div class="arch-box data">Users DB<div class="arch-box-label">Identidad (sin salud)</div></div>
-    <div class="arch-box data">Health DB<div class="arch-box-label">Biometría (sin identidad)</div></div>
-    <div class="arch-box data">Content DB<div class="arch-box-label">Recetas + Rutinas</div></div>
+    <div class="arch-box data">public schema<div class="arch-box-label">Identidad · tokens · gamification</div></div>
+    <div class="arch-box data">health schema<div class="arch-box-label">Biometría · health_subject_id</div></div>
+    <div class="arch-box data">ai_insights_cache<div class="arch-box-label">TTL 6h/24h · por idioma</div></div>
   </div>
   <div class="arch-row"><span class="arch-arrow">↓ Persistencia</span></div>
-  <div class="arch-separator">INFRAESTRUCTURA</div>
+  <div class="arch-separator">INFRAESTRUCTURA (Raspberry Pi · Docker Compose)</div>
   <div class="arch-row">
-    <div class="arch-box infra">PostgreSQL 16<div class="arch-box-label">Hetzner FSN1 (Fráncfort)</div></div>
-    <div class="arch-box infra">Redis 7<div class="arch-box-label">Caché + Rate Limit</div></div>
-    <div class="arch-box infra">Prometheus + Grafana<div class="arch-box-label">Métricas</div></div>
-    <div class="arch-box infra">Sentry<div class="arch-box-label">Error Tracking</div></div>
+    <div class="arch-box infra">PostgreSQL 17<div class="arch-box-label">healthstack_db · 5 migraciones</div></div>
+    <div class="arch-box infra">Redis 7<div class="arch-box-label">Rate limit prod (unhealthy en Pi)</div></div>
+    <div class="arch-box infra">Prometheus<div class="arch-box-label">/metrics · FastAPI instrumentator</div></div>
+    <div class="arch-box infra">Sentry<div class="arch-box-label">Error tracking · PII filter RGPD</div></div>
   </div>
 </div>
 
@@ -501,45 +504,59 @@ code {
 
   <div style="display:grid; grid-template-columns:repeat(auto-fill,minmax(300px,1fr)); gap:12px">
     <div class="compliance-item">
-      <div class="compliance-status arch">Frontend</div>
+      <div class="compliance-status arch">Frontend SPA</div>
       <div class="compliance-content">
-        <h5>Next.js 14+ (App Router) — TypeScript</h5>
-        <p>Server Components por defecto. Tailwind CSS + Shadcn/ui. React Query para data fetching. Zustand para estado global. Zod para validación de formularios del lado cliente.</p>
+        <h5>Vanilla JS — <code>frontend/</code> · 30+ módulos</h5>
+        <p>SPA sin framework. Módulos IIFE independientes (app.js, weightTracker.js, gamification.js, ranked.js, etc.). i18n propio con <code>window.t()</code> — 5 locales (es/en/fr/de/it). PWA con Service Worker v22 (cache-first, SWR para CDN). Three.js para visor 3D (vía CDN jsdelivr).</p>
+      </div>
+    </div>
+    <div class="compliance-item">
+      <div class="compliance-status arch">Landing</div>
+      <div class="compliance-content">
+        <h5>React 18 + Vite + Tailwind — <code>landing/</code></h5>
+        <p>react-i18next (es/en). Bundle splitting por chunks (React, framer-motion, Spline, i18n). Geo-pricing dinámico con 5 monedas por IP. Todos los tiers marcados Free (features actuales).</p>
       </div>
     </div>
     <div class="compliance-item">
       <div class="compliance-status arch">Backend</div>
       <div class="compliance-content">
-        <h5>FastAPI (Python 3.12) — Arquitectura de Capas</h5>
-        <p>Routers → Services → Repositories → Models. SQLAlchemy 2.0 + Alembic para migraciones. Pydantic v2 para validación. Uvicorn + Gunicorn como servidor ASGI.</p>
+        <h5>FastAPI 0.111 — Python 3.14 — 16 módulos</h5>
+        <p>Arquitectura 4 capas: Router → Service → Repository → Model. SQLAlchemy 2.0 async + asyncpg. Alembic para migraciones. Pydantic v2. Rate limiting slowapi. IA: Groq API (LLaMA 3.3 70B) con fallback graceful. 152 tests (pytest 8.3 + pytest-asyncio 1.3).</p>
       </div>
     </div>
     <div class="compliance-item">
       <div class="compliance-status arch">Base de datos</div>
       <div class="compliance-content">
-        <h5>PostgreSQL 16 + Prisma ORM (también SQLAlchemy)</h5>
-        <p>Dos esquemas separados: <code>public</code> (identidad) y <code>health</code> (biometría). Row-Level Security (RLS) activado. Prisma para el frontend, SQLAlchemy para el backend Python.</p>
+        <h5>PostgreSQL 17 + SQLAlchemy 2.0 async</h5>
+        <p>Dos schemas: <code>public</code> (identidad, tokens, gamification, nutrition, community) y <code>health</code> (biometría seudonimizada). 5 migraciones Alembic. Caché AI Insights en tabla <code>ai_insights_cache</code> (TTL 6h/24h, indexado por <code>user_id + type + lang</code>).</p>
       </div>
     </div>
     <div class="compliance-item">
       <div class="compliance-status arch">Infra</div>
       <div class="compliance-content">
-        <h5>Hetzner CX31 — Fráncfort (EU-Central)</h5>
-        <p>Docker Compose en producción. Nginx como reverse proxy. Certbot/Let's Encrypt para TLS 1.3. Backups diarios cifrados a Hetzner S3-compatible en Fráncfort.</p>
+        <h5>Raspberry Pi + Docker Compose + Cloudflare Tunnel</h5>
+        <p>6 contenedores: backend, nginx, postgres, redis, cloudflared, frontend. Cloudflare Tunnel para HTTPS sin IP pública expuesta. Frontend en bind-mount (sin rebuild al actualizar JS/CSS). Script de deploy: <code>update.sh</code>.</p>
       </div>
     </div>
     <div class="compliance-item">
       <div class="compliance-status done">Seguridad</div>
       <div class="compliance-content">
-        <h5>AES-256-GCM + RSA-OAEP + Argon2id</h5>
-        <p>Llave de cruce cifrada con AES-256-GCM. Contraseñas con Argon2id (no bcrypt). JWT RS256 (clave asimétrica). HSTS, CSP, X-Frame-Options en todas las respuestas.</p>
+        <h5>AES-256-GCM + JWT RS256 + Argon2id</h5>
+        <p>Llave de cruce cifrada AES-256-GCM (<code>health_uuid_enc</code>). Contraseñas con Argon2id (time_cost=3, memory=64MB). JWT RS256 asimétrico con JTI blacklist en PG. HSTS, CSP, X-Frame-Options en nginx. OAuth2 CSRF con HMAC + <code>compare_digest</code>. RGPD P0: ai_insights anonimiza PII con SHA-256 antes de enviar a Groq.</p>
       </div>
     </div>
     <div class="compliance-item">
       <div class="compliance-status done">Observabilidad</div>
       <div class="compliance-content">
-        <h5>Sentry + Prometheus + Grafana + Loki</h5>
-        <p>Sentry para error tracking (con data scrubbing de PII). Prometheus + Grafana para métricas de negocio y sistema. Loki para logs estructurados (sin datos de salud en logs).</p>
+        <h5>Sentry + Prometheus + Smoke Test</h5>
+        <p>Sentry con PII filter (RGPD Art. 28). Prometheus wired en <code>main.py</code> — <code>/metrics</code> bloqueado en nginx (solo interno). Smoke test script cubre 17 módulos sin dependencias externas. Grafana: pendiente de configurar sobre Prometheus.</p>
+      </div>
+    </div>
+    <div class="compliance-item">
+      <div class="compliance-status done">PWA + i18n</div>
+      <div class="compliance-content">
+        <h5>Service Worker v22 · manifest.json · 5 idiomas</h5>
+        <p>Cache-first para assets locales. Stale-while-revalidate para CDN (Three.js, Chart.js). Network-first para index.html y APIs. PNG 192×512 maskable para iOS/Android. apple-touch-icon. i18n: 30+ grupos de claves, re-render instantáneo por evento <code>languagechange</code>. AI Insights con <code>?lang=</code> y caché localStorage por idioma.</p>
       </div>
     </div>
   </div>
@@ -1999,9 +2016,9 @@ ACTIVE_USERS    = Gauge(<span class="st">"active_sessions_total"</span>, <span c
 </section>
 
 <div class="doc-footer">
-  <span>HealthStack Pro V2 · Arquitectura Técnica v1.0</span>
-  <span>© 2025 · Confidencial · RGPD/AEPD Compliant</span>
-  <span>Stack: Next.js 14 · FastAPI · PostgreSQL · Docker · Hetzner EU</span>
+  <span>HealthStack Pro V1 · Arquitectura Técnica · Actualizado 20 May 2026</span>
+  <span>© 2026 · Confidencial · RGPD/AEPD Compliant</span>
+  <span>Stack: Vanilla JS SPA · FastAPI 0.111 · PostgreSQL 17 · Docker · Raspberry Pi · Cloudflare Tunnel</span>
 </div>
 
 </main>

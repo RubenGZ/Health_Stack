@@ -1546,12 +1546,37 @@
   <script type="module" src="js/workoutInit.js"></script>
   <script defer src="js/ranked.js"></script>
   <script>
-    // ── PWA: registrar service worker ─────────────────────────
+    // ── PWA: registrar service worker + auto-update ────────────
     if ('serviceWorker' in navigator) {
       window.addEventListener('load', () => {
-        navigator.serviceWorker.register('/sw.js')
-          .then(reg => console.log('[SW] Registrado:', reg.scope))
-          .catch(err => console.warn('[SW] Error:', err));
+        navigator.serviceWorker.register('/sw.js').then(reg => {
+          console.log('[SW] Registrado:', reg.scope);
+
+          // Cuando se detecta un SW nuevo, lo activa inmediatamente
+          reg.addEventListener('updatefound', () => {
+            const newWorker = reg.installing;
+            newWorker.addEventListener('statechange', () => {
+              if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
+                // Nuevo SW listo — forzar activación
+                newWorker.postMessage({ type: 'SKIP_WAITING' });
+              }
+            });
+          });
+
+          // Comprobar actualizaciones cada 30 min (útil en iOS donde la PWA puede estar horas abierta)
+          setInterval(() => reg.update(), 30 * 60 * 1000);
+
+        }).catch(err => console.warn('[SW] Error:', err));
+
+        // Cuando el SW nuevo toma el control → recargar la página automáticamente
+        let refreshing = false;
+        navigator.serviceWorker.addEventListener('controllerchange', () => {
+          if (!refreshing) {
+            refreshing = true;
+            console.log('[SW] Nueva versión activa — recargando…');
+            window.location.reload();
+          }
+        });
       });
     }
   </script>

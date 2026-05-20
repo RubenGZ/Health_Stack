@@ -158,7 +158,7 @@ const MealPlanner = (function () {
 
     grid.innerHTML = html;
 
-    // Drop zones
+    // Drop zones (desktop drag & drop)
     grid.querySelectorAll('.planner-cell--slot').forEach(cell => {
       cell.addEventListener('dragover', e => { e.preventDefault(); cell.classList.add('drag-over'); });
       cell.addEventListener('dragleave', () => cell.classList.remove('drag-over'));
@@ -175,6 +175,13 @@ const MealPlanner = (function () {
           renderMacros();
         }
       });
+
+      // Tap-to-assign en móvil (reemplaza drag & drop)
+      if (window.matchMedia('(max-width: 768px)').matches) {
+        cell.addEventListener('click', () => {
+          if (cell.dataset.key) _openMobilePlannerSheet(cell.dataset.key);
+        });
+      }
     });
 
     // Botones quitar
@@ -433,6 +440,72 @@ const MealPlanner = (function () {
       renderGrid();
       renderMacros();
     });
+  }
+
+  // ── Tap-to-assign móvil: bottom sheet con lista de recetas ──
+  function _openMobilePlannerSheet(cellKey) {
+    // Reutilizar bottom-sheet genérico o crear uno ad-hoc
+    let overlay = document.getElementById('planner-mobile-overlay');
+    let sheet   = document.getElementById('planner-mobile-sheet');
+
+    if (!overlay) {
+      overlay = document.createElement('div');
+      overlay.id = 'planner-mobile-overlay';
+      overlay.className = 'bottom-sheet-overlay';
+      document.body.appendChild(overlay);
+
+      sheet = document.createElement('div');
+      sheet.id = 'planner-mobile-sheet';
+      sheet.className = 'bottom-sheet';
+      sheet.innerHTML = `
+        <div class="bottom-sheet__handle"></div>
+        <div class="bottom-sheet__content">
+          <h3 style="margin-bottom:12px;font-size:1rem">Añadir comida</h3>
+          <div id="planner-sheet-list" style="display:flex;flex-direction:column;gap:8px;max-height:55vh;overflow-y:auto"></div>
+          <button id="planner-sheet-remove" class="btn btn--ghost btn--sm" style="margin-top:12px;width:100%">Quitar comida de este slot</button>
+        </div>`;
+      document.body.appendChild(sheet);
+
+      overlay.addEventListener('click', _closeMobilePlannerSheet);
+      document.getElementById('planner-sheet-remove').addEventListener('click', () => {
+        const key = sheet.dataset.cellKey;
+        if (key) { delete plan[key]; save(); renderGrid(); renderMacros(); }
+        _closeMobilePlannerSheet();
+      });
+    }
+
+    sheet.dataset.cellKey = cellKey;
+
+    // Construir lista de recetas
+    const list = document.getElementById('planner-sheet-list');
+    list.innerHTML = '';
+    const allRecipes = [
+      ...RECIPES.map(r => ({ id: r.id, name: r.name })),
+      ...(JSON.parse(localStorage.getItem('hs_user_recipes') || '[]'))
+        .map(r => ({ id: `user_${r.id}`, name: r.name })),
+    ];
+    allRecipes.forEach(r => {
+      const btn = document.createElement('button');
+      btn.className = 'btn btn--ghost btn--sm';
+      btn.style.cssText = 'text-align:left;width:100%;justify-content:flex-start';
+      btn.textContent = r.name;
+      btn.addEventListener('click', () => {
+        plan[cellKey] = r.id;
+        save(); renderGrid(); renderMacros();
+        _closeMobilePlannerSheet();
+      });
+      list.appendChild(btn);
+    });
+
+    overlay.classList.add('open');
+    requestAnimationFrame(() => sheet.classList.add('open'));
+  }
+
+  function _closeMobilePlannerSheet() {
+    const overlay = document.getElementById('planner-mobile-overlay');
+    const sheet   = document.getElementById('planner-mobile-sheet');
+    if (sheet)   sheet.classList.remove('open');
+    if (overlay) overlay.classList.remove('open');
   }
 
   return { init };

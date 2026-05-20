@@ -4839,3 +4839,284 @@ select.form-input option { background: var(--bg-surface); color: var(--text-prim
 }
 .rehab-shake { animation: rehab-shake 0.4s ease; }
 .rk-create-form { display: flex; flex-direction: column; gap: 10px; }
+
+/* ═══════════════════════════════════════════════════════════
+   MOBILE NAV — mobileNav.js
+   Tab bar inferior (56px) + sub-tab bar scrollable (44px)
+   Solo visible en ≤768px (el JS no renderiza en desktop)
+   ═══════════════════════════════════════════════════════════ */
+
+/* ── Tab bar principal ────────────────────────────────────── */
+#mobile-bottom-nav {
+  display: none; /* JS lo muestra al init en mobile */
+  position: fixed;
+  bottom: 0; left: 0; right: 0;
+  height: 56px;
+  background: rgba(7, 14, 22, 0.96);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border-top: 1px solid var(--glass-border);
+  z-index: 200;
+  flex-direction: row;
+  align-items: stretch;
+  justify-content: space-around;
+  padding-bottom: env(safe-area-inset-bottom, 0px); /* iPhone notch */
+}
+
+@media (max-width: 768px) {
+  #mobile-bottom-nav { display: flex; }
+  /* Ocultar sidebar horizontal que CSS convierte en scroll row */
+  .sidebar { display: none !important; }
+}
+
+#mobile-bottom-nav.mbn--hidden {
+  transform: translateY(100%);
+  transition: transform 0.2s ease;
+}
+
+/* ── Tab button ────────────────────────────────────────────── */
+.mbn-tab {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 3px;
+  padding: 6px 4px;
+  background: none;
+  border: none;
+  color: var(--text-muted);
+  cursor: pointer;
+  transition: color 0.18s ease;
+  -webkit-tap-highlight-color: transparent;
+  min-width: 0;
+}
+
+.mbn-tab--active {
+  color: var(--primary);
+}
+
+.mbn-tab:active { opacity: 0.7; }
+
+.mbn-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 22px;
+  height: 22px;
+}
+
+.mbn-icon svg {
+  width: 22px;
+  height: 22px;
+  flex-shrink: 0;
+}
+
+.mbn-label {
+  font-size: 0.6rem;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 54px;
+}
+
+/* ── Sub-tab bar ───────────────────────────────────────────── */
+#mobile-subtab-bar {
+  display: none;
+  position: fixed;
+  bottom: 56px; /* encima del nav */
+  left: 0; right: 0;
+  height: 44px;
+  background: rgba(10, 18, 28, 0.97);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border-top: 1px solid var(--glass-border);
+  z-index: 199;
+  flex-direction: row;
+  align-items: center;
+  gap: 6px;
+  padding: 0 12px;
+  overflow-x: auto;
+  overflow-y: hidden;
+  scrollbar-width: none; /* Firefox */
+  -webkit-overflow-scrolling: touch;
+}
+
+#mobile-subtab-bar.mbn--hidden {
+  transform: translateY(100%);
+  transition: transform 0.2s ease;
+}
+
+#mobile-subtab-bar::-webkit-scrollbar { display: none; }
+
+/* ── Sub-tab chip ──────────────────────────────────────────── */
+.mbn-chip {
+  flex-shrink: 0;
+  padding: 5px 14px;
+  border-radius: 99px;
+  border: 1px solid var(--glass-border);
+  background: var(--glass-bg);
+  color: var(--text-secondary);
+  font-size: 0.75rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background 0.15s ease, color 0.15s ease, border-color 0.15s ease;
+  white-space: nowrap;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.mbn-chip--active {
+  background: rgba(108, 99, 255, 0.2);
+  color: var(--primary);
+  border-color: rgba(108, 99, 255, 0.5);
+  font-weight: 600;
+}
+
+.mbn-chip:active { opacity: 0.75; }
+
+/* ── Ajuste de padding del contenido principal en móvil ────── */
+@media (max-width: 768px) {
+  .main-content {
+    /* mobileNav.js ajusta esto dinámicamente con syncContentPadding() */
+    padding-bottom: 106px; /* default: nav(56) + subtabs(44) + 6px margen */
+  }
+}
+
+/* ═══════════════════════════════════════════════════════════
+   BOTTOM SHEET — modal deslizable desde abajo
+   Usado por: anatomy viewer, PR records, suplementos, etc.
+   ═══════════════════════════════════════════════════════════ */
+
+.bottom-sheet-overlay {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.5);
+  z-index: 300;
+  animation: fadeInOverlay 0.2s ease;
+}
+
+.bottom-sheet-overlay.open { display: block; }
+
+@keyframes fadeInOverlay {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+.bottom-sheet {
+  position: fixed;
+  bottom: 0; left: 0; right: 0;
+  background: var(--bg-surface);
+  border-radius: 20px 20px 0 0;
+  border-top: 1px solid var(--glass-border);
+  z-index: 301;
+  transform: translateY(100%);
+  transition: transform 0.3s cubic-bezier(0.32, 0.72, 0, 1);
+  padding-bottom: env(safe-area-inset-bottom, 16px);
+  max-height: 80vh;
+  overflow-y: auto;
+}
+
+.bottom-sheet.open {
+  transform: translateY(0);
+}
+
+.bottom-sheet__handle {
+  width: 36px;
+  height: 4px;
+  background: var(--glass-border);
+  border-radius: 2px;
+  margin: 12px auto 0;
+  flex-shrink: 0;
+}
+
+.bottom-sheet__content {
+  padding: 16px 20px 24px;
+}
+
+/* ═══════════════════════════════════════════════════════════
+   CHATBOT — pantalla completa en móvil
+   ═══════════════════════════════════════════════════════════ */
+
+@media (max-width: 768px) {
+  .wizard-panel {
+    width: 100% !important;
+    right: 0 !important;
+    bottom: 0 !important;
+    left: 0 !important;
+    border-radius: 20px 20px 0 0 !important;
+    height: 85vh !important;
+    max-height: 85vh !important;
+  }
+
+  .wizard-btn {
+    bottom: 66px; /* encima del nav */
+    right: 16px;
+  }
+}
+
+/* ═══════════════════════════════════════════════════════════
+   ADAPTACIONES MÓVIL POR SECCIÓN
+   ═══════════════════════════════════════════════════════════ */
+
+/* ── Workout: inputs de sets grandes ─────────────────────── */
+@media (max-width: 768px) {
+  .workout-set-row input {
+    min-height: 44px;
+    font-size: 1rem;
+    text-align: center;
+  }
+
+  .exercises-layout {
+    grid-template-columns: 1fr;
+  }
+
+  /* Anatomy viewer: 220px fixed en mobile */
+  .anatomy-viewer-container,
+  #athlete-viewer-container {
+    height: 220px !important;
+    max-height: 220px;
+    width: 100%;
+  }
+
+  /* Records: tabla de 3 columnas compacta */
+  .records-table th:nth-child(4),
+  .records-table td:nth-child(4) { display: none; }
+
+  /* Planner: ocultar instrucciones drag-drop */
+  .planner-drag-hint { display: none; }
+
+  /* Gamificación: hero card full-width */
+  .gamification-hero { width: 100%; }
+
+  /* Badges: 4 columnas en móvil */
+  .badges-grid {
+    grid-template-columns: repeat(4, 1fr) !important;
+    gap: 8px;
+  }
+
+  /* Fatigue heatmap: celdas mínimo 36px */
+  .heatmap-cell {
+    min-width: 36px;
+    min-height: 36px;
+  }
+
+  /* Ranked leaderboard: tu posición sticky */
+  .ranked-my-position {
+    position: sticky;
+    top: 0;
+    z-index: 10;
+    background: var(--bg-surface);
+    border-bottom: 1px solid var(--glass-border);
+    padding: 8px 12px;
+  }
+
+  /* Body comp: controles apilados */
+  .bodycomp-controls {
+    flex-direction: column;
+    gap: 12px;
+  }
+}

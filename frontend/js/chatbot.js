@@ -323,9 +323,44 @@ const Chatbot = (function () {
     if (opening) {
       if (badge) badge.style.display = 'none';
       document.getElementById('chatbot-input')?.focus();
-      // Recheck connection every time the panel opens
       checkConnection();
+      // Móvil: ajustar panel cuando aparece el teclado virtual
+      _initKeyboardAware();
+    } else {
+      _destroyKeyboardAware();
     }
+  }
+
+  // ── Keyboard-aware (móvil) ─────────────────────────────────
+  // Ajusta la altura del panel cuando el teclado virtual iOS/Android
+  // reduce el visualViewport, evitando que el input quede tapado.
+  let _vvListener = null;
+
+  function _initKeyboardAware() {
+    if (!window.visualViewport) return;
+    if (_vvListener) return; // ya activo
+    _vvListener = () => {
+      const panel = document.getElementById('chatbot-panel');
+      if (!panel || panel.style.display === 'none') return;
+      const vvHeight = window.visualViewport.height;
+      const windowHeight = window.innerHeight;
+      const keyboardHeight = windowHeight - vvHeight;
+      // En móvil el panel ya ocupa 85vh; ajustamos bottom para subirlo
+      if (window.matchMedia('(max-width: 768px)').matches) {
+        panel.style.bottom = keyboardHeight > 50 ? `${keyboardHeight}px` : '';
+      }
+    };
+    window.visualViewport.addEventListener('resize', _vvListener);
+  }
+
+  function _destroyKeyboardAware() {
+    if (_vvListener && window.visualViewport) {
+      window.visualViewport.removeEventListener('resize', _vvListener);
+      _vvListener = null;
+    }
+    // Restaurar bottom por defecto
+    const panel = document.getElementById('chatbot-panel');
+    if (panel) panel.style.bottom = '';
   }
 
   // ── Init ──────────────────────────────────────────────────

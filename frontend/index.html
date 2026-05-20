@@ -244,16 +244,6 @@
         <span class="nav-label">Athlete Receipt</span>
       </a>
 
-      <!-- ── COMUNIDAD ────────────────────────────────────────── -->
-      <div class="nav-group-label" data-i18n="nav.group_community">Comunidad</div>
-
-      <a class="nav-item" data-section="comunidad" href="#comunidad">
-        <span class="nav-icon">
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
-        </span>
-        <span class="nav-label" data-i18n="nav.community">Comunidad</span>
-      </a>
-
       <a class="nav-item" data-section="ranked" href="#ranked">
         <span class="nav-icon">
           <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
@@ -1050,42 +1040,6 @@
       <div id="ranked-root"></div>
     </section>
 
-    <!-- ── COMUNIDAD ─────────────────────────────────────── -->
-    <section id="section-comunidad" class="section">
-      <header class="section-header">
-        <div>
-          <h1 class="section-title" data-i18n="community.title">Comunidad</h1>
-          <p class="section-subtitle" data-i18n="community.subtitle">Comparte tu progreso e inspírate con otros atletas</p>
-        </div>
-        <div class="header-actions">
-          <button class="btn btn--primary" id="btn-new-post" data-i18n="community.publish">✏️ Publicar</button>
-        </div>
-      </header>
-
-      <div class="community-layout">
-        <!-- Feed -->
-        <div class="community-feed">
-          <!-- Crear post -->
-          <div class="card new-post-card" id="new-post-card" style="display:none">
-            <textarea id="post-textarea" class="form-input" rows="3" data-i18n="community.placeholder" data-i18n-attr="placeholder" placeholder="¿Qué lograste hoy?..." style="resize:vertical"></textarea>
-            <div class="form-actions" style="margin-top:10px">
-              <button class="btn btn--ghost btn--sm" id="btn-cancel-post" data-i18n="community.cancel">Cancelar</button>
-              <button class="btn btn--primary btn--sm" id="btn-submit-post" data-i18n="community.post">Publicar</button>
-            </div>
-          </div>
-          <div id="feed-list"></div>
-        </div>
-
-        <!-- Leaderboard -->
-        <div class="leaderboard-panel">
-          <div class="card">
-            <div class="card-header"><h3 data-i18n="community.leaderboard">🏆 Leaderboard</h3></div>
-            <div id="leaderboard-list"></div>
-          </div>
-        </div>
-      </div>
-    </section>
-
     <!-- ── SUPLEMENTOS ──────────────────────────────────────── -->
     <section id="section-suplementos" class="section">
       <header class="section-header">
@@ -1546,7 +1500,7 @@
   <script defer src="js/planner.js?v=4"></script>
   <script defer src="js/gamification.js"></script>
   <script defer src="js/chatbot.js?v=4"></script>
-  <script defer src="js/community.js"></script>
+  <!-- community.js eliminado — sección Comunidad removida -->
   <script defer src="js/rehabLogger.js"></script>
   <script defer src="js/onboarding.js?v=3"></script>
   <script defer src="js/supplements.js?v=3"></script>
@@ -1566,6 +1520,7 @@
   <script defer src="js/auth.js"></script>
   <script defer src="js/components/feedbackWidget.js"></script>
   <script defer src="js/app.js"></script>
+  <script defer src="js/mobileNav.js"></script>
   <script type="module" src="js/athleteViewer.js"></script>
   <script type="module" src="js/workoutInit.js"></script>
   <script defer src="js/ranked.js"></script>

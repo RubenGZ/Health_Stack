@@ -11,7 +11,7 @@
   // ── Navegación SPA ─────────────────────────────────────────
   const SECTIONS = [
     'dashboard','peso','nutricion','ejercicios',
-    'rutinas','planner','gamificacion','comunidad',
+    'rutinas','planner','gamificacion',
     'suplementos','timing','records','receipt','fatigue','plateau','deload','bodycomp','sessionreplay','workout','ranked',
   ];
 
@@ -859,4 +859,7 @@
   syncAdminNav();
   window.addEventListener('hs:login',  syncAdminNav);
   window.addEventListener('hs:logout', syncAdminNav);
+
+  // Exponer navigateTo globalmente para mobileNav.js y otros módulos externos
+  window.navigateTo = navigateTo;
 })();

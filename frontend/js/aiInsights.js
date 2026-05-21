@@ -79,19 +79,15 @@
   // Store last data so we can re-render on language change without re-fetching
   let _lastData = null;
 
-  function renderInsights(data) {
-    const el = document.getElementById('ai-insights-content');
-    if (!el) return;
-
-    _lastData = data;
+  // ── Renderizado completo (para el panel de detalle) ─────────────
+  function _buildFullHTML(data) {
     const { narrative, risk, goals } = data;
     let html = '<div class="ai-insights-sections">';
 
-    // ── Biomarker narrative ──────────────────────────────────────
     if (narrative && narrative.narrative) {
       html += `
         <div class="ai-section">
-          <div class="ai-section-label">📊 ${t('ai_insights.current_status')} ${trendIcon(narrative.trend)}</div>
+          <div class="ai-section-label">${t('ai_insights.current_status')} ${trendIcon(narrative.trend)}</div>
           <p class="ai-narrative">${narrative.narrative}</p>
           ${narrative.highlights?.length ? `
             <ul class="ai-highlights">
@@ -100,11 +96,10 @@
         </div>`;
     }
 
-    // ── Injury risk ──────────────────────────────────────────────
     if (risk) {
       html += `
         <div class="ai-section">
-          <div class="ai-section-label">🛡️ ${t('ai_insights.injury_risk')} ${riskBadge(risk.overall_risk)}</div>
+          <div class="ai-section-label">${t('ai_insights.injury_risk')} ${riskBadge(risk.overall_risk)}</div>
           <p class="ai-narrative">${risk.summary}</p>
           ${risk.risk_flags?.length ? `
             <div class="ai-risk-flags">
@@ -118,11 +113,10 @@
         </div>`;
     }
 
-    // ── Weekly goals ─────────────────────────────────────────────
     if (goals && goals.goals?.length) {
       html += `
         <div class="ai-section">
-          <div class="ai-section-label">🎯 ${t('ai_insights.weekly_goals')}</div>
+          <div class="ai-section-label">${t('ai_insights.weekly_goals')}</div>
           <div class="ai-goals">
             ${goals.goals.map(g => `
               <div class="ai-goal-item">
@@ -138,7 +132,92 @@
     }
 
     html += '</div>';
-    el.innerHTML = html;
+    return html;
+  }
+
+  // ── Panel de detalle full-screen ─────────────────────────────
+  function _openDetailPanel(data) {
+    let panel = document.getElementById('ai-detail-panel');
+    if (!panel) {
+      panel = document.createElement('div');
+      panel.id = 'ai-detail-panel';
+      panel.className = 'ai-detail-panel';
+      panel.innerHTML = `
+        <div class="ai-detail-header">
+          <button class="ai-detail-back" id="ai-detail-back">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+              <polyline points="15 18 9 12 15 6"/>
+            </svg>
+            Atrás
+          </button>
+          <span class="ai-detail-title">Análisis IA</span>
+          <div style="width:60px"></div>
+        </div>
+        <div class="ai-detail-body" id="ai-detail-body"></div>
+      `;
+      document.body.appendChild(panel);
+      panel.querySelector('#ai-detail-back').addEventListener('click', _closeDetailPanel);
+    }
+    panel.querySelector('#ai-detail-body').innerHTML = _buildFullHTML(data);
+    requestAnimationFrame(() => panel.classList.add('ai-detail-panel--open'));
+  }
+
+  function _closeDetailPanel() {
+    const panel = document.getElementById('ai-detail-panel');
+    if (!panel) return;
+    panel.classList.remove('ai-detail-panel--open');
+  }
+
+  // ── Renderizado compacto en la card del dashboard ────────────
+  function renderInsights(data) {
+    const el = document.getElementById('ai-insights-content');
+    if (!el) return;
+
+    _lastData = data;
+    const { narrative, risk, goals } = data;
+
+    // Fila compacta: estado
+    const statusRow = narrative ? `
+      <div class="ai-compact-row" data-action="detail">
+        <span class="ai-compact-label">${t('ai_insights.current_status')}</span>
+        <span class="ai-compact-value">${trendIcon(narrative.trend)}
+          ${narrative.highlights?.[0] ? `<span class="ai-compact-hint">${narrative.highlights[0]}</span>` : ''}
+        </span>
+      </div>` : '';
+
+    // Fila compacta: riesgo
+    const riskRow = risk ? `
+      <div class="ai-compact-row" data-action="detail">
+        <span class="ai-compact-label">${t('ai_insights.injury_risk')}</span>
+        <span class="ai-compact-value">${riskBadge(risk.overall_risk)}</span>
+      </div>` : '';
+
+    // Fila compacta: objetivos
+    const goalsRow = goals?.goals?.length ? `
+      <div class="ai-compact-row" data-action="detail">
+        <span class="ai-compact-label">${t('ai_insights.weekly_goals')}</span>
+        <span class="ai-compact-value ai-compact-hint">${goals.goals[0]?.goal || ''}</span>
+      </div>` : '';
+
+    const anyData = statusRow || riskRow || goalsRow;
+    if (!anyData) { el.innerHTML = `<p class="ai-insights-error">${t('ai_insights.error')}</p>`; return; }
+
+    el.innerHTML = `
+      <div class="ai-compact-list">
+        ${statusRow}${riskRow}${goalsRow}
+      </div>
+      <button class="ai-compact-cta" id="ai-see-more">
+        Ver análisis completo
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+          <polyline points="9 18 15 12 9 6"/>
+        </svg>
+      </button>
+    `;
+
+    el.querySelector('#ai-see-more')?.addEventListener('click', () => _openDetailPanel(data));
+    el.querySelectorAll('[data-action="detail"]').forEach(row => {
+      row.addEventListener('click', () => _openDetailPanel(data));
+    });
   }
 
   function renderError() {

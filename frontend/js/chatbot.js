@@ -345,8 +345,8 @@ const Chatbot = (function () {
       const vvHeight = window.visualViewport.height;
       const windowHeight = window.innerHeight;
       const keyboardHeight = windowHeight - vvHeight;
-      // En móvil el panel ya ocupa 85vh; ajustamos bottom para subirlo
-      if (window.matchMedia('(max-width: 768px)').matches) {
+      // En móvil el panel es fullscreen (inset:0), no ajustar bottom
+      if (!window.matchMedia('(max-width: 768px)').matches) {
         panel.style.bottom = keyboardHeight > 50 ? `${keyboardHeight}px` : '';
       }
     };

@@ -15,7 +15,26 @@
     'suplementos','timing','records','receipt','fatigue','plateau','deload','bodycomp','sessionreplay','workout','ranked',
   ];
 
-  function navigateTo(sectionId) {
+  // ── Historia de navegación (back button móvil) ─────────────
+  const _navHistory = [];
+  let _currentSection = null;
+
+  function _updateBackBtn() {
+    const backBtn  = document.getElementById('mobile-back-btn');
+    const header   = document.getElementById('mobile-header');
+    if (!backBtn || !header) return;
+    const canGoBack = _navHistory.length > 0;
+    backBtn.style.display = canGoBack ? 'flex' : 'none';
+    header.classList.toggle('has-back', canGoBack);
+  }
+
+  function _goBack() {
+    if (_navHistory.length === 0) return;
+    const prev = _navHistory.pop();
+    navigateTo(prev, true /* isBack */);
+  }
+
+  function navigateTo(sectionId, isBack) {
     // ── Plan gate ───────────────────────────────────────────
     if (typeof Plan !== 'undefined' && !Plan.can(sectionId)) {
       Plan.showUpgradeModal(sectionId, function () {
@@ -24,6 +43,15 @@
       });
       return;
     }
+
+    // ── Gestión del historial (back button) ─────────────────
+    if (!isBack && _currentSection && _currentSection !== sectionId) {
+      _navHistory.push(_currentSection);
+      // Limitar historial a 10 entradas para no acumular
+      if (_navHistory.length > 10) _navHistory.shift();
+    }
+    _currentSection = sectionId;
+    _updateBackBtn();
 
     // Ocultar todas las secciones
     SECTIONS.forEach(id => {
@@ -138,6 +166,12 @@
           });
         }
       }, true); // capture phase so it fires before the tab switcher
+    }
+
+    // Botón atrás en mobile header
+    const backBtn = document.getElementById('mobile-back-btn');
+    if (backBtn) {
+      backBtn.addEventListener('click', _goBack);
     }
 
     // Leer hash inicial — si es 'admin' redirige a la SPA de admin

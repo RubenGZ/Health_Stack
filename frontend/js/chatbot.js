@@ -322,7 +322,10 @@ const Chatbot = (function () {
     panel.style.display = opening ? 'flex' : 'none';
     if (opening) {
       if (badge) badge.style.display = 'none';
-      document.getElementById('chatbot-input')?.focus();
+      // Solo hacer focus en desktop — en móvil abriría el teclado y haría zoom en iOS
+      if (!window.matchMedia('(max-width: 768px)').matches) {
+        document.getElementById('chatbot-input')?.focus();
+      }
       checkConnection();
       // Móvil: ajustar panel cuando aparece el teclado virtual
       _initKeyboardAware();

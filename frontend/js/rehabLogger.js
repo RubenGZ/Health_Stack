@@ -284,7 +284,8 @@ const RehabLogger = (function () {
       ? '<span class="rehab-badge rehab-badge--pro"><span class="rehab-badge-dot rehab-badge-dot--pro"></span>IA Personalizado</span>'
       : '<span class="rehab-badge rehab-badge--free"><span class="rehab-badge-dot rehab-badge-dot--free"></span>Protocolo Estándar</span>';
 
-    const phasesHtml = protocol.phases.map((phase, pi) => `
+    const phases = protocol.phases || [];
+    const phasesHtml = phases.map((phase, pi) => `
       <div class="rehab-phase">
         <div class="rehab-phase-header">
           <span class="rehab-phase-num">${pi + 1}</span>
@@ -334,8 +335,8 @@ const RehabLogger = (function () {
             ${tierBadge}
           </div>
           <p class="rehab-result-meta">
-            ${protocol.phases.length} fases ·
-            ${protocol.phases.reduce((a, p) => a + p.duration_weeks, 0)} semanas totales
+            ${phases.length} fase${phases.length !== 1 ? 's' : ''} ·
+            ${phases.reduce((a, p) => a + (p.duration_weeks || 0), 0)} semanas totales
           </p>
         </div>
 

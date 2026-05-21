@@ -97,23 +97,126 @@ function renderIdle() {
       </div>`;
   }
 
+  // Rutinas guardadas del generador
+  let savedRoutines = [];
+  try { savedRoutines = JSON.parse(localStorage.getItem('hs_routine_history') || '[]'); } catch {}
+  const hasSaved = savedRoutines.length > 0;
+
   _root.innerHTML = `
     <div class="wl-idle">
       <div class="wl-idle-body">
-        <span class="wl-idle-icon">🏋️</span>
-        <h3 class="wl-idle-title">¿Listo para entrenar?</h3>
-        <p class="wl-idle-sub">Registra tus series, sigue tu progresión y bate tus récords.</p>
-        <button class="wl-start-btn" id="wl-start">
-          <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polygon points="5 3 19 12 5 21 5 3"/></svg>
-          Iniciar sesión
-        </button>
+        <h3 class="wl-idle-title">¿Cómo quieres entrenar?</h3>
         ${lastHtml}
+        <div class="wl-mode-grid">
+          <button class="wl-mode-card" id="wl-mode-free">
+            <svg class="wl-mode-icon" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="16"/><line x1="8" y1="12" x2="16" y2="12"/></svg>
+            <span class="wl-mode-title">Ejercicios libres</span>
+            <span class="wl-mode-sub">Añade ejercicios sobre la marcha</span>
+          </button>
+          <button class="wl-mode-card" id="wl-mode-build">
+            <svg class="wl-mode-icon" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>
+            <span class="wl-mode-title">Ir a Rutinas</span>
+            <span class="wl-mode-sub">Genera o edita tu plan</span>
+          </button>
+          ${hasSaved ? `
+          <button class="wl-mode-card wl-mode-card--accent" id="wl-mode-saved">
+            <svg class="wl-mode-icon" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>
+            <span class="wl-mode-title">Cargar rutina</span>
+            <span class="wl-mode-sub">${savedRoutines.length} guardada${savedRoutines.length > 1 ? 's' : ''}</span>
+          </button>` : ''}
+        </div>
       </div>
     </div>`;
-  _root.querySelector('#wl-start').addEventListener('click', () => {
+
+  _root.querySelector('#wl-mode-free').addEventListener('click', () => {
     _session = Session.startSession();
     renderActive();
   });
+
+  _root.querySelector('#wl-mode-build')?.addEventListener('click', () => {
+    if (typeof window.navigateTo === 'function') {
+      window.navigateTo('rutinas');
+    } else {
+      const nav = document.querySelector('[data-section="rutinas"]');
+      if (nav) nav.click();
+    }
+  });
+
+  if (hasSaved) {
+    _root.querySelector('#wl-mode-saved')?.addEventListener('click', () => {
+      renderRoutinePicker(savedRoutines);
+    });
+  }
+}
+
+// ─── Selector de rutinas guardadas ─────────────────────────────────────────────
+function renderRoutinePicker(routines) {
+  _root.innerHTML = `
+    <div class="wl-routine-picker">
+      <div class="wl-picker-header">
+        <button class="wl-picker-back" id="wl-picker-back">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="15 18 9 12 15 6"/></svg>
+          Volver
+        </button>
+        <h3 class="wl-picker-title">Elige una rutina</h3>
+      </div>
+      <div class="wl-picker-list">
+        ${routines.map((r, ridx) => {
+          const activeDays = (r.routine?.sessions || []).filter(s => s.exercises && s.exercises.length > 0);
+          return `
+          <div class="wl-picker-item">
+            <div class="wl-picker-name">${r.name || 'Rutina sin nombre'}</div>
+            <div class="wl-picker-meta">${activeDays.length} día${activeDays.length !== 1 ? 's' : ''} de entrenamiento${r.ts ? ' · ' + new Date(r.ts).toLocaleDateString('es-ES', { day: 'numeric', month: 'short' }) : ''}</div>
+            <div class="wl-picker-days">
+              ${activeDays.map((s, sidx) => `
+                <button class="wl-picker-day" data-ridx="${ridx}" data-sidx="${sidx}">
+                  <span class="wpd-day">${s.day}</span>
+                  <span class="wpd-name">${s.name}</span>
+                  <span class="wpd-count">${s.exercises.length} ejercicios</span>
+                </button>`).join('')}
+            </div>
+          </div>`;
+        }).join('')}
+      </div>
+    </div>`;
+
+  _root.querySelector('#wl-picker-back').addEventListener('click', renderIdle);
+
+  _root.querySelectorAll('.wl-picker-day').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const ridx = parseInt(btn.dataset.ridx);
+      const sidx = parseInt(btn.dataset.sidx);
+      const activeDays = (routines[ridx]?.routine?.sessions || []).filter(s => s.exercises && s.exercises.length > 0);
+      const daySession = activeDays[sidx];
+      if (daySession) _loadRoutineSession(daySession);
+    });
+  });
+}
+
+// ─── Cargar día de rutina como draft y arrancar sesión ─────────────────────────
+function _loadRoutineSession(daySession) {
+  const draft = {
+    routineId: null,
+    startedAt: new Date().toISOString(),
+    exercises: daySession.exercises.map((ex, i) => {
+      const numSets  = parseInt(ex.sets) || 3;
+      const targetR  = parseInt(ex.reps) || 8;
+      const setsArr  = [];
+      for (let s = 0; s < numSets; s++) {
+        setsArr.push({ setNumber: s + 1, weightKg: 0, reps: targetR, rpe: null, isWarmup: false, completedAt: null });
+      }
+      return {
+        key:        ex.name.toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '').replace(/\s+/g, '_'),
+        name:       ex.name,
+        orderIndex: i,
+        sets:       setsArr,
+        note:       ex.rest ? 'Descanso: ' + ex.rest : '',
+      };
+    }),
+  };
+  Session.saveDraft(draft);
+  _session = draft;
+  renderActive();
 }
 
 // ─── ACTIVE ────────────────────────────────────────────────────────────────────

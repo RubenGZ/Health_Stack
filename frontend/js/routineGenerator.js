@@ -786,7 +786,7 @@ const RoutineGenerator = (function () {
   }
 
   // ── Mostrar resultado ─────────────────────────────────────────────────────
-  function showResult(routine) {
+  function showResult(routine, fromHistory = false) {
     const questionnaire = document.getElementById('routine-questionnaire');
     const resultEl      = document.getElementById('routine-result');
     const resetBtn      = document.getElementById('btn-reset-routine');
@@ -882,12 +882,14 @@ const RoutineGenerator = (function () {
     document.dispatchEvent(new CustomEvent('routineGenerated', { detail: { routine } }));
     localStorage.setItem(LS_KEY, JSON.stringify({ routine, ts: Date.now() }));
 
-    // Free-tier: verificar límite de 1 rutina + pedir nombre personalizado
-    const existingHistory = JSON.parse(localStorage.getItem(LS_HISTORY) || '[]');
-    if (existingHistory.length >= HISTORY_MAX) {
-      _promptSaveRoutine(routine, true); // true = ya hay una existente
-    } else {
-      _promptSaveRoutine(routine, false);
+    // Solo pedir guardar si es una rutina nueva (no cargada desde historial)
+    if (!fromHistory) {
+      const existingHistory = JSON.parse(localStorage.getItem(LS_HISTORY) || '[]');
+      if (existingHistory.length >= HISTORY_MAX) {
+        _promptSaveRoutine(routine, true); // true = ya hay una existente
+      } else {
+        _promptSaveRoutine(routine, false);
+      }
     }
   }
 
@@ -985,7 +987,7 @@ const RoutineGenerator = (function () {
         btn.addEventListener('click', () => {
           const idx  = parseInt(btn.dataset.idx);
           const hist = JSON.parse(localStorage.getItem(LS_HISTORY) || '[]');
-          if (hist[idx]) showResult(hist[idx].routine);
+          if (hist[idx]) showResult(hist[idx].routine, true); // fromHistory=true: no reabrir modal de guardado
         });
       });
       wrap.querySelectorAll('.history-del-btn').forEach(btn => {

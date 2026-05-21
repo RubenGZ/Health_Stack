@@ -289,13 +289,17 @@
 
     syncContentPadding();
 
-    // Esconder nav en chatbot abierto para dar más espacio
+    // Esconder nav cuando se abre el chatbot, mostrar cuando se cierra
+    // IMPORTANTE: usar add/remove según qué botón se pulsó — no leer el estado del panel,
+    // porque el listener del elemento ya ha ejecutado (cierre) antes de que llegue aquí,
+    // lo que causa que el panel aparezca como 'none' en ambos casos (open y close).
     document.addEventListener('click', e => {
-      if (e.target.closest('#chatbot-btn') || e.target.closest('#chatbot-close')) {
-        const opening = !document.getElementById('chatbot-panel')?.style.display
-                        || document.getElementById('chatbot-panel')?.style.display === 'none';
-        if (navEl) navEl.classList.toggle('mbn--hidden', opening);
-        if (subtabBarEl) subtabBarEl.classList.toggle('mbn--hidden', opening);
+      if (e.target.closest('#chatbot-btn')) {
+        if (navEl) navEl.classList.add('mbn--hidden');
+        if (subtabBarEl) subtabBarEl.classList.add('mbn--hidden');
+      } else if (e.target.closest('#chatbot-close')) {
+        if (navEl) navEl.classList.remove('mbn--hidden');
+        if (subtabBarEl) subtabBarEl.classList.remove('mbn--hidden');
       }
     });
   }

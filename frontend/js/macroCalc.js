@@ -21,11 +21,11 @@ const MacroCalc = (function () {
   };
 
   const GOAL_TIPS = {
-    deficit_hard: '⚠️ Un déficit de 500 kcal es el límite recomendado para preservar masa muscular. Asegura ≥1.8 g de proteína por kg corporal.',
-    deficit_soft: '✅ Un déficit suave de 250 kcal es ideal para perder grasa sin perder músculo ni afectar el rendimiento.',
-    maintain:     '⚖️ En mantenimiento es el momento ideal para recomposición corporal si entrenas con progresión de cargas.',
-    surplus_soft: '💪 Un superávit de 250 kcal minimiza la ganancia de grasa mientras maximiza la síntesis proteica muscular.',
-    surplus_hard: '📈 Un superávit agresivo acelera la ganancia muscular, pero espera algo más de ganancia de grasa. Ideal en fases de volumen.',
+    deficit_hard: 'Un déficit de 500 kcal es el límite recomendado para preservar masa muscular. Asegura ≥1.8 g de proteína por kg corporal.',
+    deficit_soft: 'Un déficit suave de 250 kcal es ideal para perder grasa sin perder músculo ni afectar el rendimiento.',
+    maintain:     'En mantenimiento es el momento ideal para recomposición corporal si entrenas con progresión de cargas.',
+    surplus_soft: 'Un superávit de 250 kcal minimiza la ganancia de grasa mientras maximiza la síntesis proteica muscular.',
+    surplus_hard: 'Un superávit agresivo acelera la ganancia muscular, pero espera algo más de ganancia de grasa. Ideal en fases de volumen.',
   };
 
   // ── Cálculo BMR (Mifflin-St Jeor) ─────────────────────────

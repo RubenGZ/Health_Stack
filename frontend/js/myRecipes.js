@@ -32,7 +32,7 @@ const MyRecipes = (function () {
     { id: 'post',     label: 'Post-entreno' },
   ];
 
-  const INF_LABEL = { low: '🟢 Bajo', medium: '🟡 Medio', high: '🔴 Alto' };
+  const INF_LABEL = { low: 'Bajo', medium: 'Medio', high: 'Alto' };
 
   // ── 100 recetas de nutricionista deportivo ──────────────────────────────────
   // Formato: { id, name, cat, kcal, p, c, f, inf, ingredients (texto), desc }
@@ -446,7 +446,7 @@ const MyRecipes = (function () {
     document.getElementById('recipe-form-title')?.textContent
       && (document.getElementById('recipe-form-title').textContent = 'Nueva Receta');
     document.getElementById('recipe-save-btn')
-      && (document.getElementById('recipe-save-btn').textContent = '💾 Guardar receta');
+      && (document.getElementById('recipe-save-btn').textContent = 'Guardar receta');
   }
 
   // ── Editar receta ──────────────────────────────────────────────────────────
@@ -470,7 +470,7 @@ const MyRecipes = (function () {
     updateMacroPreview();
 
     document.getElementById('recipe-form-title').textContent = 'Editar Receta';
-    document.getElementById('recipe-save-btn').textContent = '💾 Actualizar receta';
+    document.getElementById('recipe-save-btn').textContent = 'Actualizar receta';
 
     // Scroll al formulario
     document.getElementById('recipe-creator-form')?.scrollIntoView({ behavior: 'smooth' });
@@ -501,7 +501,7 @@ const MyRecipes = (function () {
     if (!filtered.length) {
       grid.innerHTML = `
         <div class="recipes-empty-state">
-          <div class="empty-icon">📋</div>
+          <div class="empty-icon"></div>
           <h3>Aún no tienes recetas guardadas</h3>
           <p>Usa el formulario de abajo para crear tu primera receta personalizada.</p>
         </div>`;
@@ -525,11 +525,11 @@ const MyRecipes = (function () {
         </div>
         <p class="mrc-ing-count">${r.ingredients.length} ingrediente${r.ingredients.length !== 1 ? 's' : ''}</p>
         <div class="mrc-actions">
-          <button class="btn btn--ghost btn--sm mrc-btn-edit" data-id="${r.id}">✏️ Editar</button>
+          <button class="btn btn--ghost btn--sm mrc-btn-edit" data-id="${r.id}">Editar</button>
           <button class="btn btn--ghost btn--sm mrc-btn-planner" data-id="${r.id}" title="Añadir al Planner">
-            📅 Planner
+            Planner
           </button>
-          <button class="btn btn--ghost btn--sm mrc-btn-delete" data-id="${r.id}" title="Eliminar">🗑</button>
+          <button class="btn btn--ghost btn--sm mrc-btn-delete" data-id="${r.id}" title="Eliminar">×</button>
         </div>
       </div>
     `).join('');
@@ -545,7 +545,7 @@ const MyRecipes = (function () {
         const rec = recipes.find(r => r.id === parseInt(btn.dataset.id));
         if (!rec) return;
         document.dispatchEvent(new CustomEvent('hs:add-to-planner', { detail: rec }));
-        showToast(`📅 "${rec.name}" lista para arrastrar al Planner`);
+        showToast(`"${rec.name}" lista para arrastrar al Planner`);
       });
     });
   }
@@ -575,7 +575,7 @@ const MyRecipes = (function () {
       desayuno: 'Desayuno', almuerzo: 'Almuerzo', cena: 'Cena',
       snack: 'Snack', pre: 'Pre-entreno', post: 'Post-entreno',
     };
-    const infLabel = { 1: '🟢', 2: '🟡', 3: '🔴' };
+    const infLabel = { 1: 'bajo', 2: 'medio', 3: 'alto' };
 
     const filtered = NUTRITIONIST_RECIPES.filter(r => {
       const catOk = nutCatFilter === 'all' || r.cat === nutCatFilter;
@@ -586,7 +586,7 @@ const MyRecipes = (function () {
     });
 
     if (!filtered.length) {
-      grid.innerHTML = `<div class="recipes-empty-state"><div class="empty-icon">🔍</div><p>Sin resultados para esta búsqueda</p></div>`;
+      grid.innerHTML = `<div class="recipes-empty-state"><div class="empty-icon"></div><p>Sin resultados para esta búsqueda</p></div>`;
       return;
     }
 
@@ -609,7 +609,7 @@ const MyRecipes = (function () {
         </p>
         <div class="mrc-actions">
           <button class="btn btn--primary btn--sm nut-btn-copy" data-nid="${r.id}">
-            📋 Copiar y personalizar
+            Copiar y personalizar
           </button>
         </div>
       </div>
@@ -645,9 +645,9 @@ const MyRecipes = (function () {
     if (nameEl)  nameEl.value  = r.name;
     if (catEl)   catEl.value   = r.cat;
     if (instEl)  instEl.value  =
-      `📌 Ingredientes de referencia:\n${r.ingredients}\n\n✏️ Pasos / notas:\n${r.desc}`;
-    if (titleEl) titleEl.textContent = `📋 Personalizar: ${r.name}`;
-    if (saveEl)  saveEl.textContent  = '💾 Guardar receta';
+      `Ingredientes de referencia:\n${r.ingredients}\n\nPasos / notas:\n${r.desc}`;
+    if (titleEl) titleEl.textContent = `Personalizar: ${r.name}`;
+    if (saveEl)  saveEl.textContent  = 'Guardar receta';
 
     renderSelectedIngredients();
     updateMacroPreview();
@@ -656,7 +656,7 @@ const MyRecipes = (function () {
     document.getElementById('recipe-creator-form')
       ?.scrollIntoView({ behavior: 'smooth', block: 'start' });
 
-    showToast(`📋 Plantilla "${r.name}" cargada · Añade ingredientes para calcular macros`);
+    showToast(`Plantilla "${r.name}" cargada · Añade ingredientes para calcular macros`);
   }
 
   // ── Filter tabs ────────────────────────────────────────────────────────────

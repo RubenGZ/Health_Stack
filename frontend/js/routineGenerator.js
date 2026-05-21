@@ -628,7 +628,7 @@ const RoutineGenerator = (function () {
     const notes = [];
 
     notes.push({
-      icon: '📊',
+      icon: '',
       title: `Modelo: ${periodModel.name}`,
       text: periodModel.scheme === 'LP'
         ? 'Sube 2,5 kg o 1 rep cada sesión. Si fallas el mismo peso dos veces seguidas, baja un 10% y vuelve a subir.'
@@ -638,13 +638,13 @@ const RoutineGenerator = (function () {
     });
 
     notes.push({
-      icon: '⚡',
+      icon: '',
       title: `Descarga: semana ${periodModel.deload_week}`,
       text: 'Cada ' + periodModel.mesocycle_weeks + ' semanas: mismos ejercicios, -40% series, 70-75% de la carga habitual. Es cuando el músculo realmente crece.',
     });
 
     notes.push({
-      icon: '🎚️',
+      icon: '',
       title: `Intensidad: ${scheme.intensity.split(',')[0]}`,
       text: 'Termina cada serie sintiendo que podrías hacer 1-2 reps más. No es necesario llegar al fallo — ni más efectivo.',
     });
@@ -652,7 +652,7 @@ const RoutineGenerator = (function () {
     if (priorityList.length > 0) {
       const gNames = { chest:'Pecho', back:'Espalda', shoulders:'Hombros', legs:'Piernas', posterior:'Cadena posterior', arms:'Brazos' };
       notes.push({
-        icon: '🎯',
+        icon: '',
         title: `Foco en: ${priorityList.map(p => gNames[p] || p).join(', ')}`,
         text: 'Estos grupos van primero en cada sesión para trabajarlos con la máxima energía disponible.',
       });
@@ -660,7 +660,7 @@ const RoutineGenerator = (function () {
 
     if (injuries.length > 0) {
       notes.push({
-        icon: '🏥',
+        icon: '',
         title: 'Ejercicios adaptados a tus lesiones',
         text: 'Si algún ejercicio causa dolor articular, sustitúyelo por otra variante. Quemación muscular: normal. Dolor en articulación: para.',
       });
@@ -668,14 +668,14 @@ const RoutineGenerator = (function () {
 
     if (answers.recovery === 'low') {
       notes.push({
-        icon: '😴',
+        icon: '',
         title: 'Volumen ajustado a tu recuperación',
         text: 'El entrenamiento está limitado a lo que puedes recuperar. Duerme 7-9 h — es cuando el músculo crece.',
       });
     }
 
     notes.push({
-      icon: '📅',
+      icon: '',
       title: 'Progresión del mesociclo',
       text: 'Semana 1: empieza conservador. Semana 2-3: lleva la intensidad al máximo. Semana 4: descarga. Los records se baten en semana 3.',
     });
@@ -701,7 +701,7 @@ const RoutineGenerator = (function () {
     if (fillEl)  fillEl.style.width = `${pct}%`;
     if (labelEl) labelEl.textContent = `Pregunta ${currentStep + 1} de ${total}`;
     if (prev)    prev.style.visibility = currentStep === 0 ? 'hidden' : '';
-    if (next)    next.textContent = currentStep === total - 1 ? '✨ Generar mi rutina' : 'Siguiente →';
+    if (next)    next.textContent = currentStep === total - 1 ? 'Generar mi rutina' : 'Siguiente →';
     if (!card)   return;
 
     let html = `<h3 class="quiz-question">${step.title}</h3>`;
@@ -824,7 +824,7 @@ const RoutineGenerator = (function () {
     const goalMap = { hypertrophy:'Hipertrofia', strength:'Fuerza', fat_loss:'Pérdida de grasa', athletic:'Atlético', recomposition:'Recomposición' };
     const lvlMap  = { beginner:'Principiante', intermediate:'Intermedio', advanced:'Avanzado' };
     const eqMap   = { full_gym:'Gimnasio completo', free_weights:'Peso libre', dumbbells:'Mancuernas', machines:'Máquinas + poleas', bodyweight:'Peso corporal' };
-    const recMap  = { high:'Alta 🟢', medium:'Media 🟡', low:'Baja 🔴' };
+    const recMap  = { high:'Alta', medium:'Media', low:'Baja' };
 
     const summary = document.getElementById('routine-summary');
     if (summary) {
@@ -837,7 +837,7 @@ const RoutineGenerator = (function () {
           <span class="rmeta-item"><strong>Recuperación:</strong> ${recMap[ans.recovery] || '—'}</span>
           <span class="rmeta-item"><strong>Intensidad:</strong> ${cfg.intensity}</span>
         </div>
-        ${routine.splitRationale ? `<div class="routine-rationale"><span class="rationale-icon">🧠</span><p>${routine.splitRationale}</p></div>` : ''}`;
+        ${routine.splitRationale ? `<div class="routine-rationale"><span class="rationale-icon"></span><p>${routine.splitRationale}</p></div>` : ''}`;
     }
 
     const week = document.getElementById('routine-week');
@@ -856,8 +856,8 @@ const RoutineGenerator = (function () {
                   <span class="rex-name">${ex.name}</span>
                   <span class="rex-meta">
                     <span class="rex-scheme">${ex.sets} × ${ex.reps}</span>
-                    <span class="rex-rest">⏱ ${ex.rest}</span>
-                    ${ex.sfr === 'high' ? '<span class="rex-sfr" title="Alto SFR — máxima relación estímulo/fatiga sistémica">⭐</span>' : ''}
+                    <span class="rex-rest">${ex.rest}</span>
+                    ${ex.sfr === 'high' ? '<span class="rex-sfr" title="Alto SFR — máxima relación estímulo/fatiga sistémica">SFR</span>' : ''}
                   </span>
                 </div>`).join('')
             }
@@ -868,7 +868,7 @@ const RoutineGenerator = (function () {
     if (routine.coachingNotes?.length && coachEl) {
       coachEl.style.display = '';
       coachEl.innerHTML = `
-        <h4 class="coaching-notes-title">🏅 Notas de entrenador de élite</h4>
+        <h4 class="coaching-notes-title">Notas de entrenador de élite</h4>
         <div class="coaching-notes-grid">
           ${routine.coachingNotes.map(n => `
             <div class="coaching-note">
@@ -909,12 +909,12 @@ const RoutineGenerator = (function () {
     const defaultName = `${gMap[routine.answers?.goal] || 'Rutina'} ${routine.answers?.days || '?'}d — ${new Date().toLocaleDateString('es-ES', { day:'2-digit', month:'short' })}`;
     const warningHtml = hasExisting
       ? `<p style="color:#f59e0b;font-size:.82rem;margin-bottom:12px;background:rgba(245,158,11,.1);padding:8px 12px;border-radius:8px;border:1px solid rgba(245,158,11,.3)">
-           ⚠️ <strong>Tier gratuito — 1 rutina máx.</strong> La rutina anterior será reemplazada.
+           <strong>Tier gratuito — 1 rutina máx.</strong> La rutina anterior será reemplazada.
          </p>`
       : '';
     modal.innerHTML = `
       <div style="background:var(--bg-surface);border:1px solid var(--glass-border);border-radius:16px;padding:24px;max-width:400px;width:100%">
-        <h3 style="margin-bottom:8px;font-size:1rem">💾 Guardar rutina</h3>
+        <h3 style="margin-bottom:8px;font-size:1rem">Guardar rutina</h3>
         ${warningHtml}
         <label style="font-size:.82rem;color:var(--text-secondary);display:block;margin-bottom:6px">Nombre de la rutina</label>
         <input id="routine-name-input" class="form-input" type="text"
@@ -979,7 +979,7 @@ const RoutineGenerator = (function () {
                 <button class="btn btn--ghost btn--sm history-load-btn" data-idx="${i}">Cargar</button>
                 <button class="btn btn--sm history-del-btn" data-idx="${i}"
                         style="background:rgba(239,68,68,.1);color:#ef4444;border:1px solid rgba(239,68,68,.3)"
-                        title="Eliminar rutina">🗑</button>
+                        title="Eliminar rutina">×</button>
               </div>
             </div>`).join('')}
         </div>`;

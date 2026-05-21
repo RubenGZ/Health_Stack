@@ -125,19 +125,19 @@ const Chatbot = (function () {
     let icon  = '';
 
     if (type === 'save_weight' && action.kg) {
-      icon  = '⚖️';
+      icon  = '';
       label = `Guardar ${action.kg} kg en tu historial`;
     } else if (type === 'save_pr' && action.exercise) {
       const rm = action.weight_kg && action.reps
         ? ` (1RM ~${calcEpley(action.weight_kg, action.reps)} kg)`
         : '';
-      icon  = '🏆';
+      icon  = '';
       label = `Guardar PR: ${action.exercise} ${action.weight_kg}×${action.reps}${rm}`;
     } else if (type === 'log_workout') {
-      icon  = '✅';
+      icon  = '';
       label = 'Registrar entreno (+XP)';
     } else if (type === 'save_sleep' && action.hours) {
-      icon  = '😴';
+      icon  = '';
       label = `Guardar ${action.hours}h de sueño en tu historial`;
     } else {
       return null;
@@ -281,7 +281,7 @@ const Chatbot = (function () {
       } else {
         setDotStatus(false);
         const errMsg = res.status >= 500
-          ? '🔧 El servicio de IA está temporalmente fuera de línea. Inténtalo en unos minutos.'
+          ? 'El servicio de IA está temporalmente fuera de línea. Inténtalo en unos minutos.'
           : (data.detail || 'Error al procesar tu mensaje. Inténtalo de nuevo.');
         addMessage(errMsg, true);
       }
@@ -289,7 +289,7 @@ const Chatbot = (function () {
     } catch (err) {
       if (typing) typing.remove();
       setDotStatus(false);
-      addMessage('🔌 Sin conexión con el servidor. Comprueba tu conexión e inténtalo de nuevo.', true);
+      addMessage('Sin conexión con el servidor. Comprueba tu conexión e inténtalo de nuevo.', true);
 
     } finally {
       if (sendBtn) sendBtn.disabled = false;

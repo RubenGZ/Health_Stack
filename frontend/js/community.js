@@ -175,7 +175,7 @@ const Community = (function () {
 
     list.innerHTML = board.slice(0, 10).map((entry, i) => `
       <div class="leaderboard-row${entry.isMe ? ' leaderboard-row--me' : ''}">
-        <span class="lb-rank">${i === 0 ? '🥇' : i === 1 ? '🥈' : i === 2 ? '🥉' : i + 1}</span>
+        <span class="lb-rank">${i === 0 ? '1°' : i === 1 ? '2°' : i === 2 ? '3°' : i + 1}</span>
         <div class="lb-avatar">${entry.avatar}</div>
         <div class="lb-info">
           <span class="lb-name">${entry.name}${entry.isMe ? ' (Tú)' : ''}</span>

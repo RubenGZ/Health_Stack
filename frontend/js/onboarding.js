@@ -150,7 +150,7 @@ const Onboarding = (function () {
     if (fill)  fill.style.width = `${pct}%`;
     if (label) label.textContent = `Paso ${currentStep + 1} de ${total}`;
     if (prev)  prev.style.visibility = currentStep === 0 ? 'hidden' : 'visible';
-    if (next)  next.textContent = currentStep === total - 1 ? '¡Empezar! 🚀' : 'Continuar →';
+    if (next)  next.textContent = currentStep === total - 1 ? '¡Empezar!' : 'Continuar →';
     if (!body) return;
 
     // Mostrar "Omitir" solo en el primer paso
@@ -199,7 +199,7 @@ const Onboarding = (function () {
             const nextBtn = document.getElementById('ob-next-btn');
             if (nextBtn) {
               nextBtn.classList.add('ob-next--ready');
-              nextBtn.textContent = '¡Empezar! 🚀';
+              nextBtn.textContent = '¡Empezar!';
             }
           }
         });
@@ -284,11 +284,11 @@ const Onboarding = (function () {
   // ── Cálculo TDEE directo (evita depender del form i18n) ─────
   const GOAL_DELTA = { deficit_hard:-500, deficit_soft:-250, maintain:0, surplus_soft:250, surplus_hard:500 };
   const GOAL_TIPS  = {
-    deficit_soft: '✅ Déficit suave de 250 kcal — ideal para perder grasa sin perder músculo.',
-    maintain:     '⚖️ Mantenimiento — momento ideal para recomposición corporal.',
-    surplus_soft: '💪 Superávit de 250 kcal — minimiza grasa mientras maximiza músculo.',
-    surplus_hard: '📈 Superávit agresivo — máximas ganancias, algo más de grasa.',
-    deficit_hard: '⚠️ Déficit de 500 kcal — límite recomendado. Asegura ≥1.8 g proteína/kg.',
+    deficit_soft: 'Déficit suave de 250 kcal — ideal para perder grasa sin perder músculo.',
+    maintain:     'Mantenimiento — momento ideal para recomposición corporal.',
+    surplus_soft: 'Superávit de 250 kcal — minimiza grasa mientras maximiza músculo.',
+    surplus_hard: 'Superávit agresivo — máximas ganancias, algo más de grasa.',
+    deficit_hard: 'Déficit de 500 kcal — límite recomendado. Asegura ≥1.8 g proteína/kg.',
   };
 
   // Activity multiplier mapped from training days per week

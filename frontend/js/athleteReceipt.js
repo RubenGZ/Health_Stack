@@ -55,7 +55,7 @@ var AthleteReceipt = (function () {
     });
 
     var prText = bestPR
-      ? bestPR.exercise + ' — ' + bestPR.rm + ' kg 1RM 🏆'
+      ? bestPR.exercise + ' — ' + bestPR.rm + ' kg 1RM'
       : 'Sin nuevo PR esta semana';
 
     return {

@@ -112,7 +112,7 @@ function lockedCard() {
 function gymPanel(gym) {
   return `<div class="rk-gym-panel">
     <div class="rk-gym-header">
-      <span class="rk-gym-name">🏋️ ${gym.name}</span>
+      <span class="rk-gym-name">${gym.name}</span>
       <span class="rk-gym-code">${_t('ranked.gym_code')} <strong>${gym.invite_code}</strong></span>
     </div>
     <div class="rk-gym-actions">
@@ -138,7 +138,7 @@ async function openGymLeaderboard(container, gymId) {
     const data = await rkFetchJSON(`/api/v1/ranked/leaderboard?queue=competitive&scope=gym&gym_id=${gymId}`);
     const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
     const rows = data.entries.map((e, i) => {
-      const medal = i === 0 ? '🥇' : i === 1 ? '🥈' : i === 2 ? '🥉' : `${i+1}.`;
+      const medal = i === 0 ? '1°' : i === 1 ? '2°' : i === 2 ? '3°' : `${i+1}.`;
       const tier  = TIER_LABELS[e.tier] || e.tier;
       const divNums = ['I','II','III','IV'];
       const div   = e.division ? ` ${divNums[e.division-1]}` : '';

@@ -72,7 +72,7 @@ var Plan = (function () {
     var featName  = getFeatureNames()[featureKey] || featureKey;
     var perks     = isEliteFt ? getElitePerks() : getProPerks();
     var color     = isEliteFt ? COLORS.elite : COLORS.pro;
-    var icon      = isEliteFt ? '👑' : '⚡';
+    var icon      = isEliteFt ? '' : '';
     var label     = isEliteFt ? 'Elite' : 'Pro';
 
     var existing = document.getElementById('plan-upgrade-modal');
@@ -170,7 +170,7 @@ var Plan = (function () {
       if (locked && !lockEl) {
         var span = document.createElement('span');
         span.className        = 'nav-lock-icon';
-        span.textContent      = '🔒';
+        span.textContent      = '';
         span.setAttribute('aria-hidden', 'true');
         el.appendChild(span);
       } else if (!locked && lockEl) {
@@ -195,7 +195,7 @@ var Plan = (function () {
       if (!pro && !lockSpan) {
         var sp = document.createElement('span');
         sp.className   = 'tab-lock-icon';
-        sp.textContent = ' 🔒';
+        sp.textContent = '';
         sp.setAttribute('aria-hidden', 'true');
         autoTab.appendChild(sp);
       } else if (pro && lockSpan) {

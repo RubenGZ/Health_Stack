@@ -37,7 +37,7 @@ const Supplements = (function () {
     if (essential.length) {
       html += `<div class="suppl-section-title">
         <span class="suppl-section-label suppl-section-label--essential">
-          ✅ Imprescindibles — Evidencia sólida
+          Imprescindibles — Evidencia sólida
         </span>
       </div>`;
       html += '<div class="suppl-grid-row">';
@@ -48,7 +48,7 @@ const Supplements = (function () {
     if (optional.length) {
       html += `<div class="suppl-section-title" style="margin-top:32px">
         <span class="suppl-section-label suppl-section-label--optional">
-          ⭐ Opcionales — Beneficios adicionales
+          Opcionales — Beneficios adicionales
         </span>
       </div>`;
       html += '<div class="suppl-grid-row">';
@@ -78,7 +78,7 @@ const Supplements = (function () {
           ${levelBadge(s.level)}
           ${evidenceDots(s.evidence_level)}
         </div>
-        <div class="suppl-icon">${s.icon_emoji || '💊'}</div>
+        <div class="suppl-icon">${s.icon_emoji || ''}</div>
         <h3 class="suppl-name">${s.name}</h3>
         <div class="suppl-meta">
           <div class="suppl-meta-item">

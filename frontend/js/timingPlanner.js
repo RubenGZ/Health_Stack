@@ -161,7 +161,7 @@ const TimingPlanner = (function () {
         time: fromMins(suppMins),
         mins: suppMins,
         type: 'supplement',
-        icon: '💊',
+        icon: '',
         title: rule.name,
         desc: rule.desc,
         kcal: null, p: null, c: null, f: null,
@@ -173,7 +173,7 @@ const TimingPlanner = (function () {
       time: fromMins(trainMins - 30),
       mins: trainMins - 30,
       type: 'hydration',
-      icon: '💧',
+      icon: '',
       title: 'Hidratación pre-entreno',
       desc: '400-600 ml de agua en los 30 min previos',
       kcal: null, p: null, c: null, f: null,
@@ -182,7 +182,7 @@ const TimingPlanner = (function () {
       time: fromMins(trainEnd),
       mins: trainEnd,
       type: 'hydration',
-      icon: '💧',
+      icon: '',
       title: 'Rehidratación',
       desc: 'Reponer 150% del peso perdido en sudor. Mínimo 500 ml en la primera hora.',
       kcal: null, p: null, c: null, f: null,
@@ -199,7 +199,7 @@ const TimingPlanner = (function () {
       breakfast: 'AM', snack1: 'SN', pre: 'PRE', post: 'PST',
       lunch: 'PM', snack2: 'SN', dinner: 'PM',
     };
-    return icons[slot] || '🍴';
+    return icons[slot] || '';
   }
 
   function goalLabel(goal) {
@@ -285,8 +285,8 @@ const TimingPlanner = (function () {
           <div class="ts-total-item"><span class="ts-total-val" style="color:#f59e0b">${totals.f}g</span><span class="ts-total-label">Grasa</span></div>
         </div>
         <div class="ts-actions">
-          <button class="btn btn--primary btn--sm" id="btn-apply-to-planner">📅 Aplicar al Planner</button>
-          <button class="btn btn--ghost btn--sm" id="btn-copy-schedule">📋 Copiar horario</button>
+          <button class="btn btn--primary btn--sm" id="btn-apply-to-planner">Aplicar al Planner</button>
+          <button class="btn btn--ghost btn--sm" id="btn-copy-schedule">Copiar horario</button>
         </div>
       </div>
 
@@ -336,7 +336,7 @@ const TimingPlanner = (function () {
     document.getElementById('btn-copy-schedule')?.addEventListener('click', () => {
       const text = events.map(e => `${e.time} — ${e.title}: ${e.desc}`).join('\n');
       navigator.clipboard.writeText(text).then(() => {
-        showToast('📋 Horario copiado al portapapeles');
+        showToast('Horario copiado al portapapeles');
       }).catch(() => {
         showToast('No se pudo copiar');
       });

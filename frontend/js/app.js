@@ -473,7 +473,7 @@
         insightEl.style.display = 'block';
         insightEl.innerHTML = [
           '<div class="projection-card">',
-            '<div class="projection-icon">📈</div>',
+            '<div class="projection-icon"></div>',
             '<div class="projection-body">',
               '<p class="projection-headline">',
                 (function(){
@@ -680,7 +680,7 @@
       // Banner iOS: guía visual con el icono de Share de Safari
       banner.innerHTML = `
         <div class="pwa-banner pwa-banner--ios">
-          <span class="pwa-icon">📲</span>
+          <span class="pwa-icon"></span>
           <div class="pwa-info">
             <strong>${_t('pwa.install_title')}</strong>
             <small>
@@ -694,7 +694,7 @@
     } else {
       banner.innerHTML = `
         <div class="pwa-banner">
-          <span class="pwa-icon">📲</span>
+          <span class="pwa-icon"></span>
           <div class="pwa-info">
             <strong>${_t('pwa.install_title')}</strong>
             <small>${_t('pwa.install_desc')}</small>

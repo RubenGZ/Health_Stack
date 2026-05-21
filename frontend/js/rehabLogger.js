@@ -19,24 +19,24 @@ const RehabLogger = (function () {
   const BASE = (typeof CONFIG !== 'undefined' && CONFIG.API_BASE) || '/api/v1';
 
   const BODY_AREAS = [
-    { value: 'shoulder',    label: 'Hombro',       emoji: '💪' },
-    { value: 'elbow',       label: 'Codo',          emoji: '🦾' },
-    { value: 'wrist',       label: 'Muñeca',        emoji: '🤚' },
-    { value: 'lower_back',  label: 'Zona lumbar',   emoji: '🔙' },
-    { value: 'hip',         label: 'Cadera',        emoji: '🦴' },
-    { value: 'knee',        label: 'Rodilla',       emoji: '🦵' },
-    { value: 'ankle',       label: 'Tobillo',       emoji: '🦶' },
-    { value: 'neck',        label: 'Cuello',        emoji: '🧠' },
-    { value: 'thoracic',    label: 'Zona dorsal',   emoji: '🏋' },
+    { value: 'shoulder',    label: 'Hombro' },
+    { value: 'elbow',       label: 'Codo' },
+    { value: 'wrist',       label: 'Muñeca' },
+    { value: 'lower_back',  label: 'Zona lumbar' },
+    { value: 'hip',         label: 'Cadera' },
+    { value: 'knee',        label: 'Rodilla' },
+    { value: 'ankle',       label: 'Tobillo' },
+    { value: 'neck',        label: 'Cuello' },
+    { value: 'thoracic',    label: 'Zona dorsal' },
   ];
 
   const INJURY_TYPES = [
-    { value: 'tendinopathy',  label: 'Tendinitis / tendinopatía', emoji: '🔥' },
-    { value: 'muscle_strain', label: 'Desgarro muscular',         emoji: '⚡' },
-    { value: 'joint_sprain',  label: 'Esguince',                  emoji: '🌀' },
-    { value: 'overuse',       label: 'Sobrecarga',                emoji: '📈' },
-    { value: 'post_surgery',  label: 'Post-operatorio',           emoji: '🏥' },
-    { value: 'general_pain',  label: 'Dolor inespecífico',        emoji: '❓' },
+    { value: 'tendinopathy',  label: 'Tendinitis / tendinopatía' },
+    { value: 'muscle_strain', label: 'Desgarro muscular' },
+    { value: 'joint_sprain',  label: 'Esguince' },
+    { value: 'overuse',       label: 'Sobrecarga' },
+    { value: 'post_surgery',  label: 'Post-operatorio' },
+    { value: 'general_pain',  label: 'Dolor inespecífico' },
   ];
 
   // ── Estado ────────────────────────────────────────────────────────────────
@@ -50,17 +50,13 @@ const RehabLogger = (function () {
     container.innerHTML = `
       <div class="rehab-step">
         <div class="rehab-step-header">
-          <span class="rehab-step-emoji">📍</span>
           <h3 class="rehab-step-title">¿Qué zona te duele?</h3>
           <p class="rehab-step-sub">Selecciona la zona principal afectada.</p>
         </div>
-        <div class="rehab-options rehab-options--grid">
+        <div class="rehab-options rehab-options--grid3">
           ${BODY_AREAS.map(a => `
-            <button class="rehab-opt${_answers.body_area === a.value ? ' selected' : ''}"
-                    data-val="${a.value}" data-type="area">
-              <span class="rehab-opt-emoji">${a.emoji}</span>
-              <span class="rehab-opt-label">${a.label}</span>
-            </button>
+            <button class="rehab-chip${_answers.body_area === a.value ? ' selected' : ''}"
+                    data-val="${a.value}" data-type="area">${a.label}</button>
           `).join('')}
         </div>
       </div>
@@ -79,17 +75,13 @@ const RehabLogger = (function () {
     container.innerHTML = `
       <div class="rehab-step">
         <div class="rehab-step-header">
-          <span class="rehab-step-emoji">🩺</span>
           <h3 class="rehab-step-title">¿Qué tipo de lesión tienes?</h3>
           <p class="rehab-step-sub">Si no estás seguro, elige "Dolor inespecífico".</p>
         </div>
-        <div class="rehab-options">
+        <div class="rehab-options rehab-options--grid2">
           ${INJURY_TYPES.map(t => `
-            <button class="rehab-opt${_answers.injury_type === t.value ? ' selected' : ''}"
-                    data-val="${t.value}" data-type="injury">
-              <span class="rehab-opt-emoji">${t.emoji}</span>
-              <span class="rehab-opt-label">${t.label}</span>
-            </button>
+            <button class="rehab-chip${_answers.injury_type === t.value ? ' selected' : ''}"
+                    data-val="${t.value}" data-type="injury">${t.label}</button>
           `).join('')}
         </div>
         <div class="rehab-pain-row">
@@ -126,7 +118,6 @@ const RehabLogger = (function () {
     container.innerHTML = `
       <div class="rehab-step">
         <div class="rehab-step-header">
-          <span class="rehab-step-emoji">📅</span>
           <h3 class="rehab-step-title">¿Cuándo ocurrió?</h3>
           <p class="rehab-step-sub">Esto ayuda a adaptar el protocolo a tu fase de recuperación.</p>
         </div>
@@ -147,7 +138,8 @@ const RehabLogger = (function () {
                     placeholder="Cirugía previa, tratamientos, limitaciones específicas...">${_answers.notes ?? ''}</textarea>
         </div>
         <div class="rehab-disclaimer-box">
-          ⚠️ El protocolo generado es orientativo. No reemplaza la valoración
+          <svg class="rehab-disclaimer-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+          El protocolo generado es orientativo. No reemplaza la valoración
           de un fisioterapeuta o médico cualificado.
         </div>
       </div>
@@ -200,7 +192,7 @@ const RehabLogger = (function () {
             ← Atrás
           </button>
           <button class="btn btn--primary" id="rehab-next-btn">
-            ${_currentStep === 2 ? 'Generar protocolo 🏥' : 'Continuar →'}
+            ${_currentStep === 2 ? 'Generar protocolo' : 'Continuar →'}
           </button>
         </div>
       </div>
@@ -289,8 +281,8 @@ const RehabLogger = (function () {
   // ── Render del resultado ───────────────────────────────────────────────────
   function _renderResult(container, protocol) {
     const tierBadge = protocol.is_ai_generated
-      ? '<span class="rehab-badge rehab-badge--pro">✨ IA Personalizado</span>'
-      : '<span class="rehab-badge rehab-badge--free">📋 Protocolo Estándar</span>';
+      ? '<span class="rehab-badge rehab-badge--pro"><span class="rehab-badge-dot rehab-badge-dot--pro"></span>IA Personalizado</span>'
+      : '<span class="rehab-badge rehab-badge--free"><span class="rehab-badge-dot rehab-badge-dot--free"></span>Protocolo Estándar</span>';
 
     const phasesHtml = protocol.phases.map((phase, pi) => `
       <div class="rehab-phase">
@@ -306,7 +298,7 @@ const RehabLogger = (function () {
         </div>
         ${phase.precautions?.length ? `
           <div class="rehab-precautions">
-            ${phase.precautions.map(p => `<div class="rehab-precaution">⚠️ ${p}</div>`).join('')}
+            ${phase.precautions.map(p => `<div class="rehab-precaution">${p}</div>`).join('')}
           </div>` : ''}
         <div class="rehab-exercises">
           ${phase.exercises.map(ex => `
@@ -321,9 +313,7 @@ const RehabLogger = (function () {
                 ${ex.frequency_per_week ? ` · ${ex.frequency_per_week}×/semana` : ''}
               </div>
               ${ex.progression_note ? `
-                <div class="rehab-progression">
-                  📈 ${ex.progression_note}
-                </div>` : ''}
+                <div class="rehab-progression">${ex.progression_note}</div>` : ''}
             </div>
           `).join('')}
         </div>
@@ -332,8 +322,8 @@ const RehabLogger = (function () {
 
     const redFlagsHtml = protocol.red_flags?.length ? `
       <div class="rehab-red-flags">
-        <div class="rehab-red-flags-title">🚨 Consulta médica urgente si:</div>
-        ${protocol.red_flags.map(f => `<div class="rehab-red-flag">• ${f}</div>`).join('')}
+        <div class="rehab-red-flags-title">Consulta médica urgente si:</div>
+        ${protocol.red_flags.map(f => `<div class="rehab-red-flag">${f}</div>`).join('')}
       </div>` : '';
 
     container.innerHTML = `
@@ -353,7 +343,7 @@ const RehabLogger = (function () {
 
         ${protocol.general_advice ? `
           <div class="rehab-advice">
-            <div class="rehab-advice-icon">💡</div>
+            <svg class="rehab-advice-svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
             <p>${protocol.general_advice}</p>
           </div>` : ''}
 
@@ -369,7 +359,7 @@ const RehabLogger = (function () {
           </button>
           ${!protocol.is_ai_generated && protocol.tier === 'free' ? `
             <div class="rehab-upgrade-hint">
-              ✨ <strong>Pro</strong>: genera protocolos personalizados con IA para tu perfil y historial.
+              <strong>Pro</strong>: genera protocolos personalizados con IA para tu perfil y historial.
             </div>` : ''}
         </div>
       </div>

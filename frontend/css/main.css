@@ -1469,67 +1469,117 @@ select.form-input option { background: var(--bg-surface); color: var(--text-prim
 @keyframes spin { to { transform: rotate(360deg); } }
 .ai-insights-error { color: var(--text-secondary); font-size: 0.84rem; padding: 4px 0; }
 .ai-insights-sections { display: flex; flex-direction: column; gap: 14px; }
-.ai-section { border-top: 1px solid var(--glass-border); padding-top: 12px; }
+.ai-section { border-top: 1px solid var(--glass-border); padding-top: 14px; }
 .ai-section:first-child { border-top: none; padding-top: 0; }
 .ai-section-label {
-  font-size: 0.78rem;
+  font-size: 0.75rem;
   font-weight: 700;
-  color: var(--text-secondary);
+  color: var(--primary);
   text-transform: uppercase;
-  letter-spacing: 0.04em;
-  margin-bottom: 6px;
+  letter-spacing: 0.06em;
+  margin-bottom: 8px;
   display: flex;
   align-items: center;
-  gap: 5px;
+  gap: 7px;
 }
-.ai-narrative { font-size: 0.85rem; color: var(--text-primary); line-height: 1.55; margin: 0 0 6px; }
-.ai-highlights {
-  list-style: none;
-  padding: 0;
-  margin: 4px 0 0;
+.ai-section-label-bar {
+  display: inline-block;
+  width: 3px;
+  height: 13px;
+  border-radius: 2px;
+  background: var(--primary);
+  flex-shrink: 0;
+}
+.ai-narrative { font-size: 0.88rem; color: var(--text-primary); line-height: 1.6; margin: 0 0 8px; }
+/* scrollable highlights pills */
+.ai-highlights-scroll {
   display: flex;
-  flex-wrap: wrap;
-  gap: 5px;
+  flex-wrap: nowrap;
+  gap: 6px;
+  overflow-x: auto;
+  padding-bottom: 4px;
+  scrollbar-width: none;
+  margin-top: 4px;
 }
-.ai-highlights li {
+.ai-highlights-scroll::-webkit-scrollbar { display: none; }
+.ai-highlight-pill {
+  display: inline-block;
+  white-space: nowrap;
   font-size: 0.74rem;
-  background: var(--glass-bg);
-  border: 1px solid var(--glass-border);
+  background: rgba(8,145,178,0.08);
+  border: 1px solid rgba(8,145,178,0.28);
   border-radius: 20px;
-  padding: 2px 9px;
-  color: var(--text-secondary);
+  padding: 3px 10px;
+  color: var(--primary);
+  flex-shrink: 0;
 }
+/* trend icons */
+.ai-trend-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  font-size: 0.82rem;
+  font-weight: 700;
+  flex-shrink: 0;
+}
+.ai-trend-icon--up      { background: rgba(34,197,94,0.15);  color: #22c55e; }
+.ai-trend-icon--down    { background: rgba(239,68,68,0.15);  color: #ef4444; }
+.ai-trend-icon--stable  { background: rgba(245,158,11,0.15); color: #f59e0b; }
+.ai-trend-icon--unknown { background: rgba(107,114,128,0.15); color: #6b7280; }
+/* risk badge */
 .ai-risk-badge {
   display: inline-block;
   font-size: 0.72rem;
   font-weight: 700;
-  border-radius: 4px;
-  padding: 1px 6px;
+  border-radius: 5px;
+  padding: 2px 8px;
+  letter-spacing: 0.04em;
 }
-.ai-risk-flags { display: flex; flex-direction: column; gap: 6px; margin-top: 6px; }
+/* risk flags — 3-col grid */
+.ai-risk-flags { display: flex; flex-direction: column; gap: 8px; margin-top: 8px; }
 .ai-risk-flag {
-  display: flex;
+  display: grid;
+  grid-template-columns: 1fr auto 1.6fr;
   align-items: center;
-  gap: 7px;
+  gap: 10px;
   font-size: 0.8rem;
-  flex-wrap: wrap;
+  padding: 7px 10px;
+  background: var(--glass-bg);
+  border: 1px solid var(--glass-border);
+  border-radius: 7px;
 }
 .ai-risk-group { font-weight: 600; color: var(--text-primary); }
-.ai-risk-detail { color: var(--text-secondary); flex: 1; }
+.ai-risk-detail { color: var(--text-secondary); }
+/* goals */
 .ai-goals { display: flex; flex-direction: column; gap: 8px; }
 .ai-goal-item {
   display: flex;
   align-items: flex-start;
-  gap: 8px;
-  padding: 8px 10px;
+  gap: 10px;
+  padding: 9px 11px;
   background: var(--glass-bg);
   border: 1px solid var(--glass-border);
   border-radius: 8px;
 }
-.ai-goal-icon { font-size: 1.1rem; flex-shrink: 0; }
-.ai-goal-content { display: flex; flex-direction: column; gap: 2px; }
-.ai-goal-content strong { font-size: 0.83rem; color: var(--text-primary); }
-.ai-goal-reason { font-size: 0.76rem; color: var(--text-secondary); }
+/* category dots */
+.ai-cat-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  flex-shrink: 0;
+  margin-top: 5px;
+}
+.ai-cat-dot--weight   { background: var(--primary); }
+.ai-cat-dot--training { background: #a855f7; }
+.ai-cat-dot--nutrition { background: #22c55e; }
+.ai-cat-dot--recovery { background: #3b82f6; }
+.ai-cat-dot--default  { background: var(--text-secondary); }
+.ai-goal-content { display: flex; flex-direction: column; gap: 3px; }
+.ai-goal-content strong { font-size: 0.84rem; font-weight: 600; color: var(--text-primary); }
+.ai-goal-reason { font-size: 0.76rem; color: var(--text-secondary); line-height: 1.45; }
 .ai-week-summary {
   margin: 8px 0 0;
   font-size: 0.82rem;
@@ -4736,7 +4786,6 @@ select.form-input option { background: var(--bg-surface); color: var(--text-prim
 
 /* Step header */
 .rehab-step-header { margin-bottom: 18px; }
-.rehab-step-emoji { font-size: 28px; line-height: 1; margin-bottom: 6px; }
 .rehab-step-title {
   font-size: 18px;
   font-weight: 700;
@@ -4859,14 +4908,63 @@ select.form-input option { background: var(--bg-surface); color: var(--text-prim
 
 /* Disclaimer box */
 .rehab-disclaimer-box {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
   background: rgba(124,107,255,0.07);
   border: 1px solid rgba(124,107,255,0.2);
   border-radius: var(--radius, 10px);
-  padding: 12px 14px;
+  padding: 11px 13px;
   font-size: 12px;
   color: rgba(255,255,255,0.5);
   line-height: 1.5;
   margin-top: 4px;
+}
+.rehab-disclaimer-icon {
+  flex-shrink: 0;
+  margin-top: 1px;
+  color: rgba(124,107,255,0.6);
+}
+
+/* Chip options — 3-col grid (body areas) */
+.rehab-options--grid3 {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 7px;
+}
+/* Chip options — 2-col grid (injury types) */
+.rehab-options--grid2 {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 7px;
+}
+/* Compact chip button */
+.rehab-chip {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding: 8px 6px;
+  background: rgba(255,255,255,0.04);
+  border: 1px solid rgba(255,255,255,0.1);
+  border-radius: var(--radius-sm, 8px);
+  font-size: 12px;
+  font-weight: 500;
+  color: rgba(255,255,255,0.75);
+  cursor: pointer;
+  transition: background var(--dur-fast) var(--ease-out), border-color var(--dur-fast) var(--ease-out);
+  user-select: none;
+  line-height: 1.2;
+}
+.rehab-chip:hover {
+  background: rgba(124,107,255,0.1);
+  border-color: rgba(124,107,255,0.35);
+}
+.rehab-chip.selected {
+  background: rgba(124,107,255,0.18);
+  border-color: #7c6bff;
+  color: #fff;
+  font-weight: 600;
 }
 
 /* Result card */
@@ -4921,15 +5019,24 @@ select.form-input option { background: var(--bg-surface); color: var(--text-prim
   text-transform: uppercase;
 }
 .rehab-badge--pro {
-  background: rgba(245,158,11,0.15);
+  background: rgba(245,158,11,0.12);
   color: #f59e0b;
-  border: 1px solid rgba(245,158,11,0.35);
+  border: 1px solid rgba(245,158,11,0.3);
 }
 .rehab-badge--free {
   background: rgba(255,255,255,0.06);
   color: rgba(255,255,255,0.4);
   border: 1px solid rgba(255,255,255,0.1);
 }
+.rehab-badge-dot {
+  display: inline-block;
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+.rehab-badge-dot--pro  { background: #f59e0b; }
+.rehab-badge-dot--free { background: rgba(255,255,255,0.3); }
 
 /* Phase blocks */
 .rehab-phase {
@@ -4974,7 +5081,7 @@ select.form-input option { background: var(--bg-surface); color: var(--text-prim
   line-height: 1.4;
 }
 .rehab-precaution::before {
-  content: "⚠️";
+  content: "–";
   font-size: 11px;
   margin-top: 1px;
   flex-shrink: 0;
@@ -5025,7 +5132,7 @@ select.form-input option { background: var(--bg-surface); color: var(--text-prim
   line-height: 1.5;
   margin-top: 4px;
 }
-.rehab-advice-icon { font-size: 15px; flex-shrink: 0; margin-top: 1px; }
+.rehab-advice-svg { flex-shrink: 0; margin-top: 2px; color: rgba(255,255,255,0.5); }
 
 /* Red flags */
 .rehab-red-flags {
@@ -5036,7 +5143,7 @@ select.form-input option { background: var(--bg-surface); color: var(--text-prim
   margin-top: 14px;
 }
 .rehab-red-flags-title {
-  font-size: 12px;
+  font-size: 11px;
   font-weight: 700;
   color: #ef4444;
   text-transform: uppercase;
@@ -5052,7 +5159,7 @@ select.form-input option { background: var(--bg-surface); color: var(--text-prim
   gap: 6px;
   align-items: flex-start;
 }
-.rehab-red-flag::before { content: "🚩"; font-size: 11px; flex-shrink: 0; margin-top: 1px; }
+.rehab-red-flag::before { content: "·"; font-size: 16px; flex-shrink: 0; margin-top: -1px; color: #ef4444; }
 
 /* Legal disclaimer */
 .rehab-legal-disclaimer {

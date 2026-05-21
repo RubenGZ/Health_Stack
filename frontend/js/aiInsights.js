@@ -47,10 +47,10 @@
 
   function trendIcon(trend) {
     const map = {
-      improving:         '<span style="color:#22c55e">↑</span>',
-      declining:         '<span style="color:#ef4444">↓</span>',
-      stable:            '<span style="color:#f59e0b">→</span>',
-      insufficient_data: '<span style="color:#6b7280">?</span>',
+      improving:         '<span class="ai-trend-icon ai-trend-icon--up">↑</span>',
+      declining:         '<span class="ai-trend-icon ai-trend-icon--down">↓</span>',
+      stable:            '<span class="ai-trend-icon ai-trend-icon--stable">→</span>',
+      insufficient_data: '<span class="ai-trend-icon ai-trend-icon--unknown">?</span>',
     };
     return map[trend] || '';
   }
@@ -66,14 +66,14 @@
     return `<span class="ai-risk-badge" style="${map[level] || ''}">${label}</span>`;
   }
 
-  function categoryIcon(cat) {
+  function categoryDot(cat) {
     const map = {
-      weight:   '⚖️',
-      training: '🏋️',
-      nutrition: '🥗',
-      recovery: '😴',
+      weight:   'ai-cat-dot--weight',
+      training: 'ai-cat-dot--training',
+      nutrition: 'ai-cat-dot--nutrition',
+      recovery: 'ai-cat-dot--recovery',
     };
-    return map[cat] || '🎯';
+    return `<span class="ai-cat-dot ${map[cat] || 'ai-cat-dot--default'}"></span>`;
   }
 
   // Store last data so we can re-render on language change without re-fetching
@@ -87,19 +87,27 @@
     if (narrative && narrative.narrative) {
       html += `
         <div class="ai-section">
-          <div class="ai-section-label">${t('ai_insights.current_status')} ${trendIcon(narrative.trend)}</div>
+          <div class="ai-section-label">
+            <span class="ai-section-label-bar"></span>
+            ${t('ai_insights.current_status')}
+            ${trendIcon(narrative.trend)}
+          </div>
           <p class="ai-narrative">${narrative.narrative}</p>
           ${narrative.highlights?.length ? `
-            <ul class="ai-highlights">
-              ${narrative.highlights.map(h => `<li>${h}</li>`).join('')}
-            </ul>` : ''}
+            <div class="ai-highlights-scroll">
+              ${narrative.highlights.map(h => `<span class="ai-highlight-pill">${h}</span>`).join('')}
+            </div>` : ''}
         </div>`;
     }
 
     if (risk) {
       html += `
         <div class="ai-section">
-          <div class="ai-section-label">${t('ai_insights.injury_risk')} ${riskBadge(risk.overall_risk)}</div>
+          <div class="ai-section-label">
+            <span class="ai-section-label-bar"></span>
+            ${t('ai_insights.injury_risk')}
+            ${riskBadge(risk.overall_risk)}
+          </div>
           <p class="ai-narrative">${risk.summary}</p>
           ${risk.risk_flags?.length ? `
             <div class="ai-risk-flags">
@@ -116,11 +124,14 @@
     if (goals && goals.goals?.length) {
       html += `
         <div class="ai-section">
-          <div class="ai-section-label">${t('ai_insights.weekly_goals')}</div>
+          <div class="ai-section-label">
+            <span class="ai-section-label-bar"></span>
+            ${t('ai_insights.weekly_goals')}
+          </div>
           <div class="ai-goals">
             ${goals.goals.map(g => `
               <div class="ai-goal-item">
-                <span class="ai-goal-icon">${categoryIcon(g.category)}</span>
+                ${categoryDot(g.category)}
                 <div class="ai-goal-content">
                   <strong>${g.goal}</strong>
                   <span class="ai-goal-reason">${g.reasoning}</span>

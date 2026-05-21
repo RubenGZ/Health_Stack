@@ -30,10 +30,10 @@
       icon: `<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                <path d="M6.5 6.5h11M6.5 17.5h11M3 10.5h18M3 13.5h18"/>
              </svg>`,
-      section: 'workout',
+      section: 'rutinas',
       subtabs: [
-        { id: 'workout',       label: 'Entreno' },
         { id: 'rutinas',       label: 'Rutinas' },
+        { id: 'workout',       label: 'Entreno' },
         { id: 'ejercicios',    label: 'Ejercicios' },
         { id: 'records',       label: 'Records' },
         { id: 'sessionreplay', label: 'Replay' },
@@ -135,9 +135,15 @@
 
   // ── Click en tab principal ─────────────────────────────────
   function onTabClick(group) {
+    // Si el grupo ya está activo Y la sección visible coincide con un subtab del grupo
+    // → no hacer nada (el usuario ya está aquí)
+    // Si está activo pero la sección visible no es de este grupo (puede pasar tras usar
+    // el botón Atrás), forzar navegación para desatascar
     if (activeGroupId === group.id && group.subtabs.length > 0) {
-      // Ya activo con sub-tabs → no hace nada (usuario ya está aquí)
-      return;
+      const isInGroup = group.subtabs.some(s => s.id === activeSection) ||
+                        group.section === activeSection;
+      if (isInGroup) return; // ya aquí, no hacer nada
+      // Estaba "stuck" — forzar el primer subtab
     }
     setActiveGroup(group.id, true);
   }

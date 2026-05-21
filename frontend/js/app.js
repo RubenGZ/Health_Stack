@@ -454,6 +454,9 @@
     }
 
     // TDEE — guardado por macroCalc.js o onboarding
+    // Sanear valor "NaN" que pudo quedar de versiones anteriores
+    const _rawTdee = localStorage.getItem('hs_last_tdee');
+    if (_rawTdee === 'NaN' || _rawTdee === 'undefined') localStorage.removeItem('hs_last_tdee');
     const tdeeVal = parseFloat(localStorage.getItem('hs_last_tdee') || '0');
     const tdeeEl  = document.getElementById('stat-tdee');
     const tdeeLbl = document.getElementById('stat-tdee-label');

@@ -429,7 +429,7 @@ const MyRecipes = (function () {
     save();
     resetForm();
     renderGrid();
-    showToast(`✅ Receta "${name}" guardada (${recipes.length}/${MAX_CUSTOM_RECIPES})`);
+    showToast(`Receta "${name}" guardada (${recipes.length}/${MAX_CUSTOM_RECIPES})`);
   }
 
   // ── Reset formulario ───────────────────────────────────────────────────────

@@ -216,7 +216,9 @@ const Gamification = (function () {
 
     // Level hero
     setText('gami-level-badge', lv.level);
-    setText('gami-level-name',  `${lv.icon} ${_t(lv.nameKey)}`);
+    // innerHTML para que el SVG se renderice correctamente (no textContent)
+    const lvNameEl = document.getElementById('gami-level-name');
+    if (lvNameEl) lvNameEl.innerHTML = `${lv.icon} ${_t(lv.nameKey)}`;
     setText('gami-xp-label',    `${state.xp} XP`);
     setText('gami-xp-current',  `${state.xp} XP`);
     setText('gami-xp-next',     next ? `${next.min} XP — ${_t(next.nameKey)}` : _t('gamification.max_level'));

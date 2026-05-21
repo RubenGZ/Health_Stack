@@ -349,7 +349,7 @@ const Onboarding = (function () {
         ts: Date.now(),
       };
       localStorage.setItem('hs_tdee',      JSON.stringify(tdeeData));
-      localStorage.setItem('hs_last_tdee', String(result.target));
+      if (isFinite(result.target) && result.target > 0) localStorage.setItem('hs_last_tdee', String(result.target));
       localStorage.setItem('hs_height_cm', String(h));
 
       // Pre-rellenar el form TDEE para que esté listo cuando el usuario lo abra

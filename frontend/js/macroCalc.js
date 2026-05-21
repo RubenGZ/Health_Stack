@@ -165,13 +165,13 @@ const MacroCalc = (function () {
     // Persistir
     localStorage.setItem(LS_KEY, JSON.stringify({ ...data, bmr, tdee, target, macros, ts: Date.now() }));
     // Valores globales para el dashboard
-    localStorage.setItem('hs_last_tdee', String(target));
+    if (isFinite(target) && target > 0) localStorage.setItem('hs_last_tdee', String(target));
     if (data.height) localStorage.setItem('hs_height_cm', String(data.height));
 
     // Actualizar dashboard TDEE
     const statTdee  = document.getElementById('stat-tdee');
     const statTdeeL = document.getElementById('stat-tdee-label');
-    if (statTdee)  statTdee.textContent  = `${target} kcal`;
+    if (statTdee)  statTdee.textContent  = isFinite(target) && target > 0 ? `${target} kcal` : '-- kcal';
     if (statTdeeL) statTdeeL.textContent = goal === 'maintain' ? 'Mantenimiento' :
                                            goal.startsWith('deficit') ? 'Para perder peso' : 'Para ganar músculo';
 

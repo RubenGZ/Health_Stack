@@ -463,6 +463,9 @@ const Onboarding = (function () {
   // If explicitly false, server wins over localStorage (so returning users
   // whose localStorage flag got cleared still see the wizard).
   function init(serverCompleted) {
+    // Nunca mostrar si el usuario no está autenticado (pantalla de login/registro)
+    if (!localStorage.getItem('hs_access_token')) return;
+
     // Server flag is authoritative: if server says NOT done, force the wizard.
     if (serverCompleted === false) {
       localStorage.removeItem(LS_FLAG); // clear stale local flag

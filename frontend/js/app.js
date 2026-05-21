@@ -763,21 +763,24 @@
     if (typeof Supplements        !== 'undefined') Supplements.init();
     if (typeof MyRecipes          !== 'undefined') MyRecipes.init();
     if (typeof TimingPlanner      !== 'undefined') TimingPlanner.init();
-    // Onboarding al final — necesita que todos los módulos estén listos para pre-rellenarlos.
-    // Pasar onboarding_completed del servidor si el usuario ya está logueado
-    // (el campo viene en el objeto user guardado en localStorage por saveAuth).
+    // Onboarding al final — solo si el usuario está autenticado.
+    // Si no hay token (flujo login/registro), no lanzar el wizard.
     if (typeof Onboarding !== 'undefined') {
-      const _obUser = (typeof API !== 'undefined') ? API.getUser?.() : null;
-      const _obServerDone = _obUser ? _obUser.onboarding_completed : undefined;
-      Onboarding.init(_obServerDone);
+      const _hasToken = Boolean(localStorage.getItem('hs_access_token'));
+      if (_hasToken) {
+        const _obUser = (typeof API !== 'undefined') ? API.getUser?.() : null;
+        const _obServerDone = _obUser ? _obUser.onboarding_completed : undefined;
+        Onboarding.init(_obServerDone);
+      }
     }
 
-    // Re-check onboarding after login — también trigger si no hay TDEE guardado (flujo MVP)
+    // Re-check onboarding después del login exitoso
     window.addEventListener('hs:login', function () {
       if (typeof Onboarding === 'undefined') return;
       const u = (typeof API !== 'undefined') ? API.getUser?.() : null;
+      if (!u) return; // usuario no disponible aún
       const hasTDEE = localStorage.getItem('hs_tdee');
-      if ((u && u.onboarding_completed === false) || !hasTDEE) {
+      if (u.onboarding_completed === false || !hasTDEE) {
         Onboarding.init(false); // force show
       }
     });

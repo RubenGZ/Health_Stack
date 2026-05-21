@@ -5423,6 +5423,71 @@ select.form-input option { background: var(--bg-surface); color: var(--text-prim
     grid-template-columns: 1fr;
   }
 
+  /* ── Visor anatómico: modal centrado en móvil ─────────── */
+  /* Por defecto, el panel no ocupa espacio en el flujo */
+  .anatomy-panel {
+    display: none;
+  }
+
+  /* Backdrop oscuro */
+  .anatomy-modal-backdrop {
+    position: fixed;
+    inset: 0;
+    z-index: 498;
+    background: rgba(0, 0, 0, 0.72);
+    backdrop-filter: blur(4px);
+    -webkit-backdrop-filter: blur(4px);
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.2s ease;
+  }
+  .anatomy-modal-backdrop.open {
+    opacity: 1;
+    pointer-events: auto;
+  }
+
+  /* Panel anatómico como modal */
+  .anatomy-panel.anatomy-modal-active {
+    display: flex;
+    flex-direction: column;
+    position: fixed;
+    left: 4%;
+    right: 4%;
+    top: 50%;
+    transform: translateY(-50%) scale(1);
+    z-index: 499;
+    max-height: 78vh;
+    overflow-y: auto;
+    border-radius: 20px;
+    padding: 20px 16px 24px;
+    animation: anatomyModalIn 0.22s var(--ease-out) both;
+  }
+  @keyframes anatomyModalIn {
+    from { opacity: 0; transform: translateY(-46%) scale(0.96); }
+    to   { opacity: 1; transform: translateY(-50%) scale(1); }
+  }
+
+  /* Botón cerrar X */
+  .anatomy-modal-close {
+    position: absolute;
+    top: 12px;
+    right: 12px;
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    background: rgba(255,255,255,0.08);
+    border: none;
+    color: var(--text-secondary);
+    font-size: 1.1rem;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background var(--dur-fast) var(--ease-out);
+    flex-shrink: 0;
+  }
+  .anatomy-modal-close:active { background: rgba(255,255,255,0.18); }
+
   /* Anatomy viewer: 220px fixed en mobile */
   .anatomy-viewer-container,
   #athlete-viewer-container {

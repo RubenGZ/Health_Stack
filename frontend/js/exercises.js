@@ -409,14 +409,10 @@ const Exercises = (function () {
 
     const lens = await getLens();
     if (lens) {
-      // lens es el visor SVG body-muscles. Si lanza es un error inesperado;
-      // no caer al SVG simple (está oculto) — loguear y seguir.
       await lens.highlight(ex.id, ex.muscles);
-      // En móvil: desplazar el visor anatómico a la vista para que sea visible
+      // En móvil: mostrar el panel como modal centrado (no scroll)
       if (window.matchMedia('(max-width: 768px)').matches) {
-        const viewer = document.querySelector('#section-ejercicios .anatomy-lens-container')
-                    || document.getElementById('anatomy-svg-wrap');
-        if (viewer) viewer.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+        _openAnatomyModal();
       }
       return;  // AnatomyLens manejó leyenda + hint
     }
@@ -461,6 +457,40 @@ const Exercises = (function () {
     if (legend) legend.innerHTML = '';
     const aff = document.getElementById('anatomy-affiliate');
     if (aff) aff.innerHTML = '';
+  }
+
+  // ── Modal del visor anatómico (solo móvil) ────────────────
+  function _openAnatomyModal() {
+    const panel    = document.getElementById('anatomy-panel');
+    const backdrop = document.getElementById('anatomy-modal-backdrop');
+    const closeBtn = document.getElementById('anatomy-modal-close');
+    if (!panel) return;
+
+    panel.classList.add('anatomy-modal-active');
+    if (backdrop) backdrop.classList.add('open');
+    if (closeBtn) {
+      closeBtn.style.display = 'flex';
+      closeBtn.onclick = _closeAnatomyModal;
+    }
+    if (backdrop) backdrop.onclick = _closeAnatomyModal;
+  }
+
+  function _closeAnatomyModal() {
+    const panel    = document.getElementById('anatomy-panel');
+    const backdrop = document.getElementById('anatomy-modal-backdrop');
+    const closeBtn = document.getElementById('anatomy-modal-close');
+    if (!panel) return;
+
+    panel.classList.remove('anatomy-modal-active');
+    if (backdrop) backdrop.classList.remove('open');
+    if (closeBtn) closeBtn.style.display = 'none';
+
+    // Deseleccionar ejercicio activo
+    activeExId = null;
+    renderGrid();
+    const lens = document.querySelector('.anatomy-lens-container');
+    getLens().then(l => { if (l) l.reset(); }).catch(() => {});
+    resetAnatomy();
   }
 
   function renderLegend(muscles) {

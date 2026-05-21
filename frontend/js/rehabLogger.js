@@ -253,8 +253,15 @@ const RehabLogger = (function () {
       });
 
       if (!res.ok) {
-        const err = await res.json().catch(() => ({}));
-        throw new Error(err.detail || `HTTP ${res.status}`);
+        const errBody = await res.json().catch(() => ({}));
+        // FastAPI puede devolver detail como array de ValidationError
+        let detail;
+        if (Array.isArray(errBody.detail)) {
+          detail = errBody.detail.map(e => e.msg || e.message || 'Error de validación').join(' · ');
+        } else {
+          detail = errBody.detail || errBody.message || `Error ${res.status}`;
+        }
+        throw new Error(detail);
       }
 
       const protocol = await res.json();
@@ -262,10 +269,13 @@ const RehabLogger = (function () {
       if (typeof _onResult === 'function') _onResult(protocol);
 
     } catch (err) {
+      // Evitar mostrar artefactos [object Object] si el message no es string legible
+      const errMsg = (err && typeof err.message === 'string' && !err.message.includes('[object'))
+        ? err.message
+        : 'Error al conectar con el servidor. Inténtalo de nuevo.';
       container.innerHTML = `
         <div class="rehab-error">
-          <span class="rehab-error-icon">⚠️</span>
-          <p>No se pudo generar el protocolo: ${err.message}</p>
+          <p>No se pudo generar el protocolo: ${errMsg}</p>
           <button class="btn btn--ghost" id="rehab-retry-btn">Reintentar</button>
         </div>
       `;

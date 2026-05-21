@@ -575,38 +575,45 @@
       return s;
     };
 
+    const _svgWarn    = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>';
+    const _svgTarget  = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/></svg>';
+    const _svgChart   = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>';
+    const _svgTrend   = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="22 7 13.5 15.5 8.5 10.5 2 17"/><polyline points="16 7 22 7 22 13"/></svg>';
+    const _svgMuscle  = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6.5 6.5c1.5-1.5 3-2 5-2 3.3 0 6 2.7 6 6s-2.7 6-6 6c-2 0-3.5-.5-5-2"/><path d="M2 12h4"/></svg>';
+    const _svgBalance = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22V12"/><path d="M5 12H2a10 10 0 0 0 20 0h-3"/><path d="M8 6l4-4 4 4"/><path d="M8 6h8"/></svg>';
+
     if (goal.startsWith('deficit')) {
       if (rate < -0.8) {
-        icon = '⚠️'; color = 'var(--amber)';
+        icon = _svgWarn; color = 'var(--amber)';
         message = _msg('dashboard.insight_deficit_fast', { rate: absRate.toFixed(2) });
       } else if (rate < -0.15) {
-        icon = '🎯'; color = 'var(--emerald)';
+        icon = _svgTarget; color = 'var(--emerald)';
         message = _msg('dashboard.insight_deficit_ok', { rate: absRate.toFixed(2) });
       } else if (rate >= -0.15 && rate <= 0.1) {
-        icon = '📊'; color = 'var(--secondary)';
+        icon = _svgChart; color = 'var(--secondary)';
         message = _msg('dashboard.insight_deficit_stable', { delta: (rate >= 0 ? '+' : '') + rate.toFixed(2) });
       } else {
-        icon = '📈'; color = 'var(--accent)';
+        icon = _svgTrend; color = 'var(--accent)';
         message = _msg('dashboard.insight_deficit_gaining', { rate: absRate.toFixed(2) });
       }
     } else if (goal.startsWith('surplus')) {
       if (rate > 0.5) {
-        icon = '⚠️'; color = 'var(--amber)';
+        icon = _svgWarn; color = 'var(--amber)';
         message = _msg('dashboard.insight_surplus_fast', { rate: absRate.toFixed(2) });
       } else if (rate > 0.1) {
-        icon = '💪'; color = 'var(--emerald)';
+        icon = _svgMuscle; color = 'var(--emerald)';
         message = _msg('dashboard.insight_surplus_ok', { rate: absRate.toFixed(2) });
       } else {
-        icon = '📊'; color = 'var(--secondary)';
+        icon = _svgChart; color = 'var(--secondary)';
         message = _msg('dashboard.insight_surplus_stable', { delta: (rate >= 0 ? '+' : '') + rate.toFixed(2) });
       }
     } else {
       // Mantener
       if (Math.abs(rate) <= 0.2) {
-        icon = '⚖️'; color = 'var(--emerald)';
+        icon = _svgBalance; color = 'var(--emerald)';
         message = _msg('dashboard.insight_maintain_ok', { rate: absRate.toFixed(2) });
       } else {
-        icon = '📊'; color = 'var(--secondary)';
+        icon = _svgChart; color = 'var(--secondary)';
         message = _msg('dashboard.insight_maintain_drift', { delta: (rate >= 0 ? '+' : '') + rate.toFixed(2) });
       }
     }

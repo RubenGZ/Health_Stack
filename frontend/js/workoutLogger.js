@@ -250,7 +250,7 @@ function renderActive() {
         <div class="wl-add-exercise-panel" id="wl-add-ex-panel">
           <div class="wl-ex-search-wrap">
             <input type="text" id="wl-ex-input"
-              placeholder="🔍 Buscar ejercicio..."
+              placeholder="Buscar ejercicio..."
               class="wl-input" autocomplete="off" />
           </div>
           <div class="wl-ex-results" id="wl-ex-results"></div>
@@ -624,7 +624,7 @@ function renderSummary(result) {
   _root.innerHTML = `
     <div class="wl-summary">
       <div class="wl-summary-header">
-        <div class="wl-summary-emoji">💪</div>
+        <div class="wl-summary-emoji"></div>
         <h2 class="wl-summary-title">¡Sesión completada!</h2>
         <p class="wl-summary-date">${startTime.toLocaleDateString('es-ES', { weekday:'long', day:'numeric', month:'long' })}</p>
       </div>
@@ -652,7 +652,7 @@ function renderSummary(result) {
 
       ${prs.length ? `
         <div class="wl-summary-prs">
-          ${prs.map(pr => `<div class="wl-pr-item">🏆 PR — ${pr.exercise_key.replace(/_/g,' ')}: ${pr.value} kg 1RM</div>`).join('')}
+          ${prs.map(pr => `<div class="wl-pr-item">PR — ${pr.exercise_key.replace(/_/g,' ')}: ${pr.value} kg 1RM</div>`).join('')}
         </div>` : ''}
 
       <button class="wl-done-btn btn" id="wl-done">Nueva sesión</button>
@@ -678,7 +678,7 @@ export function init(container) {
       const b = document.createElement('div');
       b.id = 'wl-storage-warn';
       b.style.cssText = 'background:#ef4444;color:#fff;padding:8px 14px;border-radius:8px;font-size:12px;margin-bottom:8px;text-align:center';
-      b.textContent = '⚠️ Almacenamiento lleno — el progreso de esta sesión puede no guardarse. Libera espacio o finaliza la sesión.';
+      b.textContent = 'Almacenamiento lleno — el progreso de esta sesión puede no guardarse. Libera espacio o finaliza la sesión.';
       _root?.prepend(b);
     }
   }, { once: true });

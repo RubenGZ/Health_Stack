@@ -131,7 +131,7 @@ const TimingPlanner = (function () {
       time: trainTime,
       mins: trainMins,
       type: 'training',
-      icon: '🏋️',
+      icon: 'GYM',
       title: `Entrenamiento (${duration} min)`,
       desc: goalLabel(goal),
       kcal: null, p: null, c: null, f: null,
@@ -196,8 +196,8 @@ const TimingPlanner = (function () {
 
   function slotIcon(slot) {
     const icons = {
-      breakfast: '🍳', snack1: '🍎', pre: '⚡', post: '🔋',
-      lunch: '🍽️', snack2: '🥜', dinner: '🌙',
+      breakfast: 'AM', snack1: 'SN', pre: 'PRE', post: 'PST',
+      lunch: 'PM', snack2: 'SN', dinner: 'PM',
     };
     return icons[slot] || '🍴';
   }
@@ -338,7 +338,7 @@ const TimingPlanner = (function () {
       navigator.clipboard.writeText(text).then(() => {
         showToast('📋 Horario copiado al portapapeles');
       }).catch(() => {
-        showToast('⚠️ No se pudo copiar');
+        showToast('No se pudo copiar');
       });
     });
   }
@@ -349,7 +349,7 @@ const TimingPlanner = (function () {
     document.dispatchEvent(new CustomEvent('hs:timing-apply', {
       detail: { meals: mealEvents },
     }));
-    showToast('✅ Plan aplicado al Planner semanal (día actual)');
+    showToast('Plan aplicado al Planner semanal (día actual)');
   }
 
   // ── Toast ──────────────────────────────────────────────────────────────────
@@ -422,7 +422,7 @@ const TimingPlanner = (function () {
       const notice = document.createElement('div');
       notice.id = 'tp-profile-notice';
       notice.className = 'tp-profile-notice';
-      notice.innerHTML = `<span>✅ Formulario pre-cargado con tu perfil TDEE</span>
+      notice.innerHTML = `<span>Formulario pre-cargado con tu perfil TDEE</span>
         <button class="tp-profile-dismiss" onclick="this.parentElement.remove()" title="Cerrar">×</button>`;
       formCard.insertBefore(notice, formCard.firstChild);
     }

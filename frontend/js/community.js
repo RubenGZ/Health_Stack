@@ -33,14 +33,14 @@ const Community = (function () {
 
   // ── Leaderboard mock ──────────────────────────────────────
   const LEADERBOARD_SEED = [
-    { name: 'Marcos T.',  avatar: 'MT', xp: 4200, badge: '🏅', level: 'Atleta'     },
-    { name: 'Laura P.',   avatar: 'LP', xp: 3800, badge: '🏅', level: 'Atleta'     },
-    { name: 'Ana García', avatar: 'AG', xp: 2900, badge: '🔵', level: 'Competidor' },
-    { name: 'Sofía R.',   avatar: 'SR', xp: 2400, badge: '🔵', level: 'Competidor' },
-    { name: 'Carlos M.',  avatar: 'CM', xp: 1800, badge: '🔵', level: 'Competidor' },
-    { name: 'David L.',   avatar: 'DL', xp: 1200, badge: '⚡', level: 'Aprendiz'   },
-    { name: 'Elena V.',   avatar: 'EV', xp:  800, badge: '⚡', level: 'Aprendiz'   },
-    { name: 'Roberto H.', avatar: 'RH', xp:  350, badge: '🌱', level: 'Novato'     },
+    { name: 'Marcos T.',  avatar: 'MT', xp: 4200, badge: '★', level: 'Atleta'     },
+    { name: 'Laura P.',   avatar: 'LP', xp: 3800, badge: '★', level: 'Atleta'     },
+    { name: 'Ana García', avatar: 'AG', xp: 2900, badge: '●', level: 'Competidor' },
+    { name: 'Sofía R.',   avatar: 'SR', xp: 2400, badge: '●', level: 'Competidor' },
+    { name: 'Carlos M.',  avatar: 'CM', xp: 1800, badge: '●', level: 'Competidor' },
+    { name: 'David L.',   avatar: 'DL', xp: 1200, badge: '◆', level: 'Aprendiz'   },
+    { name: 'Elena V.',   avatar: 'EV', xp:  800, badge: '◆', level: 'Aprendiz'   },
+    { name: 'Roberto H.', avatar: 'RH', xp:  350, badge: '·', level: 'Novato'     },
   ];
 
   // ── Estado ────────────────────────────────────────────────

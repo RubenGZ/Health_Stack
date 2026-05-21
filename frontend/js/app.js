@@ -141,6 +141,21 @@
     if (sectionId === 'ejercicios' && typeof Exercises !== 'undefined') {
       Exercises.refreshLayout?.();
     }
+    // Rutinas: re-init wizard al navegar a la sección (listeners se pierden si DOM fue modificado)
+    if (sectionId === 'rutinas' && typeof RoutineGenerator !== 'undefined') {
+      RoutineGenerator.init();
+    }
+
+    // ── FAB de rest timer: solo visible en sección workout o con sesión activa ──
+    const _fab = document.getElementById('rest-timer-fab');
+    if (_fab) {
+      const _hasActiveSession = Boolean(localStorage.getItem('hs_workout_active'));
+      if (sectionId === 'workout' || _hasActiveSession) {
+        _fab.style.display = '';
+      } else {
+        _fab.style.display = 'none';
+      }
+    }
   }
 
   function initNavigation() {
@@ -854,7 +869,27 @@
           Plan.showUpgradeModal('restimer');
         }
       }, true); // capture before restTimer.js listener
+
+      // Ocultar FAB por defecto — solo se muestra en sección workout o con sesión activa
+      const _initialSection = window.location.hash.replace('#', '') || 'dashboard';
+      const _hasActiveSession = Boolean(localStorage.getItem('hs_workout_active'));
+      if (_initialSection !== 'workout' && !_hasActiveSession) {
+        fab.style.display = 'none';
+      }
     }
+
+    // Escuchar cambio de sesión activa para mostrar/ocultar FAB
+    window.addEventListener('hs:workout-session-changed', function () {
+      const _fab2 = document.getElementById('rest-timer-fab');
+      if (!_fab2) return;
+      const _currentSection = window.location.hash.replace('#', '') || 'dashboard';
+      const _active = Boolean(localStorage.getItem('hs_workout_active'));
+      if (_currentSection === 'workout' || _active) {
+        _fab2.style.display = '';
+      } else {
+        _fab2.style.display = 'none';
+      }
+    });
 
     // ── Botón circular de feedback en sección Perfil ──────────
     const perfilFeedbackBtn = document.getElementById('perfil-feedback-btn');

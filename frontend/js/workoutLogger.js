@@ -97,9 +97,26 @@ function renderIdle() {
       </div>`;
   }
 
-  // Rutinas guardadas del generador
+  // Rutinas guardadas del generador — combina historial + rutina activa si existe
   let savedRoutines = [];
   try { savedRoutines = JSON.parse(localStorage.getItem('hs_routine_history') || '[]'); } catch {}
+
+  // Añadir la rutina activa (hs_routine) si tiene sessions y no está ya en el historial
+  try {
+    const activeRaw = JSON.parse(localStorage.getItem('hs_routine') || 'null');
+    if (activeRaw?.routine?.sessions) {
+      // ¿Ya está en el historial? Comparar por ts o por sessions length
+      const alreadyInHistory = savedRoutines.some(r => r.ts === activeRaw.ts);
+      if (!alreadyInHistory) {
+        // Insertarla como primer elemento con el formato que espera renderRoutinePicker
+        savedRoutines = [
+          { ts: activeRaw.ts || Date.now(), label: 'Última rutina generada', routine: activeRaw.routine },
+          ...savedRoutines,
+        ];
+      }
+    }
+  } catch { /* ignorar */ }
+
   const hasSaved = savedRoutines.length > 0;
 
   _root.innerHTML = `
@@ -130,6 +147,7 @@ function renderIdle() {
 
   _root.querySelector('#wl-mode-free').addEventListener('click', () => {
     _session = Session.startSession();
+    window.dispatchEvent(new CustomEvent('hs:workout-session-changed'));
     renderActive();
   });
 
@@ -165,7 +183,7 @@ function renderRoutinePicker(routines) {
           const activeDays = (r.routine?.sessions || []).filter(s => s.exercises && s.exercises.length > 0);
           return `
           <div class="wl-picker-item">
-            <div class="wl-picker-name">${r.name || 'Rutina sin nombre'}</div>
+            <div class="wl-picker-name">${r.label || r.name || 'Rutina sin nombre'}</div>
             <div class="wl-picker-meta">${activeDays.length} día${activeDays.length !== 1 ? 's' : ''} de entrenamiento${r.ts ? ' · ' + new Date(r.ts).toLocaleDateString('es-ES', { day: 'numeric', month: 'short' }) : ''}</div>
             <div class="wl-picker-days">
               ${activeDays.map((s, sidx) => `
@@ -216,6 +234,7 @@ function _loadRoutineSession(daySession) {
   };
   Session.saveDraft(draft);
   _session = draft;
+  window.dispatchEvent(new CustomEvent('hs:workout-session-changed'));
   renderActive();
 }
 
@@ -608,6 +627,7 @@ async function onFinish() {
     exercises: _session.exercises,
   });
   Session.clearDraft();
+  window.dispatchEvent(new CustomEvent('hs:workout-session-changed'));
   renderSummary(result);
 }
 
@@ -665,21 +685,32 @@ function renderSummary(result) {
 }
 
 // ─── Public API ─────────────────────────────────────────────────────────────────
+let _storageFullListenerAdded = false;
+
 export function init(container) {
+  // Limpiar timers anteriores para evitar múltiples intervals corriendo en paralelo
+  clearInterval(_timerInterval);
+  clearInterval(_restInterval);
+  _timerInterval = null;
+  _restInterval  = null;
+
   _root = container;
   _wlViewer = null;
   const draft = Session.getDraft();
   if (draft) { _session = draft; renderActive(); } else { renderIdle(); }
 
-  // Show a persistent in-UI banner when localStorage is full
-  document.addEventListener('hs:storage-full', () => {
-    const banner = _root?.querySelector('#wl-storage-warn');
-    if (!banner) {
-      const b = document.createElement('div');
-      b.id = 'wl-storage-warn';
-      b.style.cssText = 'background:#ef4444;color:#fff;padding:8px 14px;border-radius:8px;font-size:12px;margin-bottom:8px;text-align:center';
-      b.textContent = 'Almacenamiento lleno — el progreso de esta sesión puede no guardarse. Libera espacio o finaliza la sesión.';
-      _root?.prepend(b);
-    }
-  }, { once: true });
+  // Show a persistent in-UI banner when localStorage is full (solo añadir listener una vez)
+  if (!_storageFullListenerAdded) {
+    _storageFullListenerAdded = true;
+    document.addEventListener('hs:storage-full', () => {
+      const banner = _root?.querySelector('#wl-storage-warn');
+      if (!banner) {
+        const b = document.createElement('div');
+        b.id = 'wl-storage-warn';
+        b.style.cssText = 'background:#ef4444;color:#fff;padding:8px 14px;border-radius:8px;font-size:12px;margin-bottom:8px;text-align:center';
+        b.textContent = 'Almacenamiento lleno — el progreso de esta sesión puede no guardarse. Libera espacio o finaliza la sesión.';
+        _root?.prepend(b);
+      }
+    });
+  }
 }

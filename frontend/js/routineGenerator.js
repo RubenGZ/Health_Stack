@@ -1031,10 +1031,18 @@ const RoutineGenerator = (function () {
   }
 
   // ── Init ──────────────────────────────────────────────────────────────────
+  // Usamos onclick para que sea idempotente — múltiples llamadas a init() no duplican listeners
   function init() {
     renderStep();
 
-    document.getElementById('quiz-next')?.addEventListener('click', () => {
+    const nextBtn   = document.getElementById('quiz-next');
+    const prevBtn   = document.getElementById('quiz-prev');
+    const resetBtn  = document.getElementById('btn-reset-routine');
+    const shareBtn2 = document.getElementById('btn-share-routine');
+    const closeBtn  = document.getElementById('share-close');
+    const closeBtn2 = document.getElementById('share-close-2');
+
+    if (nextBtn) nextBtn.onclick = () => {
       if (!validateStep()) return;
       if (currentStep < STEPS.length - 1) {
         currentStep++;
@@ -1043,16 +1051,16 @@ const RoutineGenerator = (function () {
         const routine = generateRoutine(answers);
         showResult(routine);
       }
-    });
+    };
 
-    document.getElementById('quiz-prev')?.addEventListener('click', () => {
+    if (prevBtn) prevBtn.onclick = () => {
       if (currentStep > 0) { currentStep--; renderStep(); }
-    });
+    };
 
-    document.getElementById('btn-reset-routine')?.addEventListener('click', reset);
-    document.getElementById('btn-share-routine')?.addEventListener('click', shareRoutine);
-    document.getElementById('share-close')?.addEventListener('click', closeShareOverlay);
-    document.getElementById('share-close-2')?.addEventListener('click', closeShareOverlay);
+    if (resetBtn)  resetBtn.onclick  = reset;
+    if (shareBtn2) shareBtn2.onclick = shareRoutine;
+    if (closeBtn)  closeBtn.onclick  = closeShareOverlay;
+    if (closeBtn2) closeBtn2.onclick = closeShareOverlay;
 
     try {
       const saved = JSON.parse(localStorage.getItem(LS_KEY) || 'null');

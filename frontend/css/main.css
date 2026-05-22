@@ -1620,7 +1620,7 @@ select.form-input option { background: var(--bg-surface); color: var(--text-prim
   margin-top: 5px;
 }
 .ai-cat-dot--weight   { background: var(--primary); }
-.ai-cat-dot--training { background: #a855f7; }
+.ai-cat-dot--training { background: #a8843e; }
 .ai-cat-dot--nutrition { background: #22c55e; }
 .ai-cat-dot--recovery { background: #3b82f6; }
 .ai-cat-dot--default  { background: var(--text-secondary); }
@@ -3394,13 +3394,13 @@ select.form-input option { background: var(--bg-surface); color: var(--text-prim
 .rest-fab {
   position: fixed; bottom: 28px; right: 28px; z-index: 500;
   width: 56px; height: 56px; border-radius: 50%;
-  background: linear-gradient(135deg, #0891b2, #22d3ee);
+  background: linear-gradient(135deg, #c4a561, #a8843e);
   border: none; cursor: pointer; color: #fff;
   box-shadow: 0 4px 20px rgba(8,145,178,0.45);
   display: flex; align-items: center; justify-content: center;
   transition: transform 0.2s, box-shadow 0.2s;
 }
-.rest-fab:hover { transform: scale(1.08); box-shadow: 0 6px 28px rgba(8,145,178,0.6); }
+.rest-fab:hover { transform: scale(1.08); box-shadow: 0 6px 28px rgba(196,165,97,0.5); }
 .rest-fab:active { transform: scale(0.95); }
 .rest-overlay {
   position: fixed; inset: 0; z-index: 1000;
@@ -3423,7 +3423,7 @@ select.form-input option { background: var(--bg-surface); color: var(--text-prim
 .rest-close:hover { background: rgba(239,68,68,0.15); color: #ef4444; }
 .rest-title {
   font-family: 'Inter', system-ui, sans-serif; font-size: 22px; font-weight: 600; margin-bottom: 24px;
-  background: linear-gradient(90deg, #fff, #22d3ee);
+  background: linear-gradient(90deg, #fff, #c4a561);
   -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent;
 }
 .rest-inputs { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin-bottom: 20px; }
@@ -3437,18 +3437,18 @@ select.form-input option { background: var(--bg-surface); color: var(--text-prim
 .rest-input:focus { outline: none; border-color: rgba(34,211,238,0.6); }
 .rest-start-btn {
   width: 100%; padding: 14px;
-  background: linear-gradient(135deg, #0891b2, #22d3ee);
+  background: linear-gradient(135deg, #c4a561, #a8843e);
   border: none; border-radius: 12px; color: #fff;
   font-size: 15px; font-weight: 600; cursor: pointer;
   transition: opacity 0.15s, transform 0.15s;
 }
 .rest-start-btn:hover { opacity: 0.9; transform: translateY(-1px); }
 .rest-timer-display { text-align: center; }
-.rest-set-type { font-size: 12px; letter-spacing: 3px; text-transform: uppercase; color: #22d3ee; font-weight: 600; margin-bottom: 20px; }
+.rest-set-type { font-size: 12px; letter-spacing: 3px; text-transform: uppercase; color: #c4a561; font-weight: 600; margin-bottom: 20px; }
 .rest-ring-wrap { position: relative; width: 140px; height: 140px; margin: 0 auto 20px; }
 .rest-ring-svg { width: 140px; height: 140px; transform: rotate(-90deg); }
 .rest-ring-track { fill: none; stroke: rgba(255,255,255,0.06); stroke-width: 8; }
-.rest-ring-fill { fill: none; stroke: #22d3ee; stroke-width: 8; stroke-linecap: round; transition: stroke-dashoffset 0.9s linear, stroke 0.5s; }
+.rest-ring-fill { fill: none; stroke: #c4a561; stroke-width: 8; stroke-linecap: round; transition: stroke-dashoffset 0.9s linear, stroke 0.5s; }
 .rest-time-label { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; font-family: 'Inter', system-ui, sans-serif; font-size: 36px; font-weight: 700; color: #e6f4f7; }
 .rest-next-hint { font-size: 13px; color: rgba(255,255,255,0.4); min-height: 20px; margin-bottom: 20px; }
 .rest-skip-btn { background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.1); border-radius: 10px; padding: 10px 24px; color: rgba(255,255,255,0.5); cursor: pointer; font-size: 13px; transition: background 0.15s, color 0.15s; }
@@ -3467,7 +3467,7 @@ select.form-input option { background: var(--bg-surface); color: var(--text-prim
 .receipt-card::before {
   content: '';
   position: absolute; top: 0; left: 0; right: 0; height: 3px;
-  background: linear-gradient(90deg, transparent, #0891b2, #22d3ee, #0891b2, transparent);
+  background: linear-gradient(90deg, transparent, #c4a561, #d4b97a, #c4a561, transparent);
 }
 .receipt-brand {
   text-align: center; margin-bottom: 8px;
@@ -3478,7 +3478,7 @@ select.form-input option { background: var(--bg-surface); color: var(--text-prim
 .receipt-week {
   text-align: center; margin-bottom: 4px;
   font-family: 'Inter', system-ui, sans-serif; font-size: 28px; font-weight: 700;
-  background: linear-gradient(135deg, #fff, #22d3ee);
+  background: linear-gradient(135deg, #fff, #c4a561);
   -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent;
 }
 .receipt-athlete {
@@ -3497,7 +3497,7 @@ select.form-input option { background: var(--bg-surface); color: var(--text-prim
 }
 .receipt-tile-val {
   font-family: 'Inter', system-ui, sans-serif; font-size: 32px; font-weight: 700;
-  color: #22d3ee; display: block; line-height: 1.1;
+  color: #c4a561; display: block; line-height: 1.1;
 }
 .receipt-tile-lbl {
   font-size: 11px; color: rgba(255,255,255,0.35);
@@ -3532,7 +3532,7 @@ select.form-input option { background: var(--bg-surface); color: var(--text-prim
 .ap-bar-val   { font-size: 12px; color: var(--muted-foreground); width: 80px; text-align: right; flex-shrink: 0; }
 .ap-suggest-btn {
   display: flex; align-items: center; gap: 8px;
-  background: linear-gradient(135deg, #0891b2, #22d3ee);
+  background: linear-gradient(135deg, #c4a561, #a8843e);
   border: none; border-radius: 12px; padding: 12px 20px;
   color: #fff; font-size: 14px; font-weight: 600; cursor: pointer;
   transition: opacity 0.15s, transform 0.15s; margin-bottom: 24px;
@@ -3755,7 +3755,7 @@ select.form-input option { background: var(--bg-surface); color: var(--text-prim
 .bcf-bf-val {
   font-size: 42px;
   font-weight: 800;
-  color: #22d3ee;
+  color: #c4a561;
   line-height: 1;
   letter-spacing: -1px;
 }
@@ -3800,7 +3800,7 @@ select.form-input option { background: var(--bg-surface); color: var(--text-prim
   border-radius: 1px;
   flex-shrink: 0;
 }
-.bcf-leg--current .bcf-leg-dot { background: #22d3ee; }
+.bcf-leg--current .bcf-leg-dot { background: #c4a561; }
 .bcf-leg--agg     .bcf-leg-dot { background: #f87171; }
 .bcf-leg--sus     .bcf-leg-dot { background: #10b981; }
 
@@ -3847,7 +3847,7 @@ select.form-input option { background: var(--bg-surface); color: var(--text-prim
   font-size: 13px;
   color: var(--foreground);
 }
-.bcf-radio-group input { accent-color: #0891b2; margin-right: 4px; }
+.bcf-radio-group input { accent-color: #c4a561; margin-right: 4px; }
 
 .bcf-form-grid {
   display: grid;
@@ -3870,7 +3870,7 @@ select.form-input option { background: var(--bg-surface); color: var(--text-prim
 }
 .bcf-input::-webkit-outer-spin-button,
 .bcf-input::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
-.bcf-input:focus { outline: none; border-color: #0891b2; }
+.bcf-input:focus { outline: none; border-color: #c4a561; }
 .bcf-submit { margin-top: 4px; width: 100%; }
 
 /* ── Session Replay ─────────────────────────────────────────── */
@@ -3902,7 +3902,7 @@ select.form-input option { background: var(--bg-surface); color: var(--text-prim
   color: var(--foreground);
   box-sizing: border-box;
 }
-.sr-add-input:focus { outline: none; border-color: #0891b2; }
+.sr-add-input:focus { outline: none; border-color: #c4a561; }
 .sr-add-btn { width: 100%; }
 
 /* Timeline */
@@ -3930,7 +3930,7 @@ select.form-input option { background: var(--bg-surface); color: var(--text-prim
   width: 10px;
   height: 10px;
   border-radius: 50%;
-  background: #0891b2;
+  background: #c4a561;
   border: 2px solid var(--background);
   flex-shrink: 0;
 }
@@ -3955,11 +3955,11 @@ select.form-input option { background: var(--bg-surface); color: var(--text-prim
   gap: 6px;
   margin-bottom: 6px;
 }
-.sr-set-val  { font-size: 20px; font-weight: 700; color: #22d3ee; }
+.sr-set-val  { font-size: 20px; font-weight: 700; color: #c4a561; }
 .sr-set-unit { font-size: 11px; color: var(--muted-foreground); margin-left: 1px; font-weight: 400; }
 .sr-set-sep  { font-size: 14px; color: var(--muted-foreground); }
 .sr-set-note { font-size: 12px; color: var(--muted-foreground); font-style: italic; margin: 4px 0 6px; }
-.sr-audio { width: 100%; height: 28px; margin-top: 6px; accent-color: #0891b2; }
+.sr-audio { width: 100%; height: 28px; margin-top: 6px; accent-color: #c4a561; }
 .sr-rec-btn {
   background: rgba(8,145,178,0.1);
   border: 1px solid rgba(8,145,178,0.3);
@@ -4377,7 +4377,7 @@ select.form-input option { background: var(--bg-surface); color: var(--text-prim
 .wl-start-btn {
   display: inline-flex; align-items: center; gap: 10px;
   font-size: 16px; font-weight: 700; padding: 14px 36px;
-  background: linear-gradient(135deg, #c4a561 0%, #a855f7 100%);
+  background: linear-gradient(135deg, #c4a561 0%, #a8843e 100%);
   border: none; border-radius: 14px; color: #fff; cursor: pointer;
   box-shadow: 0 4px 20px rgba(196, 165, 97,0.45);
   transition: transform 0.15s, box-shadow 0.15s;
@@ -4413,7 +4413,7 @@ select.form-input option { background: var(--bg-surface); color: var(--text-prim
 }
 .wl-rest-progress-fill {
   height: 100%; border-radius: 3px;
-  background: linear-gradient(90deg, #c4a561, #a855f7);
+  background: linear-gradient(90deg, #c4a561, #a8843e);
   transition: width 1s linear;
 }
 .wl-rest-skip {
@@ -4515,7 +4515,7 @@ select.form-input option { background: var(--bg-surface); color: var(--text-prim
   border-radius: 14px; padding: 14px 16px;
   transition: border-color 0.15s;
 }
-.wl-ex-card:focus-within { border-left-color: #a855f7; }
+.wl-ex-card:focus-within { border-left-color: #a8843e; }
 .wl-ex-card-header {
   display: flex; align-items: flex-start;
   justify-content: space-between;
@@ -4704,7 +4704,7 @@ select.form-input option { background: var(--bg-surface); color: var(--text-prim
 .wl-done-btn {
   width: 100%; margin-top: 8px; font-size: 16px;
   padding: 14px; font-weight: 700;
-  background: linear-gradient(135deg, #c4a561, #a855f7);
+  background: linear-gradient(135deg, #c4a561, #a8843e);
   border: none; border-radius: 14px;
   box-shadow: 0 4px 18px rgba(196, 165, 97,0.40);
 }
@@ -6003,7 +6003,7 @@ select.form-input option { background: var(--bg-surface); color: var(--text-prim
 }
 .wl-muscle-bar-fill {
   height: 100%; border-radius: 3px;
-  background: linear-gradient(90deg, #c4a561, #a855f7);
+  background: linear-gradient(90deg, #c4a561, #a8843e);
   transition: width 0.5s cubic-bezier(0.25,0.46,0.45,0.94);
 }
 .wl-muscle-count {
@@ -6254,7 +6254,7 @@ select.form-input option { background: var(--bg-surface); color: var(--text-prim
 }
 .wl-rest-bar-fill {
   height: 100%; border-radius: 99px;
-  background: linear-gradient(90deg, #c4a561, #22d3ee);
+  background: linear-gradient(90deg, #c4a561, #d4b97a);
   transition: width 1s linear;
 }
 

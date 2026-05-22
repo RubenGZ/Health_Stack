@@ -258,7 +258,10 @@
     const nameEl  = document.getElementById('welcome-name');
     const streakEl = document.getElementById('welcome-streak');
     if (greetEl) greetEl.textContent = greet;
-    if (nameEl && user?.username) nameEl.textContent = user.username;
+    if (nameEl) {
+      const displayName = user?.display_name || user?.username || 'Atleta';
+      nameEl.textContent = displayName;
+    }
     if (streakEl) {
       const streak = JSON.parse(localStorage.getItem('hs_gamification') || 'null')?.streak_days;
       streakEl.textContent = streak != null ? `${streak} ${_t('dashboard.days')}` : '—';

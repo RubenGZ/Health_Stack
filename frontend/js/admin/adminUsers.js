@@ -9,6 +9,16 @@ var AdminUsers = (function() {
     try { return JSON.parse(atob(t.split('.')[1].replace(/-/g,'+').replace(/_/g,'/'))); } catch(e) { return null; }
   }
 
+  function esc(str) {
+    if (str == null) return '—';
+    return String(str)
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;')
+      .replace(/'/g, '&#39;');
+  }
+
   function getOwnId() {
     if (_ownId) return _ownId;
     var p = parseJwt(localStorage.getItem('hs_access_token') || '');
@@ -36,8 +46,8 @@ var AdminUsers = (function() {
       var disabledAttr = isSelf ? ' disabled' : '';
       return '<tr>' +
         '<td><span class="tag">' + u.id.substring(0,8) + '</span></td>' +
-        '<td>' + u.email + '</td>' +
-        '<td>' + (u.display_name || '—') + '</td>' +
+        '<td>' + esc(u.email) + '</td>' +
+        '<td>' + esc(u.display_name) + '</td>' +
         '<td>' + badge(u.role, u.role) + '</td>' +
         '<td>' + badge(u.plan, u.plan) + '</td>' +
         '<td>' + badge(u.is_active ? 'active' : 'suspended', u.is_active ? 'Activo' : 'Suspendido') + '</td>' +

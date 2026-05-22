@@ -8,6 +8,17 @@ const MealPlanner = (function () {
 
   const LS_KEY = 'hs_planner';
 
+  // ── Escape HTML (previene XSS en nombres de receta ingresados por el usuario) ─
+  function _esc(str) {
+    if (str == null) return '';
+    return String(str)
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;')
+      .replace(/'/g, '&#39;');
+  }
+
   // ── Base de datos de recetas ───────────────────────────────
   const RECIPES = [
     // Desayuno
@@ -312,7 +323,7 @@ const MealPlanner = (function () {
         <div class="recipe-item" draggable="true" data-recipe-id="${plannerRec.id}"
              title="${plannerRec.desc}">
           <div class="recipe-item-header">
-            <span class="recipe-name">${plannerRec.name}</span>
+            <span class="recipe-name">${_esc(plannerRec.name)}</span>
             <span class="recipe-kcal">${plannerRec.kcal} kcal</span>
           </div>
           <div class="recipe-macros">
@@ -493,7 +504,7 @@ const MealPlanner = (function () {
       const btn = document.createElement('button');
       btn.className = 'btn btn--ghost btn--sm';
       btn.style.cssText = 'text-align:left;width:100%;justify-content:flex-start;display:flex;justify-content:space-between;align-items:center';
-      btn.innerHTML = `<span>${r.name}</span><span style="color:var(--amber);font-size:.75rem;margin-left:8px">${r.kcal} kcal</span>`;
+      btn.innerHTML = `<span>${_esc(r.name)}</span><span style="color:var(--amber);font-size:.75rem;margin-left:8px">${_esc(String(r.kcal))} kcal</span>`;
       btn.addEventListener('click', () => {
         plan[cellKey] = r.id;
         save(); renderGrid(); renderMacros();

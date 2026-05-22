@@ -771,6 +771,74 @@
     window.addEventListener('hs:tdee-calculated', () => updateDashboardStats());
   }
 
+  // ── Offline indicator — banner sutil en la parte superior ─────────────
+  function initOfflineIndicator() {
+    function _getOrCreateBanner() {
+      let el = document.getElementById('hs-offline-banner');
+      if (!el) {
+        el = document.createElement('div');
+        el.id = 'hs-offline-banner';
+        el.setAttribute('role', 'status');
+        el.setAttribute('aria-live', 'polite');
+        el.innerHTML = `
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="flex-shrink:0">
+            <line x1="1" y1="1" x2="23" y2="23"/>
+            <path d="M16.72 11.06A10.94 10.94 0 0 1 19 12.55"/>
+            <path d="M5 12.55a10.94 10.94 0 0 1 5.17-2.39"/>
+            <path d="M10.71 5.05A16 16 0 0 1 22.56 9"/>
+            <path d="M1.42 9a15.91 15.91 0 0 1 4.7-2.88"/>
+            <path d="M8.53 16.11a6 6 0 0 1 6.95 0"/>
+            <line x1="12" y1="20" x2="12.01" y2="20"/>
+          </svg>
+          <span>Sin conexión — Datos guardados localmente</span>`;
+        document.body.appendChild(el);
+
+        // Estilos inline para que funcione sin depender del CSS
+        el.style.cssText = [
+          'position:fixed', 'top:0', 'left:0', 'right:0', 'z-index:9997',
+          'display:flex', 'align-items:center', 'justify-content:center', 'gap:8px',
+          'padding:8px 16px',
+          'background:rgba(15,10,30,0.96)',
+          'border-bottom:1px solid rgba(239,68,68,0.35)',
+          'color:#f87171', 'font-size:0.78rem', 'font-weight:600',
+          'letter-spacing:0.01em',
+          'backdrop-filter:blur(12px)',
+          'transform:translateY(-100%)',
+          'transition:transform 0.3s cubic-bezier(0.16,1,0.3,1)',
+        ].join(';');
+      }
+      return el;
+    }
+
+    function _show() {
+      const el = _getOrCreateBanner();
+      requestAnimationFrame(() => { el.style.transform = 'translateY(0)'; });
+    }
+    function _hide() {
+      const el = document.getElementById('hs-offline-banner');
+      if (el) el.style.transform = 'translateY(-100%)';
+    }
+
+    if (!navigator.onLine) _show();
+    window.addEventListener('offline', _show);
+    window.addEventListener('online',  _hide);
+  }
+
+  // ── Haptic feedback — vibración en eventos clave ───────────────────────
+  window.haptic = {
+    light:   () => navigator.vibrate?.([8]),
+    medium:  () => navigator.vibrate?.([20]),
+    heavy:   () => navigator.vibrate?.([40]),
+    success: () => navigator.vibrate?.([10, 30, 10]),
+    pr:      () => navigator.vibrate?.([20, 40, 20, 40, 60]),
+    error:   () => navigator.vibrate?.([80]),
+  };
+
+  // Hook automático: vibrar en PR (hs:pr-achieved) y en set completado
+  window.addEventListener('hs:pr-achieved', () => window.haptic.pr());
+  window.addEventListener('hs:set-completed', () => window.haptic.light());
+  window.addEventListener('hs:workout-finished', () => window.haptic.success());
+
   // ── Init global ───────────────────────────────────────────
   function init() {
     initNavigation();
@@ -851,6 +919,7 @@
     renderProgressInsight();
     renderSponsorBanner();
     initPWAInstall();
+    initOfflineIndicator();
 
     // Plan gating — must run after DOM is ready
     if (typeof Plan !== 'undefined') Plan.init();

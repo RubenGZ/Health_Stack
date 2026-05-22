@@ -1062,6 +1062,13 @@ function renderSets(ex) {
           setNow._isPR = true;
           const orm = ORM.best1RM(setNow.weightKg, setNow.reps);
           _enqueuePRToast(ex2.name, prResult.type, prResult.delta, orm);
+          // Haptic PR — patrón distintivo
+          window.haptic?.pr();
+          window.dispatchEvent(new CustomEvent('hs:pr-achieved', { detail: { exerciseKey: key } }));
+        } else {
+          // Haptic set completado — ligero
+          window.haptic?.light();
+          window.dispatchEvent(new CustomEvent('hs:set-completed'));
         }
 
         // Rest timer con tiempo del ejercicio

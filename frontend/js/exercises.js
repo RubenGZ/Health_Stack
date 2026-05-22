@@ -366,20 +366,66 @@ const Exercises = (function () {
       grid.innerHTML = '<p style="color:var(--text-muted);grid-column:1/-1;padding:24px">' + _t('exercises.no_results') + '</p>';
       return;
     }
-    grid.innerHTML = list.map(ex => `
+    // Mapa de colores por grupo muscular para chips
+    const GROUP_COLORS = {
+      pecho:    { bg: 'rgba(239,68,68,0.12)',   border: 'rgba(239,68,68,0.28)',   color: '#f87171' },
+      espalda:  { bg: 'rgba(59,130,246,0.12)',  border: 'rgba(59,130,246,0.28)',  color: '#60a5fa' },
+      piernas:  { bg: 'rgba(34,197,94,0.12)',   border: 'rgba(34,197,94,0.28)',   color: '#4ade80' },
+      hombros:  { bg: 'rgba(168,85,247,0.12)',  border: 'rgba(168,85,247,0.28)',  color: '#c084fc' },
+      brazos:   { bg: 'rgba(245,158,11,0.12)',  border: 'rgba(245,158,11,0.28)',  color: '#fbbf24' },
+      core:     { bg: 'rgba(20,184,166,0.12)',  border: 'rgba(20,184,166,0.28)',  color: '#2dd4bf' },
+      gluteos:  { bg: 'rgba(249,115,22,0.12)',  border: 'rgba(249,115,22,0.28)',  color: '#fb923c' },
+      cardio:   { bg: 'rgba(236,72,153,0.12)',  border: 'rgba(236,72,153,0.28)',  color: '#f472b6' },
+    };
+
+    // Lookup último entreno para badge "última vez"
+    const history = (() => { try { return JSON.parse(localStorage.getItem('hs_workout_sessions_local') || '[]'); } catch { return []; } })();
+    function _getLastWorkoutDate(exName) {
+      const lowerName = exName.toLowerCase();
+      for (let i = history.length - 1; i >= 0; i--) {
+        const s = history[i];
+        if (s.exercises && s.exercises.some(e => e.name.toLowerCase() === lowerName)) {
+          return new Date(s.endedAt || s.startedAt);
+        }
+      }
+      return null;
+    }
+    function _fmtLastDate(d) {
+      if (!d) return null;
+      const now  = new Date();
+      const diff = Math.floor((now - d) / 86400000);
+      if (diff === 0) return 'Hoy';
+      if (diff === 1) return 'Ayer';
+      if (diff < 7)  return `Hace ${diff} días`;
+      if (diff < 14) return 'Hace 1 sem.';
+      return d.toLocaleDateString('es-ES', { day: 'numeric', month: 'short' });
+    }
+
+    grid.innerHTML = list.map(ex => {
+      const gc  = GROUP_COLORS[ex.group] || { bg: 'rgba(148,163,184,0.10)', border: 'rgba(148,163,184,0.20)', color: '#94a3b8' };
+      const groupLabel = MUSCLE_GROUPS.find(g => g.id === ex.group)?.label || ex.group;
+      const tagStyle   = `background:${gc.bg};border:1px solid ${gc.border};color:${gc.color}`;
+
+      const lastDate  = _getLastWorkoutDate(ex.name);
+      const lastLabel = _fmtLastDate(lastDate);
+      const lastBadge = lastLabel
+        ? `<span class="ex-last-badge" title="Último entreno">⏱ ${lastLabel}</span>` : '';
+
+      return `
       <div class="exercise-card${activeExId === ex.id ? ' active' : ''}" data-id="${ex.id}" tabindex="0" role="button">
         <div class="ex-header">
           <span class="ex-name">${ex.name}</span>
           <span class="ex-level" style="color:${levelColor(ex.level)}">${ex.level}</span>
         </div>
         <div class="ex-meta">
-          <span class="ex-tag">${MUSCLE_GROUPS.find(g => g.id === ex.group)?.label || ex.group}</span>
+          <span class="ex-tag" style="${tagStyle}">${groupLabel}</span>
           <span class="ex-equip">${ex.equipment}</span>
+          ${lastBadge}
         </div>
         <p class="ex-desc">${ex.desc}</p>
         ${ex.video_url ? `<a class="ex-video-link" href="${ex.video_url}" target="_blank" rel="noopener" onclick="event.stopPropagation()">▶ ${_t('exercises.see_technique')}</a>` : ''}
       </div>
-    `).join('');
+    `}).join('');
 
     grid.querySelectorAll('.exercise-card').forEach(card => {
       card.addEventListener('click', () => selectExercise(parseInt(card.dataset.id)));

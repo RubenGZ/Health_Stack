@@ -52,7 +52,7 @@ var Plan = (function () {
   function _showToast(msg) {
     var t = document.createElement('div');
     t.style.cssText = 'position:fixed;bottom:80px;left:50%;transform:translateX(-50%);' +
-      'background:#6c63ff;color:#fff;padding:10px 18px;border-radius:8px;font-size:.85rem;' +
+      'background:#c4a561;color:#fff;padding:10px 18px;border-radius:8px;font-size:.85rem;' +
       'z-index:9999;box-shadow:0 4px 16px rgba(0,0,0,.3);pointer-events:none;';
     t.textContent = msg;
     document.body.appendChild(t);
@@ -185,7 +185,7 @@ var Plan = (function () {
 
   var ORDER    = { free: 0, pro: 1, elite: 2 };
   var LABELS   = { free: 'Starter', pro: 'Pro', elite: 'Elite' };
-  var COLORS   = { free: '#64748b', pro: '#6c63ff', elite: '#f59e0b' };
+  var COLORS   = { free: '#64748b', pro: '#c4a561', elite: '#f59e0b' };
 
   function getFeatureNames() {
     return {

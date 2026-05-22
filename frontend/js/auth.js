@@ -23,7 +23,7 @@
               <path d="M16 3L29 9.5V22.5L16 29L3 22.5V9.5L16 3Z" stroke="url(#authg)" stroke-width="2" fill="none"/>
               <path d="M8 16H24M16 8V24" stroke="url(#authg)" stroke-width="2" stroke-linecap="round"/>
               <defs><linearGradient id="authg" x1="3" y1="3" x2="29" y2="29">
-                <stop offset="0%" stop-color="#6c63ff"/>
+                <stop offset="0%" stop-color="#c4a561"/>
                 <stop offset="100%" stop-color="#00d2ff"/>
               </linearGradient></defs>
             </svg>

@@ -35,7 +35,7 @@ var Readiness = (function () {
   function getStrokeColor(score) {
     if (score >= 80) return '#10b981';
     if (score >= 50) return '#f59e0b';
-    return '#8b5cf6';
+    return '#c4a561';
   }
 
   function render(score) {

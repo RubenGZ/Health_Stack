@@ -95,8 +95,8 @@ const MacroCalc = (function () {
         labels: ['Proteína', 'Grasa', 'Hidratos'],
         datasets: [{
           data: [proteinKcal, fatKcal, carbsKcal],
-          backgroundColor: ['#6c63ff', '#f59e0b', '#00d2ff'],
-          borderColor:     ['#6c63ff', '#f59e0b', '#00d2ff'],
+          backgroundColor: ['#c4a561', '#f59e0b', '#00d2ff'],
+          borderColor:     ['#c4a561', '#f59e0b', '#00d2ff'],
           borderWidth: 0,
           hoverOffset: 6,
         }],

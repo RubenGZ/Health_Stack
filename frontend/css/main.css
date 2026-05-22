@@ -898,7 +898,7 @@ select.form-input option { background: var(--bg-surface); color: var(--text-prim
 }
 .btn:active::after { opacity: 1; }
 .btn--primary {
-  background: linear-gradient(135deg, var(--primary), #8b5cf6);
+  background: linear-gradient(135deg, var(--primary), #a8843e);
   color: white;
   box-shadow: 0 4px 16px var(--primary-glow);
 }
@@ -1424,7 +1424,7 @@ select.form-input option { background: var(--bg-surface); color: var(--text-prim
   padding: 5px 10px;
   border: none;
   border-radius: 5px;
-  background: linear-gradient(135deg, var(--primary), var(--accent, #8b5cf6));
+  background: linear-gradient(135deg, var(--primary), #a8843e);
   color: #fff;
   font-size: 0.78rem;
   font-weight: 600;
@@ -3329,7 +3329,7 @@ select.form-input option { background: var(--bg-surface); color: var(--text-prim
 }
 .readiness-badge--push     { background: rgba(16,185,129,0.18); color: #10b981; }
 .readiness-badge--moderate { background: rgba(245,158,11,0.18); color: #f59e0b; }
-.readiness-badge--rest     { background: rgba(139,92,246,0.18); color: #8b5cf6; }
+.readiness-badge--rest     { background: rgba(168,132,62,0.18); color: #a8843e; }
 
 @media (prefers-reduced-motion: reduce) {
   .readiness-dial__fill { transition: none; }
@@ -3350,7 +3350,7 @@ select.form-input option { background: var(--bg-surface); color: var(--text-prim
   background: rgba(139,92,246,0.15);
   border-radius: 10px;
   display: flex; align-items: center; justify-content: center;
-  color: #8b5cf6; font-size: 20px;
+  color: #c4a561; font-size: 20px;
 }
 .projection-body { flex: 1; }
 .projection-headline { font-size: 16px; font-weight: 700; color: var(--foreground); margin: 0 0 4px; }

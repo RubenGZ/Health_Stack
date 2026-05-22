@@ -240,8 +240,8 @@ const MealPlanner = (function () {
           <p class="pmacro-sub">${subtitle}</p>
           <div class="pmacro-bars">
             <div class="pmacro-bar-row">
-              <div class="pmacro-bar-label"><span class="pmacro-dot" style="background:#6c63ff"></span>Proteína</div>
-              <div class="pmacro-bar-track"><div class="pmacro-bar-fill" style="width:${pP}%;background:#6c63ff"></div></div>
+              <div class="pmacro-bar-label"><span class="pmacro-dot" style="background:#c4a561"></span>Proteína</div>
+              <div class="pmacro-bar-track"><div class="pmacro-bar-fill" style="width:${pP}%;background:#c4a561"></div></div>
               <div class="pmacro-bar-value">${Math.round(totals.p)}g <small>${pP}%</small></div>
             </div>
             <div class="pmacro-bar-row">
@@ -270,7 +270,7 @@ const MealPlanner = (function () {
         labels: ['Proteína', 'Hidratos', 'Grasa'],
         datasets: [{
           data: [totals.p * 4, totals.c * 4, totals.f * 9],
-          backgroundColor: ['#6c63ff', '#00d2ff', '#f59e0b'],
+          backgroundColor: ['#c4a561', '#00d2ff', '#f59e0b'],
           borderWidth: 0,
           hoverOffset: 6,
         }],

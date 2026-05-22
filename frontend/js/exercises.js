@@ -32,12 +32,12 @@ const Exercises = (function () {
   // ── Base de datos ──────────────────────────────────────────
   const MUSCLE_GROUPS = [
     { id: 'all',       label: 'Todos',        color: '#94a3b8' },
-    { id: 'pecho',     label: 'Pecho',        color: '#6c63ff' },
+    { id: 'pecho',     label: 'Pecho',        color: '#c4a561' },
     { id: 'espalda',   label: 'Espalda',      color: '#00d2ff' },
     { id: 'hombros',   label: 'Hombros',      color: '#f59e0b' },
     { id: 'brazos',    label: 'Brazos',       color: '#10b981' },
     { id: 'core',      label: 'Core',         color: '#ff6584' },
-    { id: 'piernas',   label: 'Piernas',      color: '#a78bfa' },
+    { id: 'piernas',   label: 'Piernas',      color: '#d4b97a' },
     { id: 'gluteos',   label: 'Glúteos',      color: '#fb923c' },
     { id: 'cardio',    label: 'Cardio',       color: '#22d3ee' },
   ];
@@ -217,7 +217,7 @@ const Exercises = (function () {
   <defs>
     <style>
       .m { fill: rgba(255,255,255,0.06); stroke: rgba(255,255,255,0.15); stroke-width:1; transition: fill 0.3s, stroke 0.3s; cursor:default; }
-      .m.active { fill: rgba(108,99,255,0.55); stroke: #6c63ff; stroke-width:1.5; }
+      .m.active { fill: rgba(196,165,97,0.55); stroke: #c4a561; stroke-width:1.5; }
       .m.secondary { fill: rgba(0,210,255,0.3); stroke: #00d2ff; stroke-width:1; }
     </style>
   </defs>
@@ -498,7 +498,7 @@ const Exercises = (function () {
     if (!legend) return;
     legend.innerHTML = muscles.map((m, i) => `
       <span class="legend-item">
-        <span class="legend-dot" style="background:${i === 0 ? '#6c63ff' : '#00d2ff'}"></span>
+        <span class="legend-dot" style="background:${i === 0 ? '#c4a561' : '#00d2ff'}"></span>
         ${muscleLabel(m)}
       </span>
     `).join('');

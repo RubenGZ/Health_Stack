@@ -6,11 +6,11 @@ function _t(key) { return (window.t && window.t(key)) || key; }
 const TIER_COLORS = {
   // Normal
   novato:       '#6b7280', regular:      '#10b981', constante:    '#22d3ee',
-  comprometido: '#3b82f6', veterano:     '#8b5cf6', forjado:      '#f59e0b',
+  comprometido: '#3b82f6', veterano:     '#c4a561', forjado:      '#f59e0b',
   elite:        '#ef4444', leyenda:      '#fbbf24',
   // Competitivo
   calentando:   '#6b7280', amateur:      '#10b981', semipro:      '#22d3ee',
-  bestia:       '#3b82f6', titan:        '#8b5cf6', fenomeno:     '#f59e0b',
+  bestia:       '#3b82f6', titan:        '#c4a561', fenomeno:     '#f59e0b',
   invicto:      '#ef4444', apex:         '#fbbf24',
 };
 
@@ -83,7 +83,7 @@ function renderRanked(container, profile, gyms) {
 }
 
 function queueCard(label, q) {
-  const color   = TIER_COLORS[q.tier] || '#7c6bff';
+  const color   = TIER_COLORS[q.tier] || '#c4a561';
   const tierLbl = TIER_LABELS[q.tier] || q.tier;
   const isTop   = q.tier === 'leyenda' || q.tier === 'apex';
   const divNums = ['I','II','III','IV'];

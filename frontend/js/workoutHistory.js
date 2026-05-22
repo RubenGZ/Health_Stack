@@ -320,7 +320,7 @@ function _drawOrmChart(canvas, history, currentOrm) {
   const toY = v => H - PAD - ((v - minVal) / range) * (H - PAD * 2);
 
   ctx.clearRect(0, 0, W, H);
-  ctx.beginPath(); ctx.strokeStyle = '#6c63ff'; ctx.lineWidth = 2;
+  ctx.beginPath(); ctx.strokeStyle = '#c4a561'; ctx.lineWidth = 2;
   points.forEach((p, i) => i === 0 ? ctx.moveTo(toX(i), toY(p.val)) : ctx.lineTo(toX(i), toY(p.val)));
   ctx.stroke();
 
@@ -328,7 +328,7 @@ function _drawOrmChart(canvas, history, currentOrm) {
     const isLast = i === points.length - 1;
     ctx.beginPath();
     ctx.arc(toX(i), toY(p.val), isLast ? 5 : 3, 0, Math.PI * 2);
-    ctx.fillStyle = isLast ? '#f59e0b' : '#6c63ff';
+    ctx.fillStyle = isLast ? '#f59e0b' : '#c4a561';
     ctx.fill();
     if (isLast) {
       ctx.fillStyle = '#f59e0b'; ctx.font = 'bold 11px system-ui';
@@ -389,7 +389,7 @@ function drawVolumeChart(container, sessions) {
 
   // Línea de progresión
   ctx.beginPath();
-  ctx.strokeStyle = '#7c6bff';
+  ctx.strokeStyle = '#c4a561';
   ctx.lineWidth = 2;
   points.forEach((p, i) =>
     i === 0 ? ctx.moveTo(toX(i), toY(p.val)) : ctx.lineTo(toX(i), toY(p.val))
@@ -400,7 +400,7 @@ function drawVolumeChart(container, sessions) {
   points.forEach((p, i) => {
     ctx.beginPath();
     ctx.arc(toX(i), toY(p.val), 4, 0, Math.PI * 2);
-    ctx.fillStyle = '#7c6bff';
+    ctx.fillStyle = '#c4a561';
     ctx.fill();
 
     ctx.fillStyle = 'rgba(255,255,255,0.7)';

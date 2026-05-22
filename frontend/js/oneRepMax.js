@@ -40,7 +40,7 @@ const ZONES = [
   { maxReps: 1,  key: 'strength_max',  label: 'Fuerza máxima',        color: '#ef4444' },
   { maxReps: 3,  key: 'strength',      label: 'Fuerza',               color: '#f97316' },
   { maxReps: 5,  key: 'strength_hyp',  label: 'Fuerza-Hipertrofia',   color: '#eab308' },
-  { maxReps: 8,  key: 'hypertrophy',   label: 'Hipertrofia',          color: '#8b5cf6' },
+  { maxReps: 8,  key: 'hypertrophy',   label: 'Hipertrofia',          color: '#c4a561' },
   { maxReps: 12, key: 'hyp_endurance', label: 'Hipertrofia-Resistencia', color: '#3b82f6' },
   { maxReps: 999,key: 'endurance',     label: 'Resistencia',          color: '#22d3ee' },
 ];

@@ -6,7 +6,7 @@
 const SVG_NS  = 'http://www.w3.org/2000/svg';
 const VIEWBOX = '0 0 72 93';
 
-const COLOR_PRIMARY   = '#7c6bff';
+const COLOR_PRIMARY   = '#c4a561';
 const COLOR_SECONDARY = '#00c8ee';
 const COLOR_BASE      = '#252545';
 const COLOR_BG        = '#9999cc';

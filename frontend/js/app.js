@@ -1057,4 +1057,10 @@
 
   // Exponer navigateTo globalmente para mobileNav.js y otros módulos externos
   window.navigateTo = navigateTo;
+
+  // ── Theme Manager: inicializar picker en sidebar ──────────────
+  if (typeof ThemeManager !== 'undefined') {
+    ThemeManager.init();
+    ThemeManager.renderPicker(document.getElementById('theme-picker-root'));
+  }
 })();

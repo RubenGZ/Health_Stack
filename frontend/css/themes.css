@@ -1,0 +1,507 @@
+/* ============================================================
+   themes.css — Sistema de temas HealthStack Pro
+   3 temas para 3 arquetipos de usuario fitness
+
+   Uso: <html data-theme="forge|midnight|aurora">
+   El tema por defecto (sin data-theme) es "forge".
+   ============================================================ */
+
+/* ══════════════════════════════════════════════════════════════
+   TEMA 1: FORGE — El original. Negro profundo y dorado.
+   Para los que van en serio. Ya es el tema base de main.css.
+   Se define aquí para claridad, pero main.css lo hereda.
+   ══════════════════════════════════════════════════════════════ */
+html[data-theme="forge"],
+html:not([data-theme]) {
+  --hs-bg:          #07070f;
+  --hs-surface:     #0f0f1a;
+  --hs-surface-2:   #161626;
+  --hs-border:      rgba(255, 255, 255, 0.07);
+  --hs-border-2:    rgba(255, 255, 255, 0.12);
+  --hs-text:        #e2e8f0;
+  --hs-text-2:      rgba(255, 255, 255, 0.45);
+  --hs-text-3:      rgba(255, 255, 255, 0.22);
+  --hs-accent:      #c4a561;
+  --hs-accent-dim:  rgba(196, 165, 97, 0.15);
+  --hs-accent-glow: rgba(196, 165, 97, 0.08);
+  --shadow-card:    0 4px 24px rgba(0, 0, 0, 0.45);
+  --shadow-glow:    0 0 40px rgba(196, 165, 97, 0.12);
+  --mesh-1: radial-gradient(ellipse 60% 50% at 75% 10%,  rgba(196,165,97,0.10) 0%, transparent 65%);
+  --mesh-2: radial-gradient(ellipse 45% 40% at 15% 85%,  rgba(196,165,97,0.06) 0%, transparent 60%);
+  --mesh-3: radial-gradient(ellipse 35% 30% at 90% 60%,  rgba(212,185,122,0.05) 0%, transparent 55%);
+  /* Aliases de compatibilidad */
+  --primary:       #c4a561;
+  --primary-light: rgba(196,165,97,0.15);
+  --primary-glow:  rgba(196,165,97,0.35);
+  --secondary:     #d4b97a;
+  --secondary-light: rgba(212,185,122,0.15);
+  --bg-base:       #07070f;
+  --bg-surface:    #0f0f1a;
+  --glass-bg:      rgba(196,165,97,0.08);
+  --glass-border:  rgba(255,255,255,0.07);
+  --glass-hover:   rgba(196,165,97,0.15);
+}
+
+/* ══════════════════════════════════════════════════════════════
+   TEMA 2: MIDNIGHT — Puro negro. Máximo contraste. OLED.
+   Diseñado para performance: runners, CrossFit, atletas serios.
+   Negro perfecto para OLED + azul eléctrico crisp.
+   ══════════════════════════════════════════════════════════════ */
+html[data-theme="midnight"] {
+  --hs-bg:          #000000;
+  --hs-surface:     #0d0d0d;
+  --hs-surface-2:   #161616;
+  --hs-border:      rgba(255, 255, 255, 0.09);
+  --hs-border-2:    rgba(255, 255, 255, 0.16);
+  --hs-text:        #ffffff;
+  --hs-text-2:      rgba(255, 255, 255, 0.50);
+  --hs-text-3:      rgba(255, 255, 255, 0.28);
+  --hs-accent:      #4f9cf4;
+  --hs-accent-dim:  rgba(79, 156, 244, 0.12);
+  --hs-accent-glow: rgba(79, 156, 244, 0.08);
+  --shadow-card:    0 4px 20px rgba(0, 0, 0, 0.65);
+  --shadow-glow:    0 0 40px rgba(79, 156, 244, 0.10);
+  --mesh-1: radial-gradient(ellipse 50% 40% at 80%  5%,  rgba(79,156,244,0.07) 0%, transparent 60%);
+  --mesh-2: radial-gradient(ellipse 40% 35% at 10%  90%, rgba(79,156,244,0.04) 0%, transparent 55%);
+  --mesh-3: radial-gradient(ellipse 30% 25% at 95%  55%, rgba(120,180,255,0.04) 0%, transparent 50%);
+  /* Aliases de compatibilidad */
+  --primary:       #4f9cf4;
+  --primary-light: rgba(79,156,244,0.12);
+  --primary-glow:  rgba(79,156,244,0.30);
+  --secondary:     #7ab8ff;
+  --secondary-light: rgba(122,184,255,0.12);
+  --bg-base:       #000000;
+  --bg-surface:    #0d0d0d;
+  --glass-bg:      rgba(255,255,255,0.04);
+  --glass-border:  rgba(255,255,255,0.09);
+  --glass-hover:   rgba(79,156,244,0.12);
+}
+
+/* Midnight: sidebar más oscuro, border más marcado */
+html[data-theme="midnight"] .sidebar {
+  background: rgba(0, 0, 0, 0.95);
+  border-right-color: rgba(255,255,255,0.08);
+}
+
+/* Midnight: nav activa con acento azul */
+html[data-theme="midnight"] .nav-item.active {
+  background: rgba(79,156,244,0.12);
+  color: #4f9cf4;
+  border-color: rgba(79,156,244,0.20);
+}
+html[data-theme="midnight"] .nav-item.active::before {
+  background: #4f9cf4;
+  box-shadow: 0 0 8px rgba(79,156,244,0.5);
+}
+html[data-theme="midnight"] .nav-item.active .nav-icon svg {
+  stroke: #4f9cf4;
+}
+
+/* Midnight: stat cards con borde top azul */
+html[data-theme="midnight"] .stat-card[data-accent],
+html[data-theme="midnight"] .stat-card {
+  border-top-color: rgba(79,156,244,0.4) !important;
+}
+html[data-theme="midnight"] .stat-card[data-accent]:hover {
+  border-color: rgba(79,156,244,0.35) !important;
+  box-shadow: 0 8px 32px rgba(79,156,244,0.10), var(--shadow-card) !important;
+}
+
+/* Midnight: chip activo */
+html[data-theme="midnight"] .chip--active,
+html[data-theme="midnight"] .chip:hover {
+  background: rgba(79,156,244,0.15);
+  border-color: #4f9cf4;
+}
+
+/* Midnight: buttons */
+html[data-theme="midnight"] .btn--primary {
+  background: linear-gradient(135deg, #4f9cf4, #2c7de8);
+  color: #fff;
+  box-shadow: 0 4px 16px rgba(79,156,244,0.28);
+}
+html[data-theme="midnight"] .btn--primary:hover {
+  box-shadow: 0 6px 20px rgba(79,156,244,0.40);
+}
+
+/* Midnight: modal con borde azul */
+html[data-theme="midnight"] .modal {
+  background: rgba(6, 6, 6, 0.98) !important;
+  border-color: rgba(79,156,244,0.16) !important;
+  box-shadow: 0 0 0 1px rgba(79,156,244,0.06),
+              0 24px 64px rgba(0,0,0,0.85),
+              0 0 80px rgba(79,156,244,0.04) inset !important;
+}
+html[data-theme="midnight"] .modal::before {
+  background: linear-gradient(90deg, transparent, rgba(79,156,244,0.4), transparent) !important;
+}
+
+/* Midnight: form inputs */
+html[data-theme="midnight"] .form-input:focus {
+  border-color: #4f9cf4 !important;
+  box-shadow: 0 0 0 3px rgba(79,156,244,0.15) !important;
+  background: rgba(79,156,244,0.04) !important;
+}
+
+/* Midnight: welcome card */
+html[data-theme="midnight"] .welcome-card {
+  background: linear-gradient(135deg, rgba(79,156,244,0.06) 0%, rgba(79,156,244,0.02) 100%) !important;
+  border-color: rgba(79,156,244,0.14) !important;
+}
+
+/* Midnight: quick-card hover */
+html[data-theme="midnight"] .quick-card:hover:not(.quick-card--soon) {
+  background: rgba(79,156,244,0.10) !important;
+  border-color: rgba(79,156,244,0.30) !important;
+  box-shadow: 0 4px 20px rgba(79,156,244,0.10), var(--shadow-card) !important;
+}
+html[data-theme="midnight"] .quick-card:hover:not(.quick-card--soon) .quick-icon {
+  color: #4f9cf4 !important;
+}
+
+/* Midnight: brand logo área */
+html[data-theme="midnight"] .brand-logo {
+  background: rgba(79,156,244,0.10);
+}
+
+/* Midnight: focus ring */
+html[data-theme="midnight"] :focus-visible {
+  outline-color: rgba(79,156,244,0.7);
+}
+
+/* Midnight: formula badge */
+html[data-theme="midnight"] .formula-badge,
+html[data-theme="midnight"] .soon-feature {
+  background: rgba(79,156,244,0.12) !important;
+  color: #4f9cf4 !important;
+  border-color: rgba(79,156,244,0.22) !important;
+}
+
+/* Midnight: Cal cards */
+html[data-theme="midnight"] .cal-card--tdee .cal-value,
+html[data-theme="midnight"] .cal-card--tdee  { color: #4f9cf4 !important; border-color: rgba(79,156,244,0.25) !important; }
+html[data-theme="midnight"] .cal-card--target .cal-value { color: #7ab8ff !important; }
+
+/* Midnight: section header border */
+html[data-theme="midnight"] .section-header {
+  border-bottom-color: rgba(79,156,244,0.10) !important;
+}
+
+/* Midnight: muscle-tab active */
+html[data-theme="midnight"] .muscle-tab.active {
+  background: rgba(79,156,244,0.15) !important;
+  border-color: #4f9cf4 !important;
+  color: #4f9cf4 !important;
+}
+
+/* ══════════════════════════════════════════════════════════════
+   TEMA 3: AURORA — Violeta oscuro. Diferente. Para los que destacan.
+   Diseñado para aesthetic fitness: cuerpo, nutrición, bienestar.
+   Purple-dark + violet — único en el mercado de fitness apps.
+   ══════════════════════════════════════════════════════════════ */
+html[data-theme="aurora"] {
+  --hs-bg:          #08061a;
+  --hs-surface:     #110e28;
+  --hs-surface-2:   #1a163c;
+  --hs-border:      rgba(167, 139, 250, 0.10);
+  --hs-border-2:    rgba(167, 139, 250, 0.18);
+  --hs-text:        #f0eeff;
+  --hs-text-2:      rgba(240, 238, 255, 0.45);
+  --hs-text-3:      rgba(240, 238, 255, 0.22);
+  --hs-accent:      #a78bfa;
+  --hs-accent-dim:  rgba(167, 139, 250, 0.14);
+  --hs-accent-glow: rgba(167, 139, 250, 0.08);
+  --shadow-card:    0 4px 24px rgba(0, 0, 0, 0.55);
+  --shadow-glow:    0 0 40px rgba(167, 139, 250, 0.14);
+  --mesh-1: radial-gradient(ellipse 65% 55% at 80%  5%,  rgba(167,139,250,0.12) 0%, transparent 65%);
+  --mesh-2: radial-gradient(ellipse 50% 45% at 10%  90%, rgba(139,92,246,0.08)  0%, transparent 60%);
+  --mesh-3: radial-gradient(ellipse 40% 35% at 50%  50%, rgba(196,165,255,0.04) 0%, transparent 55%);
+  /* Aliases de compatibilidad */
+  --primary:       #a78bfa;
+  --primary-light: rgba(167,139,250,0.14);
+  --primary-glow:  rgba(167,139,250,0.35);
+  --secondary:     #c4b5fd;
+  --secondary-light: rgba(196,181,253,0.14);
+  --bg-base:       #08061a;
+  --bg-surface:    #110e28;
+  --glass-bg:      rgba(167,139,250,0.06);
+  --glass-border:  rgba(167,139,250,0.10);
+  --glass-hover:   rgba(167,139,250,0.14);
+}
+
+/* Aurora: sidebar con tinte violeta */
+html[data-theme="aurora"] .sidebar {
+  background: rgba(8, 5, 20, 0.92);
+  border-right-color: rgba(167,139,250,0.12);
+}
+
+/* Aurora: nav activa con acento violeta */
+html[data-theme="aurora"] .nav-item.active {
+  background: rgba(167,139,250,0.12);
+  color: #a78bfa;
+  border-color: rgba(167,139,250,0.22);
+}
+html[data-theme="aurora"] .nav-item.active::before {
+  background: #a78bfa;
+  box-shadow: 0 0 10px rgba(167,139,250,0.6);
+}
+html[data-theme="aurora"] .nav-item.active .nav-icon svg {
+  stroke: #a78bfa;
+}
+
+/* Aurora: stat cards */
+html[data-theme="aurora"] .stat-card[data-accent],
+html[data-theme="aurora"] .stat-card {
+  border-top-color: rgba(167,139,250,0.45) !important;
+}
+html[data-theme="aurora"] .stat-card[data-accent]:hover {
+  border-color: rgba(167,139,250,0.35) !important;
+  box-shadow: 0 8px 32px rgba(167,139,250,0.12), var(--shadow-card) !important;
+}
+
+/* Aurora: chips */
+html[data-theme="aurora"] .chip--active,
+html[data-theme="aurora"] .chip:hover {
+  background: rgba(167,139,250,0.14);
+  border-color: #a78bfa;
+  color: #a78bfa;
+}
+
+/* Aurora: buttons */
+html[data-theme="aurora"] .btn--primary {
+  background: linear-gradient(135deg, #a78bfa, #7c3aed);
+  color: #fff;
+  box-shadow: 0 4px 16px rgba(167,139,250,0.30);
+}
+html[data-theme="aurora"] .btn--primary:hover {
+  box-shadow: 0 6px 20px rgba(167,139,250,0.42);
+  filter: brightness(1.08);
+}
+
+/* Aurora: modal */
+html[data-theme="aurora"] .modal {
+  background: rgba(10, 7, 25, 0.97) !important;
+  border-color: rgba(167,139,250,0.18) !important;
+  box-shadow: 0 0 0 1px rgba(167,139,250,0.08),
+              0 24px 64px rgba(0,0,0,0.80),
+              0 0 80px rgba(167,139,250,0.06) inset !important;
+}
+html[data-theme="aurora"] .modal::before {
+  background: linear-gradient(90deg, transparent, rgba(167,139,250,0.50), transparent) !important;
+}
+
+/* Aurora: form inputs */
+html[data-theme="aurora"] .form-input:focus {
+  border-color: #a78bfa !important;
+  box-shadow: 0 0 0 3px rgba(167,139,250,0.18) !important;
+  background: rgba(167,139,250,0.05) !important;
+}
+
+/* Aurora: welcome card */
+html[data-theme="aurora"] .welcome-card {
+  background: linear-gradient(135deg, rgba(167,139,250,0.10) 0%, rgba(167,139,250,0.03) 100%) !important;
+  border-color: rgba(167,139,250,0.18) !important;
+}
+
+/* Aurora: quick-card hover */
+html[data-theme="aurora"] .quick-card:hover:not(.quick-card--soon) {
+  background: rgba(167,139,250,0.10) !important;
+  border-color: rgba(167,139,250,0.30) !important;
+  box-shadow: 0 4px 20px rgba(167,139,250,0.12), var(--shadow-card) !important;
+}
+html[data-theme="aurora"] .quick-card:hover:not(.quick-card--soon) .quick-icon {
+  color: #a78bfa !important;
+}
+
+/* Aurora: brand logo */
+html[data-theme="aurora"] .brand-logo {
+  background: rgba(167,139,250,0.12);
+}
+
+/* Aurora: focus ring */
+html[data-theme="aurora"] :focus-visible {
+  outline-color: rgba(167,139,250,0.65);
+}
+
+/* Aurora: formula badge */
+html[data-theme="aurora"] .formula-badge,
+html[data-theme="aurora"] .soon-feature {
+  background: rgba(167,139,250,0.12) !important;
+  color: #a78bfa !important;
+  border-color: rgba(167,139,250,0.22) !important;
+}
+
+/* Aurora: cal cards */
+html[data-theme="aurora"] .cal-card--tdee  { border-color: rgba(167,139,250,0.25) !important; }
+html[data-theme="aurora"] .cal-card--tdee .cal-value  { color: #a78bfa !important; }
+html[data-theme="aurora"] .cal-card--target .cal-value { color: #c4b5fd !important; }
+
+/* Aurora: section header */
+html[data-theme="aurora"] .section-header {
+  border-bottom-color: rgba(167,139,250,0.12) !important;
+}
+
+/* Aurora: muscle-tab active */
+html[data-theme="aurora"] .muscle-tab.active {
+  background: rgba(167,139,250,0.14) !important;
+  border-color: #a78bfa !important;
+  color: #a78bfa !important;
+}
+
+/* Aurora: exercise card hover */
+html[data-theme="aurora"] .exercise-card:hover {
+  border-color: rgba(167,139,250,0.25) !important;
+}
+
+/* Aurora: macro/suppl hover */
+html[data-theme="aurora"] .macro-info-card:hover,
+html[data-theme="aurora"] .suppl-card:hover {
+  border-color: rgba(167,139,250,0.22) !important;
+}
+
+/* Aurora: brand name gradient — violeta */
+html[data-theme="aurora"] .brand-name {
+  background: linear-gradient(135deg, #a78bfa, #c4b5fd) !important;
+  -webkit-background-clip: text !important;
+  -webkit-text-fill-color: transparent !important;
+  background-clip: text !important;
+}
+html[data-theme="aurora"] .brand-version {
+  color: #a78bfa !important;
+}
+
+/* Aurora: scrollbar */
+html[data-theme="aurora"] ::-webkit-scrollbar-thumb:hover {
+  background: #a78bfa !important;
+}
+
+/* ══════════════════════════════════════════════════════════════
+   THEME PICKER — UI del selector de temas
+   Se renderiza en el sidebar footer
+   ══════════════════════════════════════════════════════════════ */
+.theme-picker {
+  padding: 12px 16px;
+  border-top: 1px solid var(--hs-border);
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.theme-picker__label {
+  font-size: 0.65rem;
+  font-weight: 700;
+  letter-spacing: 0.10em;
+  text-transform: uppercase;
+  color: var(--hs-text-3);
+  user-select: none;
+}
+
+.theme-picker__swatches {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+
+.theme-swatch {
+  flex: 1;
+  height: 36px;
+  border-radius: 10px;
+  border: 2px solid transparent;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 5px;
+  font-size: 0.68rem;
+  font-weight: 600;
+  transition: all 180ms cubic-bezier(0.4, 0, 0.2, 1);
+  position: relative;
+  overflow: hidden;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.theme-swatch:hover {
+  transform: translateY(-1px);
+}
+
+.theme-swatch:active {
+  transform: scale(0.95);
+}
+
+/* Forge */
+.theme-swatch[data-t="forge"] {
+  background: linear-gradient(135deg, #0f0f1a 0%, #161626 100%);
+  color: #c4a561;
+  border-color: rgba(196,165,97,0.20);
+}
+.theme-swatch[data-t="forge"]:hover,
+html[data-theme="forge"] .theme-swatch[data-t="forge"],
+html:not([data-theme]) .theme-swatch[data-t="forge"] {
+  border-color: #c4a561;
+  box-shadow: 0 0 12px rgba(196,165,97,0.25);
+}
+
+/* Midnight */
+.theme-swatch[data-t="midnight"] {
+  background: linear-gradient(135deg, #0d0d0d 0%, #161616 100%);
+  color: #4f9cf4;
+  border-color: rgba(79,156,244,0.18);
+}
+.theme-swatch[data-t="midnight"]:hover,
+html[data-theme="midnight"] .theme-swatch[data-t="midnight"] {
+  border-color: #4f9cf4;
+  box-shadow: 0 0 12px rgba(79,156,244,0.25);
+}
+
+/* Aurora */
+.theme-swatch[data-t="aurora"] {
+  background: linear-gradient(135deg, #110e28 0%, #1a163c 100%);
+  color: #a78bfa;
+  border-color: rgba(167,139,250,0.18);
+}
+.theme-swatch[data-t="aurora"]:hover,
+html[data-theme="aurora"] .theme-swatch[data-t="aurora"] {
+  border-color: #a78bfa;
+  box-shadow: 0 0 12px rgba(167,139,250,0.25);
+}
+
+/* Dot de color en cada swatch */
+.theme-swatch__dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+.theme-swatch[data-t="forge"]   .theme-swatch__dot { background: #c4a561; }
+.theme-swatch[data-t="midnight"] .theme-swatch__dot { background: #4f9cf4; }
+.theme-swatch[data-t="aurora"]  .theme-swatch__dot { background: #a78bfa; }
+
+/* Swatch activo — check mark */
+.theme-swatch__check {
+  display: none;
+  position: absolute;
+  top: 4px; right: 4px;
+  width: 12px; height: 12px;
+  border-radius: 50%;
+  background: currentColor;
+  opacity: 0.9;
+  align-items: center;
+  justify-content: center;
+}
+html[data-theme="forge"]    .theme-swatch[data-t="forge"]    .theme-swatch__check,
+html:not([data-theme])       .theme-swatch[data-t="forge"]    .theme-swatch__check,
+html[data-theme="midnight"] .theme-swatch[data-t="midnight"] .theme-swatch__check,
+html[data-theme="aurora"]   .theme-swatch[data-t="aurora"]   .theme-swatch__check {
+  display: flex;
+}
+
+/* Mobile: picker compacto en bottom nav */
+@media (max-width: 768px) {
+  .theme-picker {
+    padding: 8px 16px 10px;
+  }
+  .theme-swatch {
+    height: 30px;
+    font-size: 0.62rem;
+  }
+}

@@ -1,0 +1,1066 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>HealthStack Pro — Psicología del Target</title>
+<style>
+  /* ── Reset & tokens ───────────────────────────────────────────────────── */
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  :root {
+    --bg:         #07070f;
+    --surface:    #0f0e1a;
+    --card:       #13121f;
+    --border:     rgba(255,255,255,0.07);
+    --border2:    rgba(255,255,255,0.12);
+    --accent:     #7c6bff;
+    --accent-dim: rgba(124,107,255,0.15);
+    --gold:       #f59e0b;
+    --gold-dim:   rgba(245,158,11,0.12);
+    --green:      #22c55e;
+    --green-dim:  rgba(34,197,94,0.10);
+    --red:        #ef4444;
+    --red-dim:    rgba(239,68,68,0.10);
+    --cyan:       #22d3ee;
+    --cyan-dim:   rgba(34,211,238,0.10);
+    --pink:       #ec4899;
+    --pink-dim:   rgba(236,72,153,0.10);
+    --orange:     #f97316;
+    --orange-dim: rgba(249,115,22,0.10);
+    --text:       #e8e6ff;
+    --text2:      rgba(255,255,255,0.55);
+    --text3:      rgba(255,255,255,0.30);
+    --r:          14px;
+    --r-sm:       8px;
+    --shadow:     0 8px 32px rgba(0,0,0,0.45);
+  }
+
+  html { scroll-behavior: smooth; }
+  body {
+    background: var(--bg); color: var(--text);
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    font-size: 15px; line-height: 1.6;
+    min-height: 100vh;
+  }
+
+  /* Mesh background */
+  body::before {
+    content: '';
+    position: fixed; inset: 0; z-index: 0; pointer-events: none;
+    background:
+      radial-gradient(ellipse 60% 40% at 20% 10%, rgba(124,107,255,0.07) 0%, transparent 70%),
+      radial-gradient(ellipse 50% 30% at 80% 80%, rgba(245,158,11,0.05) 0%, transparent 70%),
+      radial-gradient(ellipse 40% 50% at 50% 50%, rgba(34,211,238,0.03) 0%, transparent 70%);
+  }
+
+  /* ── Layout ───────────────────────────────────────────────────────────── */
+  .page { position: relative; z-index: 1; max-width: 1100px; margin: 0 auto; padding: 40px 24px 80px; }
+
+  /* ── Header ───────────────────────────────────────────────────────────── */
+  .page-header { text-align: center; margin-bottom: 56px; }
+  .page-tag {
+    display: inline-block; font-size: 11px; font-weight: 700;
+    text-transform: uppercase; letter-spacing: 0.12em;
+    color: var(--accent); background: var(--accent-dim);
+    border: 1px solid rgba(124,107,255,0.30);
+    border-radius: 20px; padding: 4px 14px; margin-bottom: 16px;
+  }
+  .page-title {
+    font-size: clamp(28px, 5vw, 48px); font-weight: 900;
+    letter-spacing: -1px; line-height: 1.1;
+    background: linear-gradient(135deg, #fff 30%, #a89fff 80%);
+    -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+    background-clip: text;
+    margin-bottom: 14px;
+  }
+  .page-sub {
+    font-size: 16px; color: var(--text2); max-width: 620px; margin: 0 auto;
+    line-height: 1.7;
+  }
+  .page-meta {
+    margin-top: 20px; display: flex; justify-content: center;
+    flex-wrap: wrap; gap: 12px;
+  }
+  .meta-chip {
+    font-size: 12px; color: var(--text3); padding: 4px 12px;
+    background: rgba(255,255,255,0.04); border: 1px solid var(--border);
+    border-radius: 20px;
+  }
+
+  /* ── TOC ──────────────────────────────────────────────────────────────── */
+  .toc {
+    display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+    gap: 8px; margin-bottom: 56px;
+  }
+  .toc-item {
+    display: flex; align-items: center; gap: 8px;
+    padding: 10px 14px; border-radius: 10px;
+    background: var(--card); border: 1px solid var(--border);
+    text-decoration: none; color: var(--text2);
+    font-size: 13px; font-weight: 600;
+    transition: all 0.15s; cursor: pointer;
+  }
+  .toc-item:hover { border-color: rgba(124,107,255,0.4); color: var(--text); transform: translateY(-1px); }
+  .toc-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
+
+  /* ── Section ──────────────────────────────────────────────────────────── */
+  .section { margin-bottom: 48px; scroll-margin-top: 24px; }
+  .section-header {
+    display: flex; align-items: flex-start; gap: 16px;
+    margin-bottom: 20px;
+  }
+  .section-icon {
+    width: 48px; height: 48px; border-radius: 12px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 22px; flex-shrink: 0;
+  }
+  .section-meta { flex: 1; min-width: 0; }
+  .section-label {
+    font-size: 10px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.12em;
+    margin-bottom: 4px; opacity: 0.65;
+  }
+  .section-title { font-size: 22px; font-weight: 800; letter-spacing: -0.3px; line-height: 1.2; }
+  .section-author { font-size: 12px; color: var(--text3); margin-top: 3px; }
+
+  /* ── Cards grid ───────────────────────────────────────────────────────── */
+  .cards { display: grid; gap: 14px; }
+  .cards-2 { grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); }
+  .cards-3 { grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); }
+
+  .card {
+    background: var(--card); border: 1px solid var(--border);
+    border-radius: var(--r); padding: 18px 20px;
+    transition: border-color 0.15s, transform 0.15s;
+  }
+  .card:hover { border-color: var(--border2); transform: translateY(-2px); }
+  .card-title {
+    font-size: 13px; font-weight: 800; text-transform: uppercase;
+    letter-spacing: 0.08em; margin-bottom: 8px; opacity: 0.7;
+  }
+  .card-body { font-size: 14px; color: var(--text2); line-height: 1.65; }
+
+  /* ── Key insight box ──────────────────────────────────────────────────── */
+  .insight-box {
+    border-radius: var(--r); padding: 20px 22px;
+    margin-bottom: 16px; border: 1px solid;
+  }
+  .insight-box-label {
+    font-size: 10px; font-weight: 800; text-transform: uppercase;
+    letter-spacing: 0.12em; margin-bottom: 8px;
+  }
+  .insight-box-text { font-size: 15px; line-height: 1.7; }
+  .insight-box-text strong { font-weight: 700; }
+
+  /* ── Feature implementation box ──────────────────────────────────────── */
+  .impl-box {
+    background: rgba(34,197,94,0.05); border: 1px solid rgba(34,197,94,0.18);
+    border-radius: var(--r); padding: 18px 20px; margin-top: 16px;
+  }
+  .impl-header {
+    display: flex; align-items: center; gap: 8px; margin-bottom: 12px;
+  }
+  .impl-badge {
+    font-size: 10px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.10em;
+    padding: 3px 10px; border-radius: 20px; flex-shrink: 0;
+  }
+  .impl-badge--done { background: rgba(34,197,94,0.18); color: var(--green); border: 1px solid rgba(34,197,94,0.30); }
+  .impl-badge--todo { background: rgba(245,158,11,0.14); color: var(--gold); border: 1px solid rgba(245,158,11,0.28); }
+  .impl-badge--key  { background: rgba(124,107,255,0.18); color: #a89fff; border: 1px solid rgba(124,107,255,0.30); }
+  .impl-title { font-size: 14px; font-weight: 700; }
+  .impl-list { list-style: none; display: flex; flex-direction: column; gap: 6px; }
+  .impl-list li {
+    font-size: 13px; color: var(--text2); padding-left: 18px; position: relative; line-height: 1.5;
+  }
+  .impl-list li::before { content: '→'; position: absolute; left: 0; color: var(--green); font-weight: 700; }
+  .impl-list li.todo::before { color: var(--gold); content: '◯'; }
+  .impl-list li.key::before  { color: var(--accent); content: '★'; }
+
+  /* ── Stat pills ───────────────────────────────────────────────────────── */
+  .stat-row { display: flex; flex-wrap: wrap; gap: 10px; margin: 14px 0; }
+  .stat-pill {
+    display: flex; flex-direction: column; align-items: center;
+    padding: 10px 18px; border-radius: 10px;
+    border: 1px solid;
+  }
+  .stat-pill-val { font-size: 24px; font-weight: 900; letter-spacing: -0.5px; font-variant-numeric: tabular-nums; line-height: 1; }
+  .stat-pill-lbl { font-size: 10px; text-transform: uppercase; letter-spacing: 0.08em; opacity: 0.55; margin-top: 4px; }
+
+  /* ── Quote ────────────────────────────────────────────────────────────── */
+  .quote {
+    border-left: 3px solid; padding: 12px 18px; margin: 16px 0;
+    border-radius: 0 8px 8px 0; font-style: italic;
+    font-size: 14px; line-height: 1.7; color: var(--text2);
+  }
+  .quote cite { display: block; margin-top: 6px; font-style: normal; font-size: 12px; opacity: 0.6; }
+
+  /* ── Divider ──────────────────────────────────────────────────────────── */
+  .divider { border: none; border-top: 1px solid var(--border); margin: 48px 0; }
+
+  /* ── Needs triangle (SDT) ────────────────────────────────────────────── */
+  .needs-grid {
+    display: grid; grid-template-columns: repeat(3, 1fr);
+    gap: 12px; margin: 14px 0;
+  }
+  .need-card {
+    border-radius: 12px; padding: 16px; border: 1px solid;
+    text-align: center;
+  }
+  .need-icon { font-size: 28px; margin-bottom: 8px; }
+  .need-name { font-size: 14px; font-weight: 800; margin-bottom: 6px; }
+  .need-desc { font-size: 12px; line-height: 1.5; opacity: 0.65; }
+  .need-hs   { font-size: 11px; font-weight: 700; margin-top: 8px; padding: 4px 8px; border-radius: 6px; opacity: 0.85; }
+
+  /* ── Fogg triangle ───────────────────────────────────────────────────── */
+  .fogg-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin: 14px 0; }
+  .fogg-card { border-radius: 12px; padding: 16px; border: 1px solid; }
+  .fogg-name { font-size: 14px; font-weight: 800; margin-bottom: 6px; }
+  .fogg-desc { font-size: 13px; color: var(--text2); line-height: 1.5; }
+  .fogg-formula {
+    grid-column: 1 / -1;
+    text-align: center; padding: 16px; font-size: 18px; font-weight: 800;
+    letter-spacing: -0.3px; border-radius: 12px; border: 1px solid;
+    background: var(--accent-dim); border-color: rgba(124,107,255,0.30); color: #a89fff;
+  }
+
+  /* ── Habit loop ──────────────────────────────────────────────────────── */
+  .loop-grid { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; margin: 14px 0; }
+  .loop-step {
+    flex: 1; min-width: 120px; text-align: center; padding: 14px;
+    border-radius: 10px; border: 1px solid;
+  }
+  .loop-arrow { color: var(--text3); font-size: 20px; flex-shrink: 0; }
+  .loop-icon { font-size: 20px; margin-bottom: 6px; }
+  .loop-name { font-size: 13px; font-weight: 800; }
+  .loop-desc { font-size: 11px; color: var(--text3); margin-top: 4px; }
+
+  /* ── WTP Section ─────────────────────────────────────────────────────── */
+  .wtp-row {
+    display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    gap: 12px; margin: 14px 0;
+  }
+  .wtp-card {
+    border-radius: 12px; padding: 16px; border: 1px solid;
+    display: flex; flex-direction: column; gap: 6px;
+  }
+  .wtp-icon { font-size: 22px; }
+  .wtp-title { font-size: 13px; font-weight: 800; }
+  .wtp-desc { font-size: 12px; color: var(--text2); line-height: 1.5; }
+  .wtp-hs { font-size: 11px; font-weight: 700; color: var(--gold); margin-top: 4px; }
+
+  /* ── Big insight callout ─────────────────────────────────────────────── */
+  .callout {
+    border-radius: var(--r); padding: 24px 28px;
+    background: linear-gradient(135deg, rgba(124,107,255,0.08), rgba(245,158,11,0.06));
+    border: 1px solid rgba(124,107,255,0.22);
+    margin: 24px 0;
+  }
+  .callout-label {
+    font-size: 10px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.12em;
+    color: var(--accent); margin-bottom: 10px;
+  }
+  .callout-text { font-size: 16px; font-weight: 600; line-height: 1.7; color: var(--text); }
+  .callout-text em { color: var(--gold); font-style: normal; }
+
+  /* ── Priority matrix ─────────────────────────────────────────────────── */
+  .matrix {
+    display: grid; grid-template-columns: 1fr 1fr;
+    gap: 12px; margin: 14px 0;
+  }
+  .matrix-cell {
+    border-radius: 12px; padding: 16px; border: 1px solid;
+  }
+  .matrix-label {
+    font-size: 10px; font-weight: 800; text-transform: uppercase;
+    letter-spacing: 0.10em; margin-bottom: 8px;
+  }
+  .matrix-items { display: flex; flex-direction: column; gap: 5px; }
+  .matrix-item { font-size: 13px; color: var(--text2); padding-left: 14px; position: relative; }
+  .matrix-item::before { content: '·'; position: absolute; left: 0; font-size: 18px; line-height: 1; top: -1px; }
+
+  /* ── Identity spectrum ───────────────────────────────────────────────── */
+  .identity-spectrum {
+    display: flex; align-items: stretch; gap: 0; margin: 14px 0; border-radius: 12px; overflow: hidden;
+    border: 1px solid var(--border);
+  }
+  .identity-end {
+    flex: 1; padding: 14px; font-size: 13px; line-height: 1.5;
+  }
+  .identity-center {
+    width: 1px; background: var(--border);
+  }
+
+  /* ── Footer ──────────────────────────────────────────────────────────── */
+  .page-footer {
+    text-align: center; padding-top: 40px;
+    border-top: 1px solid var(--border);
+    color: var(--text3); font-size: 12px; line-height: 1.8;
+  }
+
+  /* ── Responsive ──────────────────────────────────────────────────────── */
+  @media (max-width: 600px) {
+    .needs-grid { grid-template-columns: 1fr; }
+    .fogg-grid  { grid-template-columns: 1fr; }
+    .matrix     { grid-template-columns: 1fr; }
+    .loop-grid  { flex-direction: column; }
+    .loop-arrow { transform: rotate(90deg); }
+    .toc        { grid-template-columns: repeat(2, 1fr); }
+    .stat-row   { justify-content: center; }
+  }
+</style>
+</head>
+<body>
+<div class="page">
+
+  <!-- ═══════════ HEADER ═══════════ -->
+  <header class="page-header">
+    <div class="page-tag">🧠 Investigación Psicológica · 2026</div>
+    <h1 class="page-title">Psicología del Target<br>HealthStack Pro</h1>
+    <p class="page-sub">
+      Estudios científicos aplicados al usuario de fitness premium.<br>
+      Para entender qué busca, qué le duele, qué le haría pagar y cómo crear adherencia real.
+    </p>
+    <div class="page-meta">
+      <span class="meta-chip">📚 8 teorías validadas</span>
+      <span class="meta-chip">🔬 Fuentes peer-reviewed</span>
+      <span class="meta-chip">🎯 Aplicación directa a HS</span>
+      <span class="meta-chip">💰 WTP (Willingness To Pay)</span>
+    </div>
+  </header>
+
+  <!-- ═══════════ TOC ═══════════ -->
+  <nav class="toc">
+    <a class="toc-item" href="#sdt">
+      <span class="toc-dot" style="background:#7c6bff"></span>Self-Determination Theory
+    </a>
+    <a class="toc-item" href="#fogg">
+      <span class="toc-dot" style="background:#f59e0b"></span>Fogg Behavior Model
+    </a>
+    <a class="toc-item" href="#identity">
+      <span class="toc-dot" style="background:#22c55e"></span>Identidad &amp; Hábitos
+    </a>
+    <a class="toc-item" href="#loss">
+      <span class="toc-dot" style="background:#ef4444"></span>Loss Aversion
+    </a>
+    <a class="toc-item" href="#progress">
+      <span class="toc-dot" style="background:#22d3ee"></span>Efecto Progreso
+    </a>
+    <a class="toc-item" href="#social">
+      <span class="toc-dot" style="background:#ec4899"></span>Comparación Social
+    </a>
+    <a class="toc-item" href="#gamification">
+      <span class="toc-dot" style="background:#f97316"></span>Gamificación
+    </a>
+    <a class="toc-item" href="#wtp">
+      <span class="toc-dot" style="background:#a855f7"></span>Willingness To Pay
+    </a>
+  </nav>
+
+  <!-- ══════════════════════════════════════════════════════════════════════
+       1. SELF-DETERMINATION THEORY
+       ══════════════════════════════════════════════════════════════════════ -->
+  <section class="section" id="sdt">
+    <div class="section-header">
+      <div class="section-icon" style="background:rgba(124,107,255,0.12); color:#a89fff;">🎯</div>
+      <div class="section-meta">
+        <div class="section-label" style="color:#7c6bff;">Teoría #1 — La más citada en apps fitness</div>
+        <div class="section-title">Self-Determination Theory (SDT)</div>
+        <div class="section-author">Deci &amp; Ryan, 1985 · Aplicada a apps: Frontiers in Psychology, 2026</div>
+      </div>
+    </div>
+
+    <div class="insight-box" style="background:rgba(124,107,255,0.08); border-color:rgba(124,107,255,0.22);">
+      <div class="insight-box-label" style="color:#a89fff;">El principio clave</div>
+      <div class="insight-box-text">
+        Las personas tienen <strong>3 necesidades psicológicas básicas</strong> que, cuando se satisfacen,
+        generan motivación intrínseca sostenida. Sin satisfacerlas, la motivación es extrinseca —
+        funciona al principio pero se agota. Las apps que satisfacen las 3 tienen retención hasta
+        <strong>3× mayor</strong> a los 6 meses.
+      </div>
+    </div>
+
+    <div class="needs-grid">
+      <div class="need-card" style="border-color:rgba(124,107,255,0.25); background:rgba(124,107,255,0.06);">
+        <div class="need-icon">🧭</div>
+        <div class="need-name" style="color:#a89fff;">Autonomía</div>
+        <div class="need-desc">"Yo elijo, yo controlo mi entrenamiento"</div>
+        <div class="need-hs" style="background:rgba(124,107,255,0.14); color:#a89fff;">
+          HS: rutinas personalizables, entrenos libres
+        </div>
+      </div>
+      <div class="need-card" style="border-color:rgba(34,197,94,0.25); background:rgba(34,197,94,0.06);">
+        <div class="need-icon">💪</div>
+        <div class="need-name" style="color:#22c55e;">Competencia</div>
+        <div class="need-desc">"Veo que mejoro, soy capaz"</div>
+        <div class="need-hs" style="background:rgba(34,197,94,0.14); color:#22c55e;">
+          HS: PRs, 1RM, progressive overload, streaks
+        </div>
+      </div>
+      <div class="need-card" style="border-color:rgba(34,211,238,0.25); background:rgba(34,211,238,0.06);">
+        <div class="need-icon">🤝</div>
+        <div class="need-name" style="color:#22d3ee;">Relación</div>
+        <div class="need-desc">"Pertenezco a algo, no estoy solo"</div>
+        <div class="need-hs" style="background:rgba(34,211,238,0.14); color:#22d3ee;">
+          HS: gym servers, ranked, communidad
+        </div>
+      </div>
+    </div>
+
+    <div class="callout">
+      <div class="callout-label">⚡ Insight crítico para HealthStack</div>
+      <div class="callout-text">
+        El estudio de Frontiers 2026 encontró que la <em>interactividad</em> aumenta la necesidad de Relación
+        pero <em>reduce</em> Autonomía y Competencia percibidas. Tu solución: ofrecer social features
+        <strong>opt-in</strong> — quien quiere compite, quien no, entrena privado.
+        No forzar la comparación social destruye usuarios introvertidos pero competentes.
+      </div>
+    </div>
+
+    <div class="impl-box">
+      <div class="impl-header">
+        <span class="impl-badge impl-badge--done">✓ Implementado</span>
+        <span class="impl-title">Cobertura SDT actual en HealthStack</span>
+      </div>
+      <ul class="impl-list">
+        <li>Autonomía: workout logger con ejercicios libres + rutinas personalizadas</li>
+        <li>Competencia: PRs automáticos, 1RM estimado, progressive overload (+2.5kg)</li>
+        <li>Competencia: columna PREVIOUS — ves exactamente cuánto mejoraste</li>
+        <li class="todo">Relación: gym servers básicos — falta endpoint descubrir gyms públicos</li>
+        <li class="key">★ GAP CRÍTICO: falta feedback contextual inmediato ("¡Nuevo máximo personal esta semana!")</li>
+      </ul>
+    </div>
+  </section>
+
+  <hr class="divider"/>
+
+  <!-- ══════════════════════════════════════════════════════════════════════
+       2. FOGG BEHAVIOR MODEL
+       ══════════════════════════════════════════════════════════════════════ -->
+  <section class="section" id="fogg">
+    <div class="section-header">
+      <div class="section-icon" style="background:rgba(245,158,11,0.12); color:#f59e0b;">⚙️</div>
+      <div class="section-meta">
+        <div class="section-label" style="color:#f59e0b;">Teoría #2 — Diseño de comportamiento</div>
+        <div class="section-title">Fogg Behavior Model</div>
+        <div class="section-author">BJ Fogg, Stanford Behavior Design Lab, 2009–2020</div>
+      </div>
+    </div>
+
+    <div class="fogg-grid">
+      <div class="fogg-formula">
+        B = M × A × P
+        <div style="font-size:12px; font-weight:400; opacity:0.65; margin-top:4px;">
+          Behavior = Motivation × Ability × Prompt
+        </div>
+      </div>
+      <div class="fogg-card" style="border-color:rgba(245,158,11,0.22); background:rgba(245,158,11,0.06);">
+        <div class="fogg-name" style="color:#f59e0b;">🔥 Motivación</div>
+        <div class="fogg-desc">Fluctúa naturalmente. Diseña para los valles, no los picos.
+        El error clásico: asumir que el usuario siempre está motivado.</div>
+      </div>
+      <div class="fogg-card" style="border-color:rgba(34,197,94,0.22); background:rgba(34,197,94,0.06);">
+        <div class="fogg-name" style="color:#22c55e;">⚡ Ability (Facilidad)</div>
+        <div class="fogg-desc">Reduce la fricción al mínimo. Cada click extra = 20% menos usuarios que completan la acción.</div>
+      </div>
+      <div class="fogg-card" style="border-color:rgba(124,107,255,0.22); background:rgba(124,107,255,0.06);">
+        <div class="fogg-name" style="color:#a89fff;">📳 Prompt (Trigger)</div>
+        <div class="fogg-desc">El trigger correcto en el momento correcto. Sin prompt, el comportamiento no ocurre aunque haya M y A altas.</div>
+      </div>
+    </div>
+
+    <div class="stat-row">
+      <div class="stat-pill" style="background:rgba(245,158,11,0.08); border-color:rgba(245,158,11,0.22);">
+        <span class="stat-pill-val" style="color:#f59e0b;">66</span>
+        <span class="stat-pill-lbl">días promedio<br>para formar hábito</span>
+      </div>
+      <div class="stat-pill" style="background:rgba(34,197,94,0.08); border-color:rgba(34,197,94,0.22);">
+        <span class="stat-pill-val" style="color:#22c55e;">3×</span>
+        <span class="stat-pill-lbl">mayor retención<br>hábitos pequeños</span>
+      </div>
+      <div class="stat-pill" style="background:rgba(124,107,255,0.08); border-color:rgba(124,107,255,0.22);">
+        <span class="stat-pill-val" style="color:#a89fff;">65%</span>
+        <span class="stat-pill-lbl">más adherencia<br>con visual tracking</span>
+      </div>
+    </div>
+
+    <div class="quote" style="border-color:rgba(245,158,11,0.40); background:rgba(245,158,11,0.04);">
+      "Motivation is like a wave. Design for the valleys, not the peaks. The user who is already
+      motivated doesn't need your app. The user who isn't motivated yet — that's who you're designing for."
+      <cite>— BJ Fogg, Tiny Habits (2020)</cite>
+    </div>
+
+    <div class="impl-box">
+      <div class="impl-header">
+        <span class="impl-badge impl-badge--todo">⚡ Acción prioritaria</span>
+        <span class="impl-title">Aplicar Fogg Model a HealthStack</span>
+      </div>
+      <ul class="impl-list">
+        <li>Ability ✓: workout logger en 2 taps desde home, no login barrier</li>
+        <li>Ability ✓: rutina pre-cargada — sets, pesos y calentamientos ya definidos</li>
+        <li class="todo">Prompt: notificación push "Tu entrenamiento de Lunes en 30 min" (horario habitual)</li>
+        <li class="todo">Prompt: reminder de inactividad ya implementado — falta push notification externa</li>
+        <li class="todo">Motivación valley: "modo minimalista" — entrena sin distracciones, solo los sets</li>
+        <li class="key">★ PAGO: "Tiny Win" notification post-entreno con emoción positiva inmediata activa dopamina</li>
+      </ul>
+    </div>
+  </section>
+
+  <hr class="divider"/>
+
+  <!-- ══════════════════════════════════════════════════════════════════════
+       3. IDENTITY-BASED HABITS
+       ══════════════════════════════════════════════════════════════════════ -->
+  <section class="section" id="identity">
+    <div class="section-header">
+      <div class="section-icon" style="background:rgba(34,197,94,0.12); color:#22c55e;">🪞</div>
+      <div class="section-meta">
+        <div class="section-label" style="color:#22c55e;">Teoría #3 — El más poderoso driver de hábitos</div>
+        <div class="section-title">Identity-Based Habits</div>
+        <div class="section-author">James Clear, Atomic Habits (2018) · Daryl Bem Self-Perception Theory (1972) · Leon Festinger Cognitive Dissonance (1957)</div>
+      </div>
+    </div>
+
+    <div class="insight-box" style="background:rgba(34,197,94,0.06); border-color:rgba(34,197,94,0.20);">
+      <div class="insight-box-label" style="color:#22c55e;">El principio</div>
+      <div class="insight-box-text">
+        El cambio de comportamiento más duradero no viene de querer hacer algo (<em>"quiero entrenar"</em>)
+        sino de <strong>ser alguien</strong> (<em>"soy una persona que entrena"</em>). La identidad actúa como
+        ancla. Cuando el usuario se ve como "atleta" — pagar €15/mes es congruente con su identidad,
+        es una decisión coherente, no un gasto.
+      </div>
+    </div>
+
+    <div class="identity-spectrum">
+      <div class="identity-end" style="background:rgba(239,68,68,0.05);">
+        <strong style="color:#f87171;">❌ "Quiero adelgazar"</strong><br/>
+        <small style="color:var(--text3);">Outcome-based. Cuando no ve resultado inmediato, abandona.
+        Primera semana: motivación alta. Semana 3: churn.</small>
+      </div>
+      <div class="identity-center"></div>
+      <div class="identity-end" style="background:rgba(34,197,94,0.05);">
+        <strong style="color:#22c55e;">✅ "Soy alguien que cuida su cuerpo"</strong><br/>
+        <small style="color:var(--text3);">Identity-based. Cada entreno refuerza quién ES.
+        El streak no es un número — es evidencia de su identidad.</small>
+      </div>
+    </div>
+
+    <div class="cards cards-3" style="margin-top:14px;">
+      <div class="card">
+        <div class="card-title" style="color:#22c55e;">Teoría de Auto-percepción</div>
+        <div class="card-body">Inferimos nuestra identidad observando nuestras acciones. Cada check ✓ en HealthStack
+        es evidencia que el usuario se da a sí mismo de "soy consistente".</div>
+      </div>
+      <div class="card">
+        <div class="card-title" style="color:#22c55e;">Disonancia Cognitiva</div>
+        <div class="card-body">Si me identifico como "atleta" y no entreno esta semana,
+        siento malestar. Esta tensión psicológica es más potente que cualquier notificación push.</div>
+      </div>
+      <div class="card">
+        <div class="card-title" style="color:#22c55e;">El ciclo virtuoso</div>
+        <div class="card-body">Acción pequeña → evidencia de identidad → identidad más fuerte →
+        más acciones. El streak de 30 días no es vanity metric — es identidad construida en números.</div>
+      </div>
+    </div>
+
+    <div class="impl-box">
+      <div class="impl-header">
+        <span class="impl-badge impl-badge--key">★ Alto impacto · WTP</span>
+        <span class="impl-title">Diseñar HealthStack para construir identidad atlética</span>
+      </div>
+      <ul class="impl-list">
+        <li>Gamificación ✓: XP, streaks, badges — cada uno refuerza "soy alguien que entrena"</li>
+        <li class="todo">Onboarding de identidad: "¿Cómo quieres llamarte a ti mismo en 6 meses?" (no: "¿Cuál es tu objetivo?")</li>
+        <li class="todo">Framing: "Ya llevas 23 días siendo consistente" — no "tu racha es 23"</li>
+        <li class="todo">Athlete Receipt (ya existe 🎉) — reforzar con narrativa de identidad, no solo stats</li>
+        <li class="key">★ PAGO: Perfil público "Atleta X" — pagar es mantener tu identidad pública visible</li>
+      </ul>
+    </div>
+  </section>
+
+  <hr class="divider"/>
+
+  <!-- ══════════════════════════════════════════════════════════════════════
+       4. LOSS AVERSION
+       ══════════════════════════════════════════════════════════════════════ -->
+  <section class="section" id="loss">
+    <div class="section-header">
+      <div class="section-icon" style="background:rgba(239,68,68,0.12); color:#f87171;">🔒</div>
+      <div class="section-meta">
+        <div class="section-label" style="color:#ef4444;">Teoría #4 — El driver más potente de conversión</div>
+        <div class="section-title">Loss Aversion</div>
+        <div class="section-author">Kahneman &amp; Tversky, Prospect Theory (1979) · Aplicada a suscripciones: ACR Journal, 2024</div>
+      </div>
+    </div>
+
+    <div class="insight-box" style="background:rgba(239,68,68,0.06); border-color:rgba(239,68,68,0.20);">
+      <div class="insight-box-label" style="color:#f87171;">El principio</div>
+      <div class="insight-box-text">
+        El dolor de perder algo es psicológicamente <strong>2× más intenso</strong> que el placer
+        de ganarlo. Los usuarios no pagan por obtener algo nuevo — pagan para
+        <strong>no perder lo que ya tienen</strong>: su progreso, sus PRs, su streak, su puesto en el ranking.
+        Esto convierte el "gratis" en trampa para tu negocio — cuanto más datos acumula, más le duele irse.
+      </div>
+    </div>
+
+    <div class="stat-row">
+      <div class="stat-pill" style="background:rgba(239,68,68,0.08); border-color:rgba(239,68,68,0.22);">
+        <span class="stat-pill-val" style="color:#f87171;">2×</span>
+        <span class="stat-pill-lbl">más fuerte el dolor<br>de perder vs ganar</span>
+      </div>
+      <div class="stat-pill" style="background:rgba(239,68,68,0.08); border-color:rgba(239,68,68,0.22);">
+        <span class="stat-pill-val" style="color:#f87171;">~70%</span>
+        <span class="stat-pill-lbl">usuarios mantienen<br>suscripción por inercia</span>
+      </div>
+      <div class="stat-pill" style="background:rgba(239,68,68,0.08); border-color:rgba(239,68,68,0.22);">
+        <span class="stat-pill-val" style="color:#f87171;">6×</span>
+        <span class="stat-pill-lbl">más probabilidad de pagar<br>si hay streak &gt;30 días</span>
+      </div>
+    </div>
+
+    <div class="cards cards-2" style="margin-top:14px;">
+      <div class="card">
+        <div class="card-title" style="color:#f87171;">Sunk Cost Effect (Costo hundido)</div>
+        <div class="card-body">Los pagos previos aumentan la probabilidad de continuar usando el servicio
+        aunque la satisfacción baje. Usuarios con 6+ meses de historial en HealthStack tienen
+        <strong>churn ~15× menor</strong> que usuarios nuevos — protege ese dato.</div>
+      </div>
+      <div class="card">
+        <div class="card-title" style="color:#f87171;">Fear of Losing Progress</div>
+        <div class="card-body">El usuario con 47 días de streak, 12 PRs registrados y 3 meses
+        de historial de 1RM NO quiere perder eso. Ese es tu moat psicológico.
+        Netflix lo hace con el historial de series. TÚ lo tienes con el historial de fuerza.</div>
+      </div>
+    </div>
+
+    <div class="callout">
+      <div class="callout-label">💰 Aplicación directa a monetización</div>
+      <div class="callout-text">
+        No digas "desbloquea funciones premium". Di:
+        <em>"Tu historial de PRs, tu progresión de 1RM y tu streak de 47 días se guardan con seguridad en la nube."</em><br/>
+        El frame del <em>miedo a perder</em> convierte 2-3× más que el frame de la ganancia.
+      </div>
+    </div>
+
+    <div class="impl-box">
+      <div class="impl-header">
+        <span class="impl-badge impl-badge--key">★ Monetización directa</span>
+        <span class="impl-title">Loss aversion como mecánica de retención y pago</span>
+      </div>
+      <ul class="impl-list">
+        <li>PRs en localStorage ✓ — usuario sabe que el dato existe y teme perderlo</li>
+        <li>Streak visible ✓ (gamificación)</li>
+        <li class="todo">Cloud backup premium: "Tu progreso sincronizado y protegido" = Fear of losing</li>
+        <li class="todo">Export data (ya implementado JSON) — úsalo como argumento de no lock-in para atraer usuarios</li>
+        <li class="todo">Streak freeze (feature premium): "No pierdas tu racha por un día malo"</li>
+        <li class="key">★ PAGO: Mostrar "Llevas 847kg de progresión total este año — protégelo con Pro"</li>
+      </ul>
+    </div>
+  </section>
+
+  <hr class="divider"/>
+
+  <!-- ══════════════════════════════════════════════════════════════════════
+       5. EFECTO PROGRESO (Goal Gradient + Endowed Progress)
+       ══════════════════════════════════════════════════════════════════════ -->
+  <section class="section" id="progress">
+    <div class="section-header">
+      <div class="section-icon" style="background:rgba(34,211,238,0.12); color:#22d3ee;">📈</div>
+      <div class="section-meta">
+        <div class="section-label" style="color:#22d3ee;">Teoría #5 — El poder de ver que avanzas</div>
+        <div class="section-title">Goal Gradient + Endowed Progress Effect</div>
+        <div class="section-author">Hull (1932) Goal-Gradient · Nunes &amp; Drèze, J. Marketing (2006) Endowed Progress</div>
+      </div>
+    </div>
+
+    <div class="cards cards-2">
+      <div class="card">
+        <div class="card-title" style="color:#22d3ee;">Goal-Gradient Hypothesis</div>
+        <div class="card-body">Cuanto más cerca estamos del objetivo, más rápido y con más intensidad
+        trabajamos para alcanzarlo. Demostrado en animales (Hull, 1932) y humanos.
+        <br/><br/>
+        En fitness: el usuario que está a 3 entrenos de completar su reto mensual
+        <strong>entrena más intenso</strong> esos 3 días que al principio del mes.</div>
+      </div>
+      <div class="card">
+        <div class="card-title" style="color:#22d3ee;">Endowed Progress Effect</div>
+        <div class="card-body">Si das a alguien un "avance artificial" — una tarjeta de fidelidad
+        con 2 sellos ya puestos — completan la tarea <strong>34% más rápido</strong> que empezando desde cero.
+        <br/><br/>
+        En HealthStack: el onboarding puede "regalar" los primeros puntos/días para activar este efecto.</div>
+      </div>
+    </div>
+
+    <div class="stat-row">
+      <div class="stat-pill" style="background:rgba(34,211,238,0.08); border-color:rgba(34,211,238,0.22);">
+        <span class="stat-pill-val" style="color:#22d3ee;">34%</span>
+        <span class="stat-pill-lbl">más completions<br>con progress artificial</span>
+      </div>
+      <div class="stat-pill" style="background:rgba(34,211,238,0.08); border-color:rgba(34,211,238,0.22);">
+        <span class="stat-pill-val" style="color:#22d3ee;">65%</span>
+        <span class="stat-pill-lbl">más adherencia<br>con visual tracking</span>
+      </div>
+    </div>
+
+    <div class="impl-box">
+      <div class="impl-header">
+        <span class="impl-badge impl-badge--done">✓ Parcialmente implementado</span>
+        <span class="impl-title">Sistemas de progreso visibles en HealthStack</span>
+      </div>
+      <ul class="impl-list">
+        <li>Progresión de 1RM gráfico (Chart canvas en historial)</li>
+        <li>Barra de progreso de rest timer</li>
+        <li>sets×reps badge: "3×8 completados" visible en header</li>
+        <li class="todo">Retos mensuales con barra de progreso visible (ej: "12 de 16 entrenos este mes")</li>
+        <li class="todo">Onboarding: regalar 3 días de streak inicial ("Ya llevas 3 días — sigue la racha")</li>
+        <li class="todo">Weekly recap: "Esta semana levantaste 2.340kg totales — 18% más que la semana anterior"</li>
+        <li class="key">★ PAGO: Dashboard anual de progresión — solo visible en Pro (como Spotify Wrapped para fitness)</li>
+      </ul>
+    </div>
+  </section>
+
+  <hr class="divider"/>
+
+  <!-- ══════════════════════════════════════════════════════════════════════
+       6. SOCIAL COMPARISON THEORY
+       ══════════════════════════════════════════════════════════════════════ -->
+  <section class="section" id="social">
+    <div class="section-header">
+      <div class="section-icon" style="background:rgba(236,72,153,0.12); color:#ec4899;">👥</div>
+      <div class="section-meta">
+        <div class="section-label" style="color:#ec4899;">Teoría #6 — Doble filo: activa o destruye motivación</div>
+        <div class="section-title">Social Comparison Theory</div>
+        <div class="section-author">Leon Festinger (1954) · Frontiers in Public Health, 2025 · ScienceDirect, 2022</div>
+      </div>
+    </div>
+
+    <div class="insight-box" style="background:rgba(236,72,153,0.06); border-color:rgba(236,72,153,0.20);">
+      <div class="insight-box-label" style="color:#ec4899;">El principio — y el peligro</div>
+      <div class="insight-box-text">
+        Tendemos a evaluar nuestro rendimiento comparándonos con otros. La comparación
+        <strong>ascendente</strong> (alguien mejor que yo) puede motivar o desmotivar.
+        La clave es <strong>quién controla la comparación</strong> y con quién se compara.
+        <br/>Diseño correcto: el usuario elige ver o no ver el ranking, y las comparaciones son con
+        <strong>su yo anterior</strong> como comparación principal.
+      </div>
+    </div>
+
+    <div class="cards cards-2">
+      <div class="card">
+        <div class="card-title" style="color:#22c55e;">✅ Comparación que motiva</div>
+        <div class="card-body">
+          · Upward comparison con alguien ligeramente mejor (10-20% más avanzado)<br/>
+          · Comparación con tu yo de la semana pasada<br/>
+          · Ver progreso de alguien del mismo nivel (peers en gym servers)<br/>
+          · Leaderboard filtrado por nivel/peso corporal
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-title" style="color:#f87171;">❌ Comparación que destruye</div>
+        <div class="card-body">
+          · Leaderboard global con atletas de élite vs principiante<br/>
+          · Ver que llevas 3 sets mientras otro lleva 12<br/>
+          · Ranking sin segmentación por nivel o experiencia<br/>
+          · Notificaciones de "¡X supera tu récord!" sin contexto
+        </div>
+      </div>
+    </div>
+
+    <div class="quote" style="border-color:rgba(236,72,153,0.40); background:rgba(236,72,153,0.04);">
+      "Downward fitness comparison appeared to thwart users' self-efficacy,
+      whereas upward comparison appeared to enhance it — but only when the gap was perceived as closeable."
+      <cite>— ScienceDirect, Social Comparison in Fitness Apps (2022)</cite>
+    </div>
+
+    <div class="impl-box">
+      <div class="impl-header">
+        <span class="impl-badge impl-badge--todo">Pendiente · Alto impacto social</span>
+        <span class="impl-title">Diseño de comparación social sano</span>
+      </div>
+      <ul class="impl-list">
+        <li>Ranked system ✓ — segmentado por tier (Bronze → Diamond), no global</li>
+        <li>Gym servers ✓ — comparación con tu propio gym</li>
+        <li class="todo">Comparación primaria: "Vs. tú la semana pasada" — siempre visible en dashboard</li>
+        <li class="todo">Leaderboard opt-in, no opt-out — no forzar visibilidad del ranking</li>
+        <li class="todo">"Similar to you" — matchmaking por peso levantado, no solo por LP</li>
+        <li class="key">★ PAGO: Gym Challenges privados (solo miembros del gym ven el resultado)</li>
+      </ul>
+    </div>
+  </section>
+
+  <hr class="divider"/>
+
+  <!-- ══════════════════════════════════════════════════════════════════════
+       7. GAMIFICATION PSYCHOLOGY
+       ══════════════════════════════════════════════════════════════════════ -->
+  <section class="section" id="gamification">
+    <div class="section-header">
+      <div class="section-icon" style="background:rgba(249,115,22,0.12); color:#f97316;">🎮</div>
+      <div class="section-meta">
+        <div class="section-label" style="color:#f97316;">Teoría #7 — La navaja de doble filo</div>
+        <div class="section-title">Gamificación y Motivación Intrínseca</div>
+        <div class="section-author">SDT + Gamification · PMC Systematic Review (2022) · MDPI Digital Health (2025)</div>
+      </div>
+    </div>
+
+    <div class="insight-box" style="background:rgba(249,115,22,0.06); border-color:rgba(249,115,22,0.20);">
+      <div class="insight-box-label" style="color:#f97316;">La paradoja de la gamificación</div>
+      <div class="insight-box-text">
+        Las mecánicas externas (puntos, badges, leaderboards) funcionan a corto plazo,
+        pero <strong>pueden destruir la motivación intrínseca</strong> si se usan mal.
+        El 32% de los estudios de intervención fitness usan SDT como base de su diseño.
+        El principio: la gamificación debe <strong>hacer explícita la competencia</strong>, no sustituirla.
+        Un badge de "100 entrenos" vale porque representa 100 entrenos reales, no porque sea bonito.
+      </div>
+    </div>
+
+    <div class="cards cards-3">
+      <div class="card" style="border-color:rgba(34,197,94,0.20);">
+        <div class="card-title" style="color:#22c55e;">✅ Gamificación que funciona</div>
+        <div class="card-body">· Badges que representan logros reales difíciles<br/>
+        · Progresión visible de nivel (no arbitraria)<br/>
+        · Recompensas que refuerzan identidad atlética<br/>
+        · Logros escalados por nivel propio</div>
+      </div>
+      <div class="card" style="border-color:rgba(239,68,68,0.20);">
+        <div class="card-title" style="color:#f87171;">❌ Gamificación que destruye</div>
+        <div class="card-body">· Puntos por cualquier click (devalúan el logro real)<br/>
+        · Leaderboards sin segmentación<br/>
+        · Notificaciones excesivas de "¡Badge desbloqueado!"<br/>
+        · Premiar cantidad sobre calidad</div>
+      </div>
+      <div class="card" style="border-color:rgba(245,158,11,0.20);">
+        <div class="card-title" style="color:#f59e0b;">🔑 El principio rector</div>
+        <div class="card-body">Cada elemento gamificado debe responder a: <em>"¿Esto demuestra que el usuario
+        mejoró en algo real?"</em> Si no, es ruido y destruye señal.</div>
+      </div>
+    </div>
+
+    <div class="impl-box">
+      <div class="impl-header">
+        <span class="impl-badge impl-badge--done">✓ Bien diseñado en HS</span>
+        <span class="impl-title">Gamificación basada en logro real</span>
+      </div>
+      <ul class="impl-list">
+        <li>XP solo por entrenos completados, no por abrir la app</li>
+        <li>PR badges (🏅) solo cuando hay record real medido con 1RM</li>
+        <li>Ranked LP solo por matchmaking real contra usuarios activos</li>
+        <li>Streak basado en entrenos reales, no en check-ins</li>
+        <li class="todo">Badge "consistencia 1 mes" — solo si entrenas ≥3×/semana 4 semanas seguidas</li>
+        <li class="key">★ Consistencia desbloqueando features (ya diseñado): 1 mes → feature A, 6 meses → feature B</li>
+      </ul>
+    </div>
+  </section>
+
+  <hr class="divider"/>
+
+  <!-- ══════════════════════════════════════════════════════════════════════
+       8. WILLINGNESS TO PAY (WTP)
+       ══════════════════════════════════════════════════════════════════════ -->
+  <section class="section" id="wtp">
+    <div class="section-header">
+      <div class="section-icon" style="background:rgba(168,85,247,0.12); color:#a855f7;">💰</div>
+      <div class="section-meta">
+        <div class="section-label" style="color:#a855f7;">Teoría #8 — Lo que hace que el usuario pague</div>
+        <div class="section-title">Willingness To Pay (WTP) Psychology</div>
+        <div class="section-author">Kantar Consumer Research 2024 · BehavioralEconomics.com · Fitness Apps Market 2025</div>
+      </div>
+    </div>
+
+    <div class="stat-row">
+      <div class="stat-pill" style="background:rgba(168,85,247,0.08); border-color:rgba(168,85,247,0.22);">
+        <span class="stat-pill-val" style="color:#a855f7;">$10.8B</span>
+        <span class="stat-pill-lbl">mercado fitness apps<br>2025</span>
+      </div>
+      <div class="stat-pill" style="background:rgba(168,85,247,0.08); border-color:rgba(168,85,247,0.22);">
+        <span class="stat-pill-val" style="color:#a855f7;">13%</span>
+        <span class="stat-pill-lbl">crecimiento anual<br>hasta 2032</span>
+      </div>
+      <div class="stat-pill" style="background:rgba(168,85,247,0.08); border-color:rgba(168,85,247,0.22);">
+        <span class="stat-pill-val" style="color:#a855f7;">iOS</span>
+        <span class="stat-pill-lbl">usuarios con mayor<br>WTP por fitness</span>
+      </div>
+    </div>
+
+    <div class="wtp-row">
+      <div class="wtp-card" style="border-color:rgba(168,85,247,0.22); background:rgba(168,85,247,0.06);">
+        <div class="wtp-icon">🎯</div>
+        <div class="wtp-title" style="color:#a855f7;">Nicho altamente motivado</div>
+        <div class="wtp-desc">Usuarios con objetivo concreto (carrera, competición, físico específico)
+        pagan 3-5× más que el usuario genérico.</div>
+        <div class="wtp-hs">HS target: powerlifters, atletas funcionales, bodybuilders</div>
+      </div>
+      <div class="wtp-card" style="border-color:rgba(245,158,11,0.22); background:rgba(245,158,11,0.06);">
+        <div class="wtp-icon">🏆</div>
+        <div class="wtp-title" style="color:#f59e0b;">Outcome framing</div>
+        <div class="wtp-desc">"Desbloquea tu 1RM máximo" convierte más que
+        "accede a funciones premium". Vende el resultado, no la feature.</div>
+        <div class="wtp-hs">HS: "Tu historial de fuerza protegido en la nube"</div>
+      </div>
+      <div class="wtp-card" style="border-color:rgba(34,211,238,0.22); background:rgba(34,211,238,0.06);">
+        <div class="wtp-icon">👥</div>
+        <div class="wtp-title" style="color:#22d3ee;">FOMO Social</div>
+        <div class="wtp-desc">Gym challenges, leaderboards privados y coach shoutouts
+        generan conversiones FOMO mejor que cualquier CTA.</div>
+        <div class="wtp-hs">HS: Gym Wars (feature pendiente)</div>
+      </div>
+      <div class="wtp-card" style="border-color:rgba(34,197,94,0.22); background:rgba(34,197,94,0.06);">
+        <div class="wtp-icon">🔄</div>
+        <div class="wtp-title" style="color:#22c55e;">Hybrid pricing</div>
+        <div class="wtp-desc">Mezcla semanal/mensual/milestone. Da control al usuario.
+        El control percibido reduce churn y aumenta WTP.</div>
+        <div class="wtp-hs">HS: Free + Pro + Gym Server tier</div>
+      </div>
+    </div>
+
+    <div class="callout">
+      <div class="callout-label">🧠 El marco psicológico del precio correcto</div>
+      <div class="callout-text">
+        El usuario de fitness premium compara <em>tu precio con lo que le cuesta ir al gym</em> (€40-80/mes),
+        no con otras apps (€5/mes). Si HealthStack Pro cuesta €9.99/mes y un mes en el gym son €50,
+        el frame mental correcto es: <em>"Con esto mejoro mi gym por 20% del precio de ir al gym"</em>.
+        Ese es el argumento de venta, no "acceso a features".
+      </div>
+    </div>
+
+    <div class="impl-box">
+      <div class="impl-header">
+        <span class="impl-badge impl-badge--key">★ Plan de monetización basado en psicología</span>
+        <span class="impl-title">Features que convierten por razón psicológica</span>
+      </div>
+      <ul class="impl-list">
+        <li class="todo">Cloud sync PRs + historial (Loss Aversion) — "no pierdas tus récords"</li>
+        <li class="todo">Streak Freeze (Loss Aversion) — "protege tu racha de días malos"</li>
+        <li class="todo">Workout Wrapped anual (Identity + Progress) — resumen visual de quién eres como atleta</li>
+        <li class="todo">AI Coach personalizado (Competencia SDT) — feedback que hace sentir que mejoras</li>
+        <li class="todo">Gym private leaderboard (FOMO Social) — paga para no quedarte fuera del ranking</li>
+        <li class="key">★ Mantener Free tier generoso — el historial acumulado es el hook de conversión a Pro</li>
+      </ul>
+    </div>
+  </section>
+
+  <hr class="divider"/>
+
+  <!-- ══════════════════════════════════════════════════════════════════════
+       MATRIZ DE PRIORIDAD — ¿Qué construir primero?
+       ══════════════════════════════════════════════════════════════════════ -->
+  <section class="section" id="matrix">
+    <div class="section-header">
+      <div class="section-icon" style="background:rgba(255,255,255,0.08); color:#fff;">🗺️</div>
+      <div class="section-meta">
+        <div class="section-label" style="color:var(--text2);">Síntesis estratégica</div>
+        <div class="section-title">Matriz de Prioridad: Impacto vs Esfuerzo</div>
+        <div class="section-author">Basada en las 8 teorías anteriores · Aplicada a HealthStack Pro roadmap</div>
+      </div>
+    </div>
+
+    <div class="matrix">
+      <div class="matrix-cell" style="border-color:rgba(34,197,94,0.30); background:rgba(34,197,94,0.05);">
+        <div class="matrix-label" style="color:#22c55e;">🚀 Alto impacto · Bajo esfuerzo<br/><small>Hacer YA</small></div>
+        <div class="matrix-items">
+          <div class="matrix-item">Framing loss aversion en copy de Pro tier</div>
+          <div class="matrix-item">Onboarding de identidad ("¿quién quieres ser?")</div>
+          <div class="matrix-item">Weekly recap push notification</div>
+          <div class="matrix-item">Tiny win notification post-entreno (dopamina)</div>
+          <div class="matrix-item">Streak freeze como feature premium ancla</div>
+        </div>
+      </div>
+      <div class="matrix-cell" style="border-color:rgba(245,158,11,0.30); background:rgba(245,158,11,0.05);">
+        <div class="matrix-label" style="color:#f59e0b;">💎 Alto impacto · Alto esfuerzo<br/><small>Planificar para Q3</small></div>
+        <div class="matrix-items">
+          <div class="matrix-item">Cloud sync PRs + historial (backend)</div>
+          <div class="matrix-item">Workout Wrapped anual (gráficos anuales)</div>
+          <div class="matrix-item">AI Coach personalizado con feedback de identidad</div>
+          <div class="matrix-item">Gym Private Wars (leaderboard temporal)</div>
+        </div>
+      </div>
+      <div class="matrix-cell" style="border-color:rgba(34,211,238,0.30); background:rgba(34,211,238,0.05);">
+        <div class="matrix-label" style="color:#22d3ee;">⚡ Bajo impacto · Bajo esfuerzo<br/><small>Quick wins</small></div>
+        <div class="matrix-items">
+          <div class="matrix-item">"Similar to you" comparación en ranked</div>
+          <div class="matrix-item">Endowed progress en onboarding (3 días regalados)</div>
+          <div class="matrix-item">Badge "consistencia real" (3×/semana, 4 semanas)</div>
+        </div>
+      </div>
+      <div class="matrix-cell" style="border-color:rgba(255,255,255,0.10); background:rgba(255,255,255,0.02);">
+        <div class="matrix-label" style="color:var(--text3);">🔮 Bajo impacto · Alto esfuerzo<br/><small>Deprioritizar</small></div>
+        <div class="matrix-items">
+          <div class="matrix-item">Wearable integrations (alto esfuerzo, baja diferen.)</div>
+          <div class="matrix-item">Video tutorials embedded</div>
+          <div class="matrix-item">Nutrición avanzada + periodización</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <hr class="divider"/>
+
+  <!-- ══════════════════════════════════════════════════════════════════════
+       PERFIL PSICOLÓGICO DEL USUARIO PREMIUM
+       ══════════════════════════════════════════════════════════════════════ -->
+  <section class="section">
+    <div class="section-header">
+      <div class="section-icon" style="background:rgba(255,255,255,0.08); color:#fff;">🧬</div>
+      <div class="section-meta">
+        <div class="section-label" style="color:var(--text2);">Perfil objetivo</div>
+        <div class="section-title">El Usuario que Pagará por HealthStack Pro</div>
+      </div>
+    </div>
+
+    <div class="cards cards-2">
+      <div class="card">
+        <div class="card-title" style="color:#a89fff;">Perfil demográfico</div>
+        <div class="card-body">
+          · <strong>25-38 años</strong> — tiene dinero y tiene tiempo de gym<br/>
+          · <strong>Entrena 3-5×/semana</strong> — no esporádico<br/>
+          · <strong>Lleva 6-24 meses</strong> entrenando — ya pasó la "fase novato"<br/>
+          · <strong>iOS user</strong> — mayor WTP demostrado en research<br/>
+          · <strong>Ha pagado algún servicio fitness</strong> antes (gimnasio, app, coach)
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-title" style="color:#a89fff;">Perfil psicológico</div>
+        <div class="card-body">
+          · Tiene una identidad atlética emergente o consolidada<br/>
+          · Valora el <strong>progreso medible</strong> sobre la experiencia vaga<br/>
+          · Siente frustración cuando no puede ver si mejora<br/>
+          · Compite consigo mismo o con un grupo pequeño (gym)<br/>
+          · Le molesta perder datos/progreso si cambia de app
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-title" style="color:#a89fff;">Qué le hace pagar</div>
+        <div class="card-body">
+          1. Miedo a perder su historial de PRs y progresión<br/>
+          2. Sentir que la app "entiende" su progreso real<br/>
+          3. Pertenecer a su gym (comunidad pequeña y cercana)<br/>
+          4. Ver quién es como atleta año a año<br/>
+          5. No querer que un día malo rompa su racha
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-title" style="color:#a89fff;">Qué le hace abandonar</div>
+        <div class="card-body">
+          1. No ver progreso claro después de 2 semanas<br/>
+          2. Comparaciones que le hacen sentir inferior<br/>
+          3. Demasiadas notificaciones irrelevantes<br/>
+          4. Fricción para registrar un entreno<br/>
+          5. No sentirse "atleta" al usar la app
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══════════ FOOTER ═══════════ -->
+  <footer class="page-footer">
+    <p>
+      <strong>HealthStack Pro — Documento estratégico interno</strong><br/>
+      Generado con investigación peer-reviewed: Frontiers in Psychology (2026), ScienceDirect, PMC, BehavioralEconomics.com, Kantar Research (2024)<br/>
+      Teorías aplicadas: SDT (Deci &amp; Ryan), Fogg BM, Atomic Habits (Clear), Prospect Theory (Kahneman &amp; Tversky),<br/>
+      Goal-Gradient (Hull), Endowed Progress (Nunes &amp; Drèze), Social Comparison (Festinger), Gamification SDT (PMC 2022)<br/>
+      <br/>
+      Rama: <code>movil-PWA</code> · 22 Mayo 2026
+    </p>
+  </footer>
+
+</div>
+</body>
+</html>

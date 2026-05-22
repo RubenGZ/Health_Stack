@@ -12,8 +12,8 @@ const REPEL_FORCE     = 0.015;  // Intensidad de la repulsión
 const SPEED           = 0.004;  // Velocidad base de las partículas
 const DAMPING         = 0.985;  // Amortiguación de velocidades
 
-// Colores del tema
-const COLORS = [0x6c63ff, 0x00d2ff, 0x8b5cf6, 0x38bdf8];
+// Colores del tema — HealthStack brand: dorado + cálidos
+const COLORS = [0xc4a561, 0xd4b97a, 0xa8843e, 0xe8c97a];
 
 let scene, camera, renderer;
 let particlesMesh, linesMesh;
@@ -66,9 +66,9 @@ function init() {
 
   const ptMat = new THREE.PointsMaterial({
     size: 0.06,
-    color: 0x6c63ff,
+    color: 0xc4a561,
     transparent: true,
-    opacity: 0.75,
+    opacity: 0.65,
     sizeAttenuation: true,
   });
 
@@ -78,9 +78,9 @@ function init() {
   // ── Líneas de conexión ─────────────────────────────────
   const lineGeo = new THREE.BufferGeometry();
   const lineMat = new THREE.LineBasicMaterial({
-    color: 0x6c63ff,
+    color: 0xc4a561,
     transparent: true,
-    opacity: 0.18,
+    opacity: 0.13,
   });
   linesMesh = new THREE.LineSegments(lineGeo, lineMat);
   scene.add(linesMesh);

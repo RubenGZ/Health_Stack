@@ -1,0 +1,1397 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>HealthStack Pro — Developer Portal</title>
+<style>
+  :root {
+    --bg:        #07070f;
+    --bg-card:   #0e0e1a;
+    --bg-row:    #111120;
+    --border:    #1e1e2e;
+    --gold:      #c4a561;
+    --gold-dim:  #8a6e3a;
+    --text:      #e2e8f0;
+    --text-dim:  #94a3b8;
+    --green:     #22c55e;
+    --yellow:    #eab308;
+    --red:       #ef4444;
+    --blue:      #60a5fa;
+    --purple:    #a78bfa;
+    --font:      'Inter', system-ui, sans-serif;
+    --radius:    8px;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: var(--font);
+    font-size: 14px;
+    line-height: 1.6;
+    min-height: 100vh;
+  }
+
+  /* ── Header ────────────────────────────────── */
+  header {
+    background: var(--bg-card);
+    border-bottom: 1px solid var(--border);
+    padding: 20px 32px;
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+  }
+  .logo {
+    width: 36px; height: 36px;
+    background: var(--gold);
+    border-radius: 8px;
+    display: grid;
+    place-items: center;
+    font-size: 18px;
+    font-weight: 900;
+    color: var(--bg);
+    flex-shrink: 0;
+  }
+  header h1 {
+    font-size: 18px;
+    font-weight: 700;
+    color: var(--text);
+  }
+  header p { font-size: 12px; color: var(--text-dim); }
+  .header-right {
+    margin-left: auto;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+  .badge-count {
+    background: var(--border);
+    color: var(--text-dim);
+    font-size: 11px;
+    padding: 2px 8px;
+    border-radius: 100px;
+  }
+
+  /* ── Nav tabs ──────────────────────────────── */
+  nav {
+    display: flex;
+    gap: 4px;
+    padding: 16px 32px 0;
+    border-bottom: 1px solid var(--border);
+    overflow-x: auto;
+  }
+  nav button {
+    background: none;
+    border: none;
+    color: var(--text-dim);
+    font-size: 13px;
+    font-weight: 500;
+    padding: 8px 16px 12px;
+    cursor: pointer;
+    border-bottom: 2px solid transparent;
+    white-space: nowrap;
+    transition: color .15s;
+  }
+  nav button:hover { color: var(--text); }
+  nav button.active {
+    color: var(--gold);
+    border-bottom-color: var(--gold);
+  }
+
+  /* ── Main layout ───────────────────────────── */
+  main { padding: 32px; max-width: 1400px; margin: 0 auto; }
+  .tab-panel { display: none; }
+  .tab-panel.active { display: block; }
+
+  /* ── Search bar ────────────────────────────── */
+  .search-wrap {
+    position: relative;
+    margin-bottom: 24px;
+  }
+  .search-wrap input {
+    width: 100%;
+    max-width: 480px;
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    color: var(--text);
+    font-size: 14px;
+    padding: 10px 16px 10px 40px;
+    outline: none;
+    transition: border-color .15s;
+  }
+  .search-wrap input:focus { border-color: var(--gold-dim); }
+  .search-wrap::before {
+    content: '🔍';
+    position: absolute;
+    left: 12px;
+    top: 50%;
+    transform: translateY(-50%);
+    font-size: 14px;
+    pointer-events: none;
+  }
+
+  /* ── Table ─────────────────────────────────── */
+  .table-wrap { overflow-x: auto; border-radius: var(--radius); border: 1px solid var(--border); }
+  table { width: 100%; border-collapse: collapse; }
+  thead { background: var(--bg-card); }
+  th {
+    text-align: left;
+    padding: 10px 16px;
+    font-size: 11px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: .06em;
+    color: var(--text-dim);
+    white-space: nowrap;
+  }
+  td {
+    padding: 10px 16px;
+    border-top: 1px solid var(--border);
+    vertical-align: middle;
+  }
+  tr:hover td { background: var(--bg-row); }
+  .file-path {
+    font-family: 'Fira Code', 'Courier New', monospace;
+    font-size: 12px;
+    color: var(--gold);
+  }
+  .lines-badge {
+    font-size: 11px;
+    padding: 2px 8px;
+    border-radius: 100px;
+    font-weight: 600;
+    white-space: nowrap;
+  }
+  .lines-ok  { background: rgba(34,197,94,.12);  color: var(--green); }
+  .lines-mid { background: rgba(234,179,8,.12);  color: var(--yellow); }
+  .lines-big { background: rgba(239,68,68,.12);  color: var(--red); }
+
+  .pattern-chip {
+    font-size: 11px;
+    padding: 2px 8px;
+    border-radius: 100px;
+    white-space: nowrap;
+  }
+  .iife    { background: rgba(196,165,97,.15); color: var(--gold); }
+  .esm     { background: rgba(96,165,250,.15); color: var(--blue); }
+  .global  { background: rgba(167,139,250,.15); color: var(--purple); }
+
+  .status-chip {
+    font-size: 11px;
+    padding: 2px 8px;
+    border-radius: 100px;
+    white-space: nowrap;
+  }
+  .s-prod  { background: rgba(34,197,94,.12);  color: var(--green); }
+  .s-wip   { background: rgba(234,179,8,.12);  color: var(--yellow); }
+  .s-infra { background: rgba(96,165,250,.12); color: var(--blue); }
+  .s-noop  { background: rgba(100,116,139,.12); color: var(--text-dim); }
+
+  /* ── Section headers ───────────────────────── */
+  .section-head {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin: 32px 0 16px;
+  }
+  .section-head:first-child { margin-top: 0; }
+  .section-head h2 { font-size: 15px; font-weight: 700; }
+  .section-head .sep {
+    flex: 1;
+    height: 1px;
+    background: var(--border);
+  }
+
+  /* ── FCT grid ──────────────────────────────── */
+  .fct-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 16px;
+    margin-bottom: 32px;
+  }
+  .fct-card {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 16px;
+  }
+  .fct-card h3 {
+    font-size: 13px;
+    font-weight: 700;
+    margin-bottom: 12px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .fct-feature {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 5px 0;
+    font-size: 12px;
+    color: var(--text-dim);
+    border-top: 1px solid var(--border);
+  }
+  .fct-feature:first-of-type { border-top: none; }
+  .dot {
+    width: 8px; height: 8px;
+    border-radius: 50%;
+    flex-shrink: 0;
+  }
+  .dot-green  { background: var(--green); }
+  .dot-yellow { background: var(--yellow); }
+  .dot-red    { background: var(--red); }
+  .dot-blue   { background: var(--blue); }
+  .fct-feature span { flex: 1; }
+  .fct-feature .mod {
+    font-family: monospace;
+    font-size: 10px;
+    color: var(--text-dim);
+    opacity: .7;
+  }
+
+  /* ── Diagnostic cards ──────────────────────── */
+  .diag-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
+    gap: 16px;
+  }
+  .diag-card {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 20px;
+  }
+  .diag-card .symptom {
+    font-size: 12px;
+    font-weight: 700;
+    color: var(--red);
+    margin-bottom: 8px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .diag-card p { font-size: 12px; color: var(--text-dim); margin-bottom: 12px; }
+  .diag-files { display: flex; flex-wrap: wrap; gap: 6px; }
+  .diag-files code {
+    font-size: 11px;
+    background: rgba(196,165,97,.1);
+    border: 1px solid rgba(196,165,97,.2);
+    color: var(--gold);
+    padding: 2px 8px;
+    border-radius: 4px;
+  }
+
+  /* ── Event bus table ───────────────────────── */
+  .event-bus { display: flex; flex-direction: column; gap: 8px; }
+  .event-row {
+    display: grid;
+    grid-template-columns: 260px 1fr 200px;
+    gap: 16px;
+    align-items: center;
+    padding: 10px 16px;
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    font-size: 12px;
+  }
+  .event-name { font-family: monospace; color: var(--gold); font-size: 13px; }
+  .event-desc { color: var(--text-dim); }
+  .event-files { display: flex; gap: 4px; flex-wrap: wrap; }
+  .event-files code {
+    font-size: 10px;
+    background: rgba(96,165,250,.1);
+    color: var(--blue);
+    padding: 1px 6px;
+    border-radius: 4px;
+  }
+
+  /* ── Globals table ─────────────────────────── */
+  .global-list { display: flex; flex-direction: column; gap: 8px; }
+  .global-row {
+    display: grid;
+    grid-template-columns: 220px 1fr 160px;
+    gap: 16px;
+    align-items: start;
+    padding: 12px 16px;
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    font-size: 12px;
+  }
+  .global-name { font-family: monospace; color: var(--purple); font-size: 13px; }
+  .global-sig { font-family: monospace; font-size: 11px; color: var(--text-dim); }
+  .global-def { font-family: monospace; font-size: 10px; color: var(--gold-dim); }
+
+  /* ── Stats bar ─────────────────────────────── */
+  .stats-bar {
+    display: flex;
+    gap: 24px;
+    margin-bottom: 32px;
+    flex-wrap: wrap;
+  }
+  .stat-pill {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 12px 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+  }
+  .stat-pill .val {
+    font-size: 24px;
+    font-weight: 800;
+    color: var(--gold);
+    line-height: 1;
+  }
+  .stat-pill .lbl { font-size: 11px; color: var(--text-dim); }
+
+  /* ── Hidden rows ───────────────────────────── */
+  tr.hidden { display: none; }
+
+  @media (max-width: 768px) {
+    header { padding: 16px; }
+    nav { padding: 12px 16px 0; }
+    main { padding: 16px; }
+    .event-row { grid-template-columns: 1fr; gap: 6px; }
+    .global-row { grid-template-columns: 1fr; gap: 4px; }
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="logo">HS</div>
+  <div>
+    <h1>HealthStack Pro — Developer Portal</h1>
+    <p>Frontend SPA · Vanilla JS · Fase 5 · 2026-05-23</p>
+  </div>
+  <div class="header-right">
+    <span class="badge-count">60 módulos</span>
+    <span class="badge-count">~14 500 líneas</span>
+  </div>
+</header>
+
+<nav>
+  <button class="active" onclick="showTab('catalog')">📦 Catálogo</button>
+  <button onclick="showTab('fct')">✅ FCT</button>
+  <button onclick="showTab('events')">📡 Event Bus</button>
+  <button onclick="showTab('globals')">🌐 Globals</button>
+  <button onclick="showTab('diag')">🔍 Diagnóstico</button>
+  <button onclick="showTab('arch')">🏗 Arquitectura</button>
+</nav>
+
+<main>
+
+<!-- ═══════════════════════════════════════════════════════════
+     TAB 1 — MODULE CATALOG
+═══════════════════════════════════════════════════════════ -->
+<div id="tab-catalog" class="tab-panel active">
+
+  <div class="stats-bar">
+    <div class="stat-pill"><span class="val">60</span><span class="lbl">archivos JS</span></div>
+    <div class="stat-pill"><span class="val">~14 500</span><span class="lbl">líneas de código</span></div>
+    <div class="stat-pill"><span class="val">35</span><span class="lbl">IIFEs</span></div>
+    <div class="stat-pill"><span class="val">10</span><span class="lbl">ES modules</span></div>
+    <div class="stat-pill"><span class="val">v56</span><span class="lbl">Service Worker</span></div>
+  </div>
+
+  <div class="search-wrap">
+    <input type="text" id="catalog-search" placeholder="Buscar módulo o ruta..." oninput="filterCatalog(this.value)">
+  </div>
+
+  <!-- CORE -->
+  <div class="section-head"><h2>⚙️ Core / Infraestructura</h2><div class="sep"></div></div>
+  <div class="table-wrap" style="margin-bottom:24px">
+    <table id="catalog-table">
+      <thead><tr>
+        <th>Archivo</th><th>Líneas</th><th>Patrón</th><th>Estado</th><th>Descripción</th><th>Expone / Depende de</th>
+      </tr></thead>
+      <tbody>
+        <tr>
+          <td><span class="file-path">js/app.js</span></td>
+          <td><span class="lines-badge lines-mid">555</span></td>
+          <td><span class="pattern-chip iife">IIFE</span></td>
+          <td><span class="status-chip s-infra">infra</span></td>
+          <td>Router / coordinator. Maneja secciones, navegación, OAuth callback, landing bridge, helpers globales. Fase 5: delega a Dashboard y PWAManager.</td>
+          <td><code>window.navigateTo · window.createEmptyState · window.createSkeletonCard · window.setFieldState · window.haptic</code></td>
+        </tr>
+        <tr>
+          <td><span class="file-path">js/api.js</span></td>
+          <td><span class="lines-badge lines-ok">447</span></td>
+          <td><span class="pattern-chip global">Global</span></td>
+          <td><span class="status-chip s-infra">infra</span></td>
+          <td>Capa HTTP centralizada. <code>apiFetch()</code> envuelve fetch con JWT (Bearer), refresh automático, timeout, error normalizado. Todos los módulos lo usan.</td>
+          <td><code>window.apiFetch · window.getToken · window.clearAuth</code></td>
+        </tr>
+        <tr>
+          <td><span class="file-path">js/auth.js</span></td>
+          <td><span class="lines-badge lines-ok">452</span></td>
+          <td><span class="pattern-chip iife">IIFE</span></td>
+          <td><span class="status-chip s-prod">prod</span></td>
+          <td>Flujos de auth: login, registro, OAuth Google, refresh, logout. Emite <code>hs:login</code> / <code>hs:logout</code>.</td>
+          <td>Depende de: <code>api.js · config.js</code></td>
+        </tr>
+        <tr>
+          <td><span class="file-path">js/auth-gate.js</span></td>
+          <td><span class="lines-badge lines-ok">62</span></td>
+          <td><span class="pattern-chip iife">IIFE</span></td>
+          <td><span class="status-chip s-infra">infra</span></td>
+          <td>Guardián de ruta — corre en <code>&lt;head&gt;</code> antes de parsear el DOM. Redirige a la landing si no hay token.</td>
+          <td>Sin dependencias externas (inline en HTML)</td>
+        </tr>
+        <tr>
+          <td><span class="file-path">js/config.js</span></td>
+          <td><span class="lines-badge lines-big">1311</span></td>
+          <td><span class="pattern-chip global">Global</span></td>
+          <td><span class="status-chip s-infra">infra</span></td>
+          <td>Constantes de configuración. Ingredientes (~800), ejercicios, grupos musculares, mensajes i18n fallback, <code>HS_CONFIG</code> (sponsor, API_BASE).</td>
+          <td><code>window.HS_CONFIG · window.INGREDIENTS · window.EXERCISES_DB</code></td>
+        </tr>
+        <tr>
+          <td><span class="file-path">js/i18n.js</span></td>
+          <td><span class="lines-badge lines-ok">341</span></td>
+          <td><span class="pattern-chip global">Global</span></td>
+          <td><span class="status-chip s-prod">prod</span></td>
+          <td>Sistema i18n. Carga JSON de traducciones (es/en), expone <code>window.t(key)</code>, aplica <code>[data-i18n]</code>, emite <code>languagechange</code> + reload(120ms).</td>
+          <td><code>window.t · window.setLanguage · window.getCurrentLang</code></td>
+        </tr>
+        <tr>
+          <td><span class="file-path">js/toast.js</span></td>
+          <td><span class="lines-badge lines-ok">373</span></td>
+          <td><span class="pattern-chip global">Global</span></td>
+          <td><span class="status-chip s-prod">prod</span></td>
+          <td>Sistema de notificaciones. <code>showToast()</code> y <code>showConfirm()</code> reemplazan alert/confirm nativos. Fase 2.</td>
+          <td><code>window.showToast · window.showConfirm</code></td>
+        </tr>
+        <tr>
+          <td><span class="file-path">js/chartDefaults.js</span></td>
+          <td><span class="lines-badge lines-ok">123</span></td>
+          <td><span class="pattern-chip global">Global</span></td>
+          <td><span class="status-chip s-prod">prod</span></td>
+          <td>Defaults globales de Chart.js para el tema dark gold. Registra paleta, fuentes, grid, tooltips. Fase 2.</td>
+          <td>Depende de: <code>vendor/chart.umd.min.js</code></td>
+        </tr>
+        <tr>
+          <td><span class="file-path">js/themeManager.js</span></td>
+          <td><span class="lines-badge lines-ok">120</span></td>
+          <td><span class="pattern-chip iife">IIFE</span></td>
+          <td><span class="status-chip s-prod">prod</span></td>
+          <td>Gestión de 3 temas (forge/midnight/aurora). Aplica <code>data-theme</code> al root, persiste en localStorage.</td>
+          <td><code>window.ThemeManager</code></td>
+        </tr>
+        <tr>
+          <td><span class="file-path">js/mobileNav.js</span></td>
+          <td><span class="lines-badge lines-ok">314</span></td>
+          <td><span class="pattern-chip iife">IIFE</span></td>
+          <td><span class="status-chip s-prod">prod</span></td>
+          <td>Navegación móvil bottom-bar, gestos swipe, haptic feedback en cambio de sección.</td>
+          <td>Depende de: <code>app.js (navigateTo)</code></td>
+        </tr>
+        <tr>
+          <td><span class="file-path">js/onboarding.js</span></td>
+          <td><span class="lines-badge lines-ok">477</span></td>
+          <td><span class="pattern-chip iife">IIFE</span></td>
+          <td><span class="status-chip s-prod">prod</span></td>
+          <td>Tour guiado de primera vez. Pasos con overlay, tooltips, progreso persistido en localStorage.</td>
+          <td><code>window.OnboardingTour</code></td>
+        </tr>
+
+        <!-- DASHBOARD -->
+        <tr><td colspan="6" style="background:var(--bg);padding:12px 16px;font-size:11px;font-weight:700;color:var(--text-dim);text-transform:uppercase;letter-spacing:.06em">📊 Dashboard</td></tr>
+        <tr>
+          <td><span class="file-path">js/dashboard/index.js</span></td>
+          <td><span class="lines-badge lines-ok">463</span></td>
+          <td><span class="pattern-chip iife">IIFE</span></td>
+          <td><span class="status-chip s-prod">prod</span></td>
+          <td>Extraído de app.js (Fase 5). Saludo, chip de usuario, XP/nivel, count-up animado, stat cards, mini chart peso (update in-place), progress insight, TDEE widget.</td>
+          <td><code>window.Dashboard = { init, refresh, updateStreak, renderProgressInsight }</code></td>
+        </tr>
+        <tr>
+          <td><span class="file-path">js/pwa/index.js</span></td>
+          <td><span class="lines-badge lines-ok">120</span></td>
+          <td><span class="pattern-chip iife">IIFE</span></td>
+          <td><span class="status-chip s-prod">prod</span></td>
+          <td>Extraído de app.js (Fase 5). Install banner Android/iOS, detección iOS Safari, banner de sponsor.</td>
+          <td><code>window.PWAManager = { init }</code></td>
+        </tr>
+
+        <!-- FITNESS -->
+        <tr><td colspan="6" style="background:var(--bg);padding:12px 16px;font-size:11px;font-weight:700;color:var(--text-dim);text-transform:uppercase;letter-spacing:.06em">💪 Fitness / Entrenamiento</td></tr>
+        <tr>
+          <td><span class="file-path">js/workoutLogger.js</span></td>
+          <td><span class="lines-badge lines-big">1299</span></td>
+          <td><span class="pattern-chip iife">IIFE</span></td>
+          <td><span class="status-chip s-prod">prod</span></td>
+          <td>Logger de sesión activa. Timer, sets/reps, inactividad, PR detection en tiempo real, resumen post-workout. <strong>Candidato a split Fase 6.</strong></td>
+          <td>Emite: <code>hs:workout-session-changed · hs:pr-achieved · hs:set-completed · hs:workout-finished</code></td>
+        </tr>
+        <tr>
+          <td><span class="file-path">js/workoutHistory.js</span></td>
+          <td><span class="lines-badge lines-ok">462</span></td>
+          <td><span class="pattern-chip iife">IIFE</span></td>
+          <td><span class="status-chip s-prod">prod</span></td>
+          <td>Historial de sesiones. Listado paginado, detalle de sesión, gráficos de volumen/1RM. Parámetro <code>per_page</code> (corregido 2026-05-18).</td>
+          <td>Depende de: <code>api.js · chartDefaults.js</code></td>
+        </tr>
+        <tr>
+          <td><span class="file-path">js/workoutSession.js</span></td>
+          <td><span class="lines-badge lines-ok">163</span></td>
+          <td><span class="pattern-chip esm">ESM</span></td>
+          <td><span class="status-chip s-prod">prod</span></td>
+          <td>Estado de sesión activa (singleton). Importado por workoutInit.js como ES module.</td>
+          <td>Importado por: <code>workoutInit.js</code></td>
+        </tr>
+        <tr>
+          <td><span class="file-path">js/workoutInit.js</span></td>
+          <td><span class="lines-badge lines-ok">7</span></td>
+          <td><span class="pattern-chip esm">ESM</span></td>
+          <td><span class="status-chip s-infra">infra</span></td>
+          <td>Entry point del árbol ESM de workout. Importa workoutSession + workoutLogger + workoutPR.</td>
+          <td><code>type="module"</code> en index.html</td>
+        </tr>
+        <tr>
+          <td><span class="file-path">js/workoutPR.js</span></td>
+          <td><span class="lines-badge lines-ok">100</span></td>
+          <td><span class="pattern-chip esm">ESM</span></td>
+          <td><span class="status-chip s-prod">prod</span></td>
+          <td>Celebración de Personal Records. Animación haptic + confetti + toast al detectar PR.</td>
+          <td>Importado por: <code>workoutInit.js</code></td>
+        </tr>
+        <tr>
+          <td><span class="file-path">js/oneRepMax.js</span></td>
+          <td><span class="lines-badge lines-ok">159</span></td>
+          <td><span class="pattern-chip esm">ESM</span></td>
+          <td><span class="status-chip s-prod">prod</span></td>
+          <td>Calculadora 1RM (Epley, Brzycki, Lander). UI de calculadora standalone en la sección Records.</td>
+          <td>Depende de: <code>api.js</code></td>
+        </tr>
+        <tr>
+          <td><span class="file-path">js/exercises.js</span></td>
+          <td><span class="lines-badge lines-mid">618</span></td>
+          <td><span class="pattern-chip iife">IIFE</span></td>
+          <td><span class="status-chip s-prod">prod</span></td>
+          <td>Explorador de ejercicios. Filtro por grupo muscular, búsqueda, animaciones. Usa <code>EXERCISES_DB</code> de config.js.</td>
+          <td>Depende de: <code>config.js</code></td>
+        </tr>
+        <tr>
+          <td><span class="file-path">js/routineGenerator.js</span></td>
+          <td><span class="lines-badge lines-big">1250</span></td>
+          <td><span class="pattern-chip iife">IIFE</span></td>
+          <td><span class="status-chip s-prod">prod</span></td>
+          <td>Generador de rutinas personalizadas. Formulario wizard, días/semana, objetivo, nivel. Llama <code>/api/v1/routines</code>.</td>
+          <td>Depende de: <code>api.js · toast.js</code></td>
+        </tr>
+        <tr>
+          <td><span class="file-path">js/records.js</span></td>
+          <td><span class="lines-badge lines-ok">165</span></td>
+          <td><span class="pattern-chip iife">IIFE</span></td>
+          <td><span class="status-chip s-prod">prod</span></td>
+          <td>Vista de récords personales. Lista PRs por ejercicio, sparklines de progresión.</td>
+          <td>Depende de: <code>api.js</code></td>
+        </tr>
+        <tr>
+          <td><span class="file-path">js/restTimer.js</span></td>
+          <td><span class="lines-badge lines-ok">119</span></td>
+          <td><span class="pattern-chip iife">IIFE</span></td>
+          <td><span class="status-chip s-prod">prod</span></td>
+          <td>Timer de descanso entre series. Vibración haptic al acabar, cancelable.</td>
+          <td>Depende de: <code>app.js (haptic)</code></td>
+        </tr>
+        <tr>
+          <td><span class="file-path">js/ranked.js</span></td>
+          <td><span class="lines-badge lines-ok">241</span></td>
+          <td><span class="pattern-chip iife">IIFE</span></td>
+          <td><span class="status-chip s-wip">WIP</span></td>
+          <td>Leaderboard clasificatorio. Temporadas (actualmente hardcoded season=1), LP, divisiones.</td>
+          <td>Depende de: <code>api.js</code></td>
+        </tr>
+        <tr>
+          <td><span class="file-path">js/readiness.js</span></td>
+          <td><span class="lines-badge lines-ok">87</span></td>
+          <td><span class="pattern-chip iife">IIFE</span></td>
+          <td><span class="status-chip s-prod">prod</span></td>
+          <td>Check-in de estado diario. Encuesta de readiness (sueño, estrés, energía). Score visual.</td>
+          <td>Depende de: <code>api.js</code></td>
+        </tr>
+        <tr>
+          <td><span class="file-path">js/rehabLogger.js</span></td>
+          <td><span class="lines-badge lines-mid">894</span></td>
+          <td><span class="pattern-chip iife">IIFE</span></td>
+          <td><span class="status-chip s-wip">WIP</span></td>
+          <td>Registro de rehabilitación. Ejercicios terapéuticos, escala de dolor, progresión. Sin backend activo.</td>
+          <td>Depende de: <code>api.js · anatomyLens/</code></td>
+        </tr>
+        <tr>
+          <td><span class="file-path">js/athleteReceipt.js</span></td>
+          <td><span class="lines-badge lines-ok">114</span></td>
+          <td><span class="pattern-chip iife">IIFE</span></td>
+          <td><span class="status-chip s-prod">prod</span></td>
+          <td>Resumen visual de sesión ("receipt"). Imagen compartible con stats de la sesión.</td>
+          <td>Depende de: <code>workoutLogger.js</code></td>
+        </tr>
+
+        <!-- NUTRICIÓN -->
+        <tr><td colspan="6" style="background:var(--bg);padding:12px 16px;font-size:11px;font-weight:700;color:var(--text-dim);text-transform:uppercase;letter-spacing:.06em">🥗 Nutrición</td></tr>
+        <tr>
+          <td><span class="file-path">js/macroCalc.js</span></td>
+          <td><span class="lines-badge lines-ok">252</span></td>
+          <td><span class="pattern-chip iife">IIFE</span></td>
+          <td><span class="status-chip s-prod">prod</span></td>
+          <td>Calculadora de macros TDEE. Fórmula Mifflin-St Jeor, factores de actividad, objetivo.</td>
+          <td>Depende de: <code>config.js · api.js</code></td>
+        </tr>
+        <tr>
+          <td><span class="file-path">js/planner.js</span></td>
+          <td><span class="lines-badge lines-ok">528</span></td>
+          <td><span class="pattern-chip iife">IIFE</span></td>
+          <td><span class="status-chip s-prod">prod</span></td>
+          <td>Planificador de comidas semanal. Drag-and-drop recetas, totales de macros por día. XSS-safe (Fase 5).</td>
+          <td>Emite: <code>hs:tdee-calculated</code></td>
+        </tr>
+        <tr>
+          <td><span class="file-path">js/myRecipes.js</span></td>
+          <td><span class="lines-badge lines-mid">771</span></td>
+          <td><span class="pattern-chip iife">IIFE</span></td>
+          <td><span class="status-chip s-prod">prod</span></td>
+          <td>CRUD de recetas personalizadas. Constructor de ingredientes, cálculo automático de macros.</td>
+          <td>Depende de: <code>api.js · config.js</code></td>
+        </tr>
+        <tr>
+          <td><span class="file-path">js/supplements.js</span></td>
+          <td><span class="lines-badge lines-ok">237</span></td>
+          <td><span class="pattern-chip iife">IIFE</span></td>
+          <td><span class="status-chip s-prod">prod</span></td>
+          <td>Tracking de suplementos. Recordatorios, log de toma, stack recomendado.</td>
+          <td>Depende de: <code>api.js · toast.js</code></td>
+        </tr>
+        <tr>
+          <td><span class="file-path">js/timingPlanner.js</span></td>
+          <td><span class="lines-badge lines-ok">484</span></td>
+          <td><span class="pattern-chip iife">IIFE</span></td>
+          <td><span class="status-chip s-prod">prod</span></td>
+          <td>Planificador de timing nutricional. Pre/intra/post-workout, ventanas de nutrientes.</td>
+          <td>Depende de: <code>api.js</code></td>
+        </tr>
+
+        <!-- ANALÍTICA -->
+        <tr><td colspan="6" style="background:var(--bg);padding:12px 16px;font-size:11px;font-weight:700;color:var(--text-dim);text-transform:uppercase;letter-spacing:.06em">📈 Analítica avanzada</td></tr>
+        <tr>
+          <td><span class="file-path">js/weightTracker.js</span></td>
+          <td><span class="lines-badge lines-mid">600</span></td>
+          <td><span class="pattern-chip iife">IIFE</span></td>
+          <td><span class="status-chip s-prod">prod</span></td>
+          <td>Tracker de peso corporal. Registro diario, gráfico histórico, tendencia, IMC. Emite <code>hs:weight-updated</code>.</td>
+          <td>Emite: <code>hs:weight-updated</code></td>
+        </tr>
+        <tr>
+          <td><span class="file-path">js/gamification.js</span></td>
+          <td><span class="lines-badge lines-ok">348</span></td>
+          <td><span class="pattern-chip iife">IIFE</span></td>
+          <td><span class="status-chip s-prod">prod</span></td>
+          <td>Sistema de gamificación. XP, niveles, logros, streaks, animación de subida de nivel.</td>
+          <td>Depende de: <code>api.js</code></td>
+        </tr>
+        <tr>
+          <td><span class="file-path">js/plateauRadar.js</span></td>
+          <td><span class="lines-badge lines-ok">145</span></td>
+          <td><span class="pattern-chip iife">IIFE</span></td>
+          <td><span class="status-chip s-prod">prod</span></td>
+          <td>Radar chart de grupos musculares. Detecta desequilibrios y estancamientos por zona.</td>
+          <td>Depende de: <code>chartDefaults.js</code></td>
+        </tr>
+        <tr>
+          <td><span class="file-path">js/fatigueHeatmap.js</span></td>
+          <td><span class="lines-badge lines-ok">174</span></td>
+          <td><span class="pattern-chip iife">IIFE</span></td>
+          <td><span class="status-chip s-prod">prod</span></td>
+          <td>Heatmap de fatiga semanal. Volumen × frecuencia por grupo muscular, escala de calor.</td>
+          <td>Depende de: <code>api.js</code></td>
+        </tr>
+        <tr>
+          <td><span class="file-path">js/sessionReplay.js</span></td>
+          <td><span class="lines-badge lines-ok">232</span></td>
+          <td><span class="pattern-chip iife">IIFE</span></td>
+          <td><span class="status-chip s-prod">prod</span></td>
+          <td>Replay visual de sesión. Reproduce cronológicamente los sets de una sesión pasada.</td>
+          <td>Depende de: <code>api.js</code></td>
+        </tr>
+        <tr>
+          <td><span class="file-path">js/bodyCompForecast.js</span></td>
+          <td><span class="lines-badge lines-ok">282</span></td>
+          <td><span class="pattern-chip iife">IIFE</span></td>
+          <td><span class="status-chip s-prod">prod</span></td>
+          <td>Proyección de composición corporal. Modelo lineal peso/grasa en el tiempo según déficit calórico.</td>
+          <td>Depende de: <code>chartDefaults.js · macroCalc.js</code></td>
+        </tr>
+        <tr>
+          <td><span class="file-path">js/autoDeload.js</span></td>
+          <td><span class="lines-badge lines-ok">306</span></td>
+          <td><span class="pattern-chip iife">IIFE</span></td>
+          <td><span class="status-chip s-prod">prod</span></td>
+          <td>Detector automático de necesidad de deload. Analiza volumen acumulado + fatiga percibida.</td>
+          <td>Depende de: <code>api.js</code></td>
+        </tr>
+        <tr>
+          <td><span class="file-path">js/macroAutopilot.js</span></td>
+          <td><span class="lines-badge lines-ok">188</span></td>
+          <td><span class="pattern-chip iife">IIFE</span></td>
+          <td><span class="status-chip s-prod">prod</span></td>
+          <td>Ajuste automático de macros según evolución de peso. Cicla calorías para romper plateaus.</td>
+          <td>Depende de: <code>api.js · weightTracker.js</code></td>
+        </tr>
+        <tr>
+          <td><span class="file-path">js/plan.js</span></td>
+          <td><span class="lines-badge lines-ok">395</span></td>
+          <td><span class="pattern-chip iife">IIFE</span></td>
+          <td><span class="status-chip s-prod">prod</span></td>
+          <td>Vista de plan semanal consolidado. Integra rutina + comidas + readiness en una vista de calendario.</td>
+          <td>Depende de: <code>api.js</code></td>
+        </tr>
+
+        <!-- IA -->
+        <tr><td colspan="6" style="background:var(--bg);padding:12px 16px;font-size:11px;font-weight:700;color:var(--text-dim);text-transform:uppercase;letter-spacing:.06em">🤖 IA / Chat</td></tr>
+        <tr>
+          <td><span class="file-path">js/aiCoach.js</span></td>
+          <td><span class="lines-badge lines-ok">230</span></td>
+          <td><span class="pattern-chip iife">IIFE</span></td>
+          <td><span class="status-chip s-prod">prod</span></td>
+          <td>Chat con AI Coach. Llama <code>/api/v1/ai-coach</code>. Historial de conversación, fallback graceful sin API key.</td>
+          <td>Depende de: <code>api.js · toast.js</code></td>
+        </tr>
+        <tr>
+          <td><span class="file-path">js/aiInsights.js</span></td>
+          <td><span class="lines-badge lines-ok">320</span></td>
+          <td><span class="pattern-chip iife">IIFE</span></td>
+          <td><span class="status-chip s-prod">prod</span></td>
+          <td>Insights de IA: narrativa biomarcadores, riesgo de lesión, metas semanales. RGPD: pipeline de anonimización en backend.</td>
+          <td>Depende de: <code>api.js</code></td>
+        </tr>
+        <tr>
+          <td><span class="file-path">js/chatbot.js</span></td>
+          <td><span class="lines-badge lines-ok">400</span></td>
+          <td><span class="pattern-chip iife">IIFE</span></td>
+          <td><span class="status-chip s-prod">prod</span></td>
+          <td>Chatbot público (sin auth). FAQ, onboarding, guías de uso. Usa contexto del chat module.</td>
+          <td>Depende de: <code>api.js</code></td>
+        </tr>
+
+        <!-- ANATOMÍA -->
+        <tr><td colspan="6" style="background:var(--bg);padding:12px 16px;font-size:11px;font-weight:700;color:var(--text-dim);text-transform:uppercase;letter-spacing:.06em">🫀 Anatomy Lens</td></tr>
+        <tr>
+          <td><span class="file-path">js/anatomyLens/index.js</span></td>
+          <td><span class="lines-badge lines-ok">117</span></td>
+          <td><span class="pattern-chip iife">IIFE</span></td>
+          <td><span class="status-chip s-wip">WIP</span></td>
+          <td>Orquestador del visor anatómico. Coordina SVG viewer, muscle map y legend.</td>
+          <td><code>window.AnatomyLens</code></td>
+        </tr>
+        <tr>
+          <td><span class="file-path">js/anatomyLens/svgViewer.js</span></td>
+          <td><span class="lines-badge lines-mid">675</span></td>
+          <td><span class="pattern-chip iife">IIFE</span></td>
+          <td><span class="status-chip s-wip">WIP</span></td>
+          <td>Visor SVG anatómico interactivo. Hover/click en músculos, vistas anterior/posterior.</td>
+          <td>Depende de: <code>anatomyLens/index.js</code></td>
+        </tr>
+        <tr>
+          <td><span class="file-path">js/anatomyLens/muscleMap.js</span></td>
+          <td><span class="lines-badge lines-ok">272</span></td>
+          <td><span class="pattern-chip iife">IIFE</span></td>
+          <td><span class="status-chip s-wip">WIP</span></td>
+          <td>Mapa de calor muscular. Colorea grupos según volumen/fatiga de sesión actual.</td>
+          <td>Depende de: <code>anatomyLens/index.js · workoutLogger.js</code></td>
+        </tr>
+        <tr>
+          <td><span class="file-path">js/anatomyLens/legend.js</span></td>
+          <td><span class="lines-badge lines-ok">89</span></td>
+          <td><span class="pattern-chip iife">IIFE</span></td>
+          <td><span class="status-chip s-wip">WIP</span></td>
+          <td>Leyenda del visor anatómico. Escala de color, etiquetas de grupos musculares.</td>
+          <td>Depende de: <code>anatomyLens/index.js</code></td>
+        </tr>
+
+        <!-- ADMIN -->
+        <tr><td colspan="6" style="background:var(--bg);padding:12px 16px;font-size:11px;font-weight:700;color:var(--text-dim);text-transform:uppercase;letter-spacing:.06em">🔒 Admin Panel</td></tr>
+        <tr>
+          <td><span class="file-path">js/admin/admin.js</span></td>
+          <td><span class="lines-badge lines-ok">58</span></td>
+          <td><span class="pattern-chip iife">IIFE</span></td>
+          <td><span class="status-chip s-prod">prod</span></td>
+          <td>Orquestador del panel admin. Inicia todos los sub-módulos cuando role=admin.</td>
+          <td><code>window.AdminPanel</code></td>
+        </tr>
+        <tr>
+          <td><span class="file-path">js/admin/adminApi.js</span></td>
+          <td><span class="lines-badge lines-ok">33</span></td>
+          <td><span class="pattern-chip iife">IIFE</span></td>
+          <td><span class="status-chip s-prod">prod</span></td>
+          <td>Helpers HTTP específicos del admin. Abstrae rutas <code>/api/v1/admin/*</code>.</td>
+          <td>Depende de: <code>api.js</code></td>
+        </tr>
+        <tr>
+          <td><span class="file-path">js/admin/adminMetrics.js</span></td>
+          <td><span class="lines-badge lines-ok">58</span></td>
+          <td><span class="pattern-chip iife">IIFE</span></td>
+          <td><span class="status-chip s-prod">prod</span></td>
+          <td>Métricas del sistema en admin. Stats de uso, contadores de usuarios, solicitudes.</td>
+          <td>Depende de: <code>adminApi.js · chartDefaults.js</code></td>
+        </tr>
+        <tr>
+          <td><span class="file-path">js/admin/adminStats.js</span></td>
+          <td><span class="lines-badge lines-ok">92</span></td>
+          <td><span class="pattern-chip iife">IIFE</span></td>
+          <td><span class="status-chip s-prod">prod</span></td>
+          <td>Stats de salud de la app. CPU, memoria, BD activa, latencia API.</td>
+          <td>Depende de: <code>adminApi.js</code></td>
+        </tr>
+        <tr>
+          <td><span class="file-path">js/admin/adminTables.js</span></td>
+          <td><span class="lines-badge lines-ok">69</span></td>
+          <td><span class="pattern-chip iife">IIFE</span></td>
+          <td><span class="status-chip s-prod">prod</span></td>
+          <td>Explorador de tablas de BD en el admin. Consultas raw, paginación.</td>
+          <td>Depende de: <code>adminApi.js</code></td>
+        </tr>
+        <tr>
+          <td><span class="file-path">js/admin/adminUsers.js</span></td>
+          <td><span class="lines-badge lines-ok">147</span></td>
+          <td><span class="pattern-chip iife">IIFE</span></td>
+          <td><span class="status-chip s-prod">prod</span></td>
+          <td>Gestión de usuarios desde admin. CRUD, ban, elevación a admin. XSS-safe con <code>esc()</code> (Fase 5).</td>
+          <td>Depende de: <code>adminApi.js · toast.js</code></td>
+        </tr>
+
+        <!-- 3D / VISUAL -->
+        <tr><td colspan="6" style="background:var(--bg);padding:12px 16px;font-size:11px;font-weight:700;color:var(--text-dim);text-transform:uppercase;letter-spacing:.06em">🎨 3D / Visual</td></tr>
+        <tr>
+          <td><span class="file-path">js/athleteViewer.js</span></td>
+          <td><span class="lines-badge lines-ok">309</span></td>
+          <td><span class="pattern-chip esm">ESM</span></td>
+          <td><span class="status-chip s-prod">prod</span></td>
+          <td>Visor 3D del atleta con Three.js. Carga <code>models/athlete.glb</code>, rotación automática, reacciona a grupos musculares activos.</td>
+          <td><code>type="module"</code>, depende de Three.js CDN</td>
+        </tr>
+        <tr>
+          <td><span class="file-path">js/background3d.js</span></td>
+          <td><span class="lines-badge lines-ok">184</span></td>
+          <td><span class="pattern-chip iife">IIFE</span></td>
+          <td><span class="status-chip s-prod">prod</span></td>
+          <td>Fondo 3D animado de partículas. Three.js canvas en el background del dashboard.</td>
+          <td>Depende de: Three.js CDN</td>
+        </tr>
+        <tr>
+          <td><span class="file-path">js/heroScene.js</span></td>
+          <td><span class="lines-badge lines-ok">340</span></td>
+          <td><span class="pattern-chip iife">IIFE</span></td>
+          <td><span class="status-chip s-infra">infra</span></td>
+          <td>Escena 3D del hero de la landing. Solo se usa en la landing page, no en la SPA.</td>
+          <td>Depende de: Three.js CDN</td>
+        </tr>
+
+        <!-- MISC -->
+        <tr><td colspan="6" style="background:var(--bg);padding:12px 16px;font-size:11px;font-weight:700;color:var(--text-dim);text-transform:uppercase;letter-spacing:.06em">🗂 Varios / Legacy</td></tr>
+        <tr>
+          <td><span class="file-path">js/community.js</span></td>
+          <td><span class="lines-badge lines-ok">221</span></td>
+          <td><span class="pattern-chip iife">IIFE</span></td>
+          <td><span class="status-chip s-noop">inactivo</span></td>
+          <td>Módulo de comunidad (removido de index.html). El script se mantiene pero no se carga.</td>
+          <td>Eliminado de index.html (2026-05-xx)</td>
+        </tr>
+        <tr>
+          <td><span class="file-path">js/mobile-redirect.js</span></td>
+          <td><span class="lines-badge lines-ok">2</span></td>
+          <td><span class="pattern-chip iife">IIFE</span></td>
+          <td><span class="status-chip s-noop">noop</span></td>
+          <td>No-op. Antes redirigía a /mobile/ (causaba bucle infinito). Mantenido para no romper la caché del SW.</td>
+          <td>—</td>
+        </tr>
+        <tr>
+          <td><span class="file-path">js/components/feedbackWidget.js</span></td>
+          <td><span class="lines-badge lines-ok">~60</span></td>
+          <td><span class="pattern-chip iife">IIFE</span></td>
+          <td><span class="status-chip s-wip">WIP</span></td>
+          <td>Widget de feedback flotante. Botón "¿Tienes alguna sugerencia?" con formulario modal.</td>
+          <td>Depende de: <code>api.js</code></td>
+        </tr>
+        <tr>
+          <td><span class="file-path">js/vendor/chart.umd.min.js</span></td>
+          <td><span class="lines-badge lines-ok">vendor</span></td>
+          <td><span class="pattern-chip global">Vendor</span></td>
+          <td><span class="status-chip s-infra">infra</span></td>
+          <td>Chart.js v4 UMD bundle (local). Expone <code>window.Chart</code>. Cacheado en SW.</td>
+          <td>—</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════
+     TAB 2 — FCT (Feature Completion Table)
+═══════════════════════════════════════════════════════════ -->
+<div id="tab-fct" class="tab-panel">
+
+  <p style="color:var(--text-dim);font-size:13px;margin-bottom:24px">
+    Estado de implementación por dominio funcional. <span style="color:var(--green)">●</span> Completo &nbsp;
+    <span style="color:var(--yellow)">●</span> WIP / parcial &nbsp;
+    <span style="color:var(--red)">●</span> Pendiente / roto &nbsp;
+    <span style="color:var(--blue)">●</span> Solo frontend (sin backend)
+  </p>
+
+  <div class="fct-grid">
+
+    <!-- DASHBOARD -->
+    <div class="fct-card">
+      <h3>📊 Dashboard</h3>
+      <div class="fct-feature"><div class="dot dot-green"></div><span>Saludo personalizado + chip usuario</span><code class="mod">dashboard/</code></div>
+      <div class="fct-feature"><div class="dot dot-green"></div><span>XP bar + nivel + badge glow</span><code class="mod">gamification.js</code></div>
+      <div class="fct-feature"><div class="dot dot-green"></div><span>Count-up stats animados</span><code class="mod">dashboard/</code></div>
+      <div class="fct-feature"><div class="dot dot-green"></div><span>Mini chart de peso (update in-place)</span><code class="mod">dashboard/</code></div>
+      <div class="fct-feature"><div class="dot dot-green"></div><span>Progress insight IA</span><code class="mod">dashboard/</code></div>
+      <div class="fct-feature"><div class="dot dot-green"></div><span>Banner PWA install (Android + iOS)</span><code class="mod">pwa/</code></div>
+      <div class="fct-feature"><div class="dot dot-green"></div><span>Offline indicator premium</span><code class="mod">app.js</code></div>
+      <div class="fct-feature"><div class="dot dot-yellow"></div><span>Fondo 3D partículas</span><code class="mod">background3d.js</code></div>
+    </div>
+
+    <!-- WORKOUT -->
+    <div class="fct-card">
+      <h3>💪 Entrenamiento activo</h3>
+      <div class="fct-feature"><div class="dot dot-green"></div><span>Logger de sesión (sets/reps/peso)</span><code class="mod">workoutLogger.js</code></div>
+      <div class="fct-feature"><div class="dot dot-green"></div><span>Timer de sesión</span><code class="mod">workoutLogger.js</code></div>
+      <div class="fct-feature"><div class="dot dot-green"></div><span>Timer de descanso inter-serie</span><code class="mod">restTimer.js</code></div>
+      <div class="fct-feature"><div class="dot dot-green"></div><span>PR detection en tiempo real</span><code class="mod">workoutPR.js</code></div>
+      <div class="fct-feature"><div class="dot dot-green"></div><span>Inactividad auto-pause (10 min)</span><code class="mod">workoutLogger.js</code></div>
+      <div class="fct-feature"><div class="dot dot-green"></div><span>Resumen post-workout + receipt</span><code class="mod">athleteReceipt.js</code></div>
+      <div class="fct-feature"><div class="dot dot-green"></div><span>Visor 3D atleta muscular</span><code class="mod">athleteViewer.js</code></div>
+      <div class="fct-feature"><div class="dot dot-yellow"></div><span>Anatomy Lens heatmap muscular</span><code class="mod">anatomyLens/</code></div>
+    </div>
+
+    <!-- HISTORIAL -->
+    <div class="fct-card">
+      <h3>📖 Historial</h3>
+      <div class="fct-feature"><div class="dot dot-green"></div><span>Lista paginada de sesiones</span><code class="mod">workoutHistory.js</code></div>
+      <div class="fct-feature"><div class="dot dot-green"></div><span>Detalle de sesión con sets</span><code class="mod">workoutHistory.js</code></div>
+      <div class="fct-feature"><div class="dot dot-green"></div><span>Gráfico volumen / 1RM histórico</span><code class="mod">workoutHistory.js</code></div>
+      <div class="fct-feature"><div class="dot dot-green"></div><span>Récords personales por ejercicio</span><code class="mod">records.js</code></div>
+      <div class="fct-feature"><div class="dot dot-green"></div><span>Calculadora 1RM (Epley/Brzycki)</span><code class="mod">oneRepMax.js</code></div>
+      <div class="fct-feature"><div class="dot dot-green"></div><span>Session replay cronológico</span><code class="mod">sessionReplay.js</code></div>
+    </div>
+
+    <!-- RUTINAS -->
+    <div class="fct-card">
+      <h3>📋 Rutinas</h3>
+      <div class="fct-feature"><div class="dot dot-green"></div><span>Generador wizard (objetivo + nivel)</span><code class="mod">routineGenerator.js</code></div>
+      <div class="fct-feature"><div class="dot dot-green"></div><span>CRUD de rutinas</span><code class="mod">routineGenerator.js</code></div>
+      <div class="fct-feature"><div class="dot dot-green"></div><span>Explorador de ejercicios</span><code class="mod">exercises.js</code></div>
+      <div class="fct-feature"><div class="dot dot-green"></div><span>Readiness diario</span><code class="mod">readiness.js</code></div>
+      <div class="fct-feature"><div class="dot dot-green"></div><span>Plan semanal consolidado</span><code class="mod">plan.js</code></div>
+      <div class="fct-feature"><div class="dot dot-yellow"></div><span>Rehabilitación terapéutica</span><code class="mod">rehabLogger.js</code></div>
+    </div>
+
+    <!-- NUTRICIÓN -->
+    <div class="fct-card">
+      <h3>🥗 Nutrición</h3>
+      <div class="fct-feature"><div class="dot dot-green"></div><span>Calculadora TDEE + macros</span><code class="mod">macroCalc.js</code></div>
+      <div class="fct-feature"><div class="dot dot-green"></div><span>Planner semanal de comidas</span><code class="mod">planner.js</code></div>
+      <div class="fct-feature"><div class="dot dot-green"></div><span>CRUD de recetas (142 ingredientes)</span><code class="mod">myRecipes.js</code></div>
+      <div class="fct-feature"><div class="dot dot-green"></div><span>Tracking de suplementos</span><code class="mod">supplements.js</code></div>
+      <div class="fct-feature"><div class="dot dot-green"></div><span>Timing pre/intra/post</span><code class="mod">timingPlanner.js</code></div>
+      <div class="fct-feature"><div class="dot dot-green"></div><span>Macro autopilot anti-plateau</span><code class="mod">macroAutopilot.js</code></div>
+    </div>
+
+    <!-- ANALÍTICA -->
+    <div class="fct-card">
+      <h3>📈 Analítica</h3>
+      <div class="fct-feature"><div class="dot dot-green"></div><span>Tracker de peso + tendencia</span><code class="mod">weightTracker.js</code></div>
+      <div class="fct-feature"><div class="dot dot-green"></div><span>Plateau radar por grupo muscular</span><code class="mod">plateauRadar.js</code></div>
+      <div class="fct-feature"><div class="dot dot-green"></div><span>Heatmap de fatiga semanal</span><code class="mod">fatigueHeatmap.js</code></div>
+      <div class="fct-feature"><div class="dot dot-green"></div><span>Body comp forecast (proyección)</span><code class="mod">bodyCompForecast.js</code></div>
+      <div class="fct-feature"><div class="dot dot-green"></div><span>Auto deload detector</span><code class="mod">autoDeload.js</code></div>
+    </div>
+
+    <!-- IA -->
+    <div class="fct-card">
+      <h3>🤖 IA</h3>
+      <div class="fct-feature"><div class="dot dot-green"></div><span>AI Coach chat (Groq Llama 3.3 70B)</span><code class="mod">aiCoach.js</code></div>
+      <div class="fct-feature"><div class="dot dot-green"></div><span>AI Insights narrativa biomarcadores</span><code class="mod">aiInsights.js</code></div>
+      <div class="fct-feature"><div class="dot dot-green"></div><span>Riesgo de lesión IA</span><code class="mod">aiInsights.js</code></div>
+      <div class="fct-feature"><div class="dot dot-green"></div><span>Metas semanales IA</span><code class="mod">aiInsights.js</code></div>
+      <div class="fct-feature"><div class="dot dot-green"></div><span>Chatbot público FAQ</span><code class="mod">chatbot.js</code></div>
+      <div class="fct-feature"><div class="dot dot-green"></div><span>RGPD: anonimización PII pipeline</span><code class="mod">backend</code></div>
+    </div>
+
+    <!-- GAMIFICACIÓN -->
+    <div class="fct-card">
+      <h3>🏆 Gamificación</h3>
+      <div class="fct-feature"><div class="dot dot-green"></div><span>XP + niveles (50+)</span><code class="mod">gamification.js</code></div>
+      <div class="fct-feature"><div class="dot dot-green"></div><span>Streaks diarios</span><code class="mod">dashboard/</code></div>
+      <div class="fct-feature"><div class="dot dot-green"></div><span>Logros / achievements</span><code class="mod">gamification.js</code></div>
+      <div class="fct-feature"><div class="dot dot-green"></div><span>PR badge shimmer animado</span><code class="mod">CSS Fase 3</code></div>
+      <div class="fct-feature"><div class="dot dot-yellow"></div><span>Ranked competitivo (temporadas)</span><code class="mod">ranked.js</code></div>
+    </div>
+
+    <!-- INFRA -->
+    <div class="fct-card">
+      <h3>⚙️ Infraestructura</h3>
+      <div class="fct-feature"><div class="dot dot-green"></div><span>Service Worker (cache-first v56)</span><code class="mod">sw.js</code></div>
+      <div class="fct-feature"><div class="dot dot-green"></div><span>Auth gate en &lt;head&gt;</span><code class="mod">auth-gate.js</code></div>
+      <div class="fct-feature"><div class="dot dot-green"></div><span>JWT RS256 + refresh rotation</span><code class="mod">api.js</code></div>
+      <div class="fct-feature"><div class="dot dot-green"></div><span>3 temas (forge/midnight/aurora)</span><code class="mod">themeManager.js</code></div>
+      <div class="fct-feature"><div class="dot dot-green"></div><span>i18n ES/EN + languagechange</span><code class="mod">i18n.js</code></div>
+      <div class="fct-feature"><div class="dot dot-green"></div><span>Haptic API</span><code class="mod">app.js</code></div>
+      <div class="fct-feature"><div class="dot dot-green"></div><span>Onboarding tour primera vez</span><code class="mod">onboarding.js</code></div>
+    </div>
+
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════
+     TAB 3 — EVENT BUS
+═══════════════════════════════════════════════════════════ -->
+<div id="tab-events" class="tab-panel">
+  <p style="color:var(--text-dim);font-size:13px;margin-bottom:24px">Eventos custom del bus interno (<code>window.dispatchEvent(new CustomEvent(...))</code>). Todos los nombres comienzan con <code>hs:</code>.</p>
+
+  <div class="event-bus">
+    <div class="event-row">
+      <span class="event-name">hs:weight-updated</span>
+      <span class="event-desc">Nuevo registro de peso guardado. Payload: <code>{ weight, date }</code></span>
+      <div class="event-files"><code>Emite: weightTracker.js</code><code>Escucha: dashboard/</code></div>
+    </div>
+    <div class="event-row">
+      <span class="event-name">hs:tdee-calculated</span>
+      <span class="event-desc">TDEE recalculado. Payload: <code>{ tdee, calories, goal }</code></span>
+      <div class="event-files"><code>Emite: planner.js</code><code>Escucha: dashboard/</code></div>
+    </div>
+    <div class="event-row">
+      <span class="event-name">hs:section-changed</span>
+      <span class="event-desc">El usuario navegó a otra sección. Payload: <code>{ section }</code></span>
+      <div class="event-files"><code>Emite: app.js</code><code>Escucha: mobileNav.js</code></div>
+    </div>
+    <div class="event-row">
+      <span class="event-name">hs:workout-session-changed</span>
+      <span class="event-desc">Estado del workout activo cambió. Payload: <code>{ active, sessionId }</code></span>
+      <div class="event-files"><code>Emite: workoutLogger.js</code><code>Escucha: app.js · mobileNav.js</code></div>
+    </div>
+    <div class="event-row">
+      <span class="event-name">hs:pr-achieved</span>
+      <span class="event-desc">PR nuevo detectado en un ejercicio. Payload: <code>{ exercise, weight, reps, oneRM }</code></span>
+      <div class="event-files"><code>Emite: workoutLogger.js</code><code>Escucha: workoutPR.js · dashboard/</code></div>
+    </div>
+    <div class="event-row">
+      <span class="event-name">hs:set-completed</span>
+      <span class="event-desc">Serie finalizada. Payload: <code>{ setIndex, exercise, weight, reps }</code></span>
+      <div class="event-files"><code>Emite: workoutLogger.js</code><code>Escucha: restTimer.js · muscleMap.js</code></div>
+    </div>
+    <div class="event-row">
+      <span class="event-name">hs:workout-finished</span>
+      <span class="event-desc">Sesión de workout completada. Payload: <code>{ sessionId, duration, volume }</code></span>
+      <div class="event-files"><code>Emite: workoutLogger.js</code><code>Escucha: gamification.js · athleteReceipt.js</code></div>
+    </div>
+    <div class="event-row">
+      <span class="event-name">hs:login</span>
+      <span class="event-desc">Usuario autenticado correctamente. Payload: <code>{ user }</code></span>
+      <div class="event-files"><code>Emite: auth.js</code><code>Escucha: app.js · dashboard/</code></div>
+    </div>
+    <div class="event-row">
+      <span class="event-name">hs:logout</span>
+      <span class="event-desc">Sesión cerrada. Sin payload.</span>
+      <div class="event-files"><code>Emite: auth.js</code><code>Escucha: app.js</code></div>
+    </div>
+    <div class="event-row">
+      <span class="event-name">languagechange</span>
+      <span class="event-desc">Idioma cambiado (ES ↔ EN). Emitido por i18n.js tras reload(120ms).</span>
+      <div class="event-files"><code>Emite: i18n.js</code><code>Escucha: dashboard/ · varios</code></div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════
+     TAB 4 — GLOBALS
+═══════════════════════════════════════════════════════════ -->
+<div id="tab-globals" class="tab-panel">
+  <p style="color:var(--text-dim);font-size:13px;margin-bottom:24px">Variables y funciones en <code>window.*</code> de uso transversal. Todos los módulos pueden acceder a estos sin importar.</p>
+
+  <div class="global-list">
+    <div class="global-row">
+      <span class="global-name">window.navigateTo(section)</span>
+      <span class="global-sig">Navega a una sección de la SPA. Actualiza URL hash, activa la sección, emite <code>hs:section-changed</code>.</span>
+      <span class="global-def">Definido en: app.js</span>
+    </div>
+    <div class="global-row">
+      <span class="global-name">window.apiFetch(url, opts)</span>
+      <span class="global-sig">Wrapper de fetch con JWT Bearer, refresh automático (401), timeout, error normalizado. Úsalo en vez de fetch() directamente.</span>
+      <span class="global-def">Definido en: api.js</span>
+    </div>
+    <div class="global-row">
+      <span class="global-name">window.t(key, params?)</span>
+      <span class="global-sig">Traduce una clave i18n. Soporta interpolación <code>{{var}}</code>. Retorna la clave si no existe traducción.</span>
+      <span class="global-def">Definido en: i18n.js</span>
+    </div>
+    <div class="global-row">
+      <span class="global-name">window.showToast(msg, type?)</span>
+      <span class="global-sig">Muestra un toast. <code>type</code>: 'success' | 'error' | 'info' | 'warning'. Reemplaza alert().</span>
+      <span class="global-def">Definido en: toast.js</span>
+    </div>
+    <div class="global-row">
+      <span class="global-name">window.showConfirm(msg, opts)</span>
+      <span class="global-sig">Diálogo de confirmación async. Retorna Promise&lt;boolean&gt;. Reemplaza confirm().</span>
+      <span class="global-def">Definido en: toast.js</span>
+    </div>
+    <div class="global-row">
+      <span class="global-name">window.setFieldState(input, state, msg?)</span>
+      <span class="global-sig">Aplica estado visual a un campo de formulario. <code>state</code>: 'error' | 'success' | 'loading' | null. CSS classes en el parent .field-wrap.</span>
+      <span class="global-def">Definido en: app.js</span>
+    </div>
+    <div class="global-row">
+      <span class="global-name">window.createEmptyState(icon, title, desc)</span>
+      <span class="global-sig">Genera HTML de estado vacío premium (icono + título + descripción). Insertar con innerHTML.</span>
+      <span class="global-def">Definido en: app.js</span>
+    </div>
+    <div class="global-row">
+      <span class="global-name">window.createSkeletonCard(count?)</span>
+      <span class="global-sig">Genera N skeleton cards animadas (shimmer CSS). Insertar mientras carga datos async.</span>
+      <span class="global-def">Definido en: app.js</span>
+    </div>
+    <div class="global-row">
+      <span class="global-name">window.haptic(type)</span>
+      <span class="global-sig">Dispara vibración haptic. <code>type</code>: 'light' (10ms) | 'medium' (25ms) | 'heavy' (50ms) | 'success' (patrón doble). No-op en desktop.</span>
+      <span class="global-def">Definido en: app.js</span>
+    </div>
+    <div class="global-row">
+      <span class="global-name">window.Dashboard</span>
+      <span class="global-sig">API pública del dashboard. <code>{ init(), refresh(), updateStreak(), renderProgressInsight() }</code>. Cargado por js/dashboard/index.js (Fase 5).</span>
+      <span class="global-def">Definido en: js/dashboard/index.js</span>
+    </div>
+    <div class="global-row">
+      <span class="global-name">window.PWAManager</span>
+      <span class="global-sig">Gestión PWA. <code>{ init() }</code>. Maneja beforeinstallprompt y iOS Safari. Cargado por js/pwa/index.js (Fase 5).</span>
+      <span class="global-def">Definido en: js/pwa/index.js</span>
+    </div>
+    <div class="global-row">
+      <span class="global-name">window.HS_CONFIG</span>
+      <span class="global-sig">Configuración de app. <code>{ API_BASE, SPONSOR, VERSION, ... }</code>. Inmutable en runtime.</span>
+      <span class="global-def">Definido en: config.js</span>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════
+     TAB 5 — DIAGNÓSTICO
+═══════════════════════════════════════════════════════════ -->
+<div id="tab-diag" class="tab-panel">
+  <p style="color:var(--text-dim);font-size:13px;margin-bottom:24px">Guía rápida: "el usuario reporta X → mira en Y"</p>
+
+  <div class="diag-grid">
+
+    <div class="diag-card">
+      <div class="symptom">🔴 La app redirige al usuario a la landing en bucle</div>
+      <p>El auth-gate no encuentra token válido, o el token está expirado y el refresh falla.</p>
+      <div class="diag-files">
+        <code>auth-gate.js</code><code>auth.js (refresh)</code><code>api.js (401 handler)</code>
+      </div>
+    </div>
+
+    <div class="diag-card">
+      <div class="symptom">🔴 Dashboard muestra stats en cero o vacíos</div>
+      <p>El módulo Dashboard no inicializó (script tag faltante) o la API devolvió error.</p>
+      <div class="diag-files">
+        <code>js/dashboard/index.js</code><code>index.html (orden scripts)</code><code>api.js</code>
+      </div>
+    </div>
+
+    <div class="diag-card">
+      <div class="symptom">🔴 Gráfico de peso se redibuja completamente cada vez</div>
+      <p>Chart.destroy() + new Chart() en lugar de update in-place. Revisar el fix de Fase 5.</p>
+      <div class="diag-files">
+        <code>js/dashboard/index.js (renderMiniChart)</code>
+      </div>
+    </div>
+
+    <div class="diag-card">
+      <div class="symptom">🔴 PWA install banner no aparece en Android</div>
+      <p>beforeinstallprompt no se disparó (ya instalada, o criterios no cumplidos) o PWAManager no inicializó.</p>
+      <div class="diag-files">
+        <code>js/pwa/index.js</code><code>manifest.json</code><code>sw.js (CACHE_NAME v56)</code>
+      </div>
+    </div>
+
+    <div class="diag-card">
+      <div class="symptom">🔴 El workout logger no guarda sets</div>
+      <p>Token expirado durante la sesión, o error en el endpoint POST /api/v1/workout/sets.</p>
+      <div class="diag-files">
+        <code>workoutLogger.js</code><code>workoutSession.js</code><code>api.js</code>
+      </div>
+    </div>
+
+    <div class="diag-card">
+      <div class="symptom">🔴 Los PR no se detectan en tiempo real</div>
+      <p>workoutPR.js no escucha hs:set-completed, o el evento no se emite al completar un set.</p>
+      <div class="diag-files">
+        <code>workoutPR.js</code><code>workoutLogger.js (hs:set-completed)</code>
+      </div>
+    </div>
+
+    <div class="diag-card">
+      <div class="symptom">🔴 El historial de workout usa page_size en vez de per_page</div>
+      <p>Bug corregido 2026-05-18. Si vuelve, revisar el parámetro en la llamada a la API.</p>
+      <div class="diag-files">
+        <code>workoutHistory.js (per_page)</code>
+      </div>
+    </div>
+
+    <div class="diag-card">
+      <div class="symptom">🔴 Los toasts no aparecen</div>
+      <p>toast.js no cargó, o se usó alert() directamente en vez de showToast().</p>
+      <div class="diag-files">
+        <code>toast.js</code><code>index.html (orden scripts)</code>
+      </div>
+    </div>
+
+    <div class="diag-card">
+      <div class="symptom">🔴 El cambio de idioma requiere Ctrl+Shift+R</div>
+      <p>El módulo que no actualiza sus strings no escucha el evento languagechange (o usa textos hardcodeados).</p>
+      <div class="diag-files">
+        <code>i18n.js (languagechange event)</code><code>dashboard/index.js (listener)</code>
+      </div>
+    </div>
+
+    <div class="diag-card">
+      <div class="symptom">🔴 El Service Worker sirve assets obsoletos</div>
+      <p>CACHE_NAME no se bumpeó al añadir nuevos archivos. El SW activo sigue sirviendo la versión vieja.</p>
+      <div class="diag-files">
+        <code>sw.js (CACHE_NAME = v56)</code><code>STATIC_ASSETS array</code>
+      </div>
+    </div>
+
+    <div class="diag-card">
+      <div class="symptom">🔴 XSS en el admin o en el planner</div>
+      <p>Asegúrate de usar esc() en adminUsers.js y _esc() en planner.js al renderizar datos de usuario con innerHTML.</p>
+      <div class="diag-files">
+        <code>admin/adminUsers.js (esc)</code><code>planner.js (_esc)</code>
+      </div>
+    </div>
+
+    <div class="diag-card">
+      <div class="symptom">🔴 AI Coach / Insights no responde</div>
+      <p>Groq API key no configurada (gsk_...) o rate limit superado. El backend tiene fallback graceful.</p>
+      <div class="diag-files">
+        <code>aiCoach.js</code><code>aiInsights.js</code><code>backend/app/modules/ai_coach/</code>
+      </div>
+    </div>
+
+    <div class="diag-card">
+      <div class="symptom">🔴 El ranked leaderboard muestra UUIDs</div>
+      <p>Bug corregido 2026-05-18. El backend hacía truncado de UUID; ahora usa display_name.</p>
+      <div class="diag-files">
+        <code>ranked.js</code><code>backend/modules/ranked/repository.py</code>
+      </div>
+    </div>
+
+    <div class="diag-card">
+      <div class="symptom">🟡 Nuevo módulo JS no carga en producción</div>
+      <p>Falta añadir el path a STATIC_ASSETS en sw.js y bumpear CACHE_NAME. También añadir script tag en index.html.</p>
+      <div class="diag-files">
+        <code>sw.js (STATIC_ASSETS)</code><code>index.html (script tags)</code>
+      </div>
+    </div>
+
+    <div class="diag-card">
+      <div class="symptom">🟡 Chart.js crea instancias duplicadas</div>
+      <p>Antes de new Chart(), comprobar Chart.getChart(canvas). Si existe, actualizar datos in-place con existing.update('none').</p>
+      <div class="diag-files">
+        <code>Patrón en: dashboard/index.js (renderMiniChart)</code>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════
+     TAB 6 — ARQUITECTURA
+═══════════════════════════════════════════════════════════ -->
+<div id="tab-arch" class="tab-panel">
+
+  <div class="section-head" style="margin-top:0"><h2>Patrón de módulos</h2><div class="sep"></div></div>
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:32px">
+    <div class="fct-card">
+      <h3><span class="pattern-chip iife" style="margin-right:8px">IIFE</span> Módulo clásico</h3>
+      <p style="font-size:12px;color:var(--text-dim);margin-top:8px">La mayoría de los 60 archivos. Se ejecuta inmediatamente, puede exponer un objeto en <code>window.*</code> o ser autocontenido. Compatible con <code>&lt;script defer&gt;</code>.</p>
+      <pre style="margin-top:12px;font-size:11px;background:var(--bg);padding:12px;border-radius:6px;color:var(--text-dim);overflow:auto">(function () {
+  'use strict';
+  function _init() { ... }
+  window.MyModule = { init: _init };
+})();</pre>
+    </div>
+    <div class="fct-card">
+      <h3><span class="pattern-chip esm" style="margin-right:8px">ESM</span> ES Module</h3>
+      <p style="font-size:12px;color:var(--text-dim);margin-top:8px">Usado en el árbol de workout: <code>workoutInit.js</code>, <code>workoutSession.js</code>, <code>workoutPR.js</code>, <code>oneRepMax.js</code>, <code>athleteViewer.js</code>. Requiere <code>type="module"</code>. No accesibles desde IIFEs sin puente.</p>
+      <pre style="margin-top:12px;font-size:11px;background:var(--bg);padding:12px;border-radius:6px;color:var(--text-dim);overflow:auto">// workoutInit.js
+import './workoutSession.js';
+import './workoutLogger.js';
+import './workoutPR.js';</pre>
+    </div>
+  </div>
+
+  <div class="section-head"><h2>Orden de carga (index.html)</h2><div class="sep"></div></div>
+  <div class="table-wrap" style="margin-bottom:32px">
+    <table>
+      <thead><tr><th>Fase</th><th>Cuándo</th><th>Archivos</th></tr></thead>
+      <tbody>
+        <tr><td>1 — Inline &lt;head&gt;</td><td>Síncrono, antes del DOM</td><td><code>theme-fix inline</code>, <code>auth-gate.js (script sync)</code></td></tr>
+        <tr><td>2 — Vendor</td><td>defer</td><td><code>vendor/chart.umd.min.js</code>, Three.js CDN</td></tr>
+        <tr><td>3 — Config/i18n</td><td>defer</td><td><code>config.js</code>, <code>i18n.js</code>, <code>api.js</code></td></tr>
+        <tr><td>4 — UI helpers</td><td>defer</td><td><code>toast.js</code>, <code>chartDefaults.js</code>, <code>themeManager.js</code></td></tr>
+        <tr><td>5 — Features</td><td>defer</td><td>Todos los módulos de dominio</td></tr>
+        <tr><td>6 — Submodules (Fase 5)</td><td>defer</td><td><code>js/dashboard/index.js</code>, <code>js/pwa/index.js</code></td></tr>
+        <tr><td>7 — App coordinator</td><td>defer</td><td><code>app.js</code> (llama a <code>Dashboard.init()</code> y <code>PWAManager.init()</code>)</td></tr>
+        <tr><td>8 — Nav + ESM tree</td><td>defer / module</td><td><code>mobileNav.js</code>, <code>athleteViewer.js</code>, <code>workoutInit.js</code></td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="section-head"><h2>Fases de diseño frontend</h2><div class="sep"></div></div>
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>Fase</th><th>Estado</th><th>Descripción</th></tr></thead>
+      <tbody>
+        <tr><td>Fase 1</td><td><span class="status-chip s-prod">✅ completa</span></td><td>Brand consistency (161 refs cyan→gold), skeleton system, stat upgrades, card polish, safe-area iOS</td></tr>
+        <tr><td>Fase 2</td><td><span class="status-chip s-prod">✅ completa</span></td><td>toast.js, chartDefaults.js, 10 módulos migrados de alert/confirm, empty states, skeleton loaders JS, form states</td></tr>
+        <tr><td>Fase 3</td><td><span class="status-chip s-prod">✅ completa</span></td><td>stat-change pill, XP bar shimmer, level badge glow, achievement hover, chip muscular, PR badge shimmer</td></tr>
+        <tr><td>Fase 4</td><td><span class="status-chip s-wip">⚠️ parcial</span></td><td>haptic API, offline indicator, Apple splash screens. Pendiente: Badging API workout activo</td></tr>
+        <tr><td>Fase 5</td><td><span class="status-chip s-prod">✅ completa</span></td><td>Modularización: app.js → dashboard/index.js + pwa/index.js. XSS fixes. Chart update in-place.</td></tr>
+        <tr><td>Fase 6</td><td><span class="status-chip s-noop">pendiente</span></td><td>Split workoutLogger.js (1299L) → js/workout/ submodules: timer, inactivity, logger, summary</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+</div>
+
+</main>
+
+<script>
+  function showTab(name) {
+    document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+    document.querySelectorAll('nav button').forEach(b => b.classList.remove('active'));
+    document.getElementById('tab-' + name).classList.add('active');
+    event.currentTarget.classList.add('active');
+  }
+
+  function filterCatalog(q) {
+    const term = q.toLowerCase();
+    document.querySelectorAll('#catalog-table tbody tr').forEach(row => {
+      if (row.querySelector('td[colspan]')) return; // section headers
+      const text = row.textContent.toLowerCase();
+      row.classList.toggle('hidden', term.length > 0 && !text.includes(term));
+    });
+  }
+</script>
+
+</body>
+</html>

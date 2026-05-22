@@ -275,7 +275,7 @@ var AutoDeload = (function () {
   }
 
   function renderSignal(label, fires, detail) {
-    var icon  = fires ? '⚠️' : '✓';
+    var icon  = fires ? '⚠' : '✓';
     var color = fires ? '#f87171' : '#10b981';
     return '<div class="dl-signal' + (fires ? ' dl-signal--active' : '') + '">'
       + '<span class="dl-signal-icon" style="color:' + color + '">' + icon + '</span>'

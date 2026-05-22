@@ -13,40 +13,64 @@ const Onboarding = (function () {
   const STEPS = [
     {
       id:       'goal',
-      emoji:    '🎯',
+      emoji:    '',
       title:    '¿Cuál es tu objetivo principal?',
       subtitle: 'Esto personalizará tu experiencia desde el primer momento.',
       type:     'options',
       options: [
-        { value: 'deficit_soft',  emoji: '🔥', label: 'Perder grasa',    hint: 'Déficit calórico moderado, alta proteína' },
-        { value: 'maintain',      emoji: '⚖️',  label: 'Mantenerme',     hint: 'Recomposición corporal y salud general' },
-        { value: 'surplus_soft',  emoji: '💪',  label: 'Ganar músculo',  hint: 'Superávit limpio + sobrecarga progresiva' },
-        { value: 'surplus_hard',  emoji: '🏋',  label: 'Volumen agresivo',hint: 'Máximas ganancias, acepto algo más de grasa' },
+        { value: 'deficit_soft',  emoji: '', label: 'Perder grasa',     hint: 'Déficit calórico moderado con alta proteína' },
+        { value: 'maintain',      emoji: '', label: 'Mantenerme',       hint: 'Recomposición corporal y salud general' },
+        { value: 'surplus_soft',  emoji: '', label: 'Ganar músculo',    hint: 'Superávit controlado y sobrecarga progresiva' },
+        { value: 'surplus_hard',  emoji: '', label: 'Volumen agresivo', hint: 'Máximas ganancias, acepto algo más de grasa' },
+      ],
+    },
+    {
+      id:       'sex',
+      emoji:    '',
+      title:    '¿Cuál es tu sexo biológico?',
+      subtitle: 'Afecta directamente a tus calorías de mantenimiento y distribución de macros.',
+      type:     'options',
+      options: [
+        { value: 'male',   emoji: '', label: 'Hombre', hint: 'Mayor masa muscular base — necesitas más calorías' },
+        { value: 'female', emoji: '', label: 'Mujer',  hint: 'Metabolismo más eficiente — tus macros se ajustan' },
       ],
     },
     {
       id:       'body',
-      emoji:    '📏',
-      title:    '¿Cuál es tu peso y talla actuales?',
-      subtitle: 'Solo para calcular tu TDEE y BMI. Puedes cambiarlo en cualquier momento.',
+      emoji:    '',
+      title:    '¿Cuál es tu peso, talla y edad?',
+      subtitle: 'Con estos datos calculamos tus calorías diarias y macros exactos.',
       type:     'inputs',
       fields: [
-        { id: 'ob-weight', label: 'Peso', unit: 'kg',  type: 'number', min: 30,  max: 300, placeholder: '70' },
-        { id: 'ob-height', label: 'Talla', unit: 'cm', type: 'number', min: 100, max: 250, placeholder: '175' },
-        { id: 'ob-age',    label: 'Edad', unit: 'años',type: 'number', min: 14,  max: 99,  placeholder: '25' },
+        { id: 'ob-weight', label: 'Peso actual', unit: 'kg',   type: 'number', min: 30,  max: 300, placeholder: 'ej: 75' },
+        { id: 'ob-height', label: 'Talla',       unit: 'cm',   type: 'number', min: 100, max: 250, placeholder: 'ej: 175' },
+        { id: 'ob-age',    label: 'Edad',        unit: 'años', type: 'number', min: 14,  max: 99,  placeholder: 'ej: 28' },
+      ],
+    },
+    {
+      id:       'activity',
+      emoji:    '',
+      title:    '¿Cuál es tu nivel de actividad diaria?',
+      subtitle: 'Incluye trabajo, desplazamientos y ejercicio. Afecta a tus calorías de mantenimiento.',
+      type:     'options',
+      options: [
+        { value: 1.2,   emoji: '', label: 'Sedentario',          hint: 'Trabajo de escritorio, poco movimiento al día' },
+        { value: 1.375, emoji: '', label: 'Poco activo',         hint: '1-3 sesiones/semana o trabajo que implica algo de movimiento' },
+        { value: 1.55,  emoji: '', label: 'Moderadamente activo',hint: '3-5 sesiones/semana o trabajo físico moderado' },
+        { value: 1.725, emoji: '', label: 'Muy activo',          hint: '6-7 sesiones/semana o trabajo físico intenso' },
       ],
     },
     {
       id:       'schedule',
-      emoji:    '🗓',
-      title:    '¿Cuántos días a la semana entrenas?',
-      subtitle: 'Usamos esto para generar tu primera rutina personalizada.',
+      emoji:    '',
+      title:    '¿Cuántos días a la semana entrenas en el gym?',
+      subtitle: 'Genera tu primera rutina personalizada ajustada a tu disponibilidad.',
       type:     'options',
       options: [
-        { value: 2, emoji: '😌', label: '2 días',  hint: 'Full Body — perfecto para empezar' },
-        { value: 3, emoji: '💪', label: '3 días',  hint: 'Full Body ×3 o PPL comprimido' },
-        { value: 4, emoji: '🔥', label: '4 días',  hint: 'Upper / Lower split' },
-        { value: 5, emoji: '⚡', label: '5+ días', hint: 'PPL o especialización avanzada' },
+        { value: 2, emoji: '', label: '2 días',  hint: 'Full Body — ideal para empezar o con poco tiempo' },
+        { value: 3, emoji: '', label: '3 días',  hint: 'Full Body ×3 o Push/Pull/Legs comprimido' },
+        { value: 4, emoji: '', label: '4 días',  hint: 'Upper/Lower — buena frecuencia por músculo' },
+        { value: 5, emoji: '', label: '5+ días', hint: 'PPL o especialización — para atletas avanzados' },
       ],
     },
   ];
@@ -71,13 +95,17 @@ const Onboarding = (function () {
       <div class="ob-modal" role="dialog" aria-modal="true" aria-labelledby="ob-title">
         <div class="ob-header">
           <div class="ob-logo">
-            <svg width="28" height="28" viewBox="0 0 32 32" fill="none">
-              <path d="M16 3L29 9.5V22.5L16 29L3 22.5V9.5L16 3Z" stroke="url(#obg)" stroke-width="2" fill="none"/>
-              <path d="M8 16H24M16 8V24" stroke="url(#obg)" stroke-width="2" stroke-linecap="round"/>
-              <defs><linearGradient id="obg" x1="3" y1="3" x2="29" y2="29">
-                <stop offset="0%" stop-color="#6c63ff"/>
-                <stop offset="100%" stop-color="#00d2ff"/>
-              </linearGradient></defs>
+            <svg width="28" height="28" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <rect width="32" height="32" rx="8" fill="url(#obhgrad)"/>
+              <rect x="7"    y="5.5" width="4.5" height="21" rx="2" fill="white"/>
+              <rect x="20.5" y="5.5" width="4.5" height="21" rx="2" fill="white"/>
+              <rect x="7"    y="13"  width="18"  height="6"  rx="2" fill="white"/>
+              <defs>
+                <linearGradient id="obhgrad" x1="0" y1="0" x2="32" y2="32" gradientUnits="userSpaceOnUse">
+                  <stop offset="0%"   stop-color="#0891b2"/>
+                  <stop offset="100%" stop-color="#22d3ee"/>
+                </linearGradient>
+              </defs>
             </svg>
           </div>
           <span class="ob-brand">HealthStack Pro</span>
@@ -86,7 +114,7 @@ const Onboarding = (function () {
 
         <div class="ob-progress">
           <div class="ob-prog-bar"><div class="ob-prog-fill" id="ob-prog-fill"></div></div>
-          <span class="ob-prog-label" id="ob-prog-label">Paso 1 de 3</span>
+          <span class="ob-prog-label" id="ob-prog-label">Paso 1 de 5</span>
         </div>
 
         <div class="ob-body" id="ob-body"></div>
@@ -122,11 +150,14 @@ const Onboarding = (function () {
     if (fill)  fill.style.width = `${pct}%`;
     if (label) label.textContent = `Paso ${currentStep + 1} de ${total}`;
     if (prev)  prev.style.visibility = currentStep === 0 ? 'hidden' : 'visible';
-    if (next)  next.textContent = currentStep === total - 1 ? '¡Empezar! 🚀' : 'Continuar →';
+    if (next)  next.textContent = currentStep === total - 1 ? '¡Empezar!' : 'Continuar →';
     if (!body) return;
 
+    // Mostrar "Omitir" solo en el primer paso
+    const skipBtn = document.getElementById('ob-skip-btn');
+    if (skipBtn) skipBtn.style.visibility = currentStep === 0 ? 'visible' : 'hidden';
+
     let html = `
-      <div class="ob-step-emoji">${step.emoji}</div>
       <h2 class="ob-step-title" id="ob-title">${step.title}</h2>
       <p class="ob-step-sub">${step.subtitle}</p>
     `;
@@ -134,7 +165,6 @@ const Onboarding = (function () {
     if (step.type === 'options') {
       html += `<div class="ob-options">` + step.options.map(o => `
         <button class="ob-option${answers[step.id] == o.value ? ' selected' : ''}" data-val="${o.value}">
-          <span class="ob-opt-emoji">${o.emoji}</span>
           <span class="ob-opt-label">${o.label}</span>
           <span class="ob-opt-hint">${o.hint}</span>
         </button>`).join('') + `</div>`;
@@ -169,7 +199,7 @@ const Onboarding = (function () {
             const nextBtn = document.getElementById('ob-next-btn');
             if (nextBtn) {
               nextBtn.classList.add('ob-next--ready');
-              nextBtn.textContent = '¡Empezar! 🚀';
+              nextBtn.textContent = '¡Empezar!';
             }
           }
         });
@@ -177,16 +207,34 @@ const Onboarding = (function () {
     }
   }
 
+  // ── Animación de slide entre pasos ───────────────────────
+  function slideToStep(dir) {
+    // dir: 'next' | 'prev'
+    const body = document.getElementById('ob-body');
+    if (!body) { renderStep(); return; }
+    const outClass = dir === 'next' ? 'ob-slide-out-left' : 'ob-slide-out-right';
+    const inClass  = dir === 'next' ? 'ob-slide-in-right' : 'ob-slide-in-left';
+    body.classList.add(outClass);
+    setTimeout(() => {
+      body.classList.remove(outClass);
+      renderStep();
+      body.classList.add(inClass);
+      requestAnimationFrame(() => {
+        requestAnimationFrame(() => body.classList.remove(inClass));
+      });
+    }, 140);
+  }
+
   // ── Navegar ───────────────────────────────────────────────
   function prevStep() {
-    if (currentStep > 0) { currentStep--; renderStep(); }
+    if (currentStep > 0) { currentStep--; slideToStep('prev'); }
   }
 
   function nextStep() {
     if (!validate()) return;
     if (currentStep < STEPS.length - 1) {
       currentStep++;
-      renderStep();
+      slideToStep('next');
     } else {
       applyAnswers();
       finish();
@@ -236,19 +284,20 @@ const Onboarding = (function () {
   // ── Cálculo TDEE directo (evita depender del form i18n) ─────
   const GOAL_DELTA = { deficit_hard:-500, deficit_soft:-250, maintain:0, surplus_soft:250, surplus_hard:500 };
   const GOAL_TIPS  = {
-    deficit_soft: '✅ Déficit suave de 250 kcal — ideal para perder grasa sin perder músculo.',
-    maintain:     '⚖️ Mantenimiento — momento ideal para recomposición corporal.',
-    surplus_soft: '💪 Superávit de 250 kcal — minimiza grasa mientras maximiza músculo.',
-    surplus_hard: '📈 Superávit agresivo — máximas ganancias, algo más de grasa.',
-    deficit_hard: '⚠️ Déficit de 500 kcal — límite recomendado. Asegura ≥1.8 g proteína/kg.',
+    deficit_soft: 'Déficit suave de 250 kcal — ideal para perder grasa sin perder músculo.',
+    maintain:     'Mantenimiento — momento ideal para recomposición corporal.',
+    surplus_soft: 'Superávit de 250 kcal — minimiza grasa mientras maximiza músculo.',
+    surplus_hard: 'Superávit agresivo — máximas ganancias, algo más de grasa.',
+    deficit_hard: 'Déficit de 500 kcal — límite recomendado. Asegura ≥1.8 g proteína/kg.',
   };
 
   // Activity multiplier mapped from training days per week
   const ACTIVITY_MAP = { 2: 1.375, 3: 1.55, 4: 1.725, 5: 1.9 };
 
-  function calcTDEEFromAnswers(weight, height, age, goal, activity = 1.55) {
-    // Mifflin-St Jeor (asumimos male por defecto si no hay dato de sexo)
-    const bmr    = 10 * weight + 6.25 * height - 5 * age + 5;
+  function calcTDEEFromAnswers(weight, height, age, goal, activity = 1.55, sex = 'male') {
+    // Mifflin-St Jeor — male: +5, female: -161
+    const sexOffset = sex === 'female' ? -161 : 5;
+    const bmr    = 10 * weight + 6.25 * height - 5 * age + sexOffset;
     const tdee   = Math.round(bmr * activity);
     const delta  = GOAL_DELTA[goal] || 0;
     const target = tdee + delta;
@@ -266,6 +315,7 @@ const Onboarding = (function () {
     const h = answers['ob-height'];
     const a = answers['ob-age'];
     const g = answers.goal;
+    const sex = answers.sex || 'male';
 
     // 1. Registrar el peso de hoy automáticamente
     if (w && typeof WeightTracker !== 'undefined') {
@@ -285,11 +335,11 @@ const Onboarding = (function () {
     // 4. Calcular y persistir TDEE directamente (sin pasar por el form HTML)
     //    El form puede tener opciones i18n vacías en este momento; lo bypaseamos.
     if (w && h && a && g) {
-      const activity = ACTIVITY_MAP[answers.schedule] || 1.55;
-      const result = calcTDEEFromAnswers(w, h, a, g, activity);
+      const activity = answers.activity || ACTIVITY_MAP[answers.schedule] || 1.55;
+      const result = calcTDEEFromAnswers(w, h, a, g, activity, sex);
       const tdeeData = {
-        sex: 'male', age: a, weight: w, height: h,
-        activity: 1.55, goal: g,
+        sex, age: a, weight: w, height: h,
+        activity, goal: g,
         bmr: result.bmr, tdee: result.tdee, target: result.target,
         macros: {
           proteinG: result.proteinG, proteinKcal: result.proteinG * 4,
@@ -299,7 +349,7 @@ const Onboarding = (function () {
         ts: Date.now(),
       };
       localStorage.setItem('hs_tdee',      JSON.stringify(tdeeData));
-      localStorage.setItem('hs_last_tdee', String(result.target));
+      if (isFinite(result.target) && result.target > 0) localStorage.setItem('hs_last_tdee', String(result.target));
       localStorage.setItem('hs_height_cm', String(h));
 
       // Pre-rellenar el form TDEE para que esté listo cuando el usuario lo abra
@@ -329,8 +379,12 @@ const Onboarding = (function () {
         if (statTdee) statTdee.textContent = `${result.target} kcal`;
       }, 200);
 
-      // Notificar al resto de módulos
+      // Notificar al resto de módulos y forzar re-render de MacroCalc
       window.dispatchEvent(new CustomEvent('hs:tdee-calculated'));
+      // MacroCalc.init() re-carga los datos guardados y actualiza la pantalla
+      if (typeof MacroCalc !== 'undefined') {
+        setTimeout(() => MacroCalc.init(), 250);
+      }
     }
 
     // 5. XP de bienvenida
@@ -354,20 +408,40 @@ const Onboarding = (function () {
   function finish() {
     localStorage.setItem(LS_FLAG, '1');
     syncToServer();
-    const modal = document.getElementById('onboarding-modal');
+    const overlay = document.getElementById('onboarding-modal');
     const hasTDEE = answers['ob-weight'] && answers.goal;
 
-    if (modal) {
-      modal.classList.add('ob-exit');
-      setTimeout(() => {
-        modal.remove();
+    if (overlay) {
+      // Mostrar checkmark antes de cerrar
+      const body = document.getElementById('ob-body');
+      if (body) {
+        body.innerHTML = `
+          <div class="ob-done-state">
+            <svg class="ob-checkmark" viewBox="0 0 52 52">
+              <circle class="ob-checkmark__circle" cx="26" cy="26" r="25" fill="none"/>
+              <path class="ob-checkmark__check" fill="none" d="M14.1 27.2l7.1 7.2 16.7-16.8"/>
+            </svg>
+            <p class="ob-done-text">¡Perfil listo!</p>
+          </div>
+        `;
+      }
+      // Ocultar footer y skip durante el checkmark
+      const footer = overlay.querySelector('.ob-footer');
+      const skip   = document.getElementById('ob-skip-btn');
+      if (footer) footer.style.display = 'none';
+      if (skip)   skip.style.display   = 'none';
 
-        // Navigate to nutrición so the user sees their TDEE + macros immediately
-        if (hasTDEE) {
-          const nutriNav = document.querySelector('[data-section="nutricion"]');
-          if (nutriNav) nutriNav.click();
-        }
-      }, 420);
+      setTimeout(() => {
+        overlay.classList.add('ob-exit');
+        setTimeout(() => {
+          overlay.remove();
+          // Navigate to nutrición so the user sees their TDEE + macros immediately
+          if (hasTDEE) {
+            const nutriNav = document.querySelector('[data-section="nutricion"]');
+            if (nutriNav) nutriNav.click();
+          }
+        }, 420);
+      }, 900);
     }
 
     // Mostrar mensaje de bienvenida en el stat del dashboard
@@ -375,7 +449,7 @@ const Onboarding = (function () {
     const sal  = hour < 13 ? 'Buenos días' : hour < 20 ? 'Buenas tardes' : 'Buenas noches';
     const greeting = document.getElementById('dashboard-greeting');
     if (greeting && answers['ob-weight']) {
-      greeting.textContent = `${sal}, bienvenido/a a HealthStack 🎉`;
+      greeting.textContent = `${sal}, bienvenido/a a HealthStack`;
       setTimeout(() => {
         const user = typeof API !== 'undefined' ? API.getUser?.() : null;
         const name = user?.display_name || 'Atleta';
@@ -389,6 +463,9 @@ const Onboarding = (function () {
   // If explicitly false, server wins over localStorage (so returning users
   // whose localStorage flag got cleared still see the wizard).
   function init(serverCompleted) {
+    // Nunca mostrar si el usuario no está autenticado (pantalla de login/registro)
+    if (!localStorage.getItem('hs_access_token')) return;
+
     // Server flag is authoritative: if server says NOT done, force the wizard.
     if (serverCompleted === false) {
       localStorage.removeItem(LS_FLAG); // clear stale local flag

@@ -50,22 +50,22 @@ const Exercises = (function () {
       muscles: ['pecho_mayor', 'triceps', 'deltoides_ant'],
       desc: 'Ejercicio rey del pecho. Acostado en banco, baja la barra al pecho y empuja hacia arriba.',
       video_url: 'https://www.youtube.com/watch?v=rT7DgCr-3pg',
-      affiliate: { icon: '🏋', name: 'Barra olímpica 20kg', desc: 'Barra recta olímpica con agarre moleteado', url: 'https://www.amazon.es/s?k=barra+olimpica+20kg&tag=healthstackpro-21' } },
+      affiliate: { icon: 'BAR', name: 'Barra olímpica 20kg', desc: 'Barra recta olímpica con agarre moleteado', url: 'https://www.amazon.es/s?k=barra+olimpica+20kg&tag=healthstackpro-21' } },
     { id: 2, name: 'Press banca inclinado', group: 'pecho', level: 'Intermedio', equipment: 'Barra',
       muscles: ['pecho_mayor_sup', 'deltoides_ant', 'triceps'],
       desc: 'Banco a 30-45°. Enfatiza la porción clavicular (superior) del pectoral mayor.',
       video_url: 'https://www.youtube.com/watch?v=DbFgADa2PL8',
-      affiliate: { icon: '🪑', name: 'Banco ajustable multiposición', desc: 'Regulable de -15° a 90°, soporta 300kg', url: 'https://www.amazon.es/s?k=banco+musculacion+ajustable&tag=healthstackpro-21' } },
+      affiliate: { icon: '', name: 'Banco ajustable multiposición', desc: 'Regulable de -15° a 90°, soporta 300kg', url: 'https://www.amazon.es/s?k=banco+musculacion+ajustable&tag=healthstackpro-21' } },
     { id: 3, name: 'Aperturas con mancuernas', group: 'pecho', level: 'Principiante', equipment: 'Mancuernas',
       muscles: ['pecho_mayor', 'deltoides_ant'],
       desc: 'Abre los brazos en arco hasta sentir estiramiento del pecho, sube sin bloquear codos.',
       video_url: 'https://www.youtube.com/watch?v=eozdVDA78K0',
-      affiliate: { icon: '💪', name: 'Mancuernas hexagonales 10-30kg', desc: 'Set de mancuernas con soporte, goma antideslizante', url: 'https://www.amazon.es/s?k=mancuernas+hexagonales+set&tag=healthstackpro-21' } },
+      affiliate: { icon: 'DB', name: 'Mancuernas hexagonales 10-30kg', desc: 'Set de mancuernas con soporte, goma antideslizante', url: 'https://www.amazon.es/s?k=mancuernas+hexagonales+set&tag=healthstackpro-21' } },
     { id: 4, name: 'Fondos en paralelas', group: 'pecho', level: 'Intermedio', equipment: 'Peso corporal',
       muscles: ['pecho_mayor', 'triceps', 'deltoides_ant'],
       desc: 'Inclina el tronco hacia delante para mayor énfasis pectoral. Baja hasta 90° de codo.',
       video_url: 'https://www.youtube.com/watch?v=2z8JmcrW-As',
-      affiliate: { icon: '🔩', name: 'Paralelas de pared plegables', desc: 'Acero reforzado, instalación sin taladro', url: 'https://www.amazon.es/s?k=paralelas+pared+fondos&tag=healthstackpro-21' } },
+      affiliate: { icon: '', name: 'Paralelas de pared plegables', desc: 'Acero reforzado, instalación sin taladro', url: 'https://www.amazon.es/s?k=paralelas+pared+fondos&tag=healthstackpro-21' } },
     { id: 5, name: 'Flexiones diamante', group: 'pecho', level: 'Principiante', equipment: 'Peso corporal',
       muscles: ['triceps', 'pecho_mayor'],
       desc: 'Manos juntas formando un rombo. Activa tríceps y porción esternal del pecho.',
@@ -76,7 +76,7 @@ const Exercises = (function () {
       muscles: ['dorsal', 'biceps', 'romboides'],
       desc: 'Agarre prono, escápulas activadas. El ejercicio más completo para la espalda superior.',
       video_url: 'https://www.youtube.com/watch?v=eGo4IYlbE5g',
-      affiliate: { icon: '🔗', name: 'Barra de dominadas para puerta', desc: 'Sin tornillos, soporta 100kg, 5 agarres', url: 'https://www.amazon.es/s?k=barra+dominadas+puerta&tag=healthstackpro-21' } },
+      affiliate: { icon: '', name: 'Barra de dominadas para puerta', desc: 'Sin tornillos, soporta 100kg, 5 agarres', url: 'https://www.amazon.es/s?k=barra+dominadas+puerta&tag=healthstackpro-21' } },
     { id: 7, name: 'Remo con barra', group: 'espalda', level: 'Intermedio', equipment: 'Barra',
       muscles: ['dorsal', 'romboides', 'trapecio', 'biceps'],
       desc: 'Tronco a ~45°, tira la barra hacia el ombligo. Reina de la masa en espalda.',
@@ -89,12 +89,12 @@ const Exercises = (function () {
       muscles: ['dorsal', 'trapecio_medio', 'biceps'],
       desc: 'Una mano apoyada en banco, tira la mancuerna hacia la cadera. Excelente rango de movimiento.',
       video_url: 'https://www.youtube.com/watch?v=DMo3HJoawrU',
-      affiliate: { icon: '💪', name: 'Mancuerna ajustable 5-32kg', desc: 'Reemplaza 15 mancuernas, selector rápido', url: 'https://www.amazon.es/s?k=mancuerna+ajustable+dial&tag=healthstackpro-21' } },
+      affiliate: { icon: 'DB', name: 'Mancuerna ajustable 5-32kg', desc: 'Reemplaza 15 mancuernas, selector rápido', url: 'https://www.amazon.es/s?k=mancuerna+ajustable+dial&tag=healthstackpro-21' } },
     { id: 10, name: 'Peso muerto convencional', group: 'espalda', level: 'Avanzado', equipment: 'Barra',
       muscles: ['erector_espinal', 'gluteos', 'isquiotibiales', 'dorsal'],
       desc: 'El movimiento más completo del gym. Activa cadena posterior completa. Técnica es clave.',
       video_url: 'https://www.youtube.com/watch?v=op9kVnSso6Q',
-      affiliate: { icon: '🧤', name: 'Cinturón de halterofilia + guantes', desc: 'Pack protección lumbar + grip para cargas pesadas', url: 'https://www.amazon.es/s?k=cinturon+halterofilia+gym&tag=healthstackpro-21' } },
+      affiliate: { icon: '', name: 'Cinturón de halterofilia + guantes', desc: 'Pack protección lumbar + grip para cargas pesadas', url: 'https://www.amazon.es/s?k=cinturon+halterofilia+gym&tag=healthstackpro-21' } },
 
     // ── HOMBROS ──
     { id: 11, name: 'Press militar con barra', group: 'hombros', level: 'Intermedio', equipment: 'Barra',
@@ -105,7 +105,7 @@ const Exercises = (function () {
       muscles: ['deltoides_med'],
       desc: 'Levanta los brazos en cruz hasta 90°. Aísla el deltoides medio para hombros anchos.',
       video_url: 'https://www.youtube.com/watch?v=3VcKaXpzqRo',
-      affiliate: { icon: '💪', name: 'Mancuernas neopreno 2-10kg', desc: 'Ideales para elevaciones — agarre suave', url: 'https://www.amazon.es/s?k=mancuernas+neopreno+set&tag=healthstackpro-21' } },
+      affiliate: { icon: 'DB', name: 'Mancuernas neopreno 2-10kg', desc: 'Ideales para elevaciones — agarre suave', url: 'https://www.amazon.es/s?k=mancuernas+neopreno+set&tag=healthstackpro-21' } },
     { id: 13, name: 'Pájaro con mancuernas', group: 'hombros', level: 'Principiante', equipment: 'Mancuernas',
       muscles: ['deltoides_post', 'romboides'],
       desc: 'Con torso inclinado, abre los brazos hacia atrás. Clave para hombro posterior.',
@@ -114,14 +114,14 @@ const Exercises = (function () {
       muscles: ['deltoides_post', 'rotadores_ext', 'romboides'],
       desc: 'Tira la cuerda hacia la cara. Salud del manguito rotador y postura.',
       video_url: 'https://www.youtube.com/watch?v=rep-qVOkqgk',
-      affiliate: { icon: '🔗', name: 'Polea de puerta + cuerda', desc: 'Kit completo para entrenamiento en casa', url: 'https://www.amazon.es/s?k=polea+puerta+cable+fitness&tag=healthstackpro-21' } },
+      affiliate: { icon: '', name: 'Polea de puerta + cuerda', desc: 'Kit completo para entrenamiento en casa', url: 'https://www.amazon.es/s?k=polea+puerta+cable+fitness&tag=healthstackpro-21' } },
 
     // ── BRAZOS ──
     { id: 15, name: 'Curl con barra', group: 'brazos', level: 'Principiante', equipment: 'Barra',
       muscles: ['biceps', 'braquial'],
       desc: 'Agarre supino, codos fijos. El clásico para volumen de bíceps.',
       video_url: 'https://www.youtube.com/watch?v=kwG2ipFRgfo',
-      affiliate: { icon: '🏋', name: 'Barra EZ + discos olímpicos', desc: 'Set barra curvada + 20kg de discos', url: 'https://www.amazon.es/s?k=barra+ez+curl+discos+set&tag=healthstackpro-21' } },
+      affiliate: { icon: 'BAR', name: 'Barra EZ + discos olímpicos', desc: 'Set barra curvada + 20kg de discos', url: 'https://www.amazon.es/s?k=barra+ez+curl+discos+set&tag=healthstackpro-21' } },
     { id: 16, name: 'Curl martillo', group: 'brazos', level: 'Principiante', equipment: 'Mancuernas',
       muscles: ['biceps', 'braquial', 'braquiorradial'],
       desc: 'Agarre neutro (pulgar arriba). Trabaja bíceps braquial y braquiorradial.',
@@ -140,7 +140,7 @@ const Exercises = (function () {
       muscles: ['transverso', 'oblicuos', 'lumbar'],
       desc: 'Cuerpo recto sobre antebrazos. Activa toda la musculatura estabilizadora del tronco.',
       video_url: 'https://www.youtube.com/watch?v=B296mZDhrP4',
-      affiliate: { icon: '🧘', name: 'Esterilla fitness antideslizante 10mm', desc: 'Extra gruesa, ideal para ejercicios de suelo', url: 'https://www.amazon.es/s?k=esterilla+fitness+10mm+antideslizante&tag=healthstackpro-21' } },
+      affiliate: { icon: '', name: 'Esterilla fitness antideslizante 10mm', desc: 'Extra gruesa, ideal para ejercicios de suelo', url: 'https://www.amazon.es/s?k=esterilla+fitness+10mm+antideslizante&tag=healthstackpro-21' } },
     { id: 20, name: 'Crunch abdominal', group: 'core', level: 'Principiante', equipment: 'Peso corporal',
       muscles: ['recto_abdominal'],
       desc: 'Flexiona el tronco sin tirar del cuello. Rango corto con máxima contracción.',
@@ -153,14 +153,14 @@ const Exercises = (function () {
       muscles: ['recto_abdominal', 'transverso', 'lumbar'],
       desc: 'Extender y contraer con control. Uno de los ejercicios de core más exigentes.',
       video_url: 'https://www.youtube.com/watch?v=sDNfJlnUuAI',
-      affiliate: { icon: '⚙️', name: 'Rueda abdominal doble rueda', desc: 'Rodamientos de bola, rodillera incluida', url: 'https://www.amazon.es/s?k=rueda+abdominal+doble&tag=healthstackpro-21' } },
+      affiliate: { icon: 'EQ', name: 'Rueda abdominal doble rueda', desc: 'Rodamientos de bola, rodillera incluida', url: 'https://www.amazon.es/s?k=rueda+abdominal+doble&tag=healthstackpro-21' } },
 
     // ── PIERNAS ──
     { id: 23, name: 'Sentadilla con barra', group: 'piernas', level: 'Avanzado', equipment: 'Barra',
       muscles: ['cuadriceps', 'gluteos', 'isquiotibiales', 'core'],
       desc: 'La reina de los ejercicios. Baja hasta al menos 90° manteniendo espalda neutra.',
       video_url: 'https://www.youtube.com/watch?v=ultWZbUMPL8',
-      affiliate: { icon: '👟', name: 'Zapatillas halterofilia suela plana', desc: 'Suela de madera, tacón elevado para sentadilla', url: 'https://www.amazon.es/s?k=zapatillas+halterofilia+squat&tag=healthstackpro-21' } },
+      affiliate: { icon: '', name: 'Zapatillas halterofilia suela plana', desc: 'Suela de madera, tacón elevado para sentadilla', url: 'https://www.amazon.es/s?k=zapatillas+halterofilia+squat&tag=healthstackpro-21' } },
     { id: 24, name: 'Prensa de piernas', group: 'piernas', level: 'Principiante', equipment: 'Máquina',
       muscles: ['cuadriceps', 'gluteos', 'isquiotibiales'],
       desc: 'Alternativa más segura a la sentadilla. Posición de pies modifica el énfasis muscular.',
@@ -183,7 +183,7 @@ const Exercises = (function () {
       muscles: ['gluteos', 'isquiotibiales', 'core'],
       desc: 'Espalda alta en banco, empuja las caderas hacia arriba. El mejor ejercicio para glúteo mayor.',
       video_url: 'https://www.youtube.com/watch?v=xDmFkJxPzeM',
-      affiliate: { icon: '🛡', name: 'Pad acolchado para hip thrust', desc: 'Protector de cadera para barra — imprescindible', url: 'https://www.amazon.es/s?k=pad+acolchado+barra+hip+thrust&tag=healthstackpro-21' } },
+      affiliate: { icon: '', name: 'Pad acolchado para hip thrust', desc: 'Protector de cadera para barra — imprescindible', url: 'https://www.amazon.es/s?k=pad+acolchado+barra+hip+thrust&tag=healthstackpro-21' } },
     { id: 29, name: 'Patada trasera en polea', group: 'gluteos', level: 'Principiante', equipment: 'Polea',
       muscles: ['gluteos'],
       desc: 'De pie ante la polea baja, extiende la pierna hacia atrás. Aislamiento de glúteo.',
@@ -192,7 +192,7 @@ const Exercises = (function () {
       muscles: ['gluteos', 'isquiotibiales'],
       desc: 'Acostado boca arriba, eleva las caderas. Variante sin carga del hip thrust.',
       video_url: 'https://www.youtube.com/watch?v=wPM8icPu6H8',
-      affiliate: { icon: '🟡', name: 'Mini bandas elásticas de glúteos', desc: 'Set de 5 resistencias — activa glúteos al máximo', url: 'https://www.amazon.es/s?k=bandas+elasticas+gluteos+mini&tag=healthstackpro-21' } },
+      affiliate: { icon: '', name: 'Mini bandas elásticas de glúteos', desc: 'Set de 5 resistencias — activa glúteos al máximo', url: 'https://www.amazon.es/s?k=bandas+elasticas+gluteos+mini&tag=healthstackpro-21' } },
 
     // ── CARDIO ──
     { id: 31, name: 'Burpee', group: 'cardio', level: 'Intermedio', equipment: 'Peso corporal',
@@ -203,7 +203,7 @@ const Exercises = (function () {
       muscles: ['gemelos', 'core', 'hombros'],
       desc: '10 min de comba = 15 min de carrera. Coordinación y cardio en uno.',
       video_url: 'https://www.youtube.com/watch?v=FJmRQ5iTXKE',
-      affiliate: { icon: '🪢', name: 'Comba de velocidad ajustable', desc: 'Rodamientos de bola, cable de acero recubierto', url: 'https://www.amazon.es/s?k=comba+velocidad+crossfit+acero&tag=healthstackpro-21' } },
+      affiliate: { icon: '', name: 'Comba de velocidad ajustable', desc: 'Rodamientos de bola, cable de acero recubierto', url: 'https://www.amazon.es/s?k=comba+velocidad+crossfit+acero&tag=healthstackpro-21' } },
     { id: 33, name: 'Remo en máquina', group: 'cardio', level: 'Principiante', equipment: 'Máquina',
       muscles: ['dorsal', 'piernas', 'core'],
       desc: 'Cardio de bajo impacto que trabaja todo el cuerpo. Ideal para lesionados de rodilla.',
@@ -409,9 +409,11 @@ const Exercises = (function () {
 
     const lens = await getLens();
     if (lens) {
-      // lens es el visor SVG body-muscles. Si lanza es un error inesperado;
-      // no caer al SVG simple (está oculto) — loguear y seguir.
       await lens.highlight(ex.id, ex.muscles);
+      // En móvil: mostrar el panel como modal centrado (no scroll)
+      if (window.matchMedia('(max-width: 768px)').matches) {
+        _openAnatomyModal();
+      }
       return;  // AnatomyLens manejó leyenda + hint
     }
 
@@ -455,6 +457,40 @@ const Exercises = (function () {
     if (legend) legend.innerHTML = '';
     const aff = document.getElementById('anatomy-affiliate');
     if (aff) aff.innerHTML = '';
+  }
+
+  // ── Modal del visor anatómico (solo móvil) ────────────────
+  function _openAnatomyModal() {
+    const panel    = document.getElementById('anatomy-panel');
+    const backdrop = document.getElementById('anatomy-modal-backdrop');
+    const closeBtn = document.getElementById('anatomy-modal-close');
+    if (!panel) return;
+
+    panel.classList.add('anatomy-modal-active');
+    if (backdrop) backdrop.classList.add('open');
+    if (closeBtn) {
+      closeBtn.style.display = 'flex';
+      closeBtn.onclick = _closeAnatomyModal;
+    }
+    if (backdrop) backdrop.onclick = _closeAnatomyModal;
+  }
+
+  function _closeAnatomyModal() {
+    const panel    = document.getElementById('anatomy-panel');
+    const backdrop = document.getElementById('anatomy-modal-backdrop');
+    const closeBtn = document.getElementById('anatomy-modal-close');
+    if (!panel) return;
+
+    panel.classList.remove('anatomy-modal-active');
+    if (backdrop) backdrop.classList.remove('open');
+    if (closeBtn) closeBtn.style.display = 'none';
+
+    // Deseleccionar ejercicio activo
+    activeExId = null;
+    renderGrid();
+    const lens = document.querySelector('.anatomy-lens-container');
+    getLens().then(l => { if (l) l.reset(); }).catch(() => {});
+    resetAnatomy();
   }
 
   function renderLegend(muscles) {
@@ -527,5 +563,10 @@ const Exercises = (function () {
   // Expone el DB para que workoutLogger pueda hacer autocomplete
   function getDB() { return DB; }
 
-  return { init, getDB };
+  // Refresca el grid (llamado al navegar a la sección)
+  function refreshLayout() {
+    renderGrid();
+  }
+
+  return { init, getDB, refreshLayout };
 })();

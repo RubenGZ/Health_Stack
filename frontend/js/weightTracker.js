@@ -177,16 +177,16 @@ const WeightTracker = (function () {
     let icon, text, cls;
 
     if (diff > 0.4) {
-      icon = '📈'; cls = 'warning';
+      icon = ''; cls = 'warning';
       text = `Estás ganando <strong>${diff} kg</strong> de media esta semana. Si tu objetivo es definición, considera reducir ~200 kcal/día o añadir cardio.`;
     } else if (diff < -0.4) {
-      icon = '📉'; cls = '';
+      icon = ''; cls = '';
       text = `Estás perdiendo <strong>${Math.abs(diff)} kg</strong> de media esta semana. ¡Buen progreso! Mantén el ritmo.`;
     } else if (diff < -0.8) {
-      icon = '⚠️'; cls = 'danger';
+      icon = ''; cls = 'danger';
       text = `Pérdida rápida de <strong>${Math.abs(diff)} kg</strong>. Asegúrate de consumir suficiente proteína para preservar músculo.`;
     } else {
-      icon = '⚖️'; cls = '';
+      icon = ''; cls = '';
       text = `Tu peso se mantiene estable (${diff > 0 ? '+' : ''}${diff} kg respecto a la semana anterior). ¡Consistencia!`;
     }
 
@@ -273,7 +273,7 @@ const WeightTracker = (function () {
               label: item  => ` ${item.raw.toFixed(1)} kg`,
               afterLabel: item => {
                 const note = filtered[item.dataIndex].notes;
-                return note ? `  📝 ${note}` : '';
+                return note ? `  ${note}` : '';
               },
             },
           },
@@ -412,8 +412,8 @@ const WeightTracker = (function () {
           </td>
           <td>
             <div class="table-actions">
-              <button class="btn-icon" onclick="WeightTracker.openEdit(${entry.id})" title="Editar">✏️</button>
-              <button class="btn-icon btn-icon--delete" onclick="WeightTracker.confirmDelete(${entry.id})" title="Eliminar">🗑️</button>
+              <button class="btn-icon" onclick="WeightTracker.openEdit(${entry.id})" title="Editar">Edit</button>
+              <button class="btn-icon btn-icon--delete" onclick="WeightTracker.confirmDelete(${entry.id})" title="Eliminar">×</button>
             </div>
           </td>
         </tr>`;

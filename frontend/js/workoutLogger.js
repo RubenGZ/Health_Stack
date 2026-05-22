@@ -1,14 +1,24 @@
-// frontend/js/workoutLogger.js — Hevy-style workout logger
-// UX: exercise search sheet, per-set ✓ complete, rest timer, live volume, delete.
+// frontend/js/workoutLogger.js — Premium workout logger
+// Features: PREVIOUS por set, PR badges, 1RM live, pausa, inactividad,
+//           rest timer en cabecera, tabla de músculos, plate calc, export.
 import * as Session from './workoutSession.js';
+import * as PR      from './workoutPR.js';
+import * as ORM     from './oneRepMax.js';
 
 const REST_DEFAULT = 90; // segundos de descanso por defecto
 
-let _root = null;
-let _session = null;
-let _timerInterval = null;
-let _restInterval = null;
-let _restRemaining = 0;
+let _root            = null;
+let _session         = null;
+let _timerInterval   = null;
+let _restInterval    = null;
+let _restRemaining   = 0;
+let _restTotal       = REST_DEFAULT;
+let _restExKey       = null;   // ejercicio cuyo rest timer está corriendo
+let _prToastQueue    = [];     // cola de toasts PR
+let _prToastActive   = false;
+let _lastActivityAt  = Date.now();
+let _inactivityTimer = null;
+let _inactivityToast = null;
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 function fmtTime(secs) {
@@ -42,6 +52,7 @@ function searchExercises(query) {
 function startRestTimer(secs = REST_DEFAULT) {
   clearInterval(_restInterval);
   _restRemaining = secs;
+  _restTotal = secs;
   updateRestUI();
 
   _restInterval = setInterval(() => {
@@ -63,8 +74,7 @@ function updateRestUI() {
   const bar = _root?.querySelector('#wl-rest-bar');
   if (!bar) return;
   bar.querySelector('.wl-rest-time').textContent = fmtTime(_restRemaining);
-  const total = REST_DEFAULT;
-  const pct = Math.max(0, (_restRemaining / total) * 100);
+  const pct = Math.max(0, (_restRemaining / _restTotal) * 100);
   bar.querySelector('.wl-rest-progress-fill').style.width = `${pct}%`;
 }
 
@@ -97,23 +107,216 @@ function renderIdle() {
       </div>`;
   }
 
+  // Rutinas guardadas del generador — combina historial + rutina activa si existe
+  let savedRoutines = [];
+  try { savedRoutines = JSON.parse(localStorage.getItem('hs_routine_history') || '[]'); } catch {}
+
+  // Añadir la rutina activa (hs_routine) si tiene sessions y no está ya en el historial
+  try {
+    const activeRaw = JSON.parse(localStorage.getItem('hs_routine') || 'null');
+    if (activeRaw?.routine?.sessions) {
+      // ¿Ya está en el historial? Comparar por ts o por sessions length
+      const alreadyInHistory = savedRoutines.some(r => r.ts === activeRaw.ts);
+      if (!alreadyInHistory) {
+        // Insertarla como primer elemento con el formato que espera renderRoutinePicker
+        savedRoutines = [
+          { ts: activeRaw.ts || Date.now(), label: 'Última rutina generada', routine: activeRaw.routine },
+          ...savedRoutines,
+        ];
+      }
+    }
+  } catch { /* ignorar */ }
+
+  const hasSaved = savedRoutines.length > 0;
+
   _root.innerHTML = `
     <div class="wl-idle">
       <div class="wl-idle-body">
-        <span class="wl-idle-icon">🏋️</span>
-        <h3 class="wl-idle-title">¿Listo para entrenar?</h3>
-        <p class="wl-idle-sub">Registra tus series, sigue tu progresión y bate tus récords.</p>
-        <button class="wl-start-btn" id="wl-start">
-          <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polygon points="5 3 19 12 5 21 5 3"/></svg>
-          Iniciar sesión
-        </button>
+        <h3 class="wl-idle-title">¿Cómo quieres entrenar?</h3>
         ${lastHtml}
+        <div class="wl-mode-grid">
+          <button class="wl-mode-card" id="wl-mode-free">
+            <svg class="wl-mode-icon" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="16"/><line x1="8" y1="12" x2="16" y2="12"/></svg>
+            <span class="wl-mode-title">Ejercicios libres</span>
+            <span class="wl-mode-sub">Añade ejercicios sobre la marcha</span>
+          </button>
+          <button class="wl-mode-card" id="wl-mode-build">
+            <svg class="wl-mode-icon" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>
+            <span class="wl-mode-title">Ir a Rutinas</span>
+            <span class="wl-mode-sub">Genera o edita tu plan</span>
+          </button>
+          ${hasSaved ? `
+          <button class="wl-mode-card wl-mode-card--accent" id="wl-mode-saved">
+            <svg class="wl-mode-icon" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>
+            <span class="wl-mode-title">Cargar rutina</span>
+            <span class="wl-mode-sub">${savedRoutines.length} guardada${savedRoutines.length > 1 ? 's' : ''}</span>
+          </button>` : ''}
+        </div>
       </div>
     </div>`;
-  _root.querySelector('#wl-start').addEventListener('click', () => {
+
+  _root.querySelector('#wl-mode-free').addEventListener('click', () => {
     _session = Session.startSession();
+    window.dispatchEvent(new CustomEvent('hs:workout-session-changed'));
     renderActive();
   });
+
+  _root.querySelector('#wl-mode-build')?.addEventListener('click', () => {
+    if (typeof window.navigateTo === 'function') {
+      window.navigateTo('rutinas');
+    } else {
+      const nav = document.querySelector('[data-section="rutinas"]');
+      if (nav) nav.click();
+    }
+  });
+
+  if (hasSaved) {
+    _root.querySelector('#wl-mode-saved')?.addEventListener('click', () => {
+      renderRoutinePicker(savedRoutines);
+    });
+  }
+}
+
+// ─── Selector de rutinas guardadas ─────────────────────────────────────────────
+function renderRoutinePicker(routines) {
+  _root.innerHTML = `
+    <div class="wl-routine-picker">
+      <div class="wl-picker-header">
+        <button class="wl-picker-back" id="wl-picker-back">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="15 18 9 12 15 6"/></svg>
+          Volver
+        </button>
+        <h3 class="wl-picker-title">Elige una rutina</h3>
+      </div>
+      <div class="wl-picker-list">
+        ${routines.map((r, ridx) => {
+          const activeDays = (r.routine?.sessions || []).filter(s => s.exercises && s.exercises.length > 0);
+          return `
+          <div class="wl-picker-item">
+            <div class="wl-picker-name">${r.label || r.name || 'Rutina sin nombre'}</div>
+            <div class="wl-picker-meta">${activeDays.length} día${activeDays.length !== 1 ? 's' : ''} de entrenamiento${r.ts ? ' · ' + new Date(r.ts).toLocaleDateString('es-ES', { day: 'numeric', month: 'short' }) : ''}</div>
+            <div class="wl-picker-days">
+              ${activeDays.map((s, sidx) => `
+                <button class="wl-picker-day" data-ridx="${ridx}" data-sidx="${sidx}">
+                  <span class="wpd-day">${s.day}</span>
+                  <span class="wpd-name">${s.name}</span>
+                  <span class="wpd-count">${s.exercises.length} ejercicios</span>
+                </button>`).join('')}
+            </div>
+          </div>`;
+        }).join('')}
+      </div>
+    </div>`;
+
+  _root.querySelector('#wl-picker-back').addEventListener('click', renderIdle);
+
+  _root.querySelectorAll('.wl-picker-day').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const ridx = parseInt(btn.dataset.ridx);
+      const sidx = parseInt(btn.dataset.sidx);
+      const activeDays = (routines[ridx]?.routine?.sessions || []).filter(s => s.exercises && s.exercises.length > 0);
+      const daySession = activeDays[sidx];
+      if (daySession) _loadRoutineSession(daySession);
+    });
+  });
+}
+
+// ─── Parsear string de descanso → segundos ─────────────────────────────────────
+function _parseRestSecs(restStr) {
+  if (!restStr) return REST_DEFAULT;
+  const ms = restStr.match(/(\d+)\s*s(?:eg|ecs?)?/i);
+  if (ms) return parseInt(ms[1], 10);
+  const mm = restStr.match(/(\d+)\s*min/i);
+  if (mm) return parseInt(mm[1], 10) * 60;
+  const mn = restStr.match(/(\d+)/);
+  if (mn) return parseInt(mn[1], 10);
+  return REST_DEFAULT;
+}
+
+// ─── Cargar día de rutina como draft y arrancar sesión ─────────────────────────
+// Mejor que Hevy: pre-rellena peso de sesiones anteriores + genera calentamiento
+// automático escalado al peso de trabajo. Sin historia → todo a 0, el usuario rellena.
+function _loadRoutineSession(daySession) {
+  function _toKey(name) {
+    return name.toLowerCase().normalize('NFD')
+      .replace(/[̀-ͯ]/g, '').replace(/\s+/g, '_');
+  }
+
+  const exercises = daySession.exercises.map((ex, i) => {
+    const numSets  = parseInt(ex.sets) || 3;
+    const targetR  = parseInt(ex.reps) || 8;
+    const key      = _toKey(ex.name);
+    const restSecs = _parseRestSecs(ex.rest);
+
+    // Progressive overload: peso de última sesión + 2.5 kg si se completaron todas las reps.
+    // null si no hay historial → el usuario rellena desde cero.
+    const suggested  = Session.getSuggestedWeight(key);
+    const workingKg  = suggested ?? 0;
+
+    const setsArr = [];
+
+    // Auto-calentamiento escalado al peso de trabajo
+    if (workingKg >= 30) {
+      // Ejercicio pesado (≥ 30 kg): 2 sets de calentamiento
+      const w1 = Math.max(2.5, Math.round((workingKg * 0.50) / 2.5) * 2.5);
+      const w2 = Math.max(2.5, Math.round((workingKg * 0.75) / 2.5) * 2.5);
+      setsArr.push({ setNumber: 0, weightKg: w1, reps: 8,  rpe: null, isWarmup: true,  completedAt: null });
+      setsArr.push({ setNumber: 0, weightKg: w2, reps: 5,  rpe: null, isWarmup: true,  completedAt: null });
+    } else if (workingKg >= 15) {
+      // Ejercicio medio (15-29 kg): 1 set de calentamiento al 60 %
+      const w1 = Math.max(2.5, Math.round((workingKg * 0.60) / 2.5) * 2.5);
+      setsArr.push({ setNumber: 0, weightKg: w1, reps: 10, rpe: null, isWarmup: true,  completedAt: null });
+    }
+    // < 15 kg o sin historial → sin calentamiento automático
+
+    // Sets de trabajo con peso pre-rellenado
+    for (let s = 0; s < numSets; s++) {
+      setsArr.push({ setNumber: s + 1, weightKg: workingKg, reps: targetR, rpe: null, isWarmup: false, completedAt: null });
+    }
+
+    return {
+      key,
+      name:       ex.name,
+      orderIndex: i,
+      sets:       setsArr,
+      restSecs,
+      note:       ex.rest ? 'Descanso: ' + ex.rest : '',
+    };
+  });
+
+  const draft = {
+    routineId:  daySession.day || null,
+    startedAt:  new Date().toISOString(),
+    exercises,
+  };
+  Session.saveDraft(draft);
+  _session = draft;
+  window.dispatchEvent(new CustomEvent('hs:workout-session-changed'));
+  renderActive();
+
+  // Toast informativo si hay historial (peso pre-rellenado)
+  const hasHistory = exercises.some(ex => ex.sets.some(s => !s.isWarmup && s.weightKg > 0));
+  if (hasHistory) {
+    const warmupCount = exercises.reduce((n, ex) => n + ex.sets.filter(s => s.isWarmup).length, 0);
+    const msg = warmupCount > 0
+      ? `Peso de tu última sesión + ${warmupCount} set${warmupCount > 1 ? 's' : ''} de calentamiento generados`
+      : 'Peso pre-rellenado desde tu última sesión';
+    _showRoutineToast(msg);
+  }
+}
+
+function _showRoutineToast(msg) {
+  const existing = document.getElementById('wl-routine-toast');
+  if (existing) existing.remove();
+  const t = document.createElement('div');
+  t.id = 'wl-routine-toast';
+  t.style.cssText = 'position:fixed;top:72px;left:50%;transform:translateX(-50%);' +
+    'background:#1e1b4b;border:1px solid #4f46e5;color:#c7d2fe;padding:8px 16px;' +
+    'border-radius:8px;font-size:.8rem;z-index:9990;box-shadow:0 4px 16px rgba(0,0,0,.4);' +
+    'pointer-events:none;white-space:nowrap;';
+  t.textContent = '⚡ ' + msg;
+  document.body.appendChild(t);
+  setTimeout(() => t.remove(), 3500);
 }
 
 // ─── ACTIVE ────────────────────────────────────────────────────────────────────
@@ -135,7 +338,13 @@ function renderActive() {
         <span class="wl-timer" id="wl-timer">00:00</span>
         <span class="wl-vol-live" id="wl-vol-live">0 kg</span>
       </div>
-      <button class="wl-finish-btn" id="wl-finish">Finalizar</button>
+      <div class="wl-session-actions">
+        <button class="wl-pause-btn" id="wl-pause-btn">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><rect x="6" y="4" width="4" height="16"/><rect x="14" y="4" width="4" height="16"/></svg>
+          Pausar
+        </button>
+        <button class="wl-finish-btn" id="wl-finish">Finalizar</button>
+      </div>
     </div>
 
     <!-- Columnas: ejercicios | anat -->
@@ -147,7 +356,7 @@ function renderActive() {
         <div class="wl-add-exercise-panel" id="wl-add-ex-panel">
           <div class="wl-ex-search-wrap">
             <input type="text" id="wl-ex-input"
-              placeholder="🔍 Buscar ejercicio..."
+              placeholder="Buscar ejercicio..."
               class="wl-input" autocomplete="off" />
           </div>
           <div class="wl-ex-results" id="wl-ex-results"></div>
@@ -168,9 +377,18 @@ function renderActive() {
   renderExercises();
   initExerciseSearch();
   initAnatomy();
+  _resetInactivity();
+  _startInactivityWatch();
 
   _root.querySelector('#wl-finish').addEventListener('click', onFinish);
   _root.querySelector('#wl-rest-skip').addEventListener('click', stopRestTimer);
+  _root.querySelector('#wl-pause-btn').addEventListener('click', togglePause);
+
+  // Si la sesión se restauró pausada, aplicar estado visual
+  if (_session?.pausedAt) {
+    _showPauseOverlay();
+    _updatePauseBtn(true);
+  }
 }
 
 // ─── Exercise search/autocomplete ──────────────────────────────────────────────
@@ -267,21 +485,162 @@ function highlightAnatomy(exerciseKey) {
   } catch (e) {}
 }
 
-// ─── Timer ─────────────────────────────────────────────────────────────────────
+// ─── Timer (usa duración activa, excluye tiempo pausado) ──────────────────────
 function startTimer() {
-  const start = new Date(_session.startedAt);
   clearInterval(_timerInterval);
   _timerInterval = setInterval(() => {
+    if (_session?.pausedAt) return; // congelado en pausa
     const el = _root?.querySelector('#wl-timer');
     if (!el) return;
-    const secs = Math.floor((Date.now() - start) / 1000);
-    el.textContent = fmtTime(secs);
+    const ms   = Session.getActiveDurationMs(_session);
+    el.textContent = fmtTime(Math.floor(ms / 1000));
   }, 1000);
+}
+
+// ─── Pausa / Reanudar ──────────────────────────────────────────────────────────
+function togglePause() {
+  if (!_session) return;
+  if (_session.pausedAt) {
+    // Reanudar
+    Session.resumeSession(_session);
+    if (_restRemaining > 0) {
+      // reanudar rest timer si quedaba tiempo
+      _restInterval = setInterval(() => {
+        _restRemaining--;
+        updateRestUI();
+        _updateExerciseRestHeader(_restExKey);
+        if (_restRemaining <= 0) {
+          clearInterval(_restInterval);
+          hideRestTimer();
+          _updateExerciseRestHeader(_restExKey);
+        }
+      }, 1000);
+    }
+    _removePauseOverlay();
+    _updatePauseBtn(false);
+    _resetInactivity();
+  } else {
+    // Pausar
+    Session.pauseSession(_session);
+    clearInterval(_restInterval); // pausa rest timer
+    _showPauseOverlay();
+    _updatePauseBtn(true);
+  }
+}
+
+function _updatePauseBtn(isPaused) {
+  const btn = _root?.querySelector('#wl-pause-btn');
+  if (!btn) return;
+  btn.innerHTML = isPaused
+    ? '<svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><polygon points="5,3 19,12 5,21"/></svg> Reanudar'
+    : '<svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><rect x="6" y="4" width="4" height="16"/><rect x="14" y="4" width="4" height="16"/></svg> Pausar';
+  btn.classList.toggle('wl-pause-btn--paused', isPaused);
+}
+
+function _showPauseOverlay() {
+  const existing = _root?.querySelector('#wl-pause-overlay');
+  if (existing) return;
+  const overlay = document.createElement('div');
+  overlay.id = 'wl-pause-overlay';
+  overlay.className = 'wl-pause-overlay';
+  overlay.innerHTML = '<span class="wl-pause-overlay-text">Sesión pausada · Toca ▶ Reanudar para continuar</span>';
+  _root?.querySelector('.wl-exercises-col')?.prepend(overlay);
+}
+
+function _removePauseOverlay() {
+  _root?.querySelector('#wl-pause-overlay')?.remove();
+}
+
+// ─── Inactividad ───────────────────────────────────────────────────────────────
+function _resetInactivity() {
+  _lastActivityAt = Date.now();
+}
+
+function _startInactivityWatch() {
+  clearInterval(_inactivityTimer);
+  _inactivityTimer = setInterval(() => {
+    if (_session?.pausedAt) return; // no contar inactividad durante pausa
+    const idleMs = Date.now() - _lastActivityAt;
+    if (idleMs >= 3600000) { // 60 min → auto-close
+      clearInterval(_inactivityTimer);
+      _inactivityToast?.remove();
+      onFinish();
+    } else if (idleMs >= 600000 && !_inactivityToast) { // 10 min → aviso
+      _showInactivityToast();
+    }
+  }, 30000); // check cada 30s
+}
+
+function _showInactivityToast() {
+  if (_inactivityToast) return;
+  _inactivityToast = document.createElement('div');
+  _inactivityToast.className = 'wl-inactivity-toast';
+  _inactivityToast.innerHTML = `
+    <span class="wl-inact-icon">◷</span>
+    <span class="wl-inact-msg">¿Sigues ahí? Llevas más de 10 min sin registrar nada.</span>
+    <div class="wl-inact-actions">
+      <button class="wl-inact-continue">Continuar</button>
+      <button class="wl-inact-finish">Finalizar sesión</button>
+    </div>`;
+  document.body.appendChild(_inactivityToast);
+  _inactivityToast.querySelector('.wl-inact-continue').addEventListener('click', () => {
+    _resetInactivity();
+    _inactivityToast?.remove();
+    _inactivityToast = null;
+  });
+  _inactivityToast.querySelector('.wl-inact-finish').addEventListener('click', () => {
+    _inactivityToast?.remove();
+    _inactivityToast = null;
+    onFinish();
+  });
 }
 
 function updateVolLabel() {
   const el = _root?.querySelector('#wl-vol-live');
   if (el) el.textContent = `${liveVolume().toLocaleString('es-ES')} kg`;
+}
+
+// ─── Rest timer en cabecera del ejercicio ──────────────────────────────────────
+function _updateExerciseRestHeader(exerciseKey) {
+  if (!exerciseKey) return;
+  const card = _root?.querySelector(`[data-ex-key="${exerciseKey}"]`);
+  if (!card) return;
+  const restEl = card.querySelector('.wl-ex-rest-countdown');
+  if (!restEl) return;
+  if (_restRemaining > 0 && _restExKey === exerciseKey) {
+    restEl.textContent = `◷ ${fmtTime(_restRemaining)}`;
+    restEl.classList.add('wl-ex-rest-countdown--active');
+  } else {
+    const ex = _session?.exercises.find(e => e.key === exerciseKey);
+    const secs = ex?.restSecs || REST_DEFAULT;
+    restEl.textContent = `◷ ${fmtTime(secs)}`;
+    restEl.classList.remove('wl-ex-rest-countdown--active');
+  }
+}
+
+// ─── PR toast queue ────────────────────────────────────────────────────────────
+function _enqueuePRToast(exerciseName, type, delta, oneRM) {
+  _prToastQueue.push({ exerciseName, type, delta, oneRM });
+  if (!_prToastActive) _flushPRToast();
+}
+
+function _flushPRToast() {
+  if (!_prToastQueue.length) { _prToastActive = false; return; }
+  _prToastActive = true;
+  const { exerciseName, type, delta, oneRM } = _prToastQueue.shift();
+  const label = PR.prLabel(type, delta, oneRM);
+  const t = document.createElement('div');
+  t.className = 'wl-pr-toast';
+  t.innerHTML = `<span class="wl-pr-toast-dot"></span>
+    <div class="wl-pr-toast-body">
+      <span class="wl-pr-toast-title">Nuevo Récord — ${exerciseName}</span>
+      <span class="wl-pr-toast-sub">${label}</span>
+    </div>`;
+  document.body.appendChild(t);
+  setTimeout(() => {
+    t.classList.add('wl-pr-toast--hide');
+    setTimeout(() => { t.remove(); _flushPRToast(); }, 400);
+  }, 4000);
 }
 
 // ─── Render exercises list ──────────────────────────────────────────────────────
@@ -291,9 +650,19 @@ function renderExercises() {
   container.innerHTML = '';
 
   _session.exercises.forEach(ex => {
-    const prev = Session.getPrevSessionSummary(ex.key);
     const completedSets = ex.sets.filter(s => s.completedAt).length;
-    const totalSets = ex.sets.length;
+    const workingSets   = ex.sets.filter(s => !s.isWarmup);
+    const totalSets     = ex.sets.length;
+
+    // Badge sets×reps (solo si viene de rutina con datos)
+    const numWorking = workingSets.length;
+    const targetReps = workingSets[0]?.reps || null;
+    const setsRepsBadge = (numWorking > 0 && targetReps)
+      ? `<span class="wl-ex-scheme">${numWorking}×${targetReps}</span>` : '';
+
+    // Rest time en cabecera
+    const restSecs   = ex.restSecs || REST_DEFAULT;
+    const restLabel  = `<span class="wl-ex-rest-countdown" data-key="${ex.key}">◷ ${fmtTime(restSecs)}</span>`;
 
     const card = document.createElement('div');
     card.className = 'wl-ex-card';
@@ -303,7 +672,7 @@ function renderExercises() {
       <div class="wl-ex-card-header">
         <div class="wl-ex-info">
           <button class="wl-ex-name-btn" data-key="${ex.key}">${ex.name}</button>
-          ${prev ? `<span class="wl-ex-prev">Anterior (${prev.date}): ${prev.setsStr}</span>` : ''}
+          <div class="wl-ex-meta-row">${setsRepsBadge}${restLabel}</div>
         </div>
         <div class="wl-ex-card-actions">
           ${totalSets ? `<span class="wl-ex-progress">${completedSets}/${totalSets}</span>` : ''}
@@ -318,7 +687,7 @@ function renderExercises() {
 
       <!-- Cabecera de columnas -->
       <div class="wl-sets-header">
-        <span>Set</span><span title="Calentamiento">Cal</span><span>Peso kg</span><span></span><span>Reps</span><span>✓</span><span></span>
+        <span>Set</span><span>Anterior</span><span>Peso kg</span><span></span><span>Reps</span><span>1RM</span><span>✓</span><span></span>
       </div>
 
       <div class="wl-sets-list" id="wl-sets-${CSS.escape(ex.key)}"></div>
@@ -351,6 +720,27 @@ function renderExercises() {
   });
 }
 
+// ─── PREVIOUS por posición de set ─────────────────────────────────────────────
+function _getPrevSet(exerciseKey, setIndex) {
+  // setIndex es el índice en ex.sets (incluyendo warmups). Solo buscamos en working sets.
+  let sessions = [];
+  try { sessions = JSON.parse(localStorage.getItem('hs_workout_sessions_local') || '[]'); } catch {}
+  const prev = sessions.find(s => s.exercises?.some(e => e.key === exerciseKey));
+  if (!prev) return null;
+  const prevEx = prev.exercises.find(e => e.key === exerciseKey);
+  if (!prevEx) return null;
+  // Filtramos solo los working sets de la sesión anterior
+  const prevWorking = (prevEx.sets || []).filter(s => !s.isWarmup);
+  // setIndex entre los working sets de la sesión actual
+  const currentEx   = _session?.exercises.find(e => e.key === exerciseKey);
+  if (!currentEx) return null;
+  const currentWorkingIdx = currentEx.sets
+    .slice(0, setIndex + 1)
+    .filter(s => !s.isWarmup).length - 1;
+  const match = prevWorking[currentWorkingIdx];
+  return match ? `${match.weightKg}×${match.reps}` : null;
+}
+
 // ─── Render sets for one exercise ──────────────────────────────────────────────
 function renderSets(ex) {
   const container = _root?.querySelector(`#wl-sets-${CSS.escape(ex.key)}`);
@@ -358,17 +748,29 @@ function renderSets(ex) {
   container.innerHTML = '';
 
   ex.sets.forEach((s, idx) => {
-    const isDone = !!s.completedAt;
+    const isDone  = !!s.completedAt;
+    const isPRSet = !!s._isPR; // marcado al completar
+    const prevStr = s.isWarmup ? null : _getPrevSet(ex.key, idx);
+
+    // 1RM: solo mostrar si está completado y no es warmup
+    let ormStr = '—';
+    if (isDone && !s.isWarmup && s.weightKg > 0 && s.reps > 0) {
+      const orm = ORM.best1RM(s.weightKg, s.reps);
+      if (orm) ormStr = `${orm} kg`;
+    }
+
     const row = document.createElement('div');
-    row.className = `wl-set-row${s.isWarmup ? ' wl-set-warmup' : ''}${isDone ? ' wl-set-done' : ''}`;
+    row.className = [
+      'wl-set-row',
+      s.isWarmup ? 'wl-set-warmup' : '',
+      isDone     ? 'wl-set-done'   : '',
+      isPRSet    ? 'wl-set-pr'     : '',
+    ].filter(Boolean).join(' ');
 
     row.innerHTML = `
-      <span class="wl-set-num">${s.isWarmup ? 'Cal' : s.setNumber}</span>
+      <span class="wl-set-num">${s.isWarmup ? '🔥' : s.setNumber}${isPRSet ? '<span class="wl-pr-badge">PR</span>' : ''}</span>
 
-      <label class="wl-warmup-chk" title="Calentamiento">
-        <input type="checkbox" ${s.isWarmup ? 'checked' : ''} data-field="isWarmup" data-idx="${idx}" data-key="${ex.key}" />
-        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 2a9.96 9.96 0 0 1 2.73.38C11.41 4.56 9 8.04 9 12c0 3.96 2.41 7.44 5.73 9.62A10 10 0 1 1 12 2z"/></svg>
-      </label>
+      <span class="wl-set-prev">${prevStr ?? '—'}</span>
 
       <input type="number" class="wl-input-num wl-weight"
         value="${s.weightKg || ''}"
@@ -385,6 +787,8 @@ function renderSets(ex) {
         data-field="reps" data-idx="${idx}" data-key="${ex.key}"
         ${isDone ? 'readonly' : ''} />
 
+      ${s.isWarmup ? '<span class="wl-set-orm-empty"></span>' : `<span class="wl-set-orm">${ormStr}</span>`}
+
       <button class="wl-set-check${isDone ? ' wl-set-check--done' : ''}"
         data-idx="${idx}" data-key="${ex.key}" title="${isDone ? 'Deshacer' : 'Completar set'}">
         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3">
@@ -397,25 +801,22 @@ function renderSets(ex) {
     container.appendChild(row);
   });
 
-  // Bind inputs — use 'input' for number fields (fires on every keystroke, not just blur)
+  // Bind inputs
   container.querySelectorAll('[data-field]').forEach(inp => {
     const event = inp.type === 'checkbox' ? 'change' : 'input';
     inp.addEventListener(event, e => {
+      _resetInactivity();
       const { key, idx, field } = e.target.dataset;
-      const val = field === 'isWarmup' ? e.target.checked
-                : field === 'weightKg' ? (parseFloat(e.target.value) || 0)
-                : (parseInt(e.target.value) || 0);
+      const val = field === 'weightKg' ? (parseFloat(e.target.value) || 0)
+                                       : (parseInt(e.target.value) || 0);
       Session.updateSet(_session, key, +idx, { [field]: val });
-      if (field === 'isWarmup') {
-        const ex2 = _session.exercises.find(e2 => e2.key === key);
-        if (ex2) renderSets(ex2);
-      }
     });
   });
 
   // Complete set button
   container.querySelectorAll('.wl-set-check').forEach(btn => {
-    btn.addEventListener('click', e => {
+    btn.addEventListener('click', () => {
+      _resetInactivity();
       const { key, idx } = btn.dataset;
       const ex2 = _session.exercises.find(e2 => e2.key === key);
       if (!ex2) return;
@@ -423,8 +824,7 @@ function renderSets(ex) {
       if (!s) return;
       const wasDone = !!s.completedAt;
 
-      // Flush current DOM values before completing — guards against focus jump
-      // (user types weight → clicks ✓ without blurring the input first)
+      // Flush DOM values antes de completar
       if (!wasDone) {
         const row = btn.closest('.wl-set-row');
         const weightInp = row?.querySelector('[data-field="weightKg"]');
@@ -436,29 +836,51 @@ function renderSets(ex) {
       Session.updateSet(_session, key, +idx, {
         completedAt: wasDone ? null : new Date().toISOString(),
       });
+
       if (!wasDone && !s.isWarmup) {
-        startRestTimer(REST_DEFAULT);
+        // PR detection
+        const setNow = ex2.sets[+idx];
+        const prResult = PR.detectSetPR(key, setNow.weightKg, setNow.reps);
+        if (prResult.isPR) {
+          PR.saveSetPR(key, setNow.weightKg, setNow.reps);
+          setNow._isPR = true;
+          const orm = ORM.best1RM(setNow.weightKg, setNow.reps);
+          _enqueuePRToast(ex2.name, prResult.type, prResult.delta, orm);
+        }
+
+        // Rest timer con tiempo del ejercicio
+        _restExKey = key;
+        const restSecs = ex2.restSecs || REST_DEFAULT;
+        startRestTimer(restSecs);
         showRestBar();
+        _updateExerciseRestHeader(key);
       }
+
+      if (wasDone) s._isPR = false; // deshacer quita el badge
+
       renderSets(ex2);
       updateVolLabel();
-      // Update progress badge on card
+
+      // Actualizar progreso en cabecera
       const card = _root?.querySelector(`[data-ex-key="${key}"]`);
-      const done2 = ex2.sets.filter(s2 => s2.completedAt).length;
+      const done2  = ex2.sets.filter(s2 => s2.completedAt).length;
       const total2 = ex2.sets.length;
-      const prog = card?.querySelector('.wl-ex-progress');
+      const prog   = card?.querySelector('.wl-ex-progress');
       if (prog) prog.textContent = `${done2}/${total2}`;
     });
   });
 
   // Delete set
   container.querySelectorAll('.wl-set-del').forEach(btn => {
-    btn.addEventListener('click', e => {
+    btn.addEventListener('click', () => {
+      _resetInactivity();
       const { key, idx } = btn.dataset;
       const ex2 = _session.exercises.find(e2 => e2.key === key);
       if (!ex2) return;
       ex2.sets.splice(+idx, 1);
-      ex2.sets.forEach((s, i) => { if (!s.isWarmup) s.setNumber = ex2.sets.filter((ss, ii) => ii <= i && !ss.isWarmup).length; });
+      ex2.sets.forEach((s, i) => {
+        if (!s.isWarmup) s.setNumber = ex2.sets.filter((ss, ii) => ii <= i && !ss.isWarmup).length;
+      });
       Session.saveDraft(_session);
       renderSets(ex2);
       updateVolLabel();
@@ -470,6 +892,9 @@ function renderSets(ex) {
 async function onFinish() {
   clearInterval(_timerInterval);
   clearInterval(_restInterval);
+  clearInterval(_inactivityTimer);
+  _inactivityToast?.remove();
+  _inactivityToast = null;
 
   const finishedAt = new Date().toISOString();
   const payload = {
@@ -505,7 +930,63 @@ async function onFinish() {
     exercises: _session.exercises,
   });
   Session.clearDraft();
+  // Increment consistency counter for unlock milestones
+  if (typeof Plan !== 'undefined' && typeof Plan.incrementSessionCount === 'function') {
+    Plan.incrementSessionCount();
+  }
+  window.dispatchEvent(new CustomEvent('hs:workout-session-changed'));
   renderSummary(result);
+}
+
+// ─── Muscle breakdown para el resumen ─────────────────────────────────────────
+function _buildMuscleBreakdown() {
+  // Mapeo simplificado: exercise key → músculos primarios
+  const MUSCLE_MAP = {
+    press_banca_plano:      ['Pecho', 'Tríceps'], press_banca_inclinado: ['Pecho', 'Hombros'],
+    fondos_pecho:           ['Pecho', 'Tríceps'], aperturas_mancuernas:  ['Pecho'],
+    press_militar_barra:    ['Hombros', 'Tríceps'], elevaciones_laterales: ['Hombros'],
+    dominadas_pronas:       ['Espalda', 'Bíceps'], remo_barra:            ['Espalda'],
+    remo_mancuerna:         ['Espalda', 'Bíceps'], jalon_pecho:           ['Espalda', 'Bíceps'],
+    peso_muerto_convencional:['Espalda', 'Piernas'], curl_barra:           ['Bíceps'],
+    curl_martillo:          ['Bíceps'], extension_triceps_polea: ['Tríceps'],
+    press_frances:          ['Tríceps'], sentadilla:              ['Piernas', 'Glúteos'],
+    prensa_piernas:         ['Piernas'], extension_cuadriceps:    ['Piernas'],
+    curl_femoral_tumbado:   ['Isquios'], hip_thrust:              ['Glúteos'],
+    sentadilla_bulgara:     ['Piernas', 'Glúteos'], plancha:               ['Core'],
+    crunch:                 ['Core'],  ab_wheel:                 ['Core'],
+  };
+
+  const counts = {};
+  _session.exercises.forEach(ex => {
+    const completedWorking = ex.sets.filter(s => !s.isWarmup && s.completedAt).length;
+    if (!completedWorking) return;
+    const muscles = MUSCLE_MAP[ex.key];
+    if (!muscles) {
+      counts['Otros'] = (counts['Otros'] || 0) + completedWorking;
+      return;
+    }
+    muscles.forEach(m => { counts[m] = (counts[m] || 0) + completedWorking; });
+  });
+
+  const entries = Object.entries(counts).sort((a, b) => b[1] - a[1]);
+  if (!entries.length) return '';
+
+  const max = entries[0][1];
+  const bars = entries.map(([muscle, n]) => {
+    const pct = Math.round((n / max) * 100);
+    return `<div class="wl-muscle-row">
+      <span class="wl-muscle-name">${muscle}</span>
+      <div class="wl-muscle-bar-wrap">
+        <div class="wl-muscle-bar-fill" style="width:${pct}%"></div>
+      </div>
+      <span class="wl-muscle-count">${n}</span>
+    </div>`;
+  }).join('');
+
+  return `<div class="wl-muscle-breakdown">
+    <h4 class="wl-muscle-title">Músculos trabajados</h4>
+    ${bars}
+  </div>`;
 }
 
 // ─── Summary ────────────────────────────────────────────────────────────────────
@@ -521,7 +1002,7 @@ function renderSummary(result) {
   _root.innerHTML = `
     <div class="wl-summary">
       <div class="wl-summary-header">
-        <div class="wl-summary-emoji">💪</div>
+        <div class="wl-summary-emoji"></div>
         <h2 class="wl-summary-title">¡Sesión completada!</h2>
         <p class="wl-summary-date">${startTime.toLocaleDateString('es-ES', { weekday:'long', day:'numeric', month:'long' })}</p>
       </div>
@@ -549,8 +1030,10 @@ function renderSummary(result) {
 
       ${prs.length ? `
         <div class="wl-summary-prs">
-          ${prs.map(pr => `<div class="wl-pr-item">🏆 PR — ${pr.exercise_key.replace(/_/g,' ')}: ${pr.value} kg 1RM</div>`).join('')}
+          ${prs.map(pr => `<div class="wl-pr-item">PR — ${pr.exercise_key.replace(/_/g,' ')}: ${pr.value} kg 1RM</div>`).join('')}
         </div>` : ''}
+
+      ${_buildMuscleBreakdown()}
 
       <button class="wl-done-btn btn" id="wl-done">Nueva sesión</button>
     </div>`;
@@ -562,21 +1045,32 @@ function renderSummary(result) {
 }
 
 // ─── Public API ─────────────────────────────────────────────────────────────────
+let _storageFullListenerAdded = false;
+
 export function init(container) {
+  // Limpiar timers anteriores para evitar múltiples intervals corriendo en paralelo
+  clearInterval(_timerInterval);
+  clearInterval(_restInterval);
+  _timerInterval = null;
+  _restInterval  = null;
+
   _root = container;
   _wlViewer = null;
   const draft = Session.getDraft();
   if (draft) { _session = draft; renderActive(); } else { renderIdle(); }
 
-  // Show a persistent in-UI banner when localStorage is full
-  document.addEventListener('hs:storage-full', () => {
-    const banner = _root?.querySelector('#wl-storage-warn');
-    if (!banner) {
-      const b = document.createElement('div');
-      b.id = 'wl-storage-warn';
-      b.style.cssText = 'background:#ef4444;color:#fff;padding:8px 14px;border-radius:8px;font-size:12px;margin-bottom:8px;text-align:center';
-      b.textContent = '⚠️ Almacenamiento lleno — el progreso de esta sesión puede no guardarse. Libera espacio o finaliza la sesión.';
-      _root?.prepend(b);
-    }
-  }, { once: true });
+  // Show a persistent in-UI banner when localStorage is full (solo añadir listener una vez)
+  if (!_storageFullListenerAdded) {
+    _storageFullListenerAdded = true;
+    document.addEventListener('hs:storage-full', () => {
+      const banner = _root?.querySelector('#wl-storage-warn');
+      if (!banner) {
+        const b = document.createElement('div');
+        b.id = 'wl-storage-warn';
+        b.style.cssText = 'background:#ef4444;color:#fff;padding:8px 14px;border-radius:8px;font-size:12px;margin-bottom:8px;text-align:center';
+        b.textContent = 'Almacenamiento lleno — el progreso de esta sesión puede no guardarse. Libera espacio o finaliza la sesión.';
+        _root?.prepend(b);
+      }
+    });
+  }
 }

@@ -62,16 +62,16 @@
 
   function renderFeedback(container, data) {
     const iconMap = {
-      increase_weight: '⬆️',
-      decrease_weight: '⬇️',
-      maintain:        '✅',
-      rest:            '😴',
-      good_form:       '🎯',
+      increase_weight: '',
+      decrease_weight: '',
+      maintain:        '',
+      rest:            '',
+      good_form:       '',
     };
     container.style.display = '';
     container.innerHTML = `
       <div class="rex-coach-msg">
-        <span class="rex-coach-icon">${iconMap[data.suggestion] || '💬'}</span>
+        <span class="rex-coach-icon">${iconMap[data.suggestion] || ''}</span>
         <span class="rex-coach-text">${data.coaching}</span>
       </div>`;
   }
@@ -142,7 +142,7 @@
       .catch(err => {
         console.warn('[aiCoach] error:', err);
         feedback.style.display = '';
-        feedback.innerHTML = `<div class="rex-coach-msg"><span class="rex-coach-icon">💪</span><span class="rex-coach-text">¡Buen set! Sigue así.</span></div>`;
+        feedback.innerHTML = `<div class="rex-coach-msg"><span class="rex-coach-icon"></span><span class="rex-coach-text">¡Buen set! Sigue así.</span></div>`;
         submitBtn.textContent = '✓ Registrado';
       });
   }

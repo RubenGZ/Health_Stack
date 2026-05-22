@@ -115,7 +115,7 @@ var SessionReplay = (function () {
         + (set.note ? '<p class="sr-set-note">"' + escHtml(set.note) + '"</p>' : '')
         + (set.noteBlob
           ? '<audio class="sr-audio" controls src="' + set.noteBlob + '"></audio>'
-          : '<button class="sr-rec-btn" data-idx="' + i + '" title="Grabar nota de voz">🎙</button>'
+          : '<button class="sr-rec-btn" data-idx="' + i + '" title="Grabar nota de voz">Rec</button>'
         )
         + '</div>'
         + '<button class="sr-del-set" data-idx="' + i + '" title="Eliminar">✕</button>'

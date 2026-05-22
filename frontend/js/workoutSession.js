@@ -62,9 +62,38 @@ export function saveDraft(session) {
 export function clearDraft() { localStorage.removeItem(DRAFT_KEY); }
 
 export function startSession(routineId = null) {
-  const draft = { routineId, startedAt: new Date().toISOString(), exercises: [] };
+  const draft = {
+    routineId,
+    startedAt:      new Date().toISOString(),
+    exercises:      [],
+    pausedAt:       null,   // timestamp ms cuando se pausó, null = activo
+    totalPausedMs:  0,      // ms acumulados en pausa
+  };
   saveDraft(draft);
   return draft;
+}
+
+/** Pausa el timer de sesión. No hace nada si ya está pausada. */
+export function pauseSession(session) {
+  if (session.pausedAt) return;
+  session.pausedAt = Date.now();
+  saveDraft(session);
+}
+
+/** Reanuda el timer. Acumula el tiempo pausado. */
+export function resumeSession(session) {
+  if (!session.pausedAt) return;
+  session.totalPausedMs = (session.totalPausedMs || 0) + (Date.now() - session.pausedAt);
+  session.pausedAt = null;
+  saveDraft(session);
+}
+
+/** Duración activa real en milisegundos (excluye tiempo pausado). */
+export function getActiveDurationMs(session) {
+  const baseMs = Date.now() - new Date(session.startedAt).getTime();
+  const paused = (session.totalPausedMs || 0) +
+    (session.pausedAt ? (Date.now() - session.pausedAt) : 0);
+  return Math.max(0, baseMs - paused);
 }
 
 export function addExercise(session, name) {

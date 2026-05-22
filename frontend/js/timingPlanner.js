@@ -131,7 +131,7 @@ const TimingPlanner = (function () {
       time: trainTime,
       mins: trainMins,
       type: 'training',
-      icon: '🏋️',
+      icon: 'GYM',
       title: `Entrenamiento (${duration} min)`,
       desc: goalLabel(goal),
       kcal: null, p: null, c: null, f: null,
@@ -161,7 +161,7 @@ const TimingPlanner = (function () {
         time: fromMins(suppMins),
         mins: suppMins,
         type: 'supplement',
-        icon: '💊',
+        icon: '',
         title: rule.name,
         desc: rule.desc,
         kcal: null, p: null, c: null, f: null,
@@ -173,7 +173,7 @@ const TimingPlanner = (function () {
       time: fromMins(trainMins - 30),
       mins: trainMins - 30,
       type: 'hydration',
-      icon: '💧',
+      icon: '',
       title: 'Hidratación pre-entreno',
       desc: '400-600 ml de agua en los 30 min previos',
       kcal: null, p: null, c: null, f: null,
@@ -182,7 +182,7 @@ const TimingPlanner = (function () {
       time: fromMins(trainEnd),
       mins: trainEnd,
       type: 'hydration',
-      icon: '💧',
+      icon: '',
       title: 'Rehidratación',
       desc: 'Reponer 150% del peso perdido en sudor. Mínimo 500 ml en la primera hora.',
       kcal: null, p: null, c: null, f: null,
@@ -196,10 +196,10 @@ const TimingPlanner = (function () {
 
   function slotIcon(slot) {
     const icons = {
-      breakfast: '🍳', snack1: '🍎', pre: '⚡', post: '🔋',
-      lunch: '🍽️', snack2: '🥜', dinner: '🌙',
+      breakfast: 'AM', snack1: 'SN', pre: 'PRE', post: 'PST',
+      lunch: 'PM', snack2: 'SN', dinner: 'PM',
     };
-    return icons[slot] || '🍴';
+    return icons[slot] || '';
   }
 
   function goalLabel(goal) {
@@ -231,39 +231,39 @@ const TimingPlanner = (function () {
 
     // Consejos según hora de entreno
     if (trainH >= 20) {
-      tips.push({ icon: '⚠️', text: `Entrenas tarde (${params.trainTime}): evita la cafeína después de las 18:00 si tienes sensibilidad al sueño. Considera L-teanina como alternativa o un pre-entreno sin estimulantes.` });
+      tips.push({ icon: '', text: `Entrenas tarde (${params.trainTime}): evita la cafeína después de las 18:00 si tienes sensibilidad al sueño. Considera L-teanina como alternativa o un pre-entreno sin estimulantes.` });
     } else if (trainH < 8) {
-      tips.push({ icon: '🌅', text: 'Entreno matutino en ayunas: toma 20-30 g de proteína + carbohidratos de rápida absorción antes (plátano, dátiles) para activar el rendimiento y proteger el músculo.' });
+      tips.push({ icon: '', text: 'Entreno matutino en ayunas: toma 20-30 g de proteína + carbohidratos de rápida absorción antes (plátano, dátiles) para activar el rendimiento y proteger el músculo.' });
     }
 
     if (duration > 90) {
-      tips.push({ icon: '💧', text: `Sesión larga (${duration} min): planifica 30-45 g de carbohidratos por hora después de los primeros 60 min. Añade electrolitos si hay mucha sudoración.` });
+      tips.push({ icon: '', text: `Sesión larga (${duration} min): planifica 30-45 g de carbohidratos por hora después de los primeros 60 min. Añade electrolitos si hay mucha sudoración.` });
     }
 
     if (params.supplements.includes('caffeine')) {
-      tips.push({ icon: '☕', text: `Tu dosis de cafeína personalizada para ${weight} kg: ${cafMin}–${cafMax} mg (3–6 mg/kg). Empieza con la dosis baja y ajusta según tolerancia. Cicla 5 días sí / 2 días no para evitar tolerancia.` });
+      tips.push({ icon: '', text: `Tu dosis de cafeína personalizada para ${weight} kg: ${cafMin}–${cafMax} mg (3–6 mg/kg). Empieza con la dosis baja y ajusta según tolerancia. Cicla 5 días sí / 2 días no para evitar tolerancia.` });
     }
 
     if (params.goal === 'deficit') {
-      tips.push({ icon: '🎯', text: `En déficit calórico tu objetivo proteico es ${protMin}–${protMax} g/día (2.0–2.4 g/kg) para preservar músculo. Distribuye en ingestas de 30-40 g máximo.` });
+      tips.push({ icon: '', text: `En déficit calórico tu objetivo proteico es ${protMin}–${protMax} g/día (2.0–2.4 g/kg) para preservar músculo. Distribuye en ingestas de 30-40 g máximo.` });
     }
     if (params.goal === 'hypertrophy') {
-      tips.push({ icon: '💪', text: `Para hipertrofia necesitas ${protMin} g/día mínimo de proteína y un superávit calórico de 250-500 kcal. Prioriza sesiones de sueño de 7-9 h — el 70% del GH nocturno se libera en las primeras 2 h.` });
+      tips.push({ icon: '', text: `Para hipertrofia necesitas ${protMin} g/día mínimo de proteína y un superávit calórico de 250-500 kcal. Prioriza sesiones de sueño de 7-9 h — el 70% del GH nocturno se libera en las primeras 2 h.` });
     }
     if (params.goal === 'performance') {
-      tips.push({ icon: '⚡', text: `Rendimiento: carga de 7-10 g/kg de carbohidratos la noche anterior a la competición. El día del evento, ingiere 1-4 g/kg de hidratos 1-4 h antes del inicio.` });
+      tips.push({ icon: '', text: `Rendimiento: carga de 7-10 g/kg de carbohidratos la noche anterior a la competición. El día del evento, ingiere 1-4 g/kg de hidratos 1-4 h antes del inicio.` });
     }
 
     if (!params.supplements.includes('creatine')) {
-      tips.push({ icon: '💡', text: 'No usas creatina. Es el suplemento más estudiado y coste-efectivo del mundo: 3-5 g/día sin fase de carga. Mejora la fuerza un 8-15% y la potencia explosiva.' });
+      tips.push({ icon: '', text: 'No usas creatina. Es el suplemento más estudiado y coste-efectivo del mundo: 3-5 g/día sin fase de carga. Mejora la fuerza un 8-15% y la potencia explosiva.' });
     }
 
     if (parseInt(params.mealCount) <= 3) {
-      tips.push({ icon: '📊', text: `Con ${params.mealCount} comidas, necesitas 35-45 g de proteína por ingesta para superar el umbral de leucina y maximizar la síntesis muscular (MPS).` });
+      tips.push({ icon: '', text: `Con ${params.mealCount} comidas, necesitas 35-45 g de proteína por ingesta para superar el umbral de leucina y maximizar la síntesis muscular (MPS).` });
     }
 
     // Consejo general siempre visible
-    tips.push({ icon: '🕐', text: 'Ventana anabólica: consume proteína + carbohidratos en los 45-60 min post-entreno. Cuanto más entrenas en ayunas o con sesiones largas, más importante es esta ventana.' });
+    tips.push({ icon: '', text: 'Ventana anabólica: consume proteína + carbohidratos en los 45-60 min post-entreno. Cuanto más entrenas en ayunas o con sesiones largas, más importante es esta ventana.' });
 
     return tips;
   }
@@ -285,8 +285,8 @@ const TimingPlanner = (function () {
           <div class="ts-total-item"><span class="ts-total-val" style="color:#f59e0b">${totals.f}g</span><span class="ts-total-label">Grasa</span></div>
         </div>
         <div class="ts-actions">
-          <button class="btn btn--primary btn--sm" id="btn-apply-to-planner">📅 Aplicar al Planner</button>
-          <button class="btn btn--ghost btn--sm" id="btn-copy-schedule">📋 Copiar horario</button>
+          <button class="btn btn--primary btn--sm" id="btn-apply-to-planner">Aplicar al Planner</button>
+          <button class="btn btn--ghost btn--sm" id="btn-copy-schedule">Copiar horario</button>
         </div>
       </div>
 
@@ -320,9 +320,9 @@ const TimingPlanner = (function () {
 
       ${tips.length ? `
         <div class="ts-tips card">
-          <h4 class="ts-tips-title">💡 Consejos personalizados</h4>
+          <h4 class="ts-tips-title">Consejos personalizados</h4>
           <ul class="ts-tips-list">
-            ${tips.map(t => `<li><span class="ts-tip-icon">${t.icon}</span> ${t.text}</li>`).join('')}
+            ${tips.map(t => `<li>${t.icon ? `<span class="ts-tip-icon">${t.icon}</span> ` : ''}${t.text}</li>`).join('')}
           </ul>
         </div>` : ''}
     `;
@@ -336,9 +336,9 @@ const TimingPlanner = (function () {
     document.getElementById('btn-copy-schedule')?.addEventListener('click', () => {
       const text = events.map(e => `${e.time} — ${e.title}: ${e.desc}`).join('\n');
       navigator.clipboard.writeText(text).then(() => {
-        showToast('📋 Horario copiado al portapapeles');
+        showToast('Horario copiado al portapapeles');
       }).catch(() => {
-        showToast('⚠️ No se pudo copiar');
+        showToast('No se pudo copiar');
       });
     });
   }
@@ -349,7 +349,7 @@ const TimingPlanner = (function () {
     document.dispatchEvent(new CustomEvent('hs:timing-apply', {
       detail: { meals: mealEvents },
     }));
-    showToast('✅ Plan aplicado al Planner semanal (día actual)');
+    showToast('Plan aplicado al Planner semanal (día actual)');
   }
 
   // ── Toast ──────────────────────────────────────────────────────────────────
@@ -422,7 +422,7 @@ const TimingPlanner = (function () {
       const notice = document.createElement('div');
       notice.id = 'tp-profile-notice';
       notice.className = 'tp-profile-notice';
-      notice.innerHTML = `<span>✅ Formulario pre-cargado con tu perfil TDEE</span>
+      notice.innerHTML = `<span>Formulario pre-cargado con tu perfil TDEE</span>
         <button class="tp-profile-dismiss" onclick="this.parentElement.remove()" title="Cerrar">×</button>`;
       formCard.insertBefore(notice, formCard.firstChild);
     }

@@ -558,7 +558,7 @@ const FeedbackWidget = (function () {
   }
 
   // ── API pública ───────────────────────────────────────────────────────────────
-  return { mount };
+  return { mount, open: _open };
 })();
 
 // Auto-mount cuando el DOM esté listo

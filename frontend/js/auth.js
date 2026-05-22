@@ -325,7 +325,7 @@
 
       if (levelEl) {
         if (user.role === 'admin') {
-          levelEl.textContent = '👑 Administrador';
+          levelEl.textContent = 'Administrador';
           levelEl.style.color = '#f59e0b';
         } else {
           levelEl.style.color = '';
@@ -353,7 +353,7 @@
     menu.innerHTML = `
       <div class="auth-logout-info">
         <span class="auth-logout-email">${user?.email || 'Usuario'}</span>
-        ${user?.role === 'admin' ? '<span class="auth-logout-role">👑 Admin</span>' : ''}
+        ${user?.role === 'admin' ? '<span class="auth-logout-role">Admin</span>' : ''}
       </div>
       <button class="auth-logout-btn" id="do-logout-btn">Cerrar sesión</button>
     `;

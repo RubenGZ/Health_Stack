@@ -10,38 +10,38 @@ const RoutineGenerator = (function () {
 
   const LS_KEY      = 'hs_routine';
   const LS_HISTORY  = 'hs_routine_history';
-  const HISTORY_MAX = 5;
+  const HISTORY_MAX = 1; // Tier gratuito: máximo 1 rutina IA guardada
 
   // ── Cuestionario con metodología de entrenador de élite ──────────
   const STEPS = [
     {
       id: 'goal',
       title: '¿Cuál es tu objetivo principal?',
-      coaching_why: '🎯 <strong>Por qué te lo preguntamos:</strong> El objetivo determina el esquema de sets/reps, la intensidad (RPE), los periodos de descanso y el modelo de periodización. No existe una rutina universal — cada objetivo activa mecanismos fisiológicos distintos.',
+      coaching_why: 'Define tus rangos de series, repeticiones e intensidad.',
       type: 'options',
       options: [
-        { value: 'hypertrophy',   label: '💪 Hipertrofia',        desc: 'Maximizar volumen muscular. 6-15 reps, RPE 7-9, descanso 60-120 s.' },
-        { value: 'strength',      label: '🏋️ Fuerza máxima',      desc: 'Aumentar el 1RM. 1-5 reps, RPE 8-10, descanso 3-5 min.' },
-        { value: 'fat_loss',      label: '🔥 Pérdida de grasa',    desc: 'Preservar músculo en déficit. Alta densidad, supersets, máximo EPOC.' },
-        { value: 'athletic',      label: '⚡ Atlético / Potencia', desc: 'Fuerza + velocidad explosiva. Periodización ondulante con trabajo de potencia.' },
-        { value: 'recomposition', label: '⚖️ Recomposición',       desc: 'Ganar músculo + perder grasa simultáneamente. Funciona mejor en principiantes o con déficit moderado.' },
+        { value: 'hypertrophy',   label: 'Hipertrofia',        desc: 'Maximizar volumen muscular. 6-15 reps, RPE 7-9, descanso 60-120 s.' },
+        { value: 'strength',      label: 'Fuerza máxima',      desc: 'Aumentar el 1RM. 1-5 reps, RPE 8-10, descanso 3-5 min.' },
+        { value: 'fat_loss',      label: 'Pérdida de grasa',   desc: 'Preservar músculo en déficit. Alta densidad, supersets, máximo EPOC.' },
+        { value: 'athletic',      label: 'Atlético / Potencia',desc: 'Fuerza + velocidad explosiva. Periodización ondulante con trabajo de potencia.' },
+        { value: 'recomposition', label: 'Recomposición',      desc: 'Ganar músculo + perder grasa simultáneamente. Funciona mejor en principiantes o con déficit moderado.' },
       ],
     },
     {
       id: 'level',
       title: '¿Cuál es tu experiencia real de entrenamiento?',
-      coaching_why: '📈 <strong>Por qué te lo preguntamos:</strong> Tu nivel determina el modelo de periodización óptimo. Los principiantes ganan fuerza con cualquier estímulo (LP funciona con 1 solo set). Los intermedios necesitan variación semanal (DUP). Los avanzados requieren bloques de semanas (Block Periodization). Usar el modelo equivocado = estancamiento o sobreentrenamiento.',
+      coaching_why: 'Determina cómo progresar semana a semana de forma efectiva.',
       type: 'options',
       options: [
-        { value: 'beginner',     label: '🌱 Principiante', desc: 'Menos de 1 año entrenando con consistencia. Progresas cada sesión (LP).' },
-        { value: 'intermediate', label: '📈 Intermedio',   desc: '1-3 años. Progresas semana a semana. Necesitas variación de estímulos (DUP).' },
-        { value: 'advanced',     label: '🏆 Avanzado',     desc: '3+ años, técnica sólida. Progresas mes a mes. Necesitas bloques (Block Periodization).' },
+        { value: 'beginner',     label: 'Principiante', desc: 'Menos de 1 año entrenando con consistencia. Progresas cada sesión (LP).' },
+        { value: 'intermediate', label: 'Intermedio',   desc: '1-3 años. Progresas semana a semana. Necesitas variación de estímulos (DUP).' },
+        { value: 'advanced',     label: 'Avanzado',     desc: '3+ años, técnica sólida. Progresas mes a mes. Necesitas bloques (Block Periodization).' },
       ],
     },
     {
       id: 'days',
       title: '¿Cuántos días a la semana puedes entrenar de forma realista?',
-      coaching_why: '📅 <strong>Por qué te lo preguntamos:</strong> Los días disponibles determinan el split óptimo. Con 2-3 días la única forma de alcanzar el Volumen Mínimo Efectivo (MEV) es con Full Body. Con 4+ días podemos dividir por grupos musculares y alcanzar el MAV (Volumen Máximo Adaptativo). El mejor split es el que puedes ejecutar con consistencia — no el más complejo.',
+      coaching_why: 'Los días disponibles determinan cómo dividir los grupos musculares.',
       type: 'options',
       options: [
         { value: 2, label: '2 días', desc: 'Full Body x2 · Perfecto para comenzar o vida muy ocupada.' },
@@ -54,7 +54,7 @@ const RoutineGenerator = (function () {
     {
       id: 'duration',
       title: '¿Cuánto tiempo tienes disponible por sesión?',
-      coaching_why: '⏱️ <strong>Por qué te lo preguntamos:</strong> El tiempo limita el número de ejercicios y series posibles. En 45 min podemos hacer 4-5 ejercicios con intensidad alta. En 90 min podemos meter 7-8 ejercicios y mayor variedad de estímulos. No más largo = no mejor: la calidad por encima del volumen.',
+      coaching_why: 'Ajustamos el número de ejercicios al tiempo que tienes disponible.',
       type: 'options',
       options: [
         { value: 30, label: '30 min', desc: '4 ejercicios compuestos. Circuito o superseries obligatorias.' },
@@ -66,55 +66,55 @@ const RoutineGenerator = (function () {
     {
       id: 'equipment',
       title: '¿Con qué equipamiento cuentas?',
-      coaching_why: '🏗️ <strong>Por qué te lo preguntamos:</strong> El equipamiento define la selección de ejercicios y su SFR (Stimulus-to-Fatigue Ratio). Los cables y máquinas aisladas tienen el mayor SFR para hipertrofia: más crecimiento con menos fatiga sistémica. El peso corporal puede alcanzar el mismo estímulo con las progressiones correctas.',
+      coaching_why: 'Los ejercicios se adaptan al equipo que tienes disponible.',
       type: 'options',
       options: [
-        { value: 'full_gym',     label: '🏋️ Gimnasio completo',  desc: 'Barra olímpica, mancuernas, máquinas, poleas, banco ajustable.' },
-        { value: 'free_weights', label: '🏠 Peso libre (casa)',  desc: 'Barra + mancuernas + banco. Sin máquinas ni poleas.' },
-        { value: 'dumbbells',    label: '🥊 Solo mancuernas',    desc: 'Mancuernas ajustables o varios pares. Sin barra ni máquinas.' },
-        { value: 'machines',     label: '🤖 Máquinas + poleas',  desc: 'Gimnasio con máquinas y cables. Sin barra libre.' },
-        { value: 'bodyweight',   label: '🌿 Solo peso corporal', desc: 'Sin equipamiento. Barra de dominadas opcional.' },
+        { value: 'full_gym',     label: 'Gimnasio completo',  desc: 'Barra olímpica, mancuernas, máquinas, poleas, banco ajustable.' },
+        { value: 'free_weights', label: 'Peso libre (casa)',  desc: 'Barra + mancuernas + banco. Sin máquinas ni poleas.' },
+        { value: 'dumbbells',    label: 'Solo mancuernas',    desc: 'Mancuernas ajustables o varios pares. Sin barra ni máquinas.' },
+        { value: 'machines',     label: 'Máquinas + poleas',  desc: 'Gimnasio con máquinas y cables. Sin barra libre.' },
+        { value: 'bodyweight',   label: 'Solo peso corporal', desc: 'Sin equipamiento. Barra de dominadas opcional.' },
       ],
     },
     {
       id: 'priority',
       title: '¿Tienes algún grupo muscular prioritario o punto débil?',
-      coaching_why: '🎯 <strong>Por qué te lo preguntamos:</strong> Los grupos prioritarios se entrenan PRIMERO en la semana (mayor frecuencia) y PRIMERO en la sesión (energía y concentración máximas). Esto se llama "Specialization Block" en el entrenamiento de élite. Ignorar los puntos débiles lleva a desequilibrios posturales y mayor riesgo de lesión a largo plazo.',
+      coaching_why: 'Los grupos prioritarios se colocan primero en cada sesión, cuando tienes más energía.',
       type: 'multicheck',
       options: [
-        { value: 'none',      label: '⚖️ Sin preferencia — desarrollo equilibrado' },
-        { value: 'chest',     label: '🫁 Pecho' },
-        { value: 'back',      label: '🔙 Espalda (ancho y grosor)' },
-        { value: 'shoulders', label: '💪 Hombros (especialmente lateral y posterior)' },
-        { value: 'legs',      label: '🦵 Piernas (cuádriceps + glúteos)' },
-        { value: 'posterior', label: '🔗 Cadena posterior (isquios + glúteos)' },
-        { value: 'arms',      label: '💪 Brazos (bíceps + tríceps)' },
+        { value: 'none',      label: 'Sin preferencia — desarrollo equilibrado' },
+        { value: 'chest',     label: 'Pecho' },
+        { value: 'back',      label: 'Espalda (ancho y grosor)' },
+        { value: 'shoulders', label: 'Hombros (especialmente lateral y posterior)' },
+        { value: 'legs',      label: 'Piernas (cuádriceps + glúteos)' },
+        { value: 'posterior', label: 'Cadena posterior (isquios + glúteos)' },
+        { value: 'arms',      label: 'Brazos (bíceps + tríceps)' },
       ],
     },
     {
       id: 'recovery',
       title: '¿Cómo calificarías tu capacidad de recuperación?',
-      coaching_why: '😴 <strong>Por qué te lo preguntamos:</strong> La recuperación determina tu MRV (Máximo Volumen Recuperable). Con 8h de sueño y bajo estrés puedes acumular el doble de series semanales que con 5h y estrés alto. Superar tu MRV produce sobreentrenamiento, no más músculo. El entrenamiento destruye el tejido — el descanso es cuando crece.',
+      coaching_why: 'Ajustamos el volumen semanal a tu capacidad real de recuperación.',
       type: 'options',
       options: [
-        { value: 'high',   label: '🟢 Alta',  desc: '8+ h de sueño, bajo estrés laboral/vida, buena nutrición.' },
-        { value: 'medium', label: '🟡 Media', desc: '6-7 h de sueño o estrés moderado. Lo más habitual.' },
-        { value: 'low',    label: '🔴 Baja',  desc: 'Menos de 6 h de sueño, alto estrés o trabajo físico exigente.' },
+        { value: 'high',   label: 'Alta',  desc: '8+ h de sueño, bajo estrés laboral/vida, buena nutrición.' },
+        { value: 'medium', label: 'Media', desc: '6-7 h de sueño o estrés moderado. Lo más habitual.' },
+        { value: 'low',    label: 'Baja',  desc: 'Menos de 6 h de sueño, alto estrés o trabajo físico exigente.' },
       ],
     },
     {
       id: 'injuries',
       title: '¿Tienes alguna lesión o limitación articular?',
-      coaching_why: '🏥 <strong>Por qué te lo preguntamos:</strong> Las lesiones no son excusa para no entrenar — son una señal para adaptar el estímulo. Un hombro lesionado elimina el press con barra, pero permite el press neutro con mancuernas. Una rodilla dañada limita la sentadilla, pero no el leg press en ángulo neutro. Adaptamos los ejercicios, nunca cancelamos el grupo muscular.',
+      coaching_why: 'Filtramos ejercicios que puedan agravar las zonas sensibles.',
       type: 'multicheck',
       options: [
-        { value: 'none',       label: '✅ Ninguna' },
-        { value: 'shoulder',   label: '🔴 Hombro' },
-        { value: 'knee',       label: '🔴 Rodilla' },
-        { value: 'lower_back', label: '🔴 Lumbar' },
-        { value: 'wrist',      label: '🔴 Muñeca' },
-        { value: 'elbow',      label: '🔴 Codo' },
-        { value: 'hip',        label: '🔴 Cadera' },
+        { value: 'none',       label: 'Ninguna' },
+        { value: 'shoulder',   label: 'Hombro' },
+        { value: 'knee',       label: 'Rodilla' },
+        { value: 'lower_back', label: 'Lumbar' },
+        { value: 'wrist',      label: 'Muñeca' },
+        { value: 'elbow',      label: 'Codo' },
+        { value: 'hip',        label: 'Cadera' },
       ],
     },
   ];
@@ -564,7 +564,7 @@ const RoutineGenerator = (function () {
 
     if (d <= 2) {
       splitName = 'Full Body × 2';
-      splitRationale = 'Con 2 días disponibles, el Full Body es la única forma de alcanzar el MEV (Volumen Mínimo Efectivo) para cada grupo muscular. Frecuencia 2×/semana produce +34% más hipertrofia que 1× con el mismo volumen total (Schoenfeld et al., 2016). Cada sesión trabaja todo el cuerpo con estímulo diferenciado A/B.';
+      splitRationale = 'Full Body × 2: todo el cuerpo en cada sesión, con variación A/B para estímulos distintos.';
       sessions = [
         makeSession(D[0], 'Full Body A — Énfasis Empuje', ['chest','back','shoulders','quads','core']),
         makeSession(D[3], 'Full Body B — Énfasis Tirón + Posterior', ['back','chest','hamstrings','glutes','biceps','core']),
@@ -572,7 +572,7 @@ const RoutineGenerator = (function () {
     } else if (d === 3) {
       if (level === 'beginner') {
         splitName = 'Full Body × 3';
-        splitRationale = 'Para principiantes con 3 días, el Full Body × 3 maximiza la señal de síntesis proteica muscular semanal. Las adaptaciones neurológicas son prioritarias en esta fase — la frecuencia alta acelera el aprendizaje motor. Variación A/B/C asegura estímulos distintos y previene la acomodación.';
+        splitRationale = 'Full Body × 3: alta frecuencia ideal para principiantes, con variación A/B/C en cada sesión.';
         sessions = [
           makeSession(D[0], 'Full Body A — Compuestos horizontales', ['chest','back','quads','core']),
           makeSession(D[2], 'Full Body B — Compuestos verticales', ['shoulders','back','hamstrings','glutes','biceps']),
@@ -580,7 +580,7 @@ const RoutineGenerator = (function () {
         ];
       } else {
         splitName = 'Push-Pull-Legs (PPL)';
-        splitRationale = 'El PPL es el split más eficiente para intermedios/avanzados con 3 días. Los músculos sinérgicos se entrenan juntos (pecho+tríceps, espalda+bíceps) maximizando el pump y la señal anabólica en cada sesión. Permite alcanzar el MAV (Volumen Máximo Adaptativo) por grupo muscular con 1 sesión semanal de volumen alto.';
+        splitRationale = 'Push/Pull/Legs: músculos sinérgicos juntos en cada sesión — el split más eficiente para 3 días.';
         sessions = [
           makeSession(D[0], 'Push — Pecho + Hombros + Tríceps', ['chest','shoulders','triceps']),
           makeSession(D[2], 'Pull — Espalda + Bíceps + Core',    ['back','biceps','core']),
@@ -589,7 +589,7 @@ const RoutineGenerator = (function () {
       }
     } else if (d === 4) {
       splitName = 'Upper / Lower (4 días)';
-      splitRationale = 'El Upper/Lower es el split más equilibrado para 4 días — cada grupo muscular se trabaja 2×/semana (frecuencia óptima para hipertrofia según meta-análisis). La sesión Upper A es horizontal (pecho/espalda), Upper B es vertical (hombros/jalones). Lower A enfatiza cuádriceps, Lower B la cadena posterior.';
+      splitRationale = 'Upper/Lower: cada grupo muscular 2× por semana — el equilibrio perfecto entre frecuencia y volumen.';
       sessions = [
         makeSession(D[0], 'Upper A — Énfasis Horizontal',           ['chest','back','biceps','triceps']),
         makeSession(D[1], 'Lower A — Énfasis Cuádriceps + Core',    ['quads','hamstrings','core']),
@@ -598,7 +598,7 @@ const RoutineGenerator = (function () {
       ];
     } else if (d === 5) {
       splitName = 'PPL + Especialización (5 días)';
-      splitRationale = '5 días combina la eficiencia del PPL con frecuencia extra para grupos prioritarios. Espalda y cuádriceps (grupos más grandes = más volumen) se entrenan 2×/semana. La 5ª sesión se dedica a puntos débiles o cadena posterior, que suele ser el mayor limitante de la estética y la lesión.';
+      splitRationale = 'PPL + día extra: más frecuencia para grupos prioritarios y cadena posterior.';
       sessions = [
         makeSession(D[0], 'Push A — Pecho + Tríceps (compuestos)',      ['chest','triceps']),
         makeSession(D[1], 'Pull A — Espalda + Bíceps (compuestos)',      ['back','biceps']),
@@ -608,7 +608,7 @@ const RoutineGenerator = (function () {
       ];
     } else {
       splitName = 'PPL Doble (6 días)';
-      splitRationale = 'El PPL doble da a cada grupo muscular 2 sesiones semanales de volumen PPL completo. Permite alcanzar el MRV (Máximo Volumen Recuperable) para los grupos más respondedores. Solo recomendado para avanzados con recuperación ≥ media. La semana 4 de cada mesociclo es OBLIGATORIAMENTE una deload — sin ella, este volumen lleva a sobreentrenamiento.';
+      splitRationale = 'PPL doble: máximo volumen semanal. Requiere buena recuperación y una semana de descarga cada 4 semanas.';
       sessions = [
         makeSession(D[0], 'Push A — Pecho + Hombros + Tríceps',          ['chest','shoulders','triceps']),
         makeSession(D[1], 'Pull A — Espalda (ancho) + Bíceps + Core',    ['back','biceps','core']),
@@ -628,56 +628,56 @@ const RoutineGenerator = (function () {
     const notes = [];
 
     notes.push({
-      icon: '📊',
+      icon: '',
       title: `Modelo: ${periodModel.name}`,
       text: periodModel.scheme === 'LP'
-        ? 'Cada sesión, intenta añadir 2,5 kg en compuestos o 1 rep extra en accesorios. Si fallas el mismo peso 2 sesiones seguidas, haz un reset del 10-15% y reinicia. Este es el método más eficiente para principiantes — no lo compliques.'
+        ? 'Sube 2,5 kg o 1 rep cada sesión. Si fallas el mismo peso dos veces seguidas, baja un 10% y vuelve a subir.'
         : periodModel.scheme === 'DUP'
-        ? 'Alterna la intensidad entre sesiones del mismo grupo: Sesión A = pesado (5-6 reps, RPE 8-9), Sesión B = moderado (8-10 reps, RPE 7-8). Esta variación previene la acomodación neural, que es el mayor limitante del progreso intermedio.'
-        : 'Tu mesociclo de 6 semanas: Semanas 1-3 = acumulación de volumen (sets altos, RPE 7-8). Semanas 4-5 = intensificación (sets reducidos, cargas máximas, RPE 9). Semana 6 = peaking. Semana 7 = deload completo (40% del volumen habitual).',
+        ? 'Alterna intensidad: sesión A más pesada (5-6 reps), sesión B más moderada (8-10 reps). La variación evita estancarte.'
+        : 'Semanas 1-3: acumula volumen. Semanas 4-5: sube la carga al máximo. Semana 6: descarga completa.',
     });
 
     notes.push({
-      icon: '⚡',
-      title: `Deload: semana ${periodModel.deload_week} del mesociclo`,
-      text: 'Cada ' + periodModel.mesocycle_weeks + ' semanas, haz una semana de descarga: -40% de series, mismos ejercicios, 70-75% de la carga habitual. El crecimiento muscular NO ocurre durante el entrenamiento — ocurre durante la recuperación. Saltarte el deload limita tu MRV a largo plazo.',
+      icon: '',
+      title: `Descarga: semana ${periodModel.deload_week}`,
+      text: 'Cada ' + periodModel.mesocycle_weeks + ' semanas: mismos ejercicios, -40% series, 70-75% de la carga habitual. Es cuando el músculo realmente crece.',
     });
 
     notes.push({
-      icon: '🎚️',
-      title: 'RPE y Reps en Reserva (RIR) — aprende a calibrarlo',
-      text: `RPE ${scheme.intensity.split('RPE')[1]?.split(',')[0]?.trim() || '7-8'} significa que al terminar la serie tienes 1-3 reps en reserva antes del fallo real. Para hipertrofia el rango óptimo es 1-3 RIR. El fallo muscular total en TODOS los sets no solo no es necesario para crecer — aumenta el riesgo de lesión y la fatiga acumulada. Aprende a calibrar tu RPE: es la habilidad técnica más valiosa del entrenamiento avanzado.`,
+      icon: '',
+      title: `Intensidad: ${scheme.intensity.split(',')[0]}`,
+      text: 'Termina cada serie sintiendo que podrías hacer 1-2 reps más. No es necesario llegar al fallo — ni más efectivo.',
     });
 
     if (priorityList.length > 0) {
       const gNames = { chest:'Pecho', back:'Espalda', shoulders:'Hombros', legs:'Piernas', posterior:'Cadena posterior', arms:'Brazos' };
       notes.push({
-        icon: '🎯',
-        title: `Especialización: ${priorityList.map(p => gNames[p] || p).join(', ')}`,
-        text: 'Los grupos prioritarios están colocados primero en su sesión — cuando la energía y la concentración son máximas. Para acelerar un punto débil, considera la técnica de "pre-fatiga": 1-2 series de aislamiento del músculo objetivo ANTES del ejercicio compuesto de la sesión.',
+        icon: '',
+        title: `Foco en: ${priorityList.map(p => gNames[p] || p).join(', ')}`,
+        text: 'Estos grupos van primero en cada sesión para trabajarlos con la máxima energía disponible.',
       });
     }
 
     if (injuries.length > 0) {
       notes.push({
-        icon: '🏥',
-        title: 'Adaptaciones por lesión activas',
-        text: 'Los ejercicios han sido filtrados para minimizar el estrés en las zonas lesionadas. Regla de oro: si un ejercicio produce dolor agudo (≥3/10) durante la ejecución, sustitúyelo por la variante de menor impacto articular de la lista. La incomodidad muscular (quemación) es normal. El dolor articular NO.',
+        icon: '',
+        title: 'Ejercicios adaptados a tus lesiones',
+        text: 'Si algún ejercicio causa dolor articular, sustitúyelo por otra variante. Quemación muscular: normal. Dolor en articulación: para.',
       });
     }
 
     if (answers.recovery === 'low') {
       notes.push({
-        icon: '😴',
-        title: 'Recuperación baja — protocolo ajustado',
-        text: 'Se ha ajustado el ejercicio por sesión a tu capacidad de recuperación actual. Prioridad máxima fuera del gym: 7-9 horas de sueño. El 95% de la síntesis proteica muscular ocurre durante las horas 3-7 del sueño (pico de GH y IGF-1). Sin sueño suficiente, el entrenamiento cataboliza músculo en lugar de construirlo.',
+        icon: '',
+        title: 'Volumen ajustado a tu recuperación',
+        text: 'El entrenamiento está limitado a lo que puedes recuperar. Duerme 7-9 h — es cuando el músculo crece.',
       });
     }
 
     notes.push({
-      icon: '📅',
-      title: 'Estructura del mesociclo (4-6 semanas)',
-      text: 'Semana 1: empieza conservador (1-2 reps alejado del fallo). Semana 2-3: lleva la intensidad al RPE objetivo. Semana 4: deload o peak. NO intentes hacer máximos en la semana 1 — acumula fatiga progresivamente. Los records se baten en la semana 3, no en la semana 1.',
+      icon: '',
+      title: 'Progresión del mesociclo',
+      text: 'Semana 1: empieza conservador. Semana 2-3: lleva la intensidad al máximo. Semana 4: descarga. Los records se baten en semana 3.',
     });
 
     return notes;
@@ -701,7 +701,7 @@ const RoutineGenerator = (function () {
     if (fillEl)  fillEl.style.width = `${pct}%`;
     if (labelEl) labelEl.textContent = `Pregunta ${currentStep + 1} de ${total}`;
     if (prev)    prev.style.visibility = currentStep === 0 ? 'hidden' : '';
-    if (next)    next.textContent = currentStep === total - 1 ? '✨ Generar mi rutina' : 'Siguiente →';
+    if (next)    next.textContent = currentStep === total - 1 ? 'Generar mi rutina' : 'Siguiente →';
     if (!card)   return;
 
     let html = `<h3 class="quiz-question">${step.title}</h3>`;
@@ -786,7 +786,7 @@ const RoutineGenerator = (function () {
   }
 
   // ── Mostrar resultado ─────────────────────────────────────────────────────
-  function showResult(routine) {
+  function showResult(routine, fromHistory = false) {
     const questionnaire = document.getElementById('routine-questionnaire');
     const resultEl      = document.getElementById('routine-result');
     const resetBtn      = document.getElementById('btn-reset-routine');
@@ -824,7 +824,7 @@ const RoutineGenerator = (function () {
     const goalMap = { hypertrophy:'Hipertrofia', strength:'Fuerza', fat_loss:'Pérdida de grasa', athletic:'Atlético', recomposition:'Recomposición' };
     const lvlMap  = { beginner:'Principiante', intermediate:'Intermedio', advanced:'Avanzado' };
     const eqMap   = { full_gym:'Gimnasio completo', free_weights:'Peso libre', dumbbells:'Mancuernas', machines:'Máquinas + poleas', bodyweight:'Peso corporal' };
-    const recMap  = { high:'Alta 🟢', medium:'Media 🟡', low:'Baja 🔴' };
+    const recMap  = { high:'Alta', medium:'Media', low:'Baja' };
 
     const summary = document.getElementById('routine-summary');
     if (summary) {
@@ -837,7 +837,7 @@ const RoutineGenerator = (function () {
           <span class="rmeta-item"><strong>Recuperación:</strong> ${recMap[ans.recovery] || '—'}</span>
           <span class="rmeta-item"><strong>Intensidad:</strong> ${cfg.intensity}</span>
         </div>
-        ${routine.splitRationale ? `<div class="routine-rationale"><span class="rationale-icon">🧠</span><p>${routine.splitRationale}</p></div>` : ''}`;
+        ${routine.splitRationale ? `<div class="routine-rationale"><span class="rationale-icon"></span><p>${routine.splitRationale}</p></div>` : ''}`;
     }
 
     const week = document.getElementById('routine-week');
@@ -856,8 +856,8 @@ const RoutineGenerator = (function () {
                   <span class="rex-name">${ex.name}</span>
                   <span class="rex-meta">
                     <span class="rex-scheme">${ex.sets} × ${ex.reps}</span>
-                    <span class="rex-rest">⏱ ${ex.rest}</span>
-                    ${ex.sfr === 'high' ? '<span class="rex-sfr" title="Alto SFR — máxima relación estímulo/fatiga sistémica">⭐</span>' : ''}
+                    <span class="rex-rest">${ex.rest}</span>
+                    ${ex.sfr === 'high' ? '<span class="rex-sfr" title="Alto SFR — máxima relación estímulo/fatiga sistémica">SFR</span>' : ''}
                   </span>
                 </div>`).join('')
             }
@@ -868,7 +868,7 @@ const RoutineGenerator = (function () {
     if (routine.coachingNotes?.length && coachEl) {
       coachEl.style.display = '';
       coachEl.innerHTML = `
-        <h4 class="coaching-notes-title">🏅 Notas de entrenador de élite</h4>
+        <h4 class="coaching-notes-title">Notas de entrenador de élite</h4>
         <div class="coaching-notes-grid">
           ${routine.coachingNotes.map(n => `
             <div class="coaching-note">
@@ -881,23 +881,81 @@ const RoutineGenerator = (function () {
     if (typeof Gamification !== 'undefined') Gamification.addXP('routine');
     document.dispatchEvent(new CustomEvent('routineGenerated', { detail: { routine } }));
     localStorage.setItem(LS_KEY, JSON.stringify({ routine, ts: Date.now() }));
-    saveToHistory(routine);
-    renderHistory();
+
+    // Solo pedir guardar si es una rutina nueva (no cargada desde historial)
+    if (!fromHistory) {
+      const existingHistory = JSON.parse(localStorage.getItem(LS_HISTORY) || '[]');
+      if (existingHistory.length >= HISTORY_MAX) {
+        _promptSaveRoutine(routine, true); // true = ya hay una existente
+      } else {
+        _promptSaveRoutine(routine, false);
+      }
+    }
+  }
+
+  // ── Modal de guardado con nombre personalizado ─────────────
+  function _promptSaveRoutine(routine, hasExisting) {
+    // Crear mini-modal inline
+    const existingModal = document.getElementById('save-routine-modal');
+    if (existingModal) existingModal.remove();
+
+    const modal = document.createElement('div');
+    modal.id = 'save-routine-modal';
+    modal.style.cssText = `
+      position:fixed;inset:0;z-index:1000;display:flex;align-items:center;justify-content:center;
+      background:rgba(0,0,0,.6);backdrop-filter:blur(4px);padding:16px;
+    `;
+    const gMap = { hypertrophy:'Hipertrofia', strength:'Fuerza', fat_loss:'Pérd. grasa', athletic:'Atlético', recomposition:'Recomposición' };
+    const defaultName = `${gMap[routine.answers?.goal] || 'Rutina'} ${routine.answers?.days || '?'}d — ${new Date().toLocaleDateString('es-ES', { day:'2-digit', month:'short' })}`;
+    const warningHtml = hasExisting
+      ? `<p style="color:#f59e0b;font-size:.82rem;margin-bottom:12px;background:rgba(245,158,11,.1);padding:8px 12px;border-radius:8px;border:1px solid rgba(245,158,11,.3)">
+           <strong>Tier gratuito — 1 rutina máx.</strong> La rutina anterior será reemplazada.
+         </p>`
+      : '';
+    modal.innerHTML = `
+      <div style="background:var(--bg-surface);border:1px solid var(--glass-border);border-radius:16px;padding:24px;max-width:400px;width:100%">
+        <h3 style="margin-bottom:8px;font-size:1rem">Guardar rutina</h3>
+        ${warningHtml}
+        <label style="font-size:.82rem;color:var(--text-secondary);display:block;margin-bottom:6px">Nombre de la rutina</label>
+        <input id="routine-name-input" class="form-input" type="text"
+               value="${defaultName}" style="margin-bottom:16px;width:100%"
+               maxlength="60">
+        <div style="display:flex;gap:10px;justify-content:flex-end">
+          <button id="routine-save-cancel" class="btn btn--ghost btn--sm">Cancelar</button>
+          <button id="routine-save-confirm" class="btn btn--primary btn--sm">Guardar</button>
+        </div>
+      </div>`;
+    document.body.appendChild(modal);
+
+    const input = modal.querySelector('#routine-name-input');
+    input?.select();
+
+    modal.querySelector('#routine-save-cancel').addEventListener('click', () => modal.remove());
+    modal.querySelector('#routine-save-confirm').addEventListener('click', () => {
+      const name = input?.value.trim() || defaultName;
+      saveToHistory(routine, name);
+      renderHistory();
+      modal.remove();
+    });
+    // Cerrar al hacer click fuera
+    modal.addEventListener('click', e => { if (e.target === modal) modal.remove(); });
   }
 
   // ── Historial ─────────────────────────────────────────────────────────────
-  function saveToHistory(routine) {
+  function saveToHistory(routine, customName) {
     try {
-      const history = JSON.parse(localStorage.getItem(LS_HISTORY) || '[]');
+      // Free tier: reemplazar historia existente (no acumular)
       const gMap = { hypertrophy:'Hipertrofia', strength:'Fuerza', fat_loss:'Pérdida de grasa', athletic:'Atlético', recomposition:'Recomposición' };
       const lMap = { beginner:'Principiante', intermediate:'Intermedio', advanced:'Avanzado' };
-      history.unshift({
+      const autoLabel = `${gMap[routine.answers?.goal] || 'Rutina'} · ${lMap[routine.answers?.level] || ''} · ${routine.answers?.days || '?'} días`;
+      const entry = {
         ts:    Date.now(),
-        label: `${gMap[routine.answers?.goal] || 'Rutina'} · ${lMap[routine.answers?.level] || ''} · ${routine.answers?.days || '?'} días`,
+        label: customName || autoLabel,
         days:  routine.answers?.days,
         routine,
-      });
-      localStorage.setItem(LS_HISTORY, JSON.stringify(history.slice(0, HISTORY_MAX)));
+      };
+      // Sustituir historia completa (tier gratuito = 1 rutina máx.)
+      localStorage.setItem(LS_HISTORY, JSON.stringify([entry]));
     } catch { /* ignorar */ }
   }
 
@@ -909,7 +967,7 @@ const RoutineGenerator = (function () {
       if (!history.length) { wrap.style.display = 'none'; return; }
       wrap.style.display = '';
       wrap.innerHTML = `
-        <h3 class="history-title">Historial de rutinas</h3>
+        <h3 class="history-title">Mis rutinas guardadas <span style="font-size:.75rem;color:var(--text-muted);font-weight:400">(Tier gratuito: 1 máx.)</span></h3>
         <div class="history-list">
           ${history.map((h, i) => `
             <div class="history-item" data-idx="${i}">
@@ -917,14 +975,39 @@ const RoutineGenerator = (function () {
                 <span class="history-label">${h.label}</span>
                 <span class="history-date">${new Date(h.ts).toLocaleDateString('es-ES', { day:'2-digit', month:'short', year:'numeric' })}</span>
               </div>
-              <button class="btn btn--ghost btn--sm history-load-btn" data-idx="${i}">Cargar</button>
+              <div style="display:flex;gap:6px">
+                <button class="btn btn--ghost btn--sm history-load-btn" data-idx="${i}">Cargar</button>
+                <button class="btn btn--sm history-del-btn" data-idx="${i}"
+                        style="background:rgba(239,68,68,.1);color:#ef4444;border:1px solid rgba(239,68,68,.3)"
+                        title="Eliminar rutina">×</button>
+              </div>
             </div>`).join('')}
         </div>`;
       wrap.querySelectorAll('.history-load-btn').forEach(btn => {
         btn.addEventListener('click', () => {
           const idx  = parseInt(btn.dataset.idx);
           const hist = JSON.parse(localStorage.getItem(LS_HISTORY) || '[]');
-          if (hist[idx]) showResult(hist[idx].routine);
+          if (hist[idx]) showResult(hist[idx].routine, true); // fromHistory=true: no reabrir modal de guardado
+        });
+      });
+      wrap.querySelectorAll('.history-del-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+          const idx  = parseInt(btn.dataset.idx);
+          const hist = JSON.parse(localStorage.getItem(LS_HISTORY) || '[]');
+          if (!hist[idx]) return;
+          if (!confirm(`¿Eliminar "${hist[idx].label}"?`)) return;
+          hist.splice(idx, 1);
+          localStorage.setItem(LS_HISTORY, JSON.stringify(hist));
+          // Si la rutina activa es la que se borra, ocultarla
+          const saved = JSON.parse(localStorage.getItem(LS_KEY) || 'null');
+          if (!hist.length) {
+            localStorage.removeItem(LS_KEY);
+            const resultEl = document.getElementById('routine-result');
+            if (resultEl) resultEl.style.display = 'none';
+            const questionnaire = document.getElementById('routine-questionnaire');
+            if (questionnaire) questionnaire.style.display = '';
+          }
+          renderHistory();
         });
       });
     } catch { wrap.style.display = 'none'; }
@@ -948,10 +1031,18 @@ const RoutineGenerator = (function () {
   }
 
   // ── Init ──────────────────────────────────────────────────────────────────
+  // Usamos onclick para que sea idempotente — múltiples llamadas a init() no duplican listeners
   function init() {
     renderStep();
 
-    document.getElementById('quiz-next')?.addEventListener('click', () => {
+    const nextBtn   = document.getElementById('quiz-next');
+    const prevBtn   = document.getElementById('quiz-prev');
+    const resetBtn  = document.getElementById('btn-reset-routine');
+    const shareBtn2 = document.getElementById('btn-share-routine');
+    const closeBtn  = document.getElementById('share-close');
+    const closeBtn2 = document.getElementById('share-close-2');
+
+    if (nextBtn) nextBtn.onclick = () => {
       if (!validateStep()) return;
       if (currentStep < STEPS.length - 1) {
         currentStep++;
@@ -960,16 +1051,16 @@ const RoutineGenerator = (function () {
         const routine = generateRoutine(answers);
         showResult(routine);
       }
-    });
+    };
 
-    document.getElementById('quiz-prev')?.addEventListener('click', () => {
+    if (prevBtn) prevBtn.onclick = () => {
       if (currentStep > 0) { currentStep--; renderStep(); }
-    });
+    };
 
-    document.getElementById('btn-reset-routine')?.addEventListener('click', reset);
-    document.getElementById('btn-share-routine')?.addEventListener('click', shareRoutine);
-    document.getElementById('share-close')?.addEventListener('click', closeShareOverlay);
-    document.getElementById('share-close-2')?.addEventListener('click', closeShareOverlay);
+    if (resetBtn)  resetBtn.onclick  = reset;
+    if (shareBtn2) shareBtn2.onclick = shareRoutine;
+    if (closeBtn)  closeBtn.onclick  = closeShareOverlay;
+    if (closeBtn2) closeBtn2.onclick = closeShareOverlay;
 
     try {
       const saved = JSON.parse(localStorage.getItem(LS_KEY) || 'null');

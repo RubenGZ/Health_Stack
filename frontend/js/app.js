@@ -11,11 +11,30 @@
   // ── Navegación SPA ─────────────────────────────────────────
   const SECTIONS = [
     'dashboard','peso','nutricion','ejercicios',
-    'rutinas','planner','gamificacion','comunidad',
-    'suplementos','timing','records','receipt','fatigue','plateau','deload','bodycomp','sessionreplay','workout','ranked',
+    'rutinas','planner','gamificacion',
+    'suplementos','timing','records','receipt','fatigue','plateau','deload','bodycomp','sessionreplay','workout','ranked','rehab',
   ];
 
-  function navigateTo(sectionId) {
+  // ── Historia de navegación (back button móvil) ─────────────
+  const _navHistory = [];
+  let _currentSection = null;
+
+  function _updateBackBtn() {
+    const backBtn  = document.getElementById('mobile-back-btn');
+    const header   = document.getElementById('mobile-header');
+    if (!backBtn || !header) return;
+    const canGoBack = _navHistory.length > 0;
+    backBtn.style.display = canGoBack ? 'flex' : 'none';
+    header.classList.toggle('has-back', canGoBack);
+  }
+
+  function _goBack() {
+    if (_navHistory.length === 0) return;
+    const prev = _navHistory.pop();
+    navigateTo(prev, true /* isBack */);
+  }
+
+  function navigateTo(sectionId, isBack) {
     // ── Plan gate ───────────────────────────────────────────
     if (typeof Plan !== 'undefined' && !Plan.can(sectionId)) {
       Plan.showUpgradeModal(sectionId, function () {
@@ -25,10 +44,19 @@
       return;
     }
 
+    // ── Gestión del historial (back button) ─────────────────
+    if (!isBack && _currentSection && _currentSection !== sectionId) {
+      _navHistory.push(_currentSection);
+      // Limitar historial a 10 entradas para no acumular
+      if (_navHistory.length > 10) _navHistory.shift();
+    }
+    _currentSection = sectionId;
+    _updateBackBtn();
+
     // Ocultar todas las secciones
     SECTIONS.forEach(id => {
       const el = document.getElementById(`section-${id}`);
-      if (el) el.classList.remove('active');
+      if (el) { el.classList.remove('active'); el.classList.remove('section--visible'); }
     });
 
     // Activar la sección destino
@@ -36,6 +64,8 @@
     if (target) {
       target.classList.add('active');
       window.scrollTo({ top: 0, behavior: 'smooth' });
+      // Añadir clase de transición en el siguiente frame para que el navegador la pinte
+      requestAnimationFrame(() => target.classList.add('section--visible'));
     }
 
     // Actualizar nav items
@@ -100,6 +130,32 @@
         RankedModule.init(rankedRoot);
       }
     }
+    // Suplementos: re-inicializar si el grid está vacío o aún muestra "Cargando"
+    if (sectionId === 'suplementos' && typeof Supplements !== 'undefined') {
+      const sg = document.getElementById('suppl-grid');
+      if (sg && (!sg.children.length || sg.querySelector('.suppl-loading'))) {
+        Supplements.init();
+      }
+    }
+    // Ejercicios: re-renderizar al navegar (por si cambia el viewport)
+    if (sectionId === 'ejercicios' && typeof Exercises !== 'undefined') {
+      Exercises.refreshLayout?.();
+    }
+    // Rutinas: re-init wizard al navegar a la sección (listeners se pierden si DOM fue modificado)
+    if (sectionId === 'rutinas' && typeof RoutineGenerator !== 'undefined') {
+      RoutineGenerator.init();
+    }
+
+    // ── FAB de rest timer: solo visible en sección workout o con sesión activa ──
+    const _fab = document.getElementById('rest-timer-fab');
+    if (_fab) {
+      const _hasActiveSession = Boolean(localStorage.getItem('hs_workout_active'));
+      if (sectionId === 'workout' || _hasActiveSession) {
+        _fab.style.display = '';
+      } else {
+        _fab.style.display = 'none';
+      }
+    }
   }
 
   function initNavigation() {
@@ -125,6 +181,12 @@
           });
         }
       }, true); // capture phase so it fires before the tab switcher
+    }
+
+    // Botón atrás en mobile header
+    const backBtn = document.getElementById('mobile-back-btn');
+    if (backBtn) {
+      backBtn.addEventListener('click', _goBack);
     }
 
     // Leer hash inicial — si es 'admin' redirige a la SPA de admin
@@ -407,6 +469,9 @@
     }
 
     // TDEE — guardado por macroCalc.js o onboarding
+    // Sanear valor "NaN" que pudo quedar de versiones anteriores
+    const _rawTdee = localStorage.getItem('hs_last_tdee');
+    if (_rawTdee === 'NaN' || _rawTdee === 'undefined') localStorage.removeItem('hs_last_tdee');
     const tdeeVal = parseFloat(localStorage.getItem('hs_last_tdee') || '0');
     const tdeeEl  = document.getElementById('stat-tdee');
     const tdeeLbl = document.getElementById('stat-tdee-label');
@@ -426,7 +491,7 @@
         insightEl.style.display = 'block';
         insightEl.innerHTML = [
           '<div class="projection-card">',
-            '<div class="projection-icon">📈</div>',
+            '<div class="projection-icon"></div>',
             '<div class="projection-body">',
               '<p class="projection-headline">',
                 (function(){
@@ -528,38 +593,45 @@
       return s;
     };
 
+    const _svgWarn    = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>';
+    const _svgTarget  = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/></svg>';
+    const _svgChart   = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>';
+    const _svgTrend   = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="22 7 13.5 15.5 8.5 10.5 2 17"/><polyline points="16 7 22 7 22 13"/></svg>';
+    const _svgMuscle  = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6.5 6.5c1.5-1.5 3-2 5-2 3.3 0 6 2.7 6 6s-2.7 6-6 6c-2 0-3.5-.5-5-2"/><path d="M2 12h4"/></svg>';
+    const _svgBalance = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22V12"/><path d="M5 12H2a10 10 0 0 0 20 0h-3"/><path d="M8 6l4-4 4 4"/><path d="M8 6h8"/></svg>';
+
     if (goal.startsWith('deficit')) {
       if (rate < -0.8) {
-        icon = '⚠️'; color = 'var(--amber)';
+        icon = _svgWarn; color = 'var(--amber)';
         message = _msg('dashboard.insight_deficit_fast', { rate: absRate.toFixed(2) });
       } else if (rate < -0.15) {
-        icon = '🎯'; color = 'var(--emerald)';
+        icon = _svgTarget; color = 'var(--emerald)';
         message = _msg('dashboard.insight_deficit_ok', { rate: absRate.toFixed(2) });
       } else if (rate >= -0.15 && rate <= 0.1) {
-        icon = '📊'; color = 'var(--secondary)';
+        icon = _svgChart; color = 'var(--secondary)';
         message = _msg('dashboard.insight_deficit_stable', { delta: (rate >= 0 ? '+' : '') + rate.toFixed(2) });
       } else {
-        icon = '📈'; color = 'var(--accent)';
+        icon = _svgTrend; color = 'var(--accent)';
         message = _msg('dashboard.insight_deficit_gaining', { rate: absRate.toFixed(2) });
       }
     } else if (goal.startsWith('surplus')) {
       if (rate > 0.5) {
-        icon = '⚠️'; color = 'var(--amber)';
+        icon = _svgWarn; color = 'var(--amber)';
         message = _msg('dashboard.insight_surplus_fast', { rate: absRate.toFixed(2) });
       } else if (rate > 0.1) {
-        icon = '💪'; color = 'var(--emerald)';
+        icon = _svgMuscle; color = 'var(--emerald)';
         message = _msg('dashboard.insight_surplus_ok', { rate: absRate.toFixed(2) });
       } else {
-        icon = '📊'; color = 'var(--secondary)';
+        icon = _svgChart; color = 'var(--secondary)';
         message = _msg('dashboard.insight_surplus_stable', { delta: (rate >= 0 ? '+' : '') + rate.toFixed(2) });
       }
     } else {
       // Mantener
       if (Math.abs(rate) <= 0.2) {
-        icon = '⚖️'; color = 'var(--emerald)';
+        icon = _svgBalance; color = 'var(--emerald)';
         message = _msg('dashboard.insight_maintain_ok', { rate: absRate.toFixed(2) });
       } else {
-        icon = '📊'; color = 'var(--secondary)';
+        icon = _svgChart; color = 'var(--secondary)';
         message = _msg('dashboard.insight_maintain_drift', { delta: (rate >= 0 ? '+' : '') + rate.toFixed(2) });
       }
     }
@@ -626,7 +698,7 @@
       // Banner iOS: guía visual con el icono de Share de Safari
       banner.innerHTML = `
         <div class="pwa-banner pwa-banner--ios">
-          <span class="pwa-icon">📲</span>
+          <span class="pwa-icon"></span>
           <div class="pwa-info">
             <strong>${_t('pwa.install_title')}</strong>
             <small>
@@ -640,7 +712,7 @@
     } else {
       banner.innerHTML = `
         <div class="pwa-banner">
-          <span class="pwa-icon">📲</span>
+          <span class="pwa-icon"></span>
           <div class="pwa-info">
             <strong>${_t('pwa.install_title')}</strong>
             <small>${_t('pwa.install_desc')}</small>
@@ -716,23 +788,58 @@
     if (typeof Supplements        !== 'undefined') Supplements.init();
     if (typeof MyRecipes          !== 'undefined') MyRecipes.init();
     if (typeof TimingPlanner      !== 'undefined') TimingPlanner.init();
-    // Onboarding al final — necesita que todos los módulos estén listos para pre-rellenarlos.
-    // Pasar onboarding_completed del servidor si el usuario ya está logueado
-    // (el campo viene en el objeto user guardado en localStorage por saveAuth).
+    // Onboarding al final — solo si el usuario está autenticado.
+    // Si no hay token (flujo login/registro), no lanzar el wizard.
     if (typeof Onboarding !== 'undefined') {
-      const _obUser = (typeof API !== 'undefined') ? API.getUser?.() : null;
-      const _obServerDone = _obUser ? _obUser.onboarding_completed : undefined;
-      Onboarding.init(_obServerDone);
+      const _hasToken = Boolean(localStorage.getItem('hs_access_token'));
+      if (_hasToken) {
+        const _obUser = (typeof API !== 'undefined') ? API.getUser?.() : null;
+        const _obServerDone = _obUser ? _obUser.onboarding_completed : undefined;
+        Onboarding.init(_obServerDone);
+      }
     }
 
-    // Re-check onboarding after login (in case user logs in and server says NOT done)
+    // Re-check onboarding después del login exitoso
     window.addEventListener('hs:login', function () {
       if (typeof Onboarding === 'undefined') return;
       const u = (typeof API !== 'undefined') ? API.getUser?.() : null;
-      if (u && u.onboarding_completed === false) {
+      if (!u) return; // usuario no disponible aún
+      const hasTDEE = localStorage.getItem('hs_tdee');
+      if (u.onboarding_completed === false || !hasTDEE) {
         Onboarding.init(false); // force show
       }
     });
+
+    // ── IntersectionObserver — card scroll reveal ─────────────
+    if ('IntersectionObserver' in window) {
+      const cardObserver = new IntersectionObserver((entries) => {
+        entries.forEach((entry, i) => {
+          if (entry.isIntersecting) {
+            const delay = Math.min(i, 5) * 60; // stagger 60ms, máx 5 cards
+            setTimeout(() => {
+              entry.target.classList.add('card--revealed');
+            }, delay);
+            cardObserver.unobserve(entry.target);
+          }
+        });
+      }, { threshold: 0.08 });
+
+      // Observar todas las cards del documento
+      document.querySelectorAll('.card').forEach(card => {
+        card.classList.add('card--will-reveal');
+        cardObserver.observe(card);
+      });
+
+      // Re-observar cards dentro de secciones al navegar (pueden cargarse dinámicamente)
+      window.addEventListener('hs:section-changed', function () {
+        setTimeout(() => {
+          document.querySelectorAll('.card:not(.card--will-reveal)').forEach(card => {
+            card.classList.add('card--will-reveal');
+            cardObserver.observe(card);
+          });
+        }, 50);
+      });
+    }
 
     initUserChip();
     updateWelcomeCard();
@@ -762,9 +869,97 @@
           Plan.showUpgradeModal('restimer');
         }
       }, true); // capture before restTimer.js listener
+
+      // Ocultar FAB por defecto — solo se muestra en sección workout o con sesión activa
+      const _initialSection = window.location.hash.replace('#', '') || 'dashboard';
+      const _hasActiveSession = Boolean(localStorage.getItem('hs_workout_active'));
+      if (_initialSection !== 'workout' && !_hasActiveSession) {
+        fab.style.display = 'none';
+      }
     }
 
+    // Escuchar cambio de sesión activa para mostrar/ocultar FAB
+    window.addEventListener('hs:workout-session-changed', function () {
+      const _fab2 = document.getElementById('rest-timer-fab');
+      if (!_fab2) return;
+      const _currentSection = window.location.hash.replace('#', '') || 'dashboard';
+      const _active = Boolean(localStorage.getItem('hs_workout_active'));
+      if (_currentSection === 'workout' || _active) {
+        _fab2.style.display = '';
+      } else {
+        _fab2.style.display = 'none';
+      }
+    });
+
+    // ── Botón circular de feedback en sección Perfil ──────────
+    const perfilFeedbackBtn = document.getElementById('perfil-feedback-btn');
+    if (perfilFeedbackBtn) {
+      perfilFeedbackBtn.addEventListener('click', () => {
+        if (typeof FeedbackWidget !== 'undefined' && FeedbackWidget.open) {
+          FeedbackWidget.open();
+        }
+      });
+    }
+
+    // ── Getting Started empty state ───────────────────────────
+    _initGettingStarted();
+
+    // ── Beta mode UI ─────────────────────────────────────────
+    _initBetaModeUI();
+
     console.log('%c HealthStack Pro v2.0 ', 'background:#6c63ff;color:white;padding:4px 8px;border-radius:4px;font-weight:bold');
+  }
+
+  function _initGettingStarted() {
+    const widget = document.getElementById('getting-started');
+    const cpWidget = document.getElementById('consistency-progress-widget');
+    if (!widget) return;
+
+    function _updateState() {
+      const hasWeight   = Boolean(localStorage.getItem('hs_weight_entries'));
+      const hasWorkout  = Boolean(localStorage.getItem('hs_workout_active') || localStorage.getItem('hs_session_count'));
+      const sessionCount = parseInt(localStorage.getItem('hs_session_count') || '0', 10);
+
+      // Show getting-started only when no weight data and no sessions
+      const isEmpty = !hasWeight && sessionCount === 0;
+      widget.style.display = isEmpty ? 'block' : 'none';
+
+      // Show consistency widget after first session
+      if (cpWidget) {
+        cpWidget.style.display = sessionCount > 0 ? 'block' : 'none';
+        if (typeof Plan !== 'undefined') Plan.applyPhasedNav(); // also updates widget
+      }
+    }
+
+    _updateState();
+    // Re-check when user comes back to dashboard
+    window.addEventListener('hs:section-changed', function(e) {
+      if (e.detail && e.detail.section === 'dashboard') _updateState();
+    });
+    // Re-check after workout session saved
+    window.addEventListener('hs:workout-session-changed', _updateState);
+  }
+
+  function _initBetaModeUI() {
+    const btn   = document.getElementById('beta-mode-btn');
+    const label = document.getElementById('beta-mode-label');
+    const badge = document.getElementById('beta-mode-badge');
+    if (!btn || !label) return;
+
+    function _refreshUI() {
+      const on = typeof Plan !== 'undefined' && Plan.isBeta();
+      if (label) label.textContent = on ? 'Desactivar modo beta' : 'Activar modo beta';
+      if (badge) badge.style.display = on ? '' : 'none';
+    }
+
+    _refreshUI();
+
+    // Expose global toggle for onclick handler in HTML
+    window._toggleBetaMode = function() {
+      if (typeof Plan === 'undefined') return;
+      if (Plan.isBeta()) { Plan.disableBeta(); } else { Plan.enableBeta(); }
+      _refreshUI();
+    };
   }
 
   // ── Google OAuth callback handler ────────────────────────
@@ -859,4 +1054,7 @@
   syncAdminNav();
   window.addEventListener('hs:login',  syncAdminNav);
   window.addEventListener('hs:logout', syncAdminNav);
+
+  // Exponer navigateTo globalmente para mobileNav.js y otros módulos externos
+  window.navigateTo = navigateTo;
 })();

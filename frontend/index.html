@@ -75,10 +75,10 @@
   <!-- Google AdSense — activar con apply-adsense.ps1 antes de producción -->
   <!-- <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-XXXXXXXXXXXXXXXX" crossorigin="anonymous"></script> -->
 
-  <!-- Google Fonts: Lora (headings) + Raleway (body) -->
+  <!-- Google Fonts: Inter -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Lora:ital,wght@0,400;0,500;0,600;0,700;1,400;1,600&family=Raleway:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 
 
 </head>
@@ -93,12 +93,15 @@
   <aside class="sidebar" id="sidebar">
     <div class="sidebar__brand">
       <div class="brand-logo">
-        <svg width="32" height="32" viewBox="0 0 32 32" fill="none">
-          <path d="M16 3L29 9.5V22.5L16 29L3 22.5V9.5L16 3Z" stroke="url(#grad1)" stroke-width="2" fill="none"/>
-          <path d="M8 16H24M16 8V24" stroke="url(#grad1)" stroke-width="2" stroke-linecap="round"/>
+        <!-- Logo H provisional -->
+        <svg width="32" height="32" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <rect width="32" height="32" rx="8" fill="url(#hlogograd)"/>
+          <rect x="7"    y="5.5" width="4.5" height="21" rx="2" fill="white"/>
+          <rect x="20.5" y="5.5" width="4.5" height="21" rx="2" fill="white"/>
+          <rect x="7"    y="13"  width="18"  height="6"  rx="2" fill="white"/>
           <defs>
-            <linearGradient id="grad1" x1="3" y1="3" x2="29" y2="29">
-              <stop offset="0%" stop-color="#0891b2"/>
+            <linearGradient id="hlogograd" x1="0" y1="0" x2="32" y2="32" gradientUnits="userSpaceOnUse">
+              <stop offset="0%"   stop-color="#0891b2"/>
               <stop offset="100%" stop-color="#22d3ee"/>
             </linearGradient>
           </defs>
@@ -244,16 +247,6 @@
         <span class="nav-label">Athlete Receipt</span>
       </a>
 
-      <!-- ── COMUNIDAD ────────────────────────────────────────── -->
-      <div class="nav-group-label" data-i18n="nav.group_community">Comunidad</div>
-
-      <a class="nav-item" data-section="comunidad" href="#comunidad">
-        <span class="nav-icon">
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
-        </span>
-        <span class="nav-label" data-i18n="nav.community">Comunidad</span>
-      </a>
-
       <a class="nav-item" data-section="ranked" href="#ranked">
         <span class="nav-icon">
           <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
@@ -298,7 +291,12 @@
 
   <!-- Mobile top bar (hidden on desktop via CSS) -->
   <header class="mobile-header" id="mobile-header" aria-label="App navigation">
-    <span class="mobile-brand">HealthStack <em>Pro</em></span>
+    <button class="mobile-back-btn" id="mobile-back-btn" aria-label="Atrás" style="display:none">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+        <polyline points="15 18 9 12 15 6"/>
+      </svg>
+    </button>
+    <span class="mobile-brand" id="mobile-brand">HealthStack <em>Pro</em></span>
     <span class="mobile-section-title" id="mobile-section-title" aria-live="polite">Dashboard</span>
   </header>
 
@@ -322,6 +320,55 @@
 
       <!-- PWA install prompt (se muestra automáticamente si aplica) -->
       <div id="pwa-install-banner" style="display:none;margin-bottom:16px"></div>
+
+      <!-- Unlock celebration banner (hidden until milestone reached) -->
+      <div id="unlock-celebration" style="display:none;margin-bottom:16px;background:linear-gradient(135deg,#00d4aa22,#6c63ff22);border:1px solid #6c63ff44;border-radius:14px;padding:16px 18px;align-items:center;gap:14px;">
+        <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#6c63ff" stroke-width="2"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+        <div>
+          <div style="font-weight:700;color:var(--text-primary);font-size:.95rem">Desbloqueado: <span id="unlock-feature-name"></span></div>
+          <div style="font-size:.8rem;color:var(--text-secondary);margin-top:2px">Tu constancia ha dado sus frutos. Revisa el menú lateral.</div>
+        </div>
+      </div>
+
+      <!-- Getting Started (se oculta cuando hay datos) -->
+      <div id="getting-started" style="display:none;margin-bottom:20px">
+        <h3 style="font-size:.75rem;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--text-secondary);margin:0 0 12px">Por dónde empezar</h3>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
+          <button onclick="document.querySelector('[data-section=peso]').click()" style="background:var(--glass-bg);border:1px solid var(--glass-border);border-radius:12px;padding:16px 14px;cursor:pointer;text-align:left;transition:border-color .2s" onmouseover="this.style.borderColor='var(--primary)'" onmouseout="this.style.borderColor='var(--glass-border)'">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#6c63ff" stroke-width="2" style="margin-bottom:8px;display:block"><path d="M12 2a4 4 0 0 1 4 4c0 1.5-.8 2.8-2 3.5V20H10V9.5A4 4 0 0 1 8 6a4 4 0 0 1 4-4z"/></svg>
+            <div style="font-size:.85rem;font-weight:600;color:var(--text-primary)">Registra tu peso</div>
+            <div style="font-size:.75rem;color:var(--text-secondary);margin-top:3px">Primer dato, primer paso</div>
+          </button>
+          <button onclick="document.querySelector('[data-section=nutricion]').click()" style="background:var(--glass-bg);border:1px solid var(--glass-border);border-radius:12px;padding:16px 14px;cursor:pointer;text-align:left;transition:border-color .2s" onmouseover="this.style.borderColor='var(--primary)'" onmouseout="this.style.borderColor='var(--glass-border)'">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#00d4aa" stroke-width="2" style="margin-bottom:8px;display:block"><path d="M18 8h1a4 4 0 0 1 0 8h-1"/><path d="M2 8h16v9a4 4 0 0 1-4 4H6a4 4 0 0 1-4-4V8z"/><line x1="6" y1="1" x2="6" y2="4"/><line x1="10" y1="1" x2="10" y2="4"/><line x1="14" y1="1" x2="14" y2="4"/></svg>
+            <div style="font-size:.85rem;font-weight:600;color:var(--text-primary)">Calcula tus macros</div>
+            <div style="font-size:.75rem;color:var(--text-secondary);margin-top:3px">TDEE + objetivos diarios</div>
+          </button>
+          <button onclick="document.querySelector('[data-section=rutinas]').click()" style="background:var(--glass-bg);border:1px solid var(--glass-border);border-radius:12px;padding:16px 14px;cursor:pointer;text-align:left;transition:border-color .2s" onmouseover="this.style.borderColor='var(--primary)'" onmouseout="this.style.borderColor='var(--glass-border)'">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#f59e0b" stroke-width="2" style="margin-bottom:8px;display:block"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>
+            <div style="font-size:.85rem;font-weight:600;color:var(--text-primary)">Crea tu rutina</div>
+            <div style="font-size:.75rem;color:var(--text-secondary);margin-top:3px">El wizard tarda 2 minutos</div>
+          </button>
+          <button onclick="document.querySelector('[data-section=workout]').click()" style="background:var(--glass-bg);border:1px solid var(--glass-border);border-radius:12px;padding:16px 14px;cursor:pointer;text-align:left;transition:border-color .2s" onmouseover="this.style.borderColor='var(--primary)'" onmouseout="this.style.borderColor='var(--glass-border)'">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#e879f9" stroke-width="2" style="margin-bottom:8px;display:block"><path d="M6.5 6.5h11M6.5 17.5h11M3 12h2m14 0h2"/><circle cx="5" cy="12" r="2"/><circle cx="19" cy="12" r="2"/></svg>
+            <div style="font-size:.85rem;font-weight:600;color:var(--text-primary)">Primer entreno</div>
+            <div style="font-size:.75rem;color:var(--text-secondary);margin-top:3px">Registra sets y reps</div>
+          </button>
+        </div>
+      </div>
+
+      <!-- Consistency Progress Widget -->
+      <div id="consistency-progress-widget" style="display:none;margin-bottom:16px;background:var(--glass-bg);border:1px solid var(--glass-border);border-radius:14px;padding:14px 16px">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px">
+          <span style="font-size:.75rem;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--text-secondary)">Próximo desbloqueo</span>
+          <span id="cp-milestones-done" style="font-size:.75rem;color:var(--text-secondary)">0 / 3 desbloqueados</span>
+        </div>
+        <div id="cp-label" style="font-size:.85rem;font-weight:600;color:var(--text-primary);margin-bottom:8px">Cargando...</div>
+        <div style="background:var(--surface-2,#1a1a2e);border-radius:6px;height:6px;overflow:hidden;margin-bottom:6px">
+          <div id="cp-bar-fill" style="height:100%;background:linear-gradient(90deg,#6c63ff,#00d4aa);border-radius:6px;transition:width .4s ease;width:0%"></div>
+        </div>
+        <div id="cp-count" style="font-size:.75rem;color:var(--text-secondary)"></div>
+      </div>
 
       <!-- Welcome card -->
       <!-- Stats cards -->
@@ -431,16 +478,6 @@
         </div>
       </div>
 
-      <!-- Ad banner — dashboard -->
-      <div id="sponsor-banner" style="margin-top:20px;text-align:center">
-        <ins class="adsbygoogle"
-             style="display:block;width:100%;height:90px"
-             data-ad-client="ca-pub-XXXXXXXXXXXXXXXX"
-             data-ad-slot="0987654321"
-             data-ad-format="horizontal"
-             data-full-width-responsive="true"></ins>
-        <script>(adsbygoogle = window.adsbygoogle || []).push({});</script>
-      </div>
     </section>
 
     <!-- ── TRACKING DE PESO ──────────────────────────────────── -->
@@ -464,7 +501,9 @@
 
       <!-- Mensaje de ajuste automático -->
       <div class="adjustment-banner" id="adjustment-banner" style="display:none;">
-        <span class="adjustment-icon" id="adjustment-icon">📊</span>
+        <span class="adjustment-icon" id="adjustment-icon">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+        </span>
         <span id="adjustment-text"></span>
         <button class="banner-close" id="banner-close">×</button>
       </div>
@@ -556,7 +595,7 @@
         <button class="stab" data-tab="macroinfo" data-i18n="nutrition.tab_macros">Macronutrientes</button>
         <button class="stab" data-tab="nutrient-timing" data-i18n="nutrition.tab_timing">Timing nutrientes</button>
         <button class="stab" data-tab="misrecetas" data-i18n="nutrition.tab_recipes">Mis Recetas</button>
-        <button class="stab" data-tab="autopilot">🤖 Autopilot</button>
+        <button class="stab" data-tab="autopilot">Autopilot</button>
       </div>
 
       <!-- Tab: Calculadora TDEE (existente) -->
@@ -697,7 +736,7 @@
 
           <!-- Mensaje adicional -->
           <div class="nutrition-tip card" id="nutrition-tip">
-            <span class="tip-icon">💡</span>
+            <span class="tip-icon"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg></span>
             <p id="tip-text"></p>
           </div>
         </div>
@@ -733,13 +772,34 @@
           <p data-i18n="nutrition.recipes_sub">Crea recetas personalizadas con ingredientes reales y cálculo de macros en tiempo real</p>
         </div>
 
+        <!-- Recetas de Nutricionista Deportivo (100 plantillas) -->
+        <div class="card" style="margin-bottom:24px" id="nutritionist-recipes-section">
+          <div class="card-header" id="nut-recipes-toggle" style="cursor:pointer;user-select:none">
+            <div>
+              <h3>Recetas de Nutricionista Deportivo</h3>
+              <p style="color:var(--text-muted);font-size:.82rem;margin:4px 0 0">100 recetas validadas para atletas · Copia una y personaliza las cantidades</p>
+            </div>
+            <span id="nut-toggle-icon" style="font-size:1.1rem;color:var(--text-muted);transition:transform .2s">▼</span>
+          </div>
+          <div id="nut-recipes-body">
+            <div style="display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin-bottom:12px">
+              <input type="text" id="nut-recipes-search" class="form-input"
+                     placeholder="Buscar (pollo, salmón, avena...)" style="max-width:260px;margin:0">
+              <div class="recipe-filter-tabs" id="nut-recipes-filter-tabs"></div>
+            </div>
+            <div class="my-recipes-grid" id="nut-recipes-grid">
+              <!-- Renderizado por myRecipes.js -->
+            </div>
+          </div>
+        </div>
+
         <!-- Grid de recetas guardadas -->
         <div class="card" style="margin-bottom:24px">
           <div class="card-header">
             <h3 data-i18n="nutrition.saved">Recetas guardadas</h3>
             <div class="recipe-filter-tabs" id="my-recipes-filter-tabs"></div>
           </div>
-          <input type="text" id="my-recipes-search" class="form-input" data-i18n="planner.search_my" data-i18n-attr="placeholder" placeholder="🔍 Buscar mis recetas..." style="margin-bottom:12px;max-width:320px">
+          <input type="text" id="my-recipes-search" class="form-input" data-i18n="planner.search_my" data-i18n-attr="placeholder" placeholder="Buscar mis recetas..." style="margin-bottom:12px;max-width:320px">
           <div class="my-recipes-grid" id="my-recipes-grid">
             <!-- Renderizado por myRecipes.js -->
           </div>
@@ -771,7 +831,7 @@
             <div class="form-group">
               <label class="form-label" data-i18n="nutrition.add_ing">Añadir ingredientes</label>
               <div class="ing-search-wrap">
-                <input type="text" id="ing-search" class="form-input" placeholder="🔍 Buscar ingrediente (ej: pollo, avena, aguacate...)">
+                <input type="text" id="ing-search" class="form-input" placeholder="Buscar ingrediente (ej: pollo, avena, aguacate...)">
                 <div class="ing-results" id="ing-results"></div>
               </div>
             </div>
@@ -795,7 +855,7 @@
             </div>
             <div class="form-actions">
               <button class="btn btn--ghost" id="recipe-cancel-btn" data-i18n="nutrition.cancel">Cancelar</button>
-              <button class="btn btn--primary" id="recipe-save-btn" data-i18n="nutrition.save_recipe">💾 Guardar receta</button>
+              <button class="btn btn--primary" id="recipe-save-btn" data-i18n="nutrition.save_recipe">Guardar receta</button>
             </div>
           </div>
         </div>
@@ -815,7 +875,7 @@
           <p class="section-subtitle" data-i18n="exercises.subtitle">Base de datos de ejercicios con visor anatómico</p>
         </div>
         <div class="header-actions">
-          <input type="text" id="exercise-search" class="form-input" data-i18n="exercises.search" data-i18n-attr="placeholder" placeholder="🔍 Buscar ejercicio..." style="width:220px">
+          <input type="text" id="exercise-search" class="form-input" data-i18n="exercises.search" data-i18n-attr="placeholder" placeholder="Buscar ejercicio..." style="width:220px">
         </div>
       </header>
 
@@ -827,9 +887,14 @@
         <div class="exercises-grid" id="exercises-grid"></div>
 
         <!-- Visor anatómico SVG (body-muscles, heavy style) -->
-        <div class="anatomy-panel card">
+        <!-- Backdrop para el modal anatómico en móvil -->
+        <div class="anatomy-modal-backdrop" id="anatomy-modal-backdrop"></div>
+        <div class="anatomy-panel card" id="anatomy-panel">
+          <button class="anatomy-modal-close" id="anatomy-modal-close" aria-label="Cerrar visor" style="display:none">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+          </button>
           <h4 class="anatomy-title" data-i18n="exercises.anatomy_title">Visor anatómico</h4>
-          <div class="anatomy-hint" id="anatomy-hint" data-i18n="exercises.anatomy_hint">Haz clic en un ejercicio para ver los músculos implicados</div>
+          <div class="anatomy-hint" id="anatomy-hint" data-i18n="exercises.anatomy_hint">Toca un ejercicio para ver los músculos implicados</div>
           <!-- SVG viewer monta aquí via AnatomyLens.init() -->
           <div class="anatomy-lens-container"></div>
           <!-- SVG simple de emergencia (oculto, solo si body-muscles falla) -->
@@ -849,7 +914,7 @@
         </div>
         <div class="header-actions" id="routine-header-actions">
           <button class="btn btn--ghost" id="btn-reset-routine" style="display:none" data-i18n="routines.new_quiz">↩ Nuevo cuestionario</button>
-          <button class="btn share-btn" id="btn-share-routine" style="display:none" data-i18n="routines.share">📤 Compartir rutina</button>
+          <button class="btn share-btn" id="btn-share-routine" style="display:none" data-i18n="routines.share">Compartir rutina</button>
         </div>
       </header>
 
@@ -914,7 +979,7 @@
           <p class="section-subtitle" data-i18n="planner.subtitle">Arrastra recetas al calendario semanal</p>
         </div>
         <div class="header-actions">
-          <button class="btn btn--ghost" id="btn-clear-planner" data-i18n="planner.clear">🗑 Limpiar semana</button>
+          <button class="btn btn--ghost" id="btn-clear-planner" data-i18n="planner.clear">Limpiar semana</button>
         </div>
       </header>
 
@@ -931,7 +996,7 @@
             <h3 data-i18n="planner.recipes_h">Recetas</h3>
             <div class="recipe-filter-tabs" id="recipe-filter-tabs"></div>
           </div>
-          <input type="text" id="recipe-search" class="form-input" data-i18n="planner.search" data-i18n-attr="placeholder" placeholder="🔍 Buscar receta..." style="margin-bottom:12px">
+          <input type="text" id="recipe-search" class="form-input" data-i18n="planner.search" data-i18n-attr="placeholder" placeholder="Buscar receta..." style="margin-bottom:12px">
           <div class="recipes-list" id="recipes-list"></div>
         </div>
 
@@ -941,14 +1006,14 @@
             <h3 data-i18n="planner.my_recipes">Mis Recetas</h3>
             <div class="recipe-filter-tabs" id="my-recipes-filter-tabs"></div>
           </div>
-          <input type="text" id="my-recipes-search" class="form-input" data-i18n="planner.search_my" data-i18n-attr="placeholder" placeholder="🔍 Buscar mis recetas..." style="margin-bottom:12px">
+          <input type="text" id="my-recipes-search" class="form-input" data-i18n="planner.search_my" data-i18n-attr="placeholder" placeholder="Buscar mis recetas..." style="margin-bottom:12px">
           <div class="recipes-list" id="my-recipes-list-planner">
             <!-- Las recetas de usuario se renderizan como draggable por planner.js -->
           </div>
           <div style="margin-top:12px;padding-top:12px;border-top:1px solid var(--glass-border)">
             <button class="btn btn--ghost btn--sm btn--full" id="btn-crear-receta"
                style="display:block;width:100%;text-align:center" data-i18n="planner.create">
-              ✏️ Crear nueva receta →
+              Crear nueva receta →
             </button>
           </div>
         </div>
@@ -962,8 +1027,8 @@
             <div class="card-header">
               <h3 id="planner-macros-title">Macros semana</h3>
               <div class="macro-view-tabs">
-                <button class="stab stab--active stab--sm" data-mtab="weekly">📅 Semana</button>
-                <button class="stab stab--sm" data-mtab="daily">📆 Hoy</button>
+                <button class="stab stab--active stab--sm" data-mtab="weekly">Semana</button>
+                <button class="stab stab--sm" data-mtab="daily">Hoy</button>
               </div>
             </div>
             <div class="planner-macros-layout">
@@ -1025,6 +1090,27 @@
           <div class="challenges-list" id="challenges-list"></div>
         </div>
       </div>
+
+      <!-- ── Footer discreto de Perfil ── -->
+      <div class="card perfil-footer-card">
+        <!-- Actualizar app -->
+        <button id="check-update-btn" class="perfil-update-btn" onclick="window._checkForUpdate()">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+          <span id="check-update-label">Buscar actualización</span>
+          <span id="app-version-label" style="margin-left:auto;opacity:.45;font-size:.75rem"></span>
+        </button>
+        <!-- Beta mode toggle -->
+        <button id="beta-mode-btn" class="perfil-update-btn" onclick="window._toggleBetaMode()">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3M6.343 6.343l-.707-.707M12 21v-1"/><circle cx="12" cy="12" r="4"/></svg>
+          <span id="beta-mode-label">Activar modo beta</span>
+          <span id="beta-mode-badge" style="display:none;margin-left:auto;background:#6c63ff;color:#fff;font-size:.65rem;font-weight:700;padding:2px 7px;border-radius:20px;letter-spacing:.04em">BETA</span>
+        </button>
+        <div class="perfil-footer-links">
+          <a href="/privacy.html" class="perfil-footer-pill" target="_blank" rel="noopener">Privacidad</a>
+          <a href="/terms.html"   class="perfil-footer-pill" target="_blank" rel="noopener">Términos</a>
+        </div>
+      </div>
+
     </section>
 
     <!-- ── ENTRENOS ──────────────────────────────────────── -->
@@ -1048,42 +1134,6 @@
         </div>
       </header>
       <div id="ranked-root"></div>
-    </section>
-
-    <!-- ── COMUNIDAD ─────────────────────────────────────── -->
-    <section id="section-comunidad" class="section">
-      <header class="section-header">
-        <div>
-          <h1 class="section-title" data-i18n="community.title">Comunidad</h1>
-          <p class="section-subtitle" data-i18n="community.subtitle">Comparte tu progreso e inspírate con otros atletas</p>
-        </div>
-        <div class="header-actions">
-          <button class="btn btn--primary" id="btn-new-post" data-i18n="community.publish">✏️ Publicar</button>
-        </div>
-      </header>
-
-      <div class="community-layout">
-        <!-- Feed -->
-        <div class="community-feed">
-          <!-- Crear post -->
-          <div class="card new-post-card" id="new-post-card" style="display:none">
-            <textarea id="post-textarea" class="form-input" rows="3" data-i18n="community.placeholder" data-i18n-attr="placeholder" placeholder="¿Qué lograste hoy?..." style="resize:vertical"></textarea>
-            <div class="form-actions" style="margin-top:10px">
-              <button class="btn btn--ghost btn--sm" id="btn-cancel-post" data-i18n="community.cancel">Cancelar</button>
-              <button class="btn btn--primary btn--sm" id="btn-submit-post" data-i18n="community.post">Publicar</button>
-            </div>
-          </div>
-          <div id="feed-list"></div>
-        </div>
-
-        <!-- Leaderboard -->
-        <div class="leaderboard-panel">
-          <div class="card">
-            <div class="card-header"><h3 data-i18n="community.leaderboard">🏆 Leaderboard</h3></div>
-            <div id="leaderboard-list"></div>
-          </div>
-        </div>
-      </div>
     </section>
 
     <!-- ── SUPLEMENTOS ──────────────────────────────────────── -->
@@ -1171,7 +1221,7 @@
               </div>
             </div>
             <button class="btn btn--primary btn--full" id="tp-generate-btn" data-i18n="timing.generate">
-              ⚡ Generar horario óptimo
+              Generar horario óptimo
             </button>
           </div>
         </div>
@@ -1186,37 +1236,6 @@
 
     </section>
 
-  <!-- ── FOOTER DE MONETIZACIÓN (no intrusivo) ─────────────────── -->
-  <footer class="app-footer" id="app-footer">
-    <div class="footer-inner">
-      <div class="footer-left">
-        <span class="footer-brand">HealthStack Pro</span>
-        <div class="footer-legal-links" style="margin-top:6px;display:flex;gap:12px;">
-          <a href="/privacy.html" style="font-size:11px;color:rgba(255,255,255,0.35);text-decoration:none;" target="_blank">Privacidad</a>
-          <a href="/terms.html" style="font-size:11px;color:rgba(255,255,255,0.35);text-decoration:none;" target="_blank">Términos</a>
-        </div>
-      </div>
-      <div class="footer-center">
-        <span class="footer-support-text" data-i18n="footer.support">¿Te ayuda la app?</span>
-        <a href="https://www.buymeacoffee.com/healthstack" target="_blank" rel="noopener"
-           class="btn btn--ghost btn--sm footer-donate" data-i18n="footer.coffee">
-          ☕ Invítame a un café
-        </a>
-        <a href="https://www.paypal.me/healthstackpro" target="_blank" rel="noopener"
-           class="btn btn--ghost btn--sm footer-donate">
-          💛 PayPal
-        </a>
-      </div>
-      <div class="footer-right">
-        <!-- Ad unit footer -->
-        <ins class="adsbygoogle footer-ad"
-             style="display:inline-block;width:300px;height:50px"
-             data-ad-client="ca-pub-XXXXXXXXXXXXXXXX"
-             data-ad-slot="1234567890"></ins>
-        <script>(adsbygoogle = window.adsbygoogle || []).push({});</script>
-      </div>
-    </div>
-  </footer>
 
     <!-- ── REHABILITACIÓN ───────────────────────────────────── -->
     <section id="section-rehab" class="section">
@@ -1430,6 +1449,21 @@
 
   </main><!-- /main-content -->
 
+  <!-- ── UPDATE BANNER ─────────────────────────────────────── -->
+  <div id="update-banner" style="display:none;position:fixed;top:0;left:0;right:0;z-index:9999;
+       background:linear-gradient(90deg,#00d4aa,#6c63ff);padding:10px 16px;
+       display:none;align-items:center;justify-content:space-between;gap:12px;
+       box-shadow:0 2px 12px rgba(0,0,0,.4);">
+    <span style="color:#fff;font-size:.9rem;font-weight:500;">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" style="vertical-align:-2px;margin-right:6px"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+      Nueva versión disponible
+    </span>
+    <button id="update-now-btn" style="background:#fff;color:#6c63ff;border:none;border-radius:6px;
+            padding:6px 14px;font-size:.85rem;font-weight:700;cursor:pointer;white-space:nowrap;">
+      Actualizar
+    </button>
+  </div>
+
   <!-- ── WIZARD AI ASSISTANT ──────────────────────────────── -->
   <button class="wizard-btn" id="chatbot-btn" title="HealthStack AI">
     <!-- Magic wand with sparkles — wizard icon -->
@@ -1464,7 +1498,7 @@
     <div class="wizard-messages" id="chatbot-messages">
       <div class="chat-msg chat-msg--bot">
         <div class="wizard-bot-avatar">HS</div>
-        <div class="chat-bubble">¡Hola! Soy el asistente IA de HealthStack. Puedo responder <strong>cualquier pregunta</strong> — fitness, nutrición, salud, ciencia, o lo que necesites. ¿En qué te ayudo? 💪</div>
+        <div class="chat-bubble">¡Hola! Soy el asistente IA de HealthStack. Puedo responder <strong>cualquier pregunta</strong> — fitness, nutrición, salud, ciencia, o lo que necesites. ¿En qué te ayudo?</div>
       </div>
     </div>
 
@@ -1546,11 +1580,11 @@
   <script defer src="js/planner.js?v=4"></script>
   <script defer src="js/gamification.js"></script>
   <script defer src="js/chatbot.js?v=4"></script>
-  <script defer src="js/community.js"></script>
+  <!-- community.js eliminado — sección Comunidad removida -->
   <script defer src="js/rehabLogger.js"></script>
   <script defer src="js/onboarding.js?v=3"></script>
   <script defer src="js/supplements.js?v=3"></script>
-  <script defer src="js/myRecipes.js?v=4"></script>
+  <script defer src="js/myRecipes.js?v=5"></script>
   <script defer src="js/timingPlanner.js?v=3"></script>
   <script defer src="js/readiness.js"></script>
   <script defer src="js/records.js"></script>
@@ -1564,20 +1598,125 @@
   <script defer src="js/bodyCompForecast.js"></script>
   <script defer src="js/autoDeload.js"></script>
   <script defer src="js/auth.js"></script>
-  <script defer src="js/components/feedbackWidget.js"></script>
   <script defer src="js/app.js"></script>
+  <script defer src="js/mobileNav.js"></script>
   <script type="module" src="js/athleteViewer.js"></script>
   <script type="module" src="js/workoutInit.js"></script>
   <script defer src="js/ranked.js"></script>
   <script>
-    // ── PWA: registrar service worker ─────────────────────────
-    if ('serviceWorker' in navigator) {
-      window.addEventListener('load', () => {
-        navigator.serviceWorker.register('/sw.js')
-          .then(reg => console.log('[SW] Registrado:', reg.scope))
-          .catch(err => console.warn('[SW] Error:', err));
+    // ── PWA: registrar service worker + update flow ────────────
+    (function () {
+      if (!('serviceWorker' in navigator)) return;
+
+      let _swReg = null;
+      let _waitingWorker = null;
+      let _refreshing = false;
+
+      // ── Mostrar banner de actualización disponible ──
+      function _showUpdateBanner() {
+        const banner = document.getElementById('update-banner');
+        if (banner) { banner.style.display = 'flex'; }
+        const label = document.getElementById('check-update-label');
+        if (label) label.textContent = 'Actualización disponible';
+      }
+
+      // ── Aplicar actualización (skipWaiting → reload) ──
+      function _applyUpdate() {
+        if (_waitingWorker) {
+          _waitingWorker.postMessage({ type: 'SKIP_WAITING' });
+        } else if (_swReg && _swReg.waiting) {
+          _swReg.waiting.postMessage({ type: 'SKIP_WAITING' });
+        }
+        // Si no hay waiting worker, forzar recarga directa
+        if (!_waitingWorker && !(_swReg && _swReg.waiting)) {
+          window.location.reload();
+        }
+      }
+
+      // ── Botón "Actualizar" del banner ──
+      document.addEventListener('DOMContentLoaded', () => {
+        const nowBtn = document.getElementById('update-now-btn');
+        if (nowBtn) nowBtn.addEventListener('click', _applyUpdate);
+
+        // Mostrar versión actual en el footer
+        const verLabel = document.getElementById('app-version-label');
+        if (verLabel && 'caches' in window) {
+          caches.keys().then(keys => {
+            const hsKey = keys.find(k => k.startsWith('healthstack-v'));
+            if (hsKey && verLabel) verLabel.textContent = hsKey.replace('healthstack-', '');
+          });
+        }
       });
-    }
+
+      // ── checkForUpdate: llamado por botón manual ──
+      window._checkForUpdate = function () {
+        const label = document.getElementById('check-update-label');
+        if (label) label.textContent = 'Buscando…';
+        if (_swReg) {
+          _swReg.update().then(() => {
+            // Si ya hay un worker waiting, mostrar banner
+            if (_swReg.waiting) {
+              _waitingWorker = _swReg.waiting;
+              _showUpdateBanner();
+            } else {
+              if (label) label.textContent = 'Buscar actualización';
+              // Toast: ya tienes la última versión
+              if (typeof showToast === 'function') {
+                showToast('Ya tienes la versión más reciente');
+              } else {
+                alert('Ya tienes la versión más reciente');
+              }
+            }
+          }).catch(() => {
+            if (label) label.textContent = 'Buscar actualización';
+            if (typeof showToast === 'function') showToast('Sin conexión al servidor');
+          });
+        }
+      };
+
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('/sw.js').then(reg => {
+          _swReg = reg;
+          console.log('[SW] Registrado:', reg.scope);
+
+          // Si ya hay un worker esperando al cargar → mostrar banner
+          if (reg.waiting) {
+            _waitingWorker = reg.waiting;
+            _showUpdateBanner();
+          }
+
+          // Cuando se detecta un SW nuevo instalándose
+          reg.addEventListener('updatefound', () => {
+            const newWorker = reg.installing;
+            newWorker.addEventListener('statechange', () => {
+              if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
+                // Hay actualización lista — mostrar banner (no auto-recargar)
+                _waitingWorker = newWorker;
+                _showUpdateBanner();
+              }
+            });
+          });
+
+          // Comprobar actualizaciones cada 30 min
+          setInterval(() => reg.update(), 30 * 60 * 1000);
+
+          // Comprobar al volver al app (útil en móvil)
+          document.addEventListener('visibilitychange', () => {
+            if (!document.hidden) reg.update();
+          });
+
+        }).catch(err => console.warn('[SW] Error:', err));
+
+        // Cuando el SW nuevo toma el control → recargar
+        navigator.serviceWorker.addEventListener('controllerchange', () => {
+          if (!_refreshing) {
+            _refreshing = true;
+            console.log('[SW] Nueva versión activa — recargando…');
+            window.location.reload();
+          }
+        });
+      });
+    })();
   </script>
 
   <!-- Share routine overlay -->

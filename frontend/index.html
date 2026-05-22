@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="es">
 <head>
   <meta charset="UTF-8">
@@ -12,7 +12,7 @@
   <link rel="stylesheet" href="css/main.css?v=4">
   <link rel="stylesheet" href="css/anatomy-lens.css">
   <link rel="manifest" href="manifest.json">
-  <meta name="theme-color" content="#6c63ff">
+  <meta name="theme-color" content="#c4a561">
   <meta name="mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -93,23 +93,18 @@
   <aside class="sidebar" id="sidebar">
     <div class="sidebar__brand">
       <div class="brand-logo">
-        <!-- Logo H provisional -->
-        <svg width="32" height="32" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
-          <rect width="32" height="32" rx="8" fill="url(#hlogograd)"/>
-          <rect x="7"    y="5.5" width="4.5" height="21" rx="2" fill="white"/>
-          <rect x="20.5" y="5.5" width="4.5" height="21" rx="2" fill="white"/>
-          <rect x="7"    y="13"  width="18"  height="6"  rx="2" fill="white"/>
-          <defs>
-            <linearGradient id="hlogograd" x1="0" y1="0" x2="32" y2="32" gradientUnits="userSpaceOnUse">
-              <stop offset="0%"   stop-color="#0891b2"/>
-              <stop offset="100%" stop-color="#22d3ee"/>
-            </linearGradient>
-          </defs>
+        <!-- Logo oficial Spencer Stack — icon white + gold accents -->
+        <svg width="34" height="34" viewBox="0 0 548 548" xmlns="http://www.w3.org/2000/svg">
+          <path d="M291.92,446.46H278.59c-23.49,0-23.52-21.63-14.19-44.61l42.28-104.11H220.5L172,417.16c-6.94,17.08-24.39,29.3-41.85,29.3h0c-23.49,0-36.82-21.64-27.47-44.62l110.15-271c6.94-17.08,24.39-29.29,41.84-29.29h0c23.5,0,36.83,21.65,27.48,44.64l-35.65,87.61h86.19l41.89-103c6.94-17.07,22.49-29.28,39.94-29.28h0c23.5,0,38.75,21.64,29.4,44.62l-110.15,271C326.82,434.25,309.37,446.46,291.92,446.46Z" fill="#fff" stroke="#fff" stroke-miterlimit="10" stroke-width="8"/>
+          <polygon points="464.01 169.51 362.53 425.44 399.46 405.07 473.54 218.26 464.01 169.51" fill="#c4a561"/>
+          <polygon points="487.98 290.73 454.77 374.43 417.8 394.87 478.17 242.62 487.98 290.73" fill="#c4a561"/>
+          <polygon points="83.98 378.9 185.47 122.97 148.54 143.34 74.46 330.15 83.98 378.9" fill="#c4a561"/>
+          <polygon points="60.02 257.69 93.23 173.98 130.2 153.54 69.83 305.79 60.02 257.69" fill="#c4a561"/>
         </svg>
       </div>
       <div class="brand-text">
         <span class="brand-name">HealthStack</span>
-        <span class="brand-version">Pro v2</span>
+        <span class="brand-version" style="color:#c4a561">Pro</span>
       </div>
     </div>
 
@@ -296,7 +291,9 @@
         <polyline points="15 18 9 12 15 6"/>
       </svg>
     </button>
-    <span class="mobile-brand" id="mobile-brand">HealthStack <em>Pro</em></span>
+    <span class="mobile-brand" id="mobile-brand">
+      <img src="/icons/logo-long-white.svg" alt="HealthStack" height="22" style="display:block;width:auto;max-width:140px;opacity:0.95">
+    </span>
     <span class="mobile-section-title" id="mobile-section-title" aria-live="polite">Dashboard</span>
   </header>
 
@@ -322,8 +319,8 @@
       <div id="pwa-install-banner" style="display:none;margin-bottom:16px"></div>
 
       <!-- Unlock celebration banner (hidden until milestone reached) -->
-      <div id="unlock-celebration" style="display:none;margin-bottom:16px;background:linear-gradient(135deg,#00d4aa22,#6c63ff22);border:1px solid #6c63ff44;border-radius:14px;padding:16px 18px;align-items:center;gap:14px;">
-        <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#6c63ff" stroke-width="2"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+      <div id="unlock-celebration" style="display:none;margin-bottom:16px;background:linear-gradient(135deg,#00d4aa22,#c4a56122);border:1px solid #c4a56144;border-radius:14px;padding:16px 18px;align-items:center;gap:14px;">
+        <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#c4a561" stroke-width="2"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
         <div>
           <div style="font-weight:700;color:var(--text-primary);font-size:.95rem">Desbloqueado: <span id="unlock-feature-name"></span></div>
           <div style="font-size:.8rem;color:var(--text-secondary);margin-top:2px">Tu constancia ha dado sus frutos. Revisa el menú lateral.</div>
@@ -335,12 +332,12 @@
         <h3 style="font-size:.75rem;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--text-secondary);margin:0 0 12px">Por dónde empezar</h3>
         <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
           <button onclick="document.querySelector('[data-section=peso]').click()" style="background:var(--glass-bg);border:1px solid var(--glass-border);border-radius:12px;padding:16px 14px;cursor:pointer;text-align:left;transition:border-color .2s" onmouseover="this.style.borderColor='var(--primary)'" onmouseout="this.style.borderColor='var(--glass-border)'">
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#6c63ff" stroke-width="2" style="margin-bottom:8px;display:block"><path d="M12 2a4 4 0 0 1 4 4c0 1.5-.8 2.8-2 3.5V20H10V9.5A4 4 0 0 1 8 6a4 4 0 0 1 4-4z"/></svg>
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#c4a561" stroke-width="2" style="margin-bottom:8px;display:block"><path d="M12 2a4 4 0 0 1 4 4c0 1.5-.8 2.8-2 3.5V20H10V9.5A4 4 0 0 1 8 6a4 4 0 0 1 4-4z"/></svg>
             <div style="font-size:.85rem;font-weight:600;color:var(--text-primary)">Registra tu peso</div>
             <div style="font-size:.75rem;color:var(--text-secondary);margin-top:3px">Primer dato, primer paso</div>
           </button>
           <button onclick="document.querySelector('[data-section=nutricion]').click()" style="background:var(--glass-bg);border:1px solid var(--glass-border);border-radius:12px;padding:16px 14px;cursor:pointer;text-align:left;transition:border-color .2s" onmouseover="this.style.borderColor='var(--primary)'" onmouseout="this.style.borderColor='var(--glass-border)'">
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#00d4aa" stroke-width="2" style="margin-bottom:8px;display:block"><path d="M18 8h1a4 4 0 0 1 0 8h-1"/><path d="M2 8h16v9a4 4 0 0 1-4 4H6a4 4 0 0 1-4-4V8z"/><line x1="6" y1="1" x2="6" y2="4"/><line x1="10" y1="1" x2="10" y2="4"/><line x1="14" y1="1" x2="14" y2="4"/></svg>
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#c4a561" stroke-width="2" style="margin-bottom:8px;display:block"><path d="M18 8h1a4 4 0 0 1 0 8h-1"/><path d="M2 8h16v9a4 4 0 0 1-4 4H6a4 4 0 0 1-4-4V8z"/><line x1="6" y1="1" x2="6" y2="4"/><line x1="10" y1="1" x2="10" y2="4"/><line x1="14" y1="1" x2="14" y2="4"/></svg>
             <div style="font-size:.85rem;font-weight:600;color:var(--text-primary)">Calcula tus macros</div>
             <div style="font-size:.75rem;color:var(--text-secondary);margin-top:3px">TDEE + objetivos diarios</div>
           </button>
@@ -350,7 +347,7 @@
             <div style="font-size:.75rem;color:var(--text-secondary);margin-top:3px">El wizard tarda 2 minutos</div>
           </button>
           <button onclick="document.querySelector('[data-section=workout]').click()" style="background:var(--glass-bg);border:1px solid var(--glass-border);border-radius:12px;padding:16px 14px;cursor:pointer;text-align:left;transition:border-color .2s" onmouseover="this.style.borderColor='var(--primary)'" onmouseout="this.style.borderColor='var(--glass-border)'">
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#e879f9" stroke-width="2" style="margin-bottom:8px;display:block"><path d="M6.5 6.5h11M6.5 17.5h11M3 12h2m14 0h2"/><circle cx="5" cy="12" r="2"/><circle cx="19" cy="12" r="2"/></svg>
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#c4a561" stroke-width="2" style="margin-bottom:8px;display:block"><path d="M6.5 6.5h11M6.5 17.5h11M3 12h2m14 0h2"/><circle cx="5" cy="12" r="2"/><circle cx="19" cy="12" r="2"/></svg>
             <div style="font-size:.85rem;font-weight:600;color:var(--text-primary)">Primer entreno</div>
             <div style="font-size:.75rem;color:var(--text-secondary);margin-top:3px">Registra sets y reps</div>
           </button>
@@ -365,7 +362,7 @@
         </div>
         <div id="cp-label" style="font-size:.85rem;font-weight:600;color:var(--text-primary);margin-bottom:8px">Cargando...</div>
         <div style="background:var(--surface-2,#1a1a2e);border-radius:6px;height:6px;overflow:hidden;margin-bottom:6px">
-          <div id="cp-bar-fill" style="height:100%;background:linear-gradient(90deg,#6c63ff,#00d4aa);border-radius:6px;transition:width .4s ease;width:0%"></div>
+          <div id="cp-bar-fill" style="height:100%;background:linear-gradient(90deg,#c4a561,#d4b97a);border-radius:6px;transition:width .4s ease;width:0%"></div>
         </div>
         <div id="cp-count" style="font-size:.75rem;color:var(--text-secondary)"></div>
       </div>
@@ -1103,7 +1100,7 @@
         <button id="beta-mode-btn" class="perfil-update-btn" onclick="window._toggleBetaMode()">
           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3M6.343 6.343l-.707-.707M12 21v-1"/><circle cx="12" cy="12" r="4"/></svg>
           <span id="beta-mode-label">Activar modo beta</span>
-          <span id="beta-mode-badge" style="display:none;margin-left:auto;background:#6c63ff;color:#fff;font-size:.65rem;font-weight:700;padding:2px 7px;border-radius:20px;letter-spacing:.04em">BETA</span>
+          <span id="beta-mode-badge" style="display:none;margin-left:auto;background:#c4a561;color:#fff;font-size:.65rem;font-weight:700;padding:2px 7px;border-radius:20px;letter-spacing:.04em">BETA</span>
         </button>
         <div class="perfil-footer-links">
           <a href="/privacy.html" class="perfil-footer-pill" target="_blank" rel="noopener">Privacidad</a>
@@ -1451,14 +1448,14 @@
 
   <!-- ── UPDATE BANNER ─────────────────────────────────────── -->
   <div id="update-banner" style="display:none;position:fixed;top:0;left:0;right:0;z-index:9999;
-       background:linear-gradient(90deg,#00d4aa,#6c63ff);padding:10px 16px;
+       background:linear-gradient(90deg,#00d4aa,#c4a561);padding:10px 16px;
        display:none;align-items:center;justify-content:space-between;gap:12px;
        box-shadow:0 2px 12px rgba(0,0,0,.4);">
     <span style="color:#fff;font-size:.9rem;font-weight:500;">
       <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" style="vertical-align:-2px;margin-right:6px"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
       Nueva versión disponible
     </span>
-    <button id="update-now-btn" style="background:#fff;color:#6c63ff;border:none;border-radius:6px;
+    <button id="update-now-btn" style="background:#fff;color:#c4a561;border:none;border-radius:6px;
             padding:6px 14px;font-size:.85rem;font-weight:700;cursor:pointer;white-space:nowrap;">
       Actualizar
     </button>
@@ -1738,3 +1735,4 @@
 
 </body>
 </html>
+

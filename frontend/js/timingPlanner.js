@@ -280,7 +280,7 @@ const TimingPlanner = (function () {
       <div class="ts-header">
         <div class="ts-totals">
           <div class="ts-total-item"><span class="ts-total-val">${totals.kcal}</span><span class="ts-total-label">kcal/día</span></div>
-          <div class="ts-total-item"><span class="ts-total-val" style="color:#6c63ff">${totals.p}g</span><span class="ts-total-label">Proteína</span></div>
+          <div class="ts-total-item"><span class="ts-total-val" style="color:#c4a561">${totals.p}g</span><span class="ts-total-label">Proteína</span></div>
           <div class="ts-total-item"><span class="ts-total-val" style="color:#00d2ff">${totals.c}g</span><span class="ts-total-label">Hidratos</span></div>
           <div class="ts-total-item"><span class="ts-total-val" style="color:#f59e0b">${totals.f}g</span><span class="ts-total-label">Grasa</span></div>
         </div>

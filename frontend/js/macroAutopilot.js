@@ -112,7 +112,7 @@ var MacroAutopilot = (function () {
       { label: 'Calorías', key: 'kcal', unit: 'kcal', color: '#0891b2' },
       { label: 'Proteína', key: 'p',    unit: 'g',    color: '#10b981' },
       { label: 'Carbos',   key: 'c',    unit: 'g',    color: '#f59e0b' },
-      { label: 'Grasas',   key: 'f',    unit: 'g',    color: '#a78bfa' },
+      { label: 'Grasas',   key: 'f',    unit: 'g',    color: '#d4b97a' },
     ];
     return '<div class="ap-macro-bars">' + rows.map(function (row) {
       var pct = targets[row.key] > 0 ? Math.min(consumed[row.key] / targets[row.key] * 100, 100) : 0;

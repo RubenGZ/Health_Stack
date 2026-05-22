@@ -545,11 +545,11 @@
         labels: data.map(e => e.date.slice(5)),   // MM-DD
         datasets: [{
           data: data.map(e => e.weight),
-          borderColor: '#6c63ff',
-          backgroundColor: 'rgba(108,99,255,0.12)',
+          borderColor: '#c4a561',
+          backgroundColor: 'rgba(196,165,97,0.12)',
           borderWidth: 2,
           pointRadius: 3,
-          pointBackgroundColor: '#6c63ff',
+          pointBackgroundColor: '#c4a561',
           tension: 0.4,
           fill: true,
         }],
@@ -907,7 +907,7 @@
     // ── Beta mode UI ─────────────────────────────────────────
     _initBetaModeUI();
 
-    console.log('%c HealthStack Pro v2.0 ', 'background:#6c63ff;color:white;padding:4px 8px;border-radius:4px;font-weight:bold');
+    console.log('%c HealthStack Pro v2.0 ', 'background:#c4a561;color:white;padding:4px 8px;border-radius:4px;font-weight:bold');
   }
 
   function _initGettingStarted() {

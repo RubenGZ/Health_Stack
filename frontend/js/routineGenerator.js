@@ -1111,7 +1111,7 @@ const RoutineGenerator = (function () {
     const ctx = canvas.getContext('2d');
     ctx.fillStyle = '#0f172a'; ctx.fillRect(0,0,800,480);
     const grad = ctx.createLinearGradient(0,0,800,0);
-    grad.addColorStop(0,'#6c63ff'); grad.addColorStop(1,'#00d2ff');
+    grad.addColorStop(0,'#c4a561'); grad.addColorStop(1,'#00d2ff');
     ctx.fillStyle = grad; ctx.fillRect(0,0,800,6);
     ctx.fillStyle = '#ffffff'; ctx.font = 'bold 28px system-ui,sans-serif';
     ctx.fillText('Mi Rutina — HealthStack Pro', 40, 60);
@@ -1123,7 +1123,7 @@ const RoutineGenerator = (function () {
       const x = 40+col*250, y = 130+row*160;
       ctx.fillStyle = '#1e293b'; ctx.beginPath();
       ctx.roundRect(x,y,220,140,12); ctx.fill();
-      ctx.fillStyle = '#6c63ff'; ctx.font = 'bold 13px system-ui,sans-serif';
+      ctx.fillStyle = '#c4a561'; ctx.font = 'bold 13px system-ui,sans-serif';
       ctx.fillText(s.day, x+14, y+26);
       ctx.fillStyle = '#94a3b8'; ctx.font = '11px system-ui,sans-serif';
       ctx.fillText(s.name.substring(0,28), x+14, y+42);

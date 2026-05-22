@@ -61,7 +61,7 @@ const WeightTracker = (function () {
     canvas.height = window.innerHeight;
     canvas.style.display = '';
 
-    const COLORS = ['#6c63ff','#00d2ff','#10b981','#f59e0b','#ff6584','#a78bfa','#fb923c'];
+    const COLORS = ['#c4a561','#00d2ff','#10b981','#f59e0b','#ff6584','#d4b97a','#fb923c'];
     const particles = Array.from({ length: 120 }, () => ({
       x:    Math.random() * canvas.width,
       y:    Math.random() * canvas.height * -1,
@@ -238,9 +238,9 @@ const WeightTracker = (function () {
         datasets: [{
           label: 'Peso (kg)',
           data,
-          borderColor: '#6c63ff',
+          borderColor: '#c4a561',
           borderWidth: 2.5,
-          pointBackgroundColor: '#6c63ff',
+          pointBackgroundColor: '#c4a561',
           pointBorderColor: '#0e0e1a',
           pointBorderWidth: 2,
           pointRadius: data.length > 60 ? 2 : 5,
@@ -327,7 +327,7 @@ const WeightTracker = (function () {
         labels,
         datasets: [{
           data,
-          borderColor: '#6c63ff',
+          borderColor: '#c4a561',
           borderWidth: 2,
           pointRadius: 0,
           fill: true,

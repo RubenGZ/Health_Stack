@@ -47,7 +47,7 @@ var AdminStats = (function() {
         datasets: [{
           label: 'Registros',
           data: modules.map(function(m) { return m.count; }),
-          backgroundColor: '#6c63ff',
+          backgroundColor: '#c4a561',
           borderRadius: 4,
         }]
       },
@@ -66,7 +66,7 @@ var AdminStats = (function() {
         labels: ['Free', 'Pro', 'Elite'],
         datasets: [{
           data: [data.total_users, 0, 0],
-          backgroundColor: ['#7d8590', '#6c63ff', '#f59e0b'],
+          backgroundColor: ['#7d8590', '#c4a561', '#f59e0b'],
           borderWidth: 0,
         }]
       },

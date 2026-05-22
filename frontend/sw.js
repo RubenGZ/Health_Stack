@@ -4,7 +4,7 @@
                Network-first para CDN externos
    ============================================================ */
 
-const CACHE_NAME    = 'healthstack-v41';
+const CACHE_NAME    = 'healthstack-v44';
 const CDN_CACHE     = 'healthstack-cdn-v2';
 
 // Assets locales a pre-cachear en install
@@ -49,6 +49,8 @@ const STATIC_ASSETS = [
   '/manifest.json',
   '/icons/icon-192.png',
   '/icons/icon-512.png',
+  '/icons/logo-icon-white.svg',
+  '/icons/logo-long-white.svg',
 ];
 
 // ── Install: pre-cachear assets locales ──────────────────────
@@ -148,10 +150,10 @@ function offlineFallback() {
   return new Response(
     `<!DOCTYPE html><html lang="es"><head><meta charset="UTF-8"><title>Sin conexión — HealthStack Pro</title>
     <style>body{font-family:sans-serif;background:#07070f;color:#e2e8f0;display:flex;align-items:center;justify-content:center;height:100vh;flex-direction:column;gap:16px}
-    h1{color:#6c63ff}p{color:#94a3b8;text-align:center;max-width:340px}</style></head>
+    h1{color:#c4a561}p{color:#94a3b8;text-align:center;max-width:340px}</style></head>
     <body><h1>📡 Sin conexión</h1>
     <p>HealthStack Pro está funcionando sin red. Tus datos guardados localmente siguen disponibles. Vuelve a intentarlo cuando tengas conexión.</p>
-    <button onclick="location.reload()" style="background:#6c63ff;color:white;border:none;padding:12px 24px;border-radius:8px;cursor:pointer;font-size:1rem">Reintentar</button>
+    <button onclick="location.reload()" style="background:#c4a561;color:white;border:none;padding:12px 24px;border-radius:8px;cursor:pointer;font-size:1rem">Reintentar</button>
     </body></html>`,
     { headers: { 'Content-Type': 'text/html; charset=utf-8' } }
   );
@@ -162,3 +164,4 @@ self.addEventListener('message', event => {
   if (event.data?.type === 'SKIP_WAITING') self.skipWaiting();
   if (event.data?.type === 'GET_VERSION')  event.ports[0]?.postMessage({ version: CACHE_NAME });
 });
+

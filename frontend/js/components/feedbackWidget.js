@@ -255,7 +255,7 @@ const FeedbackWidget = (function () {
       .fw-char-count { font-size: 11px; color: rgba(255,255,255,0.28); }
       .fw-send-btn {
         padding: 9px 18px;
-        background: linear-gradient(135deg, #7c6bff, #5b4fcf);
+        background: linear-gradient(135deg, #c4a561, #a8843e);
         border: none;
         border-radius: 10px;
         color: #fff;

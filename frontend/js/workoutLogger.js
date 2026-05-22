@@ -471,9 +471,15 @@ function _loadRoutineSession(daySession) {
       setsArr.push({ setNumber: s + 1, weightKg: workingKg, reps: targetR, rpe: null, isWarmup: false, completedAt: null });
     }
 
+    // Buscar grupo muscular en la DB de ejercicios
+    const dbRef = (typeof Exercises !== 'undefined' && Exercises.getDB)
+      ? Exercises.getDB().find(e => e.name.toLowerCase() === ex.name.toLowerCase())
+      : null;
+
     return {
       key,
       name:       ex.name,
+      group:      dbRef?.group || ex.group || '',
       orderIndex: i,
       sets:       setsArr,
       restSecs,
@@ -610,7 +616,7 @@ function initExerciseSearch() {
     }
     results.querySelectorAll('.wl-ex-result-item').forEach(btn => {
       btn.addEventListener('click', () => {
-        addExerciseToSession(btn.dataset.name);
+        addExerciseToSession(btn.dataset.name, btn.dataset.group);
         input.value = '';
         results.innerHTML = '';
       });
@@ -641,8 +647,10 @@ function initExerciseSearch() {
   }
 }
 
-function addExerciseToSession(name) {
-  Session.addExercise(_session, name);
+function addExerciseToSession(name, group) {
+  const ex = Session.addExercise(_session, name);
+  if (ex && group) ex.group = group;
+  Session.saveDraft(_session);
   renderExercises();
   updateVolLabel();
 }
@@ -865,10 +873,21 @@ function renderExercises() {
     card.className = 'wl-ex-card';
     card.dataset.exKey = ex.key;
 
+    // Chip de grupo muscular
+    const GROUP_LABELS = { pecho:'Pecho', espalda:'Espalda', piernas:'Piernas', hombros:'Hombros', brazos:'Brazos', core:'Core', gluteos:'Glúteos', cardio:'Cardio' };
+    const GROUP_KEYS   = { pecho:'chest', espalda:'back', piernas:'legs', hombros:'shoulders', brazos:'arms', core:'core', gluteos:'glutes', cardio:'cardio' };
+    const groupLabel = (ex.group && GROUP_LABELS[ex.group]) ? GROUP_LABELS[ex.group] : (ex.group || '');
+    const groupKey   = (ex.group && GROUP_KEYS[ex.group]) || 'other';
+    const groupChip  = groupLabel
+      ? `<span class="wl-ex-group-chip" data-group="${groupKey}">${groupLabel}</span>` : '';
+
     card.innerHTML = `
       <div class="wl-ex-card-header">
         <div class="wl-ex-info">
-          <button class="wl-ex-name-btn" data-key="${ex.key}">${ex.name}</button>
+          <div class="wl-ex-name-row" style="display:flex;align-items:center;gap:6px;flex-wrap:wrap">
+            <button class="wl-ex-name-btn" data-key="${ex.key}">${ex.name}</button>
+            ${groupChip}
+          </div>
           <div class="wl-ex-meta-row">${setsRepsBadge}${restLabel}</div>
         </div>
         <div class="wl-ex-card-actions">

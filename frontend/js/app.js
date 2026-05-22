@@ -1097,4 +1097,58 @@
     }
     return card;
   };
+
+  // ── setFieldState — gestión de estado error/success/clear en inputs ────
+  // Uso: setFieldState(inputEl, 'error', 'Mensaje de error')
+  //       setFieldState(inputEl, 'success', 'OK')
+  //       setFieldState(inputEl, 'clear')
+  window.setFieldState = function (inputEl, state, hint) {
+    if (!inputEl) return;
+    const wrapper = inputEl.closest('.input-wrapper') || inputEl.parentElement;
+
+    // Limpiar estados anteriores
+    inputEl.classList.remove('form-input--error', 'form-input--success', 'error');
+    const oldIcon = wrapper.querySelector('.input-icon');
+    if (oldIcon) oldIcon.remove();
+    const oldHint = inputEl.nextElementSibling;
+    if (oldHint && oldHint.classList.contains('field-hint')) oldHint.remove();
+
+    if (state === 'clear') return;
+
+    // Añadir clase al input
+    if (state === 'error')   inputEl.classList.add('form-input--error');
+    if (state === 'success') inputEl.classList.add('form-input--success');
+
+    // Icono SVG dentro del wrapper
+    const icon = document.createElement('span');
+    icon.className = `input-icon input-icon--${state}`;
+    icon.setAttribute('aria-hidden', 'true');
+    icon.innerHTML = state === 'error'
+      ? `<svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg"><circle cx="8" cy="8" r="7" stroke="currentColor" stroke-width="1.5"/><path d="M8 4.5V8.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/><circle cx="8" cy="11" r="0.75" fill="currentColor"/></svg>`
+      : `<svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg"><circle cx="8" cy="8" r="7" stroke="currentColor" stroke-width="1.5"/><path d="M5 8.5L7 10.5L11 6" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>`;
+    if (wrapper !== inputEl.parentElement) {
+      // wrapper es input-wrapper, icono va dentro
+      wrapper.style.position = 'relative';
+      wrapper.appendChild(icon);
+    } else {
+      // sin wrapper dedicado, skip icono
+    }
+
+    // Hint text
+    if (hint) {
+      const hintEl = document.createElement('span');
+      hintEl.className = `field-hint field-hint--${state}`;
+      hintEl.textContent = hint;
+      inputEl.insertAdjacentElement('afterend', hintEl);
+    }
+
+    // Shake en error
+    if (state === 'error') {
+      inputEl.style.animation = 'none';
+      requestAnimationFrame(() => {
+        inputEl.style.animation = 'shake 0.4s ease';
+        setTimeout(() => { inputEl.style.animation = ''; }, 400);
+      });
+    }
+  };
 })();

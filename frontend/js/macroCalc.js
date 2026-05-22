@@ -75,10 +75,18 @@ const MacroCalc = (function () {
 
   // ── Validar formulario ─────────────────────────────────────
   function validate({ age, weight, height }) {
-    if (!age    || age    < 15 || age    > 99)  return 'La edad debe estar entre 15 y 99 años.';
-    if (!weight || weight < 30 || weight > 300) return 'El peso debe estar entre 30 y 300 kg.';
-    if (!height || height < 100|| height > 250) return 'La talla debe estar entre 100 y 250 cm.';
+    if (!age    || age    < 15 || age    > 99)  return { field: 'tdee-age',    msg: 'La edad debe estar entre 15 y 99 años.' };
+    if (!weight || weight < 30 || weight > 300) return { field: 'tdee-weight', msg: 'El peso debe estar entre 30 y 300 kg.' };
+    if (!height || height < 100|| height > 250) return { field: 'tdee-height', msg: 'La talla debe estar entre 100 y 250 cm.' };
     return null;
+  }
+
+  // ── Limpiar estados de campo ───────────────────────────────
+  function _clearFieldStates() {
+    ['tdee-age', 'tdee-weight', 'tdee-height'].forEach(id => {
+      const el = document.getElementById(id);
+      if (el && typeof window.setFieldState === 'function') window.setFieldState(el, 'clear');
+    });
   }
 
   // ── Gráfico de dona ────────────────────────────────────────
@@ -211,10 +219,29 @@ const MacroCalc = (function () {
 
     form.addEventListener('submit', e => {
       e.preventDefault();
+      _clearFieldStates();
       const data  = readForm();
       const error = validate(data);
-      if (error) { showToast(error, 'warning'); return; }
+      if (error) {
+        showToast(error.msg, 'warning');
+        if (typeof window.setFieldState === 'function') {
+          const el = document.getElementById(error.field);
+          window.setFieldState(el, 'error', error.msg);
+          el?.focus();
+        }
+        return;
+      }
       showResults(data);
+      // Marcar campos válidos brevemente
+      if (typeof window.setFieldState === 'function') {
+        ['tdee-age','tdee-weight','tdee-height'].forEach(id => {
+          const el = document.getElementById(id);
+          if (el) {
+            window.setFieldState(el, 'success');
+            setTimeout(() => window.setFieldState(el, 'clear'), 2000);
+          }
+        });
+      }
     });
 
     // Cargar datos guardados si existen

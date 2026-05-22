@@ -479,9 +479,9 @@ canvas { display: block; }
   display: flex; align-items: center; justify-content: center;
   flex-shrink: 0;
 }
-.stat-icon--blue   { background: rgba(34,211,238,0.12);  color: var(--secondary); }
+.stat-icon--blue   { background: rgba(196,165,97,0.12);  color: var(--primary);   }
 .stat-icon--purple { background: rgba(22,163,74,0.12);   color: #16a34a;          }
-.stat-icon--cyan   { background: rgba(8,145,178,0.12);   color: var(--primary);   }
+.stat-icon--cyan   { background: rgba(196,165,97,0.10);  color: var(--primary);   }
 .stat-icon--pink   { background: rgba(245,158,11,0.12);  color: #f59e0b;          }
 .stat-content { flex: 1; min-width: 0; }
 .stat-label {
@@ -6277,5 +6277,6 @@ select.form-input option { background: var(--bg-surface); color: var(--text-prim
   .wl-calc-row-item { grid-template-columns: 30px 1fr 60px; }
   .wl-pause-btn { padding: 7px 10px; font-size: 12px; }
 }
+
 
 

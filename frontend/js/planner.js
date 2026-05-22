@@ -359,12 +359,15 @@ const MealPlanner = (function () {
     });
 
     document.getElementById('btn-clear-planner')?.addEventListener('click', () => {
-      if (confirm('¿Limpiar toda la semana?')) {
-        plan = {};
-        save();
-        renderGrid();
-        renderMacros();
-      }
+      showConfirm('¿Limpiar toda la semana?', { type: 'warning', confirmText: 'Limpiar', cancelText: 'Cancelar' })
+        .then(ok => {
+          if (!ok) return;
+          plan = {};
+          save();
+          renderGrid();
+          renderMacros();
+          showToast('Semana limpiada.', 'info');
+        });
     });
 
     // ── Tab switcher: Macros diario / semanal ────────────────

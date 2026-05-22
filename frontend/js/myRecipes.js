@@ -393,8 +393,8 @@ const MyRecipes = (function () {
     const ratingEl = document.getElementById('recipe-stars');
 
     const name = nameEl?.value.trim();
-    if (!name) { nameEl?.focus(); alert('Introduce un nombre para la receta.'); return; }
-    if (!selectedIngredients.length) { alert('Añade al menos un ingrediente.'); return; }
+    if (!name) { nameEl?.focus(); showToast('Introduce un nombre para la receta.', 'warning'); return; }
+    if (!selectedIngredients.length) { showToast('Añade al menos un ingrediente.', 'warning'); return; }
 
     const m = calcMacros(selectedIngredients);
     const recipe = {
@@ -420,7 +420,7 @@ const MyRecipes = (function () {
     } else {
       // Free tier: máximo 5 recetas personalizadas
       if (recipes.length >= MAX_CUSTOM_RECIPES) {
-        alert(`Has alcanzado el límite de ${MAX_CUSTOM_RECIPES} recetas personalizadas (Tier gratuito).\nElimina una receta existente para crear otra nueva.`);
+        showToast(`Límite de ${MAX_CUSTOM_RECIPES} recetas alcanzado. Elimina una receta para crear otra.`, 'warning');
         return;
       }
       recipes.unshift(recipe);
@@ -480,11 +480,16 @@ const MyRecipes = (function () {
   function deleteRecipe(id) {
     const rec = recipes.find(r => r.id === id);
     if (!rec) return;
-    if (!confirm(`¿Eliminar la receta "${rec.name}"?`)) return;
-    recipes = recipes.filter(r => r.id !== id);
-    if (editingId === id) resetForm();
-    save();
-    renderGrid();
+    showConfirm(`¿Eliminar la receta "<strong>${rec.name}</strong>"?`, {
+      type: 'danger', confirmText: 'Eliminar', cancelText: 'Cancelar',
+    }).then(ok => {
+      if (!ok) return;
+      recipes = recipes.filter(r => r.id !== id);
+      if (editingId === id) resetForm();
+      save();
+      renderGrid();
+      showToast(`Receta "${rec.name}" eliminada.`, 'info');
+    });
   }
 
   // ── Render grid de recetas guardadas ──────────────────────────────────────

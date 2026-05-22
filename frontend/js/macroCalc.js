@@ -109,7 +109,7 @@ const MacroCalc = (function () {
           legend: { display: false },
           tooltip: {
             backgroundColor: 'rgba(14, 14, 26, 0.95)',
-            borderColor: 'rgba(108, 99, 255, 0.3)',
+            borderColor: 'rgba(196,165,97,0.28)',
             borderWidth: 1,
             titleColor: '#94a3b8',
             bodyColor: '#e2e8f0',
@@ -213,7 +213,7 @@ const MacroCalc = (function () {
       e.preventDefault();
       const data  = readForm();
       const error = validate(data);
-      if (error) { alert(error); return; }
+      if (error) { showToast(error, 'warning'); return; }
       showResults(data);
     });
 

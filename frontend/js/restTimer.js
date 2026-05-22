@@ -110,7 +110,7 @@ var RestTimer = (function () {
     document.getElementById('rest-start-btn')?.addEventListener('click', function () {
       var reps = parseInt(document.getElementById('rt-reps').value, 10);
       var rpe  = parseFloat(document.getElementById('rt-rpe').value) || null;
-      if (!reps || reps < 1) { alert(_t('rest_timer.alert_reps')); return; }
+      if (!reps || reps < 1) { showToast(_t('rest_timer.alert_reps') || 'Introduce las repeticiones completadas.', 'warning'); return; }
       startTimer(reps, rpe);
     });
   }

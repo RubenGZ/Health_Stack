@@ -10,7 +10,17 @@ const FORMULA_INFO = {
 
 export async function init(container) {
   const _wht = window.t || (k => k);
-  container.innerHTML = '<p class="wl-history-empty" style="opacity:0.5">' + _wht('workout.loading') + '</p>';
+  // Skeleton loader mientras carga
+  container.innerHTML = `
+    <div style="display:flex;flex-direction:column;gap:12px;padding:4px 0">
+      <div class="skeleton" style="height:36px;width:55%;border-radius:8px"></div>
+      ${[...Array(3)].map(() => `
+        <div class="card" style="display:flex;flex-direction:column;gap:10px">
+          <div class="skeleton" style="height:16px;width:40%"></div>
+          <div class="skeleton" style="height:12px;width:70%"></div>
+          <div class="skeleton" style="height:12px;width:55%"></div>
+        </div>`).join('')}
+    </div>`;
 
   const token =
     localStorage.getItem('hs_access_token') ||
@@ -48,7 +58,18 @@ export async function init(container) {
   }
 
   if (!sessions.length) {
-    container.innerHTML = '<p class="wl-history-empty">' + _wht('workout.empty') + '</p>';
+    container.innerHTML = '';
+    if (typeof window.createEmptyState === 'function') {
+      container.appendChild(window.createEmptyState({
+        icon: '🏋️',
+        title: _wht('workout.empty') || 'Aún no hay entrenos',
+        message: 'Completa tu primer entreno para ver el historial aquí.',
+        ctaText: 'Empezar entreno',
+        ctaAction: () => window.navigateTo?.('workout'),
+      }));
+    } else {
+      container.innerHTML = '<p class="wl-history-empty">' + (_wht('workout.empty') || 'Sin entrenos aún.') + '</p>';
+    }
     return;
   }
 

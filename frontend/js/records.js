@@ -141,9 +141,9 @@ var Records = (function () {
       var weight   = parseFloat(document.getElementById('rm-weight').value);
       var reps     = parseInt(document.getElementById('rm-reps').value, 10);
 
-      if (!exercise) { alert(_t('records.alert_exercise')); return; }
-      if (!weight || weight <= 0) { alert(_t('records.alert_weight')); return; }
-      if (!reps || reps < 1 || reps > 30) { alert(_t('records.alert_reps')); return; }
+      if (!exercise) { showToast(_t('records.alert_exercise') || 'Selecciona un ejercicio.', 'warning'); return; }
+      if (!weight || weight <= 0) { showToast(_t('records.alert_weight') || 'Introduce un peso válido.', 'warning'); return; }
+      if (!reps || reps < 1 || reps > 30) { showToast(_t('records.alert_reps') || 'Introduce repeticiones entre 1 y 30.', 'warning'); return; }
 
       addEntry(exercise, weight, reps);
       document.getElementById('rm-exercise').value = '';

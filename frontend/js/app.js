@@ -1063,4 +1063,38 @@
     ThemeManager.init();
     ThemeManager.renderPicker(document.getElementById('theme-picker-root'));
   }
+
+  // ── Empty state helper — disponible globalmente ────────────────
+  window.createEmptyState = function (opts) {
+    // opts: { icon, title, message, ctaText, ctaAction, compact }
+    const { icon = '📭', title = 'Sin datos', message = '', ctaText, ctaAction, compact } = opts || {};
+    const wrap = document.createElement('div');
+    wrap.className = compact ? 'empty-state empty-state--compact' : 'empty-state';
+    wrap.innerHTML = `
+      <div class="empty-state__icon">${icon}</div>
+      <div class="empty-state__title">${title}</div>
+      ${message ? `<p class="empty-state__msg">${message}</p>` : ''}
+      ${ctaText ? `<button class="btn btn--ghost btn--sm empty-state__cta">${ctaText}</button>` : ''}
+    `;
+    if (ctaText && ctaAction) {
+      wrap.querySelector('.empty-state__cta')?.addEventListener('click', ctaAction);
+    }
+    return wrap;
+  };
+
+  // ── Skeleton helper — disponible globalmente ───────────────────
+  window.createSkeletonCard = function (rows) {
+    const card = document.createElement('div');
+    card.className = 'card';
+    card.style.cssText = 'display:flex;flex-direction:column;gap:10px';
+    const n = rows || 3;
+    for (let i = 0; i < n; i++) {
+      const sk = document.createElement('div');
+      sk.className = 'skeleton';
+      sk.style.height = i === 0 ? '20px' : '14px';
+      sk.style.width  = i === 0 ? '55%' : `${60 + Math.random() * 30}%`;
+      card.appendChild(sk);
+    }
+    return card;
+  };
 })();

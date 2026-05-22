@@ -290,6 +290,12 @@
   // ── Toast ──────────────────────────────────────────────────
 
   function showToast(msg, type = 'info') {
+    // Usar el sistema global de toasts si está disponible
+    if (typeof window.showToast === 'function' && window.showToast !== showToast) {
+      window.showToast(msg, type);
+      return;
+    }
+    // Fallback minimal si toast.js no ha cargado aún
     const old = document.getElementById('auth-toast');
     if (old) old.remove();
     const t = document.createElement('div');
@@ -433,10 +439,10 @@
     })
       .then(r => r.json())
       .then(data => {
-        alert(data.message || 'Contraseña actualizada. Ya puedes iniciar sesión.');
+        showToast(data.message || 'Contraseña actualizada. Ya puedes iniciar sesión.', 'success');
       })
       .catch(() => {
-        alert('Error al restablecer la contraseña. El enlace puede haber expirado.');
+        showToast('Error al restablecer la contraseña. El enlace puede haber expirado.', 'error');
       });
   })();
 

@@ -206,9 +206,9 @@ const WeightTracker = (function () {
 
   function createGradient(ctx, chartArea) {
     const gradient = ctx.createLinearGradient(0, chartArea.top, 0, chartArea.bottom);
-    gradient.addColorStop(0,   'rgba(108, 99, 255, 0.3)');
-    gradient.addColorStop(0.5, 'rgba(108, 99, 255, 0.08)');
-    gradient.addColorStop(1,   'rgba(108, 99, 255, 0)');
+    gradient.addColorStop(0,   'rgba(196,165,97,0.28)');
+    gradient.addColorStop(0.5, 'rgba(196,165,97,0.08)');
+    gradient.addColorStop(1,   'rgba(196,165,97,0)');
     return gradient;
   }
 
@@ -263,7 +263,7 @@ const WeightTracker = (function () {
           legend: { display: false },
           tooltip: {
             backgroundColor: 'rgba(14, 14, 26, 0.95)',
-            borderColor: 'rgba(108, 99, 255, 0.3)',
+            borderColor: 'rgba(196,165,97,0.28)',
             borderWidth: 1,
             titleColor: '#94a3b8',
             bodyColor: '#e2e8f0',
@@ -331,7 +331,7 @@ const WeightTracker = (function () {
           borderWidth: 2,
           pointRadius: 0,
           fill: true,
-          backgroundColor: 'rgba(108, 99, 255, 0.1)',
+          backgroundColor: 'rgba(196,165,97,0.10)',
           tension: 0.4,
         }],
       },
@@ -510,10 +510,13 @@ const WeightTracker = (function () {
 
   function confirmDelete(id) {
     const _tDel = window.t || (k => k);
-    if (confirm(_tDel('weight.confirm_delete'))) {
-      deleteEntry(id);
-      renderAll();
-    }
+    const msg = _tDel('weight.confirm_delete') || '¿Eliminar este registro de peso?';
+    showConfirm(msg, { type: 'danger', confirmText: 'Eliminar', cancelText: 'Cancelar' })
+      .then(ok => {
+        if (!ok) return;
+        deleteEntry(id);
+        renderAll();
+      });
   }
 
   // ── Init ───────────────────────────────────────────────────
@@ -538,7 +541,7 @@ const WeightTracker = (function () {
       const weight = parseFloat(document.getElementById('w-weight').value);
       const notes  = document.getElementById('w-notes').value.trim();
 
-      if (!date || isNaN(weight)) return;
+      if (!date || isNaN(weight)) { showToast('Introduce una fecha y un peso válidos.', 'warning'); return; }
 
       if (id) {
         updateEntry(parseInt(id), date, weight, notes);
@@ -577,7 +580,7 @@ const WeightTracker = (function () {
   function exportCSV() {
     const entries = getAll();
     if (!entries.length) {
-      alert('No hay datos para exportar.');
+      showToast('No hay datos para exportar.', 'warning');
       return;
     }
     const header = 'Fecha,Peso (kg),Notas\n';

@@ -995,19 +995,23 @@ const RoutineGenerator = (function () {
           const idx  = parseInt(btn.dataset.idx);
           const hist = JSON.parse(localStorage.getItem(LS_HISTORY) || '[]');
           if (!hist[idx]) return;
-          if (!confirm(`¿Eliminar "${hist[idx].label}"?`)) return;
-          hist.splice(idx, 1);
-          localStorage.setItem(LS_HISTORY, JSON.stringify(hist));
-          // Si la rutina activa es la que se borra, ocultarla
-          const saved = JSON.parse(localStorage.getItem(LS_KEY) || 'null');
-          if (!hist.length) {
-            localStorage.removeItem(LS_KEY);
-            const resultEl = document.getElementById('routine-result');
-            if (resultEl) resultEl.style.display = 'none';
-            const questionnaire = document.getElementById('routine-questionnaire');
-            if (questionnaire) questionnaire.style.display = '';
-          }
-          renderHistory();
+          const label = hist[idx].label;
+          showConfirm(`¿Eliminar la rutina "<strong>${label}</strong>"?`, {
+            type: 'danger', confirmText: 'Eliminar', cancelText: 'Cancelar'
+          }).then(ok => {
+            if (!ok) return;
+            hist.splice(idx, 1);
+            localStorage.setItem(LS_HISTORY, JSON.stringify(hist));
+            if (!hist.length) {
+              localStorage.removeItem(LS_KEY);
+              const resultEl = document.getElementById('routine-result');
+              if (resultEl) resultEl.style.display = 'none';
+              const questionnaire = document.getElementById('routine-questionnaire');
+              if (questionnaire) questionnaire.style.display = '';
+            }
+            renderHistory();
+            showToast(`Rutina "${label}" eliminada.`, 'info');
+          });
         });
       });
     } catch { wrap.style.display = 'none'; }

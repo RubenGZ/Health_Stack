@@ -1044,6 +1044,12 @@
 
       <!-- ── Footer discreto de Perfil ── -->
       <div class="card perfil-footer-card">
+        <!-- Actualizar app -->
+        <button id="check-update-btn" class="perfil-update-btn" onclick="window._checkForUpdate()">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+          <span id="check-update-label">Buscar actualización</span>
+          <span id="app-version-label" style="margin-left:auto;opacity:.45;font-size:.75rem"></span>
+        </button>
         <div class="perfil-footer-links">
           <a href="/privacy.html" class="perfil-footer-pill" target="_blank" rel="noopener">Privacidad</a>
           <a href="/terms.html"   class="perfil-footer-pill" target="_blank" rel="noopener">Términos</a>
@@ -1388,6 +1394,21 @@
 
   </main><!-- /main-content -->
 
+  <!-- ── UPDATE BANNER ─────────────────────────────────────── -->
+  <div id="update-banner" style="display:none;position:fixed;top:0;left:0;right:0;z-index:9999;
+       background:linear-gradient(90deg,#00d4aa,#6c63ff);padding:10px 16px;
+       display:none;align-items:center;justify-content:space-between;gap:12px;
+       box-shadow:0 2px 12px rgba(0,0,0,.4);">
+    <span style="color:#fff;font-size:.9rem;font-weight:500;">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" style="vertical-align:-2px;margin-right:6px"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+      Nueva versión disponible
+    </span>
+    <button id="update-now-btn" style="background:#fff;color:#6c63ff;border:none;border-radius:6px;
+            padding:6px 14px;font-size:.85rem;font-weight:700;cursor:pointer;white-space:nowrap;">
+      Actualizar
+    </button>
+  </div>
+
   <!-- ── WIZARD AI ASSISTANT ──────────────────────────────── -->
   <button class="wizard-btn" id="chatbot-btn" title="HealthStack AI">
     <!-- Magic wand with sparkles — wizard icon -->
@@ -1528,39 +1549,119 @@
   <script type="module" src="js/workoutInit.js"></script>
   <script defer src="js/ranked.js"></script>
   <script>
-    // ── PWA: registrar service worker + auto-update ────────────
-    if ('serviceWorker' in navigator) {
+    // ── PWA: registrar service worker + update flow ────────────
+    (function () {
+      if (!('serviceWorker' in navigator)) return;
+
+      let _swReg = null;
+      let _waitingWorker = null;
+      let _refreshing = false;
+
+      // ── Mostrar banner de actualización disponible ──
+      function _showUpdateBanner() {
+        const banner = document.getElementById('update-banner');
+        if (banner) { banner.style.display = 'flex'; }
+        const label = document.getElementById('check-update-label');
+        if (label) label.textContent = 'Actualización disponible';
+      }
+
+      // ── Aplicar actualización (skipWaiting → reload) ──
+      function _applyUpdate() {
+        if (_waitingWorker) {
+          _waitingWorker.postMessage({ type: 'SKIP_WAITING' });
+        } else if (_swReg && _swReg.waiting) {
+          _swReg.waiting.postMessage({ type: 'SKIP_WAITING' });
+        }
+        // Si no hay waiting worker, forzar recarga directa
+        if (!_waitingWorker && !(_swReg && _swReg.waiting)) {
+          window.location.reload();
+        }
+      }
+
+      // ── Botón "Actualizar" del banner ──
+      document.addEventListener('DOMContentLoaded', () => {
+        const nowBtn = document.getElementById('update-now-btn');
+        if (nowBtn) nowBtn.addEventListener('click', _applyUpdate);
+
+        // Mostrar versión actual en el footer
+        const verLabel = document.getElementById('app-version-label');
+        if (verLabel && 'caches' in window) {
+          caches.keys().then(keys => {
+            const hsKey = keys.find(k => k.startsWith('healthstack-v'));
+            if (hsKey && verLabel) verLabel.textContent = hsKey.replace('healthstack-', '');
+          });
+        }
+      });
+
+      // ── checkForUpdate: llamado por botón manual ──
+      window._checkForUpdate = function () {
+        const label = document.getElementById('check-update-label');
+        if (label) label.textContent = 'Buscando…';
+        if (_swReg) {
+          _swReg.update().then(() => {
+            // Si ya hay un worker waiting, mostrar banner
+            if (_swReg.waiting) {
+              _waitingWorker = _swReg.waiting;
+              _showUpdateBanner();
+            } else {
+              if (label) label.textContent = 'Buscar actualización';
+              // Toast: ya tienes la última versión
+              if (typeof showToast === 'function') {
+                showToast('Ya tienes la versión más reciente');
+              } else {
+                alert('Ya tienes la versión más reciente');
+              }
+            }
+          }).catch(() => {
+            if (label) label.textContent = 'Buscar actualización';
+            if (typeof showToast === 'function') showToast('Sin conexión al servidor');
+          });
+        }
+      };
+
       window.addEventListener('load', () => {
         navigator.serviceWorker.register('/sw.js').then(reg => {
+          _swReg = reg;
           console.log('[SW] Registrado:', reg.scope);
 
-          // Cuando se detecta un SW nuevo, lo activa inmediatamente
+          // Si ya hay un worker esperando al cargar → mostrar banner
+          if (reg.waiting) {
+            _waitingWorker = reg.waiting;
+            _showUpdateBanner();
+          }
+
+          // Cuando se detecta un SW nuevo instalándose
           reg.addEventListener('updatefound', () => {
             const newWorker = reg.installing;
             newWorker.addEventListener('statechange', () => {
               if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
-                // Nuevo SW listo — forzar activación
-                newWorker.postMessage({ type: 'SKIP_WAITING' });
+                // Hay actualización lista — mostrar banner (no auto-recargar)
+                _waitingWorker = newWorker;
+                _showUpdateBanner();
               }
             });
           });
 
-          // Comprobar actualizaciones cada 30 min (útil en iOS donde la PWA puede estar horas abierta)
+          // Comprobar actualizaciones cada 30 min
           setInterval(() => reg.update(), 30 * 60 * 1000);
+
+          // Comprobar al volver al app (útil en móvil)
+          document.addEventListener('visibilitychange', () => {
+            if (!document.hidden) reg.update();
+          });
 
         }).catch(err => console.warn('[SW] Error:', err));
 
-        // Cuando el SW nuevo toma el control → recargar la página automáticamente
-        let refreshing = false;
+        // Cuando el SW nuevo toma el control → recargar
         navigator.serviceWorker.addEventListener('controllerchange', () => {
-          if (!refreshing) {
-            refreshing = true;
+          if (!_refreshing) {
+            _refreshing = true;
             console.log('[SW] Nueva versión activa — recargando…');
             window.location.reload();
           }
         });
       });
-    }
+    })();
   </script>
 
   <!-- Share routine overlay -->

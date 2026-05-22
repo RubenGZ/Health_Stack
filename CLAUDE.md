@@ -16,12 +16,14 @@ Skill dedicado para mejoras visuales del frontend. Cargado en `.claude/skills/he
 **Token de diseño clave**: dark premium, gold `#c4a561` como ÚNICO acento, Inter font, base 4px spacing.
 
 **Estado del sistema de diseño**:
-- CSS v7 en `frontend/css/main.css` — SW v54 — 4 commits de mejoras frontend (2026-05-22)
+- CSS v7 en `frontend/css/main.css` — SW **v56** — commits de mejoras frontend (2026-05-23)
 - **Fase 1** ✅ completada: brand consistency (161 refs cyan→gold), skeleton system, stat upgrades, card polish, safe-area iOS
 - **Fase 2** ✅ completada: toast.js (showToast/showConfirm), chartDefaults.js, 10 módulos migrados de alert/confirm nativos, empty states, skeleton loaders JS, form input error/success states (setFieldState global)
 - **Fase 3** ✅ completada: stat-change pill coloreado, XP bar gold shimmer animado, level badge glow pulsante, achievement badge hover, wl-ex-group-chip por grupo muscular, PR badge shimmer, exercise cards con chip de color y badge "última vez"
 - **Fase 4** ✅ completada (parcial): window.haptic API + vibración en PR/set, offline indicator banner premium, Apple splash screens iOS
 - **Pendiente Fase 4**: splash PNG files (requieren generación de imágenes), Badging API para workout activo
+- **Fase 5** ✅ completada (2026-05-23): Modularización app.js → `js/dashboard/index.js` (window.Dashboard) + `js/pwa/index.js` (window.PWAManager). XSS fixes en adminUsers.js y planner.js. Chart update in-place. SW v56. Developer portal en `docs/dev/frontend.html`.
+- **Pendiente Fase 6**: split `workoutLogger.js` (1299L) → `js/workout/` submodules (timer, inactivity, logger, summary)
 
 ---
 

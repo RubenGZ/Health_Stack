@@ -5,6 +5,24 @@
 
 ---
 
+## HealthStack Frontend Design Agent
+
+Skill dedicado para mejoras visuales del frontend. Cargado en `.claude/skills/healthstack-frontend/SKILL.md`.
+
+**Cuándo usarlo**: cualquier tarea de UI/UX, CSS, componentes visuales, PWA polish, skeleton loaders, tipografía, spacing, animaciones.
+
+**Para invocarlo**: el agente lee el skill file directamente con Read antes de cualquier cambio CSS.
+
+**Token de diseño clave**: dark premium, gold `#c4a561` como ÚNICO acento, Inter font, base 4px spacing.
+
+**Estado del sistema de diseño**:
+- CSS v5 en `frontend/css/main.css` — SW v50
+- Fase 1 completada (2026-05-22): brand consistency (161 refs cyan→gold), skeleton system, stat upgrades, card polish, safe-area iOS
+- Fase 2 pendiente: skeleton loaders activos en JS, button system, empty states, chart theme
+- Fase 3 pendiente: dashboard redesign, workout logger Hevy-quality
+
+---
+
 ## gstack
 
 Instalado en `~/.claude/skills/gstack` (v1.33.2.0). Usa los skills de gstack para todas las tareas de ingeniería.

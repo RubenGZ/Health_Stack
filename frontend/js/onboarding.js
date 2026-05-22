@@ -95,18 +95,7 @@ const Onboarding = (function () {
       <div class="ob-modal" role="dialog" aria-modal="true" aria-labelledby="ob-title">
         <div class="ob-header">
           <div class="ob-logo">
-            <svg width="28" height="28" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
-              <rect width="32" height="32" rx="8" fill="url(#obhgrad)"/>
-              <rect x="7"    y="5.5" width="4.5" height="21" rx="2" fill="white"/>
-              <rect x="20.5" y="5.5" width="4.5" height="21" rx="2" fill="white"/>
-              <rect x="7"    y="13"  width="18"  height="6"  rx="2" fill="white"/>
-              <defs>
-                <linearGradient id="obhgrad" x1="0" y1="0" x2="32" y2="32" gradientUnits="userSpaceOnUse">
-                  <stop offset="0%"   stop-color="#0891b2"/>
-                  <stop offset="100%" stop-color="#22d3ee"/>
-                </linearGradient>
-              </defs>
-            </svg>
+            <img src="/icons/logo-icon-white.svg" width="28" height="28" style="display:block" alt="">
           </div>
           <span class="ob-brand">HealthStack Pro</span>
           <button class="ob-skip" id="ob-skip-btn">Saltar →</button>
@@ -435,6 +424,9 @@ const Onboarding = (function () {
         overlay.classList.add('ob-exit');
         setTimeout(() => {
           overlay.remove();
+          // Reset iOS viewport zoom (triggered by input focus at old font sizes)
+          const mv = document.querySelector('meta[name=viewport]');
+          if (mv) { const c = mv.content; mv.content = c + ',maximum-scale=1'; requestAnimationFrame(() => { mv.content = c; }); }
           // Navigate to nutrición so the user sees their TDEE + macros immediately
           if (hasTDEE) {
             const nutriNav = document.querySelector('[data-section="nutricion"]');

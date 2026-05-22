@@ -20,9 +20,8 @@ var Plan = (function () {
   // Phase 2 = visible after 2+ days since first use
   // Phase 3 = locked until consistency milestones
   var NAV_PHASES = {
-    // Phase 2 — unlock after 2 days
-    'planner': 2, 'rehab': 2, 'records': 2, 'suplementos': 2,
-    // Phase 3 — unlock by consistency
+    // Phase 3 — beta mode only (or consistency milestones / elite)
+    'planner': 3, 'rehab': 3, 'records': 3, 'suplementos': 3,
     'timing': 3, 'deload': 3, 'bodycomp': 3,
     'fatigue': 3, 'plateau': 3, 'sessionreplay': 3,
     'receipt': 3, 'ranked': 3,
@@ -321,7 +320,7 @@ var Plan = (function () {
     Object.keys(REQUIRED).forEach(function (sid) {
       var el = document.querySelector('[data-section="' + sid + '"].nav-item');
       if (!el) return;
-      var locked = rank(current) < rank(REQUIRED[sid]);
+      var locked = !isBeta() && rank(current) < rank(REQUIRED[sid]);
       el.classList.toggle('nav-item--locked', locked);
 
       var lockEl = el.querySelector('.nav-lock-icon');

@@ -19,14 +19,7 @@
       <div class="ob-modal auth-modal-inner" role="dialog" aria-modal="true" aria-label="Acceso a HealthStack Pro">
         <div class="ob-header">
           <div class="ob-logo">
-            <svg width="24" height="24" viewBox="0 0 32 32" fill="none">
-              <path d="M16 3L29 9.5V22.5L16 29L3 22.5V9.5L16 3Z" stroke="url(#authg)" stroke-width="2" fill="none"/>
-              <path d="M8 16H24M16 8V24" stroke="url(#authg)" stroke-width="2" stroke-linecap="round"/>
-              <defs><linearGradient id="authg" x1="3" y1="3" x2="29" y2="29">
-                <stop offset="0%" stop-color="#c4a561"/>
-                <stop offset="100%" stop-color="#00d2ff"/>
-              </linearGradient></defs>
-            </svg>
+            <img src="/icons/logo-icon-white.svg" width="28" height="28" style="display:block" alt="">
           </div>
           <span class="ob-brand">HealthStack Pro</span>
           <button class="ob-skip" id="auth-close-btn" aria-label="Cerrar">✕</button>
@@ -164,6 +157,9 @@
     modal.classList.add('ob-exit');
     setTimeout(() => {
       modal.remove();
+      // Reset iOS viewport zoom
+      const mv = document.querySelector('meta[name=viewport]');
+      if (mv) { const c = mv.content; mv.content = c + ',maximum-scale=1'; requestAnimationFrame(() => { mv.content = c; }); }
       // Si cerraron sin autenticarse → volver a la landing
       if (!localStorage.getItem('hs_access_token')) {
         window.location.replace('/landing/');

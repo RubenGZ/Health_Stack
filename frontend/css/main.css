@@ -822,7 +822,7 @@ canvas { display: block; }
   border: 1px solid var(--glass-border);
   border-radius: var(--radius-sm);
   color: var(--text-primary);
-  font-size: 0.875rem;
+  font-size: 16px;
   transition: var(--transition);
   outline: none;
   appearance: none;
@@ -2412,7 +2412,7 @@ select.form-input option { background: var(--bg-surface); color: var(--text-prim
 .ob-overlay.ob-exit {
   animation: obFadeOut 0.4s ease forwards;
 }
-@keyframes obFadeOut { to { opacity: 0; transform: scale(0.96); } }
+@keyframes obFadeOut { to { opacity: 0; } }
 
 .ob-modal {
   background: var(--bg-surface);

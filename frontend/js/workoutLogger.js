@@ -9,6 +9,7 @@ let _session = null;
 let _timerInterval = null;
 let _restInterval = null;
 let _restRemaining = 0;
+let _restTotal = REST_DEFAULT;
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 function fmtTime(secs) {
@@ -42,6 +43,7 @@ function searchExercises(query) {
 function startRestTimer(secs = REST_DEFAULT) {
   clearInterval(_restInterval);
   _restRemaining = secs;
+  _restTotal = secs;
   updateRestUI();
 
   _restInterval = setInterval(() => {
@@ -63,8 +65,7 @@ function updateRestUI() {
   const bar = _root?.querySelector('#wl-rest-bar');
   if (!bar) return;
   bar.querySelector('.wl-rest-time').textContent = fmtTime(_restRemaining);
-  const total = REST_DEFAULT;
-  const pct = Math.max(0, (_restRemaining / total) * 100);
+  const pct = Math.max(0, (_restRemaining / _restTotal) * 100);
   bar.querySelector('.wl-rest-progress-fill').style.width = `${pct}%`;
 }
 
@@ -211,31 +212,102 @@ function renderRoutinePicker(routines) {
   });
 }
 
+// ─── Parsear string de descanso → segundos ─────────────────────────────────────
+function _parseRestSecs(restStr) {
+  if (!restStr) return REST_DEFAULT;
+  const ms = restStr.match(/(\d+)\s*s(?:eg|ecs?)?/i);
+  if (ms) return parseInt(ms[1], 10);
+  const mm = restStr.match(/(\d+)\s*min/i);
+  if (mm) return parseInt(mm[1], 10) * 60;
+  const mn = restStr.match(/(\d+)/);
+  if (mn) return parseInt(mn[1], 10);
+  return REST_DEFAULT;
+}
+
 // ─── Cargar día de rutina como draft y arrancar sesión ─────────────────────────
+// Mejor que Hevy: pre-rellena peso de sesiones anteriores + genera calentamiento
+// automático escalado al peso de trabajo. Sin historia → todo a 0, el usuario rellena.
 function _loadRoutineSession(daySession) {
+  function _toKey(name) {
+    return name.toLowerCase().normalize('NFD')
+      .replace(/[̀-ͯ]/g, '').replace(/\s+/g, '_');
+  }
+
+  const exercises = daySession.exercises.map((ex, i) => {
+    const numSets  = parseInt(ex.sets) || 3;
+    const targetR  = parseInt(ex.reps) || 8;
+    const key      = _toKey(ex.name);
+    const restSecs = _parseRestSecs(ex.rest);
+
+    // Progressive overload: peso de última sesión + 2.5 kg si se completaron todas las reps.
+    // null si no hay historial → el usuario rellena desde cero.
+    const suggested  = Session.getSuggestedWeight(key);
+    const workingKg  = suggested ?? 0;
+
+    const setsArr = [];
+
+    // Auto-calentamiento escalado al peso de trabajo
+    if (workingKg >= 30) {
+      // Ejercicio pesado (≥ 30 kg): 2 sets de calentamiento
+      const w1 = Math.max(2.5, Math.round((workingKg * 0.50) / 2.5) * 2.5);
+      const w2 = Math.max(2.5, Math.round((workingKg * 0.75) / 2.5) * 2.5);
+      setsArr.push({ setNumber: 0, weightKg: w1, reps: 8,  rpe: null, isWarmup: true,  completedAt: null });
+      setsArr.push({ setNumber: 0, weightKg: w2, reps: 5,  rpe: null, isWarmup: true,  completedAt: null });
+    } else if (workingKg >= 15) {
+      // Ejercicio medio (15-29 kg): 1 set de calentamiento al 60 %
+      const w1 = Math.max(2.5, Math.round((workingKg * 0.60) / 2.5) * 2.5);
+      setsArr.push({ setNumber: 0, weightKg: w1, reps: 10, rpe: null, isWarmup: true,  completedAt: null });
+    }
+    // < 15 kg o sin historial → sin calentamiento automático
+
+    // Sets de trabajo con peso pre-rellenado
+    for (let s = 0; s < numSets; s++) {
+      setsArr.push({ setNumber: s + 1, weightKg: workingKg, reps: targetR, rpe: null, isWarmup: false, completedAt: null });
+    }
+
+    return {
+      key,
+      name:       ex.name,
+      orderIndex: i,
+      sets:       setsArr,
+      restSecs,
+      note:       ex.rest ? 'Descanso: ' + ex.rest : '',
+    };
+  });
+
   const draft = {
-    routineId: null,
-    startedAt: new Date().toISOString(),
-    exercises: daySession.exercises.map((ex, i) => {
-      const numSets  = parseInt(ex.sets) || 3;
-      const targetR  = parseInt(ex.reps) || 8;
-      const setsArr  = [];
-      for (let s = 0; s < numSets; s++) {
-        setsArr.push({ setNumber: s + 1, weightKg: 0, reps: targetR, rpe: null, isWarmup: false, completedAt: null });
-      }
-      return {
-        key:        ex.name.toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '').replace(/\s+/g, '_'),
-        name:       ex.name,
-        orderIndex: i,
-        sets:       setsArr,
-        note:       ex.rest ? 'Descanso: ' + ex.rest : '',
-      };
-    }),
+    routineId:  daySession.day || null,
+    startedAt:  new Date().toISOString(),
+    exercises,
   };
   Session.saveDraft(draft);
   _session = draft;
   window.dispatchEvent(new CustomEvent('hs:workout-session-changed'));
   renderActive();
+
+  // Toast informativo si hay historial (peso pre-rellenado)
+  const hasHistory = exercises.some(ex => ex.sets.some(s => !s.isWarmup && s.weightKg > 0));
+  if (hasHistory) {
+    const warmupCount = exercises.reduce((n, ex) => n + ex.sets.filter(s => s.isWarmup).length, 0);
+    const msg = warmupCount > 0
+      ? `Peso de tu última sesión + ${warmupCount} set${warmupCount > 1 ? 's' : ''} de calentamiento generados`
+      : 'Peso pre-rellenado desde tu última sesión';
+    _showRoutineToast(msg);
+  }
+}
+
+function _showRoutineToast(msg) {
+  const existing = document.getElementById('wl-routine-toast');
+  if (existing) existing.remove();
+  const t = document.createElement('div');
+  t.id = 'wl-routine-toast';
+  t.style.cssText = 'position:fixed;top:72px;left:50%;transform:translateX(-50%);' +
+    'background:#1e1b4b;border:1px solid #4f46e5;color:#c7d2fe;padding:8px 16px;' +
+    'border-radius:8px;font-size:.8rem;z-index:9990;box-shadow:0 4px 16px rgba(0,0,0,.4);' +
+    'pointer-events:none;white-space:nowrap;';
+  t.textContent = '⚡ ' + msg;
+  document.body.appendChild(t);
+  setTimeout(() => t.remove(), 3500);
 }
 
 // ─── ACTIVE ────────────────────────────────────────────────────────────────────
@@ -559,7 +631,8 @@ function renderSets(ex) {
         completedAt: wasDone ? null : new Date().toISOString(),
       });
       if (!wasDone && !s.isWarmup) {
-        startRestTimer(REST_DEFAULT);
+        const restSecs = ex2.restSecs || REST_DEFAULT;
+        startRestTimer(restSecs);
         showRestBar();
       }
       renderSets(ex2);

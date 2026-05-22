@@ -480,7 +480,7 @@ canvas { display: block; }
   flex-shrink: 0;
 }
 .stat-icon--blue   { background: rgba(196,165,97,0.12);  color: var(--primary);   }
-.stat-icon--purple { background: rgba(22,163,74,0.12);   color: #16a34a;          }
+.stat-icon--purple { background: rgba(196,165,97,0.12);  color: var(--primary);   }
 .stat-icon--cyan   { background: rgba(196,165,97,0.10);  color: var(--primary);   }
 .stat-icon--pink   { background: rgba(245,158,11,0.12);  color: #f59e0b;          }
 .stat-content { flex: 1; min-width: 0; }

@@ -115,8 +115,8 @@
 .al-loading-ring {
   width: 28px;
   height: 28px;
-  border: 2px solid rgba(124, 107, 255, 0.15);
-  border-top-color: #7c6bff;
+  border: 2px solid rgba(196, 165, 97, 0.15);
+  border-top-color: #c4a561;
   border-radius: 50%;
   animation: al-spin 0.9s linear infinite;
 }
@@ -160,8 +160,8 @@
 }
 
 .al-legend-dot.primary {
-  background: #7c6bff;
-  box-shadow: 0 0 6px #7c6bff;
+  background: #c4a561;
+  box-shadow: 0 0 6px #c4a561;
 }
 
 .al-legend-dot.secondary {
@@ -325,7 +325,7 @@
 
 /* Masculino — acento azul-morado */
 .al-sex-chip--male {
-  background: rgba(124, 107, 255, 0.15);
+  background: rgba(196, 165, 97, 0.15);
   border-color: rgba(124, 107, 255, 0.35);
   color: #a89aff;
 }

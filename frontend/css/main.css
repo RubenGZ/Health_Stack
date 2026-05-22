@@ -1154,7 +1154,21 @@ select.form-input option { background: var(--bg-surface); color: var(--text-prim
   .mobile-brand {
     display: flex;
     align-items: center;
+    gap: 7px;
     flex-shrink: 0;
+  }
+  .mobile-brand-text {
+    font-family: 'Inter', system-ui, sans-serif;
+    font-size: 0.82rem;
+    font-weight: 700;
+    color: rgba(255,255,255,0.92);
+    letter-spacing: -0.01em;
+    white-space: nowrap;
+  }
+  .mobile-brand-text em {
+    font-style: normal;
+    font-weight: 400;
+    color: var(--primary);
   }
   .mobile-section-title {
     font-family: 'Inter', system-ui, sans-serif;

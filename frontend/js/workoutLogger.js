@@ -627,6 +627,10 @@ async function onFinish() {
     exercises: _session.exercises,
   });
   Session.clearDraft();
+  // Increment consistency counter for unlock milestones
+  if (typeof Plan !== 'undefined' && typeof Plan.incrementSessionCount === 'function') {
+    Plan.incrementSessionCount();
+  }
   window.dispatchEvent(new CustomEvent('hs:workout-session-changed'));
   renderSummary(result);
 }

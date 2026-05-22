@@ -1,6 +1,8 @@
 /* ============================================================
    plan.js — Plan management & feature gating
    Tiers: free | pro | elite
+   Phase system: progressive nav unlocks
+   Beta mode: full access for testers (hs_beta_mode=true)
    ============================================================ */
 
 var Plan = (function () {
@@ -8,7 +10,163 @@ var Plan = (function () {
 
   function _t(key) { return (window.t && window.t(key)) || key; }
 
-  var LS_KEY = 'hs_plan'; // 'free' | 'pro' | 'elite'
+  var LS_KEY         = 'hs_plan';           // 'free' | 'pro' | 'elite'
+  var LS_BETA        = 'hs_beta_mode';      // 'true' → full access, no restrictions
+  var LS_FIRST_USE   = 'hs_first_use';      // timestamp ms, set on first launch
+  var LS_SESS_COUNT  = 'hs_session_count';  // int, incremented on each workout saved
+
+  // ── Phase system ────────────────────────────────────────────
+  // Phase 1 = always visible (MVP core)
+  // Phase 2 = visible after 2+ days since first use
+  // Phase 3 = locked until consistency milestones
+  var NAV_PHASES = {
+    // Phase 2 — unlock after 2 days
+    'planner': 2, 'rehab': 2, 'records': 2, 'suplementos': 2,
+    // Phase 3 — unlock by consistency
+    'timing': 3, 'deload': 3, 'bodycomp': 3,
+    'fatigue': 3, 'plateau': 3, 'sessionreplay': 3,
+    'receipt': 3, 'ranked': 3,
+  };
+
+  // Features unlocked by consistency milestones (Idea 1)
+  // key = sectionId, value = { sessions: N, label: '...' }
+  var CONSISTENCY_MILESTONES = {
+    'sessionreplay': { sessions: 20,  label: 'Session Replay',       months: 1  },
+    'bodycomp':      { sessions: 80,  label: 'Body Comp Forecast',    months: 6  },
+    'receipt':       { sessions: 180, label: 'Athlete Receipt',       months: 12 },
+  };
+
+  function isBeta()      { return localStorage.getItem(LS_BETA) === 'true'; }
+  function enableBeta()  {
+    localStorage.setItem(LS_BETA, 'true');
+    if (get() === 'free') set('pro'); // beta testers get pro features
+    init();
+    _showToast('Modo beta activado — acceso completo habilitado');
+  }
+  function disableBeta() {
+    localStorage.removeItem(LS_BETA);
+    init();
+    _showToast('Modo beta desactivado');
+  }
+
+  function _showToast(msg) {
+    var t = document.createElement('div');
+    t.style.cssText = 'position:fixed;bottom:80px;left:50%;transform:translateX(-50%);' +
+      'background:#6c63ff;color:#fff;padding:10px 18px;border-radius:8px;font-size:.85rem;' +
+      'z-index:9999;box-shadow:0 4px 16px rgba(0,0,0,.3);pointer-events:none;';
+    t.textContent = msg;
+    document.body.appendChild(t);
+    setTimeout(function() { t.remove(); }, 3000);
+  }
+
+  function getDaysSinceFirstUse() {
+    var stored = localStorage.getItem(LS_FIRST_USE);
+    if (!stored) {
+      localStorage.setItem(LS_FIRST_USE, String(Date.now()));
+      return 0;
+    }
+    return Math.floor((Date.now() - parseInt(stored, 10)) / 86400000);
+  }
+
+  function getSessionCount() {
+    return parseInt(localStorage.getItem(LS_SESS_COUNT) || '0', 10);
+  }
+
+  function incrementSessionCount() {
+    var n = getSessionCount() + 1;
+    localStorage.setItem(LS_SESS_COUNT, String(n));
+    _checkConsistencyUnlocks(n);
+    return n;
+  }
+
+  function _checkConsistencyUnlocks(count) {
+    Object.keys(CONSISTENCY_MILESTONES).forEach(function(sid) {
+      var m = CONSISTENCY_MILESTONES[sid];
+      if (count >= m.sessions) {
+        var key = 'hs_unlocked_' + sid;
+        if (!localStorage.getItem(key)) {
+          localStorage.setItem(key, 'true');
+          _triggerUnlockCelebration(sid, m.label);
+        }
+      }
+    });
+  }
+
+  function isConsistencyUnlocked(sectionId) {
+    return localStorage.getItem('hs_unlocked_' + sectionId) === 'true';
+  }
+
+  function _triggerUnlockCelebration(sectionId, featureLabel) {
+    var banner = document.getElementById('unlock-celebration');
+    if (!banner) return;
+    var lbl = banner.querySelector('#unlock-feature-name');
+    if (lbl) lbl.textContent = featureLabel;
+    banner.style.display = 'flex';
+    applyPhasedNav();
+    setTimeout(function() { banner.style.display = 'none'; }, 5000);
+  }
+
+  function canSeeSection(sectionId) {
+    if (isBeta()) return true;
+    var phase = NAV_PHASES[sectionId] || 1;
+    if (phase === 1) return true;
+    if (phase === 2) return getDaysSinceFirstUse() >= 2;
+    if (phase === 3) {
+      // Check consistency unlock
+      if (isConsistencyUnlocked(sectionId)) return true;
+      // Fallback: elite plan sees everything
+      if (isElite()) return true;
+      return false;
+    }
+    return true;
+  }
+
+  function applyPhasedNav() {
+    document.querySelectorAll('.nav-item[data-section]').forEach(function(el) {
+      var sid = el.getAttribute('data-section');
+      el.style.display = canSeeSection(sid) ? '' : 'none';
+    });
+    // Hide group labels when all items below them are hidden
+    document.querySelectorAll('.nav-group-label').forEach(function(label) {
+      var sib = label.nextElementSibling;
+      var anyVisible = false;
+      while (sib && !sib.classList.contains('nav-group-label') && !sib.id) {
+        if (sib.classList.contains('nav-item') && sib.style.display !== 'none') {
+          anyVisible = true; break;
+        }
+        sib = sib.nextElementSibling;
+      }
+      label.style.display = anyVisible ? '' : 'none';
+    });
+    // Update consistency progress widget if present
+    _updateConsistencyWidget();
+  }
+
+  function _updateConsistencyWidget() {
+    var widget = document.getElementById('consistency-progress-widget');
+    if (!widget) return;
+    var count = getSessionCount();
+    // Find next milestone
+    var milestones = Object.keys(CONSISTENCY_MILESTONES)
+      .map(function(sid) { return Object.assign({ sid: sid }, CONSISTENCY_MILESTONES[sid]); })
+      .sort(function(a, b) { return a.sessions - b.sessions; });
+    var next = milestones.filter(function(m) { return count < m.sessions; })[0];
+    var completed = milestones.filter(function(m) { return count >= m.sessions; }).length;
+    if (!next) {
+      widget.querySelector('#cp-label').textContent = 'Todo desbloqueado';
+      widget.querySelector('#cp-bar-fill').style.width = '100%';
+      widget.querySelector('#cp-count').textContent = count + ' sesiones';
+      return;
+    }
+    var pct = Math.min(100, Math.round((count / next.sessions) * 100));
+    widget.querySelector('#cp-label').textContent =
+      next.label + ' — ' + count + ' / ' + next.sessions + ' sesiones';
+    widget.querySelector('#cp-bar-fill').style.width = pct + '%';
+    widget.querySelector('#cp-count').textContent =
+      (next.sessions - count) + ' sesiones para desbloquear';
+    widget.querySelector('#cp-milestones-done').textContent =
+      completed + ' / ' + milestones.length + ' desbloqueados';
+  }
 
   // Minimum plan required per section ID
   var REQUIRED = {
@@ -206,22 +364,33 @@ var Plan = (function () {
 
   // ── Init ───────────────────────────────────────────────────
   function init() {
+    getDaysSinceFirstUse(); // ensure first-use timestamp is set
     updateBadge();
     applyNavLocks();
     applyFeatureLocks();
+    applyPhasedNav();
   }
 
   return {
-    get:              get,
-    set:              set,
-    can:              can,
-    isPro:            isPro,
-    isElite:          isElite,
-    requiredFor:      requiredFor,
-    showUpgradeModal: showUpgradeModal,
-    updateBadge:      updateBadge,
-    applyNavLocks:    applyNavLocks,
-    applyFeatureLocks:applyFeatureLocks,
-    init:             init,
+    get:                    get,
+    set:                    set,
+    can:                    can,
+    isPro:                  isPro,
+    isElite:                isElite,
+    requiredFor:            requiredFor,
+    showUpgradeModal:       showUpgradeModal,
+    updateBadge:            updateBadge,
+    applyNavLocks:          applyNavLocks,
+    applyFeatureLocks:      applyFeatureLocks,
+    applyPhasedNav:         applyPhasedNav,
+    canSeeSection:          canSeeSection,
+    isBeta:                 isBeta,
+    enableBeta:             enableBeta,
+    disableBeta:            disableBeta,
+    getSessionCount:        getSessionCount,
+    incrementSessionCount:  incrementSessionCount,
+    isConsistencyUnlocked:  isConsistencyUnlocked,
+    CONSISTENCY_MILESTONES: CONSISTENCY_MILESTONES,
+    init:                   init,
   };
 })();

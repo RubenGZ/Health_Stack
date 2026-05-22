@@ -901,7 +901,65 @@
       });
     }
 
+    // ── Getting Started empty state ───────────────────────────
+    _initGettingStarted();
+
+    // ── Beta mode UI ─────────────────────────────────────────
+    _initBetaModeUI();
+
     console.log('%c HealthStack Pro v2.0 ', 'background:#6c63ff;color:white;padding:4px 8px;border-radius:4px;font-weight:bold');
+  }
+
+  function _initGettingStarted() {
+    const widget = document.getElementById('getting-started');
+    const cpWidget = document.getElementById('consistency-progress-widget');
+    if (!widget) return;
+
+    function _updateState() {
+      const hasWeight   = Boolean(localStorage.getItem('hs_weight_entries'));
+      const hasWorkout  = Boolean(localStorage.getItem('hs_workout_active') || localStorage.getItem('hs_session_count'));
+      const sessionCount = parseInt(localStorage.getItem('hs_session_count') || '0', 10);
+
+      // Show getting-started only when no weight data and no sessions
+      const isEmpty = !hasWeight && sessionCount === 0;
+      widget.style.display = isEmpty ? 'block' : 'none';
+
+      // Show consistency widget after first session
+      if (cpWidget) {
+        cpWidget.style.display = sessionCount > 0 ? 'block' : 'none';
+        if (typeof Plan !== 'undefined') Plan.applyPhasedNav(); // also updates widget
+      }
+    }
+
+    _updateState();
+    // Re-check when user comes back to dashboard
+    window.addEventListener('hs:section-changed', function(e) {
+      if (e.detail && e.detail.section === 'dashboard') _updateState();
+    });
+    // Re-check after workout session saved
+    window.addEventListener('hs:workout-session-changed', _updateState);
+  }
+
+  function _initBetaModeUI() {
+    const btn   = document.getElementById('beta-mode-btn');
+    const label = document.getElementById('beta-mode-label');
+    const badge = document.getElementById('beta-mode-badge');
+    if (!btn || !label) return;
+
+    function _refreshUI() {
+      const on = typeof Plan !== 'undefined' && Plan.isBeta();
+      if (label) label.textContent = on ? 'Desactivar modo beta' : 'Activar modo beta';
+      if (badge) badge.style.display = on ? '' : 'none';
+    }
+
+    _refreshUI();
+
+    // Expose global toggle for onclick handler in HTML
+    window._toggleBetaMode = function() {
+      if (typeof Plan === 'undefined') return;
+      if (Plan.isBeta()) { Plan.disableBeta(); } else { Plan.enableBeta(); }
+      _refreshUI();
+    };
   }
 
   // ── Google OAuth callback handler ────────────────────────

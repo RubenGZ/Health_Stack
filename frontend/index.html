@@ -321,6 +321,55 @@
       <!-- PWA install prompt (se muestra automáticamente si aplica) -->
       <div id="pwa-install-banner" style="display:none;margin-bottom:16px"></div>
 
+      <!-- Unlock celebration banner (hidden until milestone reached) -->
+      <div id="unlock-celebration" style="display:none;margin-bottom:16px;background:linear-gradient(135deg,#00d4aa22,#6c63ff22);border:1px solid #6c63ff44;border-radius:14px;padding:16px 18px;align-items:center;gap:14px;">
+        <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#6c63ff" stroke-width="2"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+        <div>
+          <div style="font-weight:700;color:var(--text-primary);font-size:.95rem">Desbloqueado: <span id="unlock-feature-name"></span></div>
+          <div style="font-size:.8rem;color:var(--text-secondary);margin-top:2px">Tu constancia ha dado sus frutos. Revisa el menú lateral.</div>
+        </div>
+      </div>
+
+      <!-- Getting Started (se oculta cuando hay datos) -->
+      <div id="getting-started" style="display:none;margin-bottom:20px">
+        <h3 style="font-size:.75rem;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--text-secondary);margin:0 0 12px">Por dónde empezar</h3>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
+          <button onclick="document.querySelector('[data-section=peso]').click()" style="background:var(--glass-bg);border:1px solid var(--glass-border);border-radius:12px;padding:16px 14px;cursor:pointer;text-align:left;transition:border-color .2s" onmouseover="this.style.borderColor='var(--primary)'" onmouseout="this.style.borderColor='var(--glass-border)'">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#6c63ff" stroke-width="2" style="margin-bottom:8px;display:block"><path d="M12 2a4 4 0 0 1 4 4c0 1.5-.8 2.8-2 3.5V20H10V9.5A4 4 0 0 1 8 6a4 4 0 0 1 4-4z"/></svg>
+            <div style="font-size:.85rem;font-weight:600;color:var(--text-primary)">Registra tu peso</div>
+            <div style="font-size:.75rem;color:var(--text-secondary);margin-top:3px">Primer dato, primer paso</div>
+          </button>
+          <button onclick="document.querySelector('[data-section=nutricion]').click()" style="background:var(--glass-bg);border:1px solid var(--glass-border);border-radius:12px;padding:16px 14px;cursor:pointer;text-align:left;transition:border-color .2s" onmouseover="this.style.borderColor='var(--primary)'" onmouseout="this.style.borderColor='var(--glass-border)'">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#00d4aa" stroke-width="2" style="margin-bottom:8px;display:block"><path d="M18 8h1a4 4 0 0 1 0 8h-1"/><path d="M2 8h16v9a4 4 0 0 1-4 4H6a4 4 0 0 1-4-4V8z"/><line x1="6" y1="1" x2="6" y2="4"/><line x1="10" y1="1" x2="10" y2="4"/><line x1="14" y1="1" x2="14" y2="4"/></svg>
+            <div style="font-size:.85rem;font-weight:600;color:var(--text-primary)">Calcula tus macros</div>
+            <div style="font-size:.75rem;color:var(--text-secondary);margin-top:3px">TDEE + objetivos diarios</div>
+          </button>
+          <button onclick="document.querySelector('[data-section=rutinas]').click()" style="background:var(--glass-bg);border:1px solid var(--glass-border);border-radius:12px;padding:16px 14px;cursor:pointer;text-align:left;transition:border-color .2s" onmouseover="this.style.borderColor='var(--primary)'" onmouseout="this.style.borderColor='var(--glass-border)'">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#f59e0b" stroke-width="2" style="margin-bottom:8px;display:block"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>
+            <div style="font-size:.85rem;font-weight:600;color:var(--text-primary)">Crea tu rutina</div>
+            <div style="font-size:.75rem;color:var(--text-secondary);margin-top:3px">El wizard tarda 2 minutos</div>
+          </button>
+          <button onclick="document.querySelector('[data-section=workout]').click()" style="background:var(--glass-bg);border:1px solid var(--glass-border);border-radius:12px;padding:16px 14px;cursor:pointer;text-align:left;transition:border-color .2s" onmouseover="this.style.borderColor='var(--primary)'" onmouseout="this.style.borderColor='var(--glass-border)'">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#e879f9" stroke-width="2" style="margin-bottom:8px;display:block"><path d="M6.5 6.5h11M6.5 17.5h11M3 12h2m14 0h2"/><circle cx="5" cy="12" r="2"/><circle cx="19" cy="12" r="2"/></svg>
+            <div style="font-size:.85rem;font-weight:600;color:var(--text-primary)">Primer entreno</div>
+            <div style="font-size:.75rem;color:var(--text-secondary);margin-top:3px">Registra sets y reps</div>
+          </button>
+        </div>
+      </div>
+
+      <!-- Consistency Progress Widget -->
+      <div id="consistency-progress-widget" style="display:none;margin-bottom:16px;background:var(--glass-bg);border:1px solid var(--glass-border);border-radius:14px;padding:14px 16px">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px">
+          <span style="font-size:.75rem;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--text-secondary)">Próximo desbloqueo</span>
+          <span id="cp-milestones-done" style="font-size:.75rem;color:var(--text-secondary)">0 / 3 desbloqueados</span>
+        </div>
+        <div id="cp-label" style="font-size:.85rem;font-weight:600;color:var(--text-primary);margin-bottom:8px">Cargando...</div>
+        <div style="background:var(--surface-2,#1a1a2e);border-radius:6px;height:6px;overflow:hidden;margin-bottom:6px">
+          <div id="cp-bar-fill" style="height:100%;background:linear-gradient(90deg,#6c63ff,#00d4aa);border-radius:6px;transition:width .4s ease;width:0%"></div>
+        </div>
+        <div id="cp-count" style="font-size:.75rem;color:var(--text-secondary)"></div>
+      </div>
+
       <!-- Welcome card -->
       <!-- Stats cards -->
       <div class="stats-grid">
@@ -1049,6 +1098,12 @@
           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
           <span id="check-update-label">Buscar actualización</span>
           <span id="app-version-label" style="margin-left:auto;opacity:.45;font-size:.75rem"></span>
+        </button>
+        <!-- Beta mode toggle -->
+        <button id="beta-mode-btn" class="perfil-update-btn" onclick="window._toggleBetaMode()">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3M6.343 6.343l-.707-.707M12 21v-1"/><circle cx="12" cy="12" r="4"/></svg>
+          <span id="beta-mode-label">Activar modo beta</span>
+          <span id="beta-mode-badge" style="display:none;margin-left:auto;background:#6c63ff;color:#fff;font-size:.65rem;font-weight:700;padding:2px 7px;border-radius:20px;letter-spacing:.04em">BETA</span>
         </button>
         <div class="perfil-footer-links">
           <a href="/privacy.html" class="perfil-footer-pill" target="_blank" rel="noopener">Privacidad</a>

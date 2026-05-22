@@ -4823,6 +4823,100 @@ select.form-input option { background: var(--bg-surface); color: var(--text-prim
 .wpd-name { font-size: 13px; font-weight: 600; flex: 1; }
 .wpd-count { font-size: 11px; color: rgba(255,255,255,0.38); }
 
+/* ── Pre-workout weight adjustment ──────────────────────────────────── */
+.wl-preworkout { padding: 16px 0; }
+.wl-pre-hint { font-size: 13px; color: rgba(255,255,255,0.45); margin: 0 0 16px; }
+.wl-pre-list { display: flex; flex-direction: column; gap: 10px; margin-bottom: 20px; }
+.wl-pre-row {
+  background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.07);
+  border-radius: 12px; padding: 12px 14px;
+}
+.wl-pre-exname { font-size: 14px; font-weight: 600; margin-bottom: 2px; }
+.wl-pre-scheme { font-size: 11px; color: rgba(255,255,255,0.4); margin-bottom: 10px; }
+.wl-pre-weight-wrap {
+  display: flex; align-items: center; gap: 8px;
+}
+.wl-pre-stepper {
+  width: 36px; height: 36px; border-radius: 8px;
+  background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.1);
+  color: #fff; font-size: 20px; line-height: 1; cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+  transition: background 0.15s; flex-shrink: 0;
+}
+.wl-pre-stepper:hover { background: rgba(255,255,255,0.12); }
+.wl-pre-weight-inp {
+  width: 72px; text-align: center; padding: 7px 4px;
+  background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1);
+  border-radius: 8px; color: #fff; font-size: 16px; font-weight: 600;
+}
+.wl-pre-unit { font-size: 12px; color: rgba(255,255,255,0.5); }
+.wl-pre-start-btn {
+  width: 100%; padding: 14px; border-radius: 12px;
+  background: var(--primary); color: var(--bg-deep); border: none;
+  font-size: 15px; font-weight: 700; cursor: pointer;
+  display: flex; align-items: center; justify-content: center; gap: 8px;
+  transition: opacity 0.15s;
+}
+.wl-pre-start-btn:hover { opacity: 0.9; }
+
+/* ── Custom routine builder ──────────────────────────────────────────── */
+.wl-custom-builder { padding: 16px 0; }
+.wl-custom-sessions { display: flex; flex-direction: column; gap: 14px; margin-bottom: 12px; }
+.wl-custom-session {
+  background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.07);
+  border-radius: 14px; padding: 14px; position: relative;
+}
+.wl-custom-session-header {
+  display: flex; gap: 8px; align-items: center; margin-bottom: 10px;
+}
+.wl-custom-day-inp, .wl-custom-name-inp {
+  flex: 1; padding: 6px 10px; background: rgba(255,255,255,0.06);
+  border: 1px solid rgba(255,255,255,0.1); border-radius: 8px;
+  color: #fff; font-size: 13px;
+}
+.wl-custom-del-session {
+  background: none; border: none; color: rgba(255,255,255,0.3);
+  cursor: pointer; font-size: 16px; padding: 4px;
+}
+.wl-custom-ex-row {
+  display: flex; align-items: center; gap: 6px;
+  padding: 8px 0; border-bottom: 1px solid rgba(255,255,255,0.05);
+  font-size: 13px;
+}
+.wl-custom-ex-name { flex: 1; font-weight: 500; }
+.wl-custom-sets-inp, .wl-custom-reps-inp {
+  width: 44px; text-align: center; padding: 4px;
+  background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.1);
+  border-radius: 6px; color: #fff; font-size: 13px;
+}
+.wl-custom-del-ex {
+  background: none; border: none; color: rgba(255,255,255,0.3); cursor: pointer; font-size: 14px;
+}
+.wl-custom-add-wrap { position: relative; margin-top: 10px; }
+.wl-custom-ex-search {
+  width: 100%; padding: 8px 12px;
+  background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1);
+  border-radius: 8px; color: #fff; font-size: 14px;
+}
+.wl-custom-add-session-btn {
+  width: 100%; padding: 10px; border-radius: 10px; margin-bottom: 10px;
+  background: rgba(255,255,255,0.04); border: 1px dashed rgba(255,255,255,0.15);
+  color: rgba(255,255,255,0.55); font-size: 13px; cursor: pointer;
+}
+.wl-custom-save-btn {
+  width: 100%; padding: 14px; border-radius: 12px;
+  background: var(--primary); color: var(--bg-deep); border: none;
+  font-size: 15px; font-weight: 700; cursor: pointer;
+}
+
+/* ── 1RM Formula description ─────────────────────────────────────────── */
+.wl-formula-desc {
+  font-size: 12px; color: rgba(255,255,255,0.45);
+  margin-top: 8px; line-height: 1.5;
+  padding: 8px 10px; background: rgba(255,255,255,0.03);
+  border-radius: 8px; border-left: 2px solid rgba(196,165,97,0.4);
+}
+
 /* ── Ranked System ─────────────────────────────────────────────────── */
 .rk-loading { color: rgba(255,255,255,0.4); text-align: center; padding: 24px; }
 .rk-error { color: #ef4444; text-align: center; padding: 16px; }

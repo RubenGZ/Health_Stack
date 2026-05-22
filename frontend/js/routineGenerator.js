@@ -1064,7 +1064,7 @@ const RoutineGenerator = (function () {
 
     try {
       const saved = JSON.parse(localStorage.getItem(LS_KEY) || 'null');
-      if (saved?.routine) showResult(saved.routine);
+      if (saved?.routine) showResult(saved.routine, true); // true = fromHistory, no abrir modal de guardado
     } catch { /* ignorar */ }
 
     renderHistory();

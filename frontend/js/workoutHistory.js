@@ -2,6 +2,12 @@
 import * as ORM from './oneRepMax.js';
 import * as PR  from './workoutPR.js';
 
+const FORMULA_INFO = {
+  best:    { name: 'Promedio',  desc: 'Combina Epley + Brzycki. Recomendado para la mayoría de situaciones: más preciso al promediar ambos modelos.' },
+  epley:   { name: 'Epley',     desc: 'Más precisa con 7+ reps. Fórmula: peso × (1 + reps/30). Ideal para rangos de hipertrofia (8-12).' },
+  brzycki: { name: 'Brzycki',   desc: 'Más precisa con ≤6 reps. Fórmula: peso × 36/(37−reps). Ideal para fuerza máxima (1-5).' },
+};
+
 export async function init(container) {
   const _wht = window.t || (k => k);
   container.innerHTML = '<p class="wl-history-empty" style="opacity:0.5">' + _wht('workout.loading') + '</p>';
@@ -110,11 +116,13 @@ function buildCalculatorHTML() {
   return `
     <div class="wl-calc">
       <div class="wl-calc-inputs">
-        <div class="wl-calc-field">
+        <div class="wl-calc-field" style="position:relative">
           <label class="wl-calc-label">Ejercicio</label>
           <input type="text" id="wl-calc-exercise" class="wl-input wl-calc-ex-input"
-            placeholder="Buscar ejercicio..." autocomplete="off" />
-          <div id="wl-calc-ex-results" class="wl-calc-ex-results"></div>
+            placeholder="Buscar ejercicio..." autocomplete="off"
+            style="font-size:16px" inputmode="search" />
+          <div id="wl-calc-ex-results" class="wl-calc-ex-results"
+            style="position:absolute;left:0;right:0;top:100%;z-index:200;background:var(--bg-surface);border:1px solid var(--glass-border);border-radius:8px;overflow:hidden;display:none"></div>
         </div>
         <div class="wl-calc-row">
           <div class="wl-calc-field">
@@ -133,6 +141,7 @@ function buildCalculatorHTML() {
             <button class="wl-formula-btn" data-formula="epley">Epley</button>
             <button class="wl-formula-btn" data-formula="brzycki">Brzycki</button>
           </div>
+          <div id="wl-formula-desc" class="wl-formula-desc">Combina Epley + Brzycki. Recomendado para la mayoría de situaciones: más preciso al promediar ambos modelos.</div>
         </div>
       </div>
 
@@ -182,21 +191,28 @@ function initCalculator(container) {
   let _exerciseKey = null;
   let _barKg       = 20;
 
-  // Exercise autocomplete
-  exInp?.addEventListener('input', () => {
+  // Exercise autocomplete — compatible iOS (input + search button)
+  function _runExSearch() {
     const q = exInp.value.toLowerCase().trim().normalize('NFD').replace(/[̀-ͯ]/g, '');
-    if (!q) { exResults.innerHTML = ''; return; }
+    if (!q) { exResults.innerHTML = ''; exResults.style.display = 'none'; return; }
     const db = (typeof Exercises !== 'undefined' && Exercises.getDB) ? Exercises.getDB() : [];
-    const hits = db.filter(ex => ex.name.toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '').includes(q)).slice(0, 6);
+    const hits = db.filter(ex =>
+      ex.name.toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '').includes(q)
+    ).slice(0, 8);
+    if (!hits.length) { exResults.innerHTML = '<div style="padding:10px 14px;color:var(--text-muted);font-size:.85rem">Sin resultados</div>'; exResults.style.display = ''; return; }
+    exResults.style.display = '';
     exResults.innerHTML = hits.map(ex =>
-      `<button class="wl-calc-ex-item" data-key="${ex.key || ex.name.toLowerCase().replace(/\s+/g,'_')}" data-name="${ex.name}">${ex.name}</button>`
+      `<button class="wl-calc-ex-item" data-key="${ex.key || ex.name.toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g,'').replace(/\s+/g,'_')}" data-name="${ex.name}"
+        style="display:block;width:100%;text-align:left;padding:10px 14px;background:none;border:none;border-bottom:1px solid var(--glass-border);color:var(--text-primary);font-size:.9rem;cursor:pointer;-webkit-tap-highlight-color:transparent">
+        ${ex.name}<span style="font-size:.75rem;color:var(--text-muted);margin-left:8px">${ex.group}</span>
+      </button>`
     ).join('');
     exResults.querySelectorAll('.wl-calc-ex-item').forEach(btn => {
       btn.addEventListener('click', () => {
-        exInp.value    = btn.dataset.name;
-        _exerciseKey   = btn.dataset.key;
+        exInp.value  = btn.dataset.name;
+        _exerciseKey = btn.dataset.key;
         exResults.innerHTML = '';
-        // pre-fill con mejor set histórico
+        exResults.style.display = 'none';
         const hist = ORM.getHistory(_exerciseKey);
         if (hist.length) {
           const best = hist.reduce((b, e) => e.oneRM > (b?.oneRM ?? 0) ? e : b, null);
@@ -205,14 +221,23 @@ function initCalculator(container) {
         _recalc();
       });
     });
+  }
+  exInp?.addEventListener('input', _runExSearch);
+  // Cerrar dropdown al tocar fuera
+  document.addEventListener('click', e => {
+    if (!exInp?.contains(e.target) && !exResults?.contains(e.target)) {
+      exResults.innerHTML = ''; exResults.style.display = 'none';
+    }
   });
 
   // Formula buttons
+  const formulaDescEl = container.querySelector('#wl-formula-desc');
   container.querySelectorAll('.wl-formula-btn').forEach(btn => {
     btn.addEventListener('click', () => {
       container.querySelectorAll('.wl-formula-btn').forEach(b => b.classList.remove('wl-formula-btn--active'));
       btn.classList.add('wl-formula-btn--active');
       _formula = btn.dataset.formula;
+      if (formulaDescEl) formulaDescEl.textContent = FORMULA_INFO[_formula]?.desc || '';
       _recalc();
     });
   });
@@ -247,8 +272,8 @@ function initCalculator(container) {
     resultDiv.style.display = '';
     oneRMVal.textContent = `${orm} kg`;
 
-    // Tabla
-    const rows = ORM.buildTable(kg, reps);
+    // Tabla — usa buildTableFromORM para que respete la fórmula seleccionada
+    const rows = ORM.buildTableFromORM(orm, reps);
     tableDiv.innerHTML = rows.map(r => `
       <div class="wl-calc-row-item${r.isCurrent ? ' wl-calc-row-current' : ''}">
         <span class="wl-calc-n">${r.n} RM</span>

@@ -64,6 +64,19 @@ export function buildTable(weightKg, reps) {
   }));
 }
 
+/** Construye la tabla 1→12 RM a partir de un 1RM ya calculado (respeta la fórmula elegida).
+ *  @param oneRM  — valor ya calculado con la fórmula seleccionada
+ *  @param currentReps — resalta la fila correspondiente a las reps actuales */
+export function buildTableFromORM(oneRM, currentReps) {
+  if (!oneRM || oneRM <= 0) return [];
+  return [1, 2, 3, 4, 5, 6, 8, 10, 12].map(n => ({
+    n,
+    kg:        nRM(oneRM, n),
+    zone:      getZone(n),
+    isCurrent: n === currentReps,
+  }));
+}
+
 // ── Historial de 1RM estimados ────────────────────────────────────────────────
 
 /** Lee el historial de sesiones locales y extrae el mejor set por sesión

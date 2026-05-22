@@ -107,27 +107,28 @@ function renderIdle() {
       </div>`;
   }
 
-  // Rutinas guardadas del generador — combina historial + rutina activa si existe
-  let savedRoutines = [];
-  try { savedRoutines = JSON.parse(localStorage.getItem('hs_routine_history') || '[]'); } catch {}
-
-  // Añadir la rutina activa (hs_routine) si tiene sessions y no está ya en el historial
+  // Rutina IA guardada (slot único — tier gratuito)
+  let iaRoutines = [];
+  try { iaRoutines = JSON.parse(localStorage.getItem('hs_routine_history') || '[]'); } catch {}
   try {
     const activeRaw = JSON.parse(localStorage.getItem('hs_routine') || 'null');
     if (activeRaw?.routine?.sessions) {
-      // ¿Ya está en el historial? Comparar por ts o por sessions length
-      const alreadyInHistory = savedRoutines.some(r => r.ts === activeRaw.ts);
-      if (!alreadyInHistory) {
-        // Insertarla como primer elemento con el formato que espera renderRoutinePicker
-        savedRoutines = [
+      const alreadyIn = iaRoutines.some(r => r.ts === activeRaw.ts);
+      if (!alreadyIn) {
+        iaRoutines = [
           { ts: activeRaw.ts || Date.now(), label: 'Última rutina generada', routine: activeRaw.routine },
-          ...savedRoutines,
+          ...iaRoutines,
         ];
       }
     }
   } catch { /* ignorar */ }
 
-  const hasSaved = savedRoutines.length > 0;
+  // Rutina personalizada del usuario (slot separado)
+  let customRoutine = null;
+  try { customRoutine = JSON.parse(localStorage.getItem('hs_custom_routine') || 'null'); } catch {}
+
+  const hasIA     = iaRoutines.length > 0;
+  const hasCustom = customRoutine?.sessions?.length > 0;
 
   _root.innerHTML = `
     <div class="wl-idle">
@@ -142,15 +143,14 @@ function renderIdle() {
           </button>
           <button class="wl-mode-card" id="wl-mode-build">
             <svg class="wl-mode-icon" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>
-            <span class="wl-mode-title">Ir a Rutinas</span>
-            <span class="wl-mode-sub">Genera o edita tu plan</span>
+            <span class="wl-mode-title">Rutina IA</span>
+            <span class="wl-mode-sub">${hasIA ? 'Cargar plan generado' : 'Genera tu plan inteligente'}</span>
           </button>
-          ${hasSaved ? `
-          <button class="wl-mode-card wl-mode-card--accent" id="wl-mode-saved">
-            <svg class="wl-mode-icon" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>
-            <span class="wl-mode-title">Cargar rutina</span>
-            <span class="wl-mode-sub">${savedRoutines.length} guardada${savedRoutines.length > 1 ? 's' : ''}</span>
-          </button>` : ''}
+          <button class="wl-mode-card${hasCustom ? ' wl-mode-card--accent' : ''}" id="wl-mode-custom">
+            <svg class="wl-mode-icon" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+            <span class="wl-mode-title">Mi rutina</span>
+            <span class="wl-mode-sub">${hasCustom ? `${customRoutine.sessions.length} días configurados` : 'Crea tu propia rutina'}</span>
+          </button>
         </div>
       </div>
     </div>`;
@@ -162,19 +162,25 @@ function renderIdle() {
   });
 
   _root.querySelector('#wl-mode-build')?.addEventListener('click', () => {
-    if (typeof window.navigateTo === 'function') {
-      window.navigateTo('rutinas');
+    if (hasIA) {
+      renderRoutinePicker(iaRoutines);
     } else {
-      const nav = document.querySelector('[data-section="rutinas"]');
-      if (nav) nav.click();
+      if (typeof window.navigateTo === 'function') {
+        window.navigateTo('rutinas');
+      } else {
+        const nav = document.querySelector('[data-section="rutinas"]');
+        if (nav) nav.click();
+      }
     }
   });
 
-  if (hasSaved) {
-    _root.querySelector('#wl-mode-saved')?.addEventListener('click', () => {
-      renderRoutinePicker(savedRoutines);
-    });
-  }
+  _root.querySelector('#wl-mode-custom')?.addEventListener('click', () => {
+    if (hasCustom) {
+      renderRoutinePicker([{ label: 'Mi rutina', routine: customRoutine, ts: customRoutine.ts || 0 }]);
+    } else {
+      renderCustomRoutineBuilder();
+    }
+  });
 }
 
 // ─── Selector de rutinas guardadas ─────────────────────────────────────────────
@@ -216,9 +222,201 @@ function renderRoutinePicker(routines) {
       const sidx = parseInt(btn.dataset.sidx);
       const activeDays = (routines[ridx]?.routine?.sessions || []).filter(s => s.exercises && s.exercises.length > 0);
       const daySession = activeDays[sidx];
-      if (daySession) _loadRoutineSession(daySession);
+      if (daySession) renderPreWorkoutAdjust(daySession);
     });
   });
+}
+
+// ─── Pantalla de ajuste de pesos pre-entreno ───────────────────────────────────
+// Permite revisar y modificar los pesos planificados antes de empezar
+function renderPreWorkoutAdjust(daySession) {
+  const exList = (daySession.exercises || []).filter(ex => ex.name);
+
+  _root.innerHTML = `
+    <div class="wl-preworkout">
+      <div class="wl-picker-header">
+        <button class="wl-picker-back" id="wl-pre-back">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="15 18 9 12 15 6"/></svg>
+          Volver
+        </button>
+        <h3 class="wl-picker-title">${daySession.day} — ${daySession.name || ''}</h3>
+      </div>
+      <p class="wl-pre-hint">Ajusta los pesos antes de empezar. Los sets de calentamiento se generan automáticamente.</p>
+      <div class="wl-pre-list">
+        ${exList.map((ex, i) => {
+          const suggested = Session.getSuggestedWeight(
+            ex.name.toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g,'').replace(/\s+/g,'_')
+          );
+          const planned = suggested ?? 0;
+          return `
+          <div class="wl-pre-row">
+            <div class="wl-pre-exname">${ex.name}</div>
+            <div class="wl-pre-scheme">${ex.sets} × ${ex.reps} · ${ex.rest || '90s'}</div>
+            <div class="wl-pre-weight-wrap">
+              <button class="wl-pre-stepper" data-idx="${i}" data-dir="-">−</button>
+              <input type="number" class="wl-pre-weight-inp" id="wl-pre-weight-${i}"
+                value="${planned}" min="0" step="2.5" style="font-size:16px">
+              <span class="wl-pre-unit">kg</span>
+              <button class="wl-pre-stepper" data-idx="${i}" data-dir="+">+</button>
+            </div>
+          </div>`;
+        }).join('')}
+      </div>
+      <button class="wl-pre-start-btn" id="wl-pre-start">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+        Empezar entreno
+      </button>
+    </div>`;
+
+  _root.querySelector('#wl-pre-back').addEventListener('click', renderIdle);
+
+  // Steppers +/−
+  _root.querySelectorAll('.wl-pre-stepper').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const idx = parseInt(btn.dataset.idx);
+      const inp = _root.querySelector(`#wl-pre-weight-${idx}`);
+      if (!inp) return;
+      const step = 2.5;
+      const cur  = parseFloat(inp.value) || 0;
+      inp.value  = Math.max(0, btn.dataset.dir === '+' ? cur + step : cur - step);
+    });
+  });
+
+  _root.querySelector('#wl-pre-start').addEventListener('click', () => {
+    // Aplicar pesos ajustados al daySession antes de cargarlo
+    const adjusted = { ...daySession, exercises: exList.map((ex, i) => {
+      const inp = _root.querySelector(`#wl-pre-weight-${i}`);
+      const kg  = inp ? (parseFloat(inp.value) || 0) : 0;
+      return { ...ex, _adjustedKg: kg };
+    }) };
+    _loadRoutineSession(adjusted);
+  });
+}
+
+// ─── Constructor de rutina personalizada ──────────────────────────────────────
+function renderCustomRoutineBuilder() {
+  const db = (typeof Exercises !== 'undefined' && Exercises.getDB) ? Exercises.getDB() : [];
+  const days = ['Lunes','Martes','Miércoles','Jueves','Viernes','Sábado','Domingo'];
+
+  // Estado temporal
+  let sessions = [{ day: 'Día 1', name: 'Mi sesión', exercises: [] }];
+
+  function _render() {
+    _root.innerHTML = `
+      <div class="wl-custom-builder">
+        <div class="wl-picker-header">
+          <button class="wl-picker-back" id="wl-custom-back">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="15 18 9 12 15 6"/></svg>
+            Volver
+          </button>
+          <h3 class="wl-picker-title">Mi rutina</h3>
+        </div>
+        <div class="wl-custom-sessions">
+          ${sessions.map((s, si) => `
+            <div class="wl-custom-session" data-si="${si}">
+              <div class="wl-custom-session-header">
+                <input class="wl-custom-day-inp" data-si="${si}" value="${s.day}" placeholder="Ej: Lunes" style="font-size:16px">
+                <input class="wl-custom-name-inp" data-si="${si}" value="${s.name}" placeholder="Nombre sesión" style="font-size:16px">
+                <button class="wl-custom-del-session" data-si="${si}" title="Eliminar sesión">✕</button>
+              </div>
+              <div class="wl-custom-exlist">
+                ${s.exercises.map((ex, ei) => `
+                  <div class="wl-custom-ex-row">
+                    <span class="wl-custom-ex-name">${ex.name}</span>
+                    <input type="number" class="wl-custom-sets-inp" data-si="${si}" data-ei="${ei}" value="${ex.sets || 3}" min="1" max="10" placeholder="sets" style="width:44px;font-size:16px">
+                    <span>×</span>
+                    <input type="number" class="wl-custom-reps-inp" data-si="${si}" data-ei="${ei}" value="${ex.reps || 8}" min="1" max="30" placeholder="reps" style="width:44px;font-size:16px">
+                    <button class="wl-custom-del-ex" data-si="${si}" data-ei="${ei}">✕</button>
+                  </div>`).join('')}
+              </div>
+              <div class="wl-custom-add-wrap">
+                <input type="text" class="wl-custom-ex-search" data-si="${si}" placeholder="Buscar ejercicio..." autocomplete="off" style="font-size:16px">
+                <div class="wl-custom-ex-results" data-si="${si}" style="display:none;position:absolute;left:0;right:0;background:var(--bg-surface);border:1px solid var(--glass-border);border-radius:8px;z-index:200;overflow:hidden"></div>
+              </div>
+            </div>`).join('')}
+        </div>
+        <button class="wl-custom-add-session-btn" id="wl-custom-add-session">+ Añadir día</button>
+        <button class="wl-custom-save-btn" id="wl-custom-save">Guardar mi rutina</button>
+      </div>`;
+
+    _root.querySelector('#wl-custom-back').addEventListener('click', renderIdle);
+    _root.querySelector('#wl-custom-add-session').addEventListener('click', () => {
+      sessions.push({ day: `Día ${sessions.length + 1}`, name: 'Nueva sesión', exercises: [] });
+      _render();
+    });
+
+    // Borrar sesión
+    _root.querySelectorAll('.wl-custom-del-session').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const si = parseInt(btn.dataset.si);
+        sessions.splice(si, 1);
+        if (!sessions.length) sessions.push({ day: 'Día 1', name: 'Mi sesión', exercises: [] });
+        _render();
+      });
+    });
+
+    // Actualizar nombre de día/sesión
+    _root.querySelectorAll('.wl-custom-day-inp').forEach(inp => {
+      inp.addEventListener('input', () => { sessions[parseInt(inp.dataset.si)].day = inp.value; });
+    });
+    _root.querySelectorAll('.wl-custom-name-inp').forEach(inp => {
+      inp.addEventListener('input', () => { sessions[parseInt(inp.dataset.si)].name = inp.value; });
+    });
+
+    // Actualizar sets/reps
+    _root.querySelectorAll('.wl-custom-sets-inp').forEach(inp => {
+      inp.addEventListener('change', () => {
+        sessions[parseInt(inp.dataset.si)].exercises[parseInt(inp.dataset.ei)].sets = parseInt(inp.value) || 3;
+      });
+    });
+    _root.querySelectorAll('.wl-custom-reps-inp').forEach(inp => {
+      inp.addEventListener('change', () => {
+        sessions[parseInt(inp.dataset.si)].exercises[parseInt(inp.dataset.ei)].reps = parseInt(inp.value) || 8;
+      });
+    });
+
+    // Borrar ejercicio
+    _root.querySelectorAll('.wl-custom-del-ex').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const si = parseInt(btn.dataset.si), ei = parseInt(btn.dataset.ei);
+        sessions[si].exercises.splice(ei, 1);
+        _render();
+      });
+    });
+
+    // Búsqueda de ejercicios por sesión
+    _root.querySelectorAll('.wl-custom-ex-search').forEach(inp => {
+      const si = parseInt(inp.dataset.si);
+      const resultsEl = _root.querySelector(`.wl-custom-ex-results[data-si="${si}"]`);
+      inp.addEventListener('input', () => {
+        const q = inp.value.toLowerCase().trim().normalize('NFD').replace(/[̀-ͯ]/g,'');
+        if (!q) { resultsEl.style.display = 'none'; return; }
+        const hits = db.filter(ex => ex.name.toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g,'').includes(q)).slice(0,6);
+        resultsEl.style.display = hits.length ? '' : 'none';
+        resultsEl.innerHTML = hits.map(ex =>
+          `<button style="display:block;width:100%;text-align:left;padding:9px 14px;background:none;border:none;border-bottom:1px solid var(--glass-border);color:var(--text-primary);font-size:.9rem;cursor:pointer"
+            data-name="${ex.name}" data-group="${ex.group}">${ex.name} <span style="font-size:.75rem;color:var(--text-muted)">${ex.group}</span></button>`
+        ).join('');
+        resultsEl.querySelectorAll('button').forEach(btn => {
+          btn.addEventListener('click', () => {
+            sessions[si].exercises.push({ name: btn.dataset.name, sets: 3, reps: 8, rest: '90s' });
+            inp.value = '';
+            resultsEl.style.display = 'none';
+            _render();
+          });
+        });
+      });
+    });
+
+    // Guardar rutina personalizada
+    _root.querySelector('#wl-custom-save').addEventListener('click', () => {
+      const routine = { sessions, ts: Date.now() };
+      localStorage.setItem('hs_custom_routine', JSON.stringify(routine));
+      renderIdle();
+    });
+  }
+
+  _render();
 }
 
 // ─── Parsear string de descanso → segundos ─────────────────────────────────────
@@ -248,10 +446,9 @@ function _loadRoutineSession(daySession) {
     const key      = _toKey(ex.name);
     const restSecs = _parseRestSecs(ex.rest);
 
-    // Progressive overload: peso de última sesión + 2.5 kg si se completaron todas las reps.
-    // null si no hay historial → el usuario rellena desde cero.
+    // Peso pre-ajustado desde pantalla pre-entreno (tiene prioridad), luego historial, luego 0
     const suggested  = Session.getSuggestedWeight(key);
-    const workingKg  = suggested ?? 0;
+    const workingKg  = (ex._adjustedKg !== undefined ? ex._adjustedKg : null) ?? suggested ?? 0;
 
     const setsArr = [];
 

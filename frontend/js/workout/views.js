@@ -20,31 +20,72 @@ export function searchExercises(query) {
   }).slice(0, 8);
 }
 
+// ─── Helpers ───────────────────────────────────────────────────────────────────
+function _fmtDuration(secs) {
+  if (!secs) return '—';
+  const h = Math.floor(secs / 3600);
+  const m = Math.floor((secs % 3600) / 60);
+  if (h > 0) return `${h}h ${m.toString().padStart(2, '0')}min`;
+  return `${m}min`;
+}
+
 // ─── IDLE ──────────────────────────────────────────────────────────────────────
 export function renderIdle() {
+  // ── Historial compacto ────────────────────────────────────────────────────
   const history = Session.getLocalSessions();
-  const lastSession = history[0];
-  let lastHtml = '';
-  if (lastSession) {
-    const d = new Date(lastSession.startedAt);
-    const dateStr = d.toLocaleDateString('es-ES', { weekday: 'long', day: 'numeric', month: 'short' });
-    const exNames = (lastSession.exercises || []).slice(0, 3).map(e => e.name).join(', ');
-    const more = (lastSession.exercises || []).length > 3 ? ` +${(lastSession.exercises||[]).length - 3}` : '';
-    lastHtml = `
-      <div class="wl-last-session">
-        <div class="wl-last-label">Última sesión</div>
-        <div class="wl-last-date">${dateStr}</div>
-        <div class="wl-last-exercises">${exNames}${more}</div>
+  let histHtml = '';
+  if (history.length > 0) {
+    const rows = history.map((sess, idx) => {
+      const d = new Date(sess.startedAt);
+      const dateStr = d.toLocaleDateString('es-ES', { weekday: 'short', day: 'numeric', month: 'short' });
+      const dur = _fmtDuration(sess.durationSecs);
+      let routineLabel;
+      if (sess.routineName) {
+        routineLabel = sess.routineId
+          ? `${sess.routineId} · ${sess.routineName}`
+          : sess.routineName;
+      } else {
+        routineLabel = sess.routineId || 'Sesión libre';
+      }
+      const detailRows = (sess.exercises || []).map(ex => {
+        const ws = (ex.sets || []).filter(s => !s.isWarmup && s.completedAt);
+        if (!ws.length) return '';
+        return `<div class="wl-hist-ex">
+          <span class="wl-hist-ex-name">${ex.name}</span>
+          <span class="wl-hist-ex-sets">${ws.map(s => `${s.weightKg}×${s.reps}`).join(' · ')}</span>
+        </div>`;
+      }).filter(Boolean).join('');
+      return `
+        <div class="wl-hist-row" data-hidx="${idx}">
+          <div class="wl-hist-row-main">
+            <span class="wl-hist-name">${routineLabel}</span>
+            <span class="wl-hist-date">${dateStr}</span>
+            <span class="wl-hist-dur">${dur}</span>
+            ${detailRows ? `<svg class="wl-hist-chevron" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg>` : ''}
+          </div>
+          ${detailRows ? `<div class="wl-hist-detail">${detailRows}</div>` : ''}
+        </div>`;
+    }).join('');
+    histHtml = `
+      <div class="wl-history-section">
+        <h4 class="wl-hist-title">Historial</h4>
+        <div class="wl-history-list">${rows}</div>
       </div>`;
   }
 
-  // Rutina IA guardada (slot único — tier gratuito)
+  // ── Rutina IA guardada — dedup robusto ────────────────────────────────────
   let iaRoutines = [];
   try { iaRoutines = JSON.parse(localStorage.getItem('hs_routine_history') || '[]'); } catch {}
   try {
     const activeRaw = JSON.parse(localStorage.getItem('hs_routine') || 'null');
     if (activeRaw?.routine?.sessions) {
-      const alreadyIn = iaRoutines.some(r => r.ts === activeRaw.ts);
+      const activeExStr = JSON.stringify(
+        (activeRaw.routine.sessions).map(s => (s.exercises || []).map(e => e.name))
+      );
+      const alreadyIn = iaRoutines.some(r => {
+        if (r.ts && activeRaw.ts && r.ts === activeRaw.ts) return true;
+        return JSON.stringify((r.routine?.sessions || []).map(s => (s.exercises || []).map(e => e.name))) === activeExStr;
+      });
       if (!alreadyIn) {
         iaRoutines = [
           { ts: activeRaw.ts || Date.now(), label: 'Última rutina generada', routine: activeRaw.routine },
@@ -53,6 +94,15 @@ export function renderIdle() {
       }
     }
   } catch { /* ignorar */ }
+
+  // Dedup iaRoutines por contenido (por si hs_routine_history tiene entradas repetidas)
+  const _seenContent = new Set();
+  iaRoutines = iaRoutines.filter(r => {
+    const key = JSON.stringify((r.routine?.sessions || []).map(s => (s.exercises || []).map(e => e.name)));
+    if (_seenContent.has(key)) return false;
+    _seenContent.add(key);
+    return true;
+  });
 
   // Rutina personalizada del usuario
   let customRoutine = null;
@@ -65,7 +115,6 @@ export function renderIdle() {
     <div class="wl-idle">
       <div class="wl-idle-body">
         <h3 class="wl-idle-title">¿Cómo quieres entrenar?</h3>
-        ${lastHtml}
         <div class="wl-mode-grid">
           <button class="wl-mode-card" id="wl-mode-free">
             <svg class="wl-mode-icon" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="16"/><line x1="8" y1="12" x2="16" y2="12"/></svg>
@@ -83,8 +132,21 @@ export function renderIdle() {
             <span class="wl-mode-sub">${hasCustom ? `${customRoutine.sessions.length} días configurados` : 'Crea tu propia rutina'}</span>
           </button>
         </div>
+        ${histHtml}
       </div>
     </div>`;
+
+  // ── Historial: expand/collapse filas ─────────────────────────────────────
+  S.root.querySelectorAll('.wl-hist-row').forEach(row => {
+    const detail = row.querySelector('.wl-hist-detail');
+    if (!detail) return;
+    const mainRow = row.querySelector('.wl-hist-row-main');
+    mainRow.addEventListener('click', () => {
+      const isOpen = detail.style.display !== 'none';
+      detail.style.display = isOpen ? 'none' : 'block';
+      row.classList.toggle('wl-hist-row--open', !isOpen);
+    });
+  });
 
   S.root.querySelector('#wl-mode-free').addEventListener('click', () => {
     S.session = Session.startSession();
@@ -412,8 +474,9 @@ export function loadRoutineSession(daySession) {
   });
 
   const draft = {
-    routineId:  daySession.day || null,
-    startedAt:  new Date().toISOString(),
+    routineId:   daySession.day  || null,
+    routineName: daySession.name || null,
+    startedAt:   new Date().toISOString(),
     exercises,
   };
   Session.saveDraft(draft);

@@ -43,11 +43,13 @@ export async function onFinish() {
   } catch {}
 
   Session.saveToLocalHistory({
-    id: result?.session_id ?? Date.now(),
-    startedAt: S.session.startedAt,
-    durationSecs: result?.duration_secs ?? null,
+    id:           result?.session_id ?? Date.now(),
+    startedAt:    S.session.startedAt,
+    durationSecs: result?.duration_secs ?? Math.floor((Date.now() - new Date(S.session.startedAt)) / 1000),
     totalVolumeKg: result?.total_volume_kg ?? null,
-    exercises: S.session.exercises,
+    routineId:    S.session.routineId   ?? null,
+    routineName:  S.session.routineName ?? null,
+    exercises:    S.session.exercises,
   });
   Session.clearDraft();
 

@@ -1109,6 +1109,29 @@
           <span id="check-update-label">Buscar actualización</span>
           <span id="app-version-label" style="margin-left:auto;opacity:.45;font-size:.75rem"></span>
         </button>
+        <!-- Theme selector -->
+        <button id="perfil-theme-btn" class="perfil-update-btn" onclick="window._openThemePicker()">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 2a10 10 0 0 1 0 20C6.477 22 2 17.523 2 12"/><path d="M12 8v4l3 3"/></svg>
+          <span>Apariencia</span>
+          <span id="perfil-theme-current" style="margin-left:auto;opacity:.55;font-size:.75rem;text-transform:capitalize"></span>
+        </button>
+        <!-- Theme picker panel (inline, hidden by default) -->
+        <div id="perfil-theme-panel" style="display:none;padding:12px 4px 4px;border-top:1px solid var(--glass-border)">
+          <div style="display:flex;gap:10px;justify-content:center">
+            <button class="perfil-theme-swatch" data-t="forge"    onclick="window._setThemeFromPerfil('forge')"    title="Forge">
+              <span class="swatch-dot" style="background:linear-gradient(135deg,#c4a561,#8b6914)"></span>
+              <span class="swatch-label">Forge</span>
+            </button>
+            <button class="perfil-theme-swatch" data-t="midnight" onclick="window._setThemeFromPerfil('midnight')" title="Midnight">
+              <span class="swatch-dot" style="background:linear-gradient(135deg,#1a1a2e,#0d0d1a)"></span>
+              <span class="swatch-label">Midnight</span>
+            </button>
+            <button class="perfil-theme-swatch" data-t="aurora"   onclick="window._setThemeFromPerfil('aurora')"   title="Aurora">
+              <span class="swatch-dot" style="background:linear-gradient(135deg,#7c3aed,#4f1a9e)"></span>
+              <span class="swatch-label">Aurora</span>
+            </button>
+          </div>
+        </div>
         <!-- Beta mode toggle -->
         <button id="beta-mode-btn" class="perfil-update-btn" onclick="window._toggleBetaMode()">
           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3M6.343 6.343l-.707-.707M12 21v-1"/><circle cx="12" cy="12" r="4"/></svg>

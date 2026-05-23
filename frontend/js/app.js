@@ -290,6 +290,40 @@
       Plan.isBeta() ? Plan.disableBeta() : Plan.enableBeta();
       _refreshUI();
     };
+
+    // ── Theme picker en Perfil ────────────────────────────────
+    function _syncThemePickerUI() {
+      const current = document.documentElement.getAttribute('data-theme') || 'forge';
+      const label   = document.getElementById('perfil-theme-current');
+      if (label) label.textContent = current.charAt(0).toUpperCase() + current.slice(1);
+      document.querySelectorAll('.perfil-theme-swatch').forEach(btn => {
+        btn.classList.toggle('active', btn.dataset.t === current);
+      });
+    }
+    window._openThemePicker = function () {
+      const panel = document.getElementById('perfil-theme-panel');
+      if (!panel) return;
+      const isOpen = panel.style.display !== 'none';
+      panel.style.display = isOpen ? 'none' : 'block';
+      if (!isOpen) _syncThemePickerUI();
+    };
+    window._setThemeFromPerfil = function (theme) {
+      if (typeof ThemeManager !== 'undefined') {
+        ThemeManager.set(theme);
+      } else {
+        // Fallback directo si ThemeManager no cargó aún
+        document.documentElement.setAttribute('data-theme', theme);
+        try { localStorage.setItem('hs_theme', theme); } catch {}
+        window.dispatchEvent(new CustomEvent('hs:theme-changed', { detail: { theme } }));
+      }
+      _syncThemePickerUI();
+      if (typeof showToast === 'function') showToast('Tema aplicado: ' + theme.charAt(0).toUpperCase() + theme.slice(1));
+    };
+    // Sincronizar cuando se navega al perfil
+    window.addEventListener('hs:section-changed', e => {
+      if (e.detail?.section === 'perfil') _syncThemePickerUI();
+    });
+    _syncThemePickerUI();
   }
 
   // ── Google OAuth callback ─────────────────────────────────

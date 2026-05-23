@@ -4,7 +4,7 @@
                Network-first para CDN externos
    ============================================================ */
 
-const CACHE_NAME    = 'healthstack-v59';
+const CACHE_NAME    = 'healthstack-v60';
 const CDN_CACHE     = 'healthstack-cdn-v2';
 
 // Assets locales a pre-cachear en install
@@ -65,12 +65,19 @@ const STATIC_ASSETS = [
 ];
 
 // ── Install: pre-cachear assets locales ──────────────────────
+// Usamos Promise.allSettled (no addAll) para que un 404 aislado
+// no aborte el install ni bloquee skipWaiting indefinidamente.
 self.addEventListener('install', event => {
   event.waitUntil(
-    caches.open(CACHE_NAME)
-      .then(cache => cache.addAll(STATIC_ASSETS))
-      .then(() => self.skipWaiting())
-      .catch(err => console.warn('[SW] Error en pre-cache:', err))
+    caches.open(CACHE_NAME).then(cache =>
+      Promise.allSettled(
+        STATIC_ASSETS.map(url =>
+          fetch(url, { cache: 'no-store' })
+            .then(r => { if (r.ok) cache.put(url, r); })
+            .catch(() => { /* asset no disponible — ignorar */ })
+        )
+      )
+    ).finally(() => self.skipWaiting())  // skipWaiting SIEMPRE, con o sin error
   );
 });
 

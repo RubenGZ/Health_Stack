@@ -7113,6 +7113,34 @@ button[class*="wl-"]:not([class*="inp"]):active {
   border-top: 1px solid var(--hs-border);
 }
 
+/* ── Language picker chips ─────────────────────────────────── */
+.config-lang-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 7px 13px;
+  border-radius: var(--hs-r-md);
+  border: 1.5px solid var(--glass-border);
+  background: transparent;
+  color: var(--hs-text-2);
+  font-size: 0.8rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 150ms ease;
+  -webkit-tap-highlight-color: transparent;
+}
+.config-lang-chip:hover {
+  background: var(--hs-accent-dim);
+  color: var(--hs-text);
+  border-color: rgba(196,165,97,0.4);
+}
+.config-lang-chip:active { transform: scale(0.97); }
+.config-lang-chip--active {
+  background: var(--hs-accent-dim);
+  color: var(--hs-accent);
+  border-color: var(--hs-accent);
+}
+
 /* ── Macro percentage pill ─────────────────────────────────── */
 .macro-pct {
   font-size: 0.85rem;

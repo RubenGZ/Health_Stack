@@ -359,9 +359,20 @@
     } catch { /* ignore */ }
   }
 
+  function _syncLangPickerUI() {
+    const current = (typeof getLanguage === 'function' ? getLanguage() : null)
+                 || localStorage.getItem('hs-app-lang') || 'es';
+    document.querySelectorAll('#config-lang-picker .config-lang-chip').forEach(btn => {
+      btn.classList.toggle('config-lang-chip--active', btn.dataset.lang === current);
+    });
+  }
+
   // Actualizar al navegar a config o al hacer login
   window.addEventListener('hs:section-changed', e => {
-    if (e.detail?.section === 'config') _updateAccountInfo();
+    if (e.detail?.section === 'config') {
+      _updateAccountInfo();
+      _syncLangPickerUI();
+    }
   });
   window.addEventListener('hs:login', _updateAccountInfo);
 
@@ -551,6 +562,7 @@
     _initGettingStarted();
     _initBetaModeUI();
     _updateAccountInfo();
+    _syncLangPickerUI();
 
     console.log('%c HealthStack Pro v2.0 ', 'background:#c4a561;color:white;padding:4px 8px;border-radius:4px;font-weight:bold');
   }

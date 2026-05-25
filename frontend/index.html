@@ -13,7 +13,7 @@
   <meta name="robots" content="index, follow, max-snippet:-1, max-image-preview:large" />
   <link rel="canonical" href="https://healthstack.pro/app/" />
 
-  <link rel="stylesheet" href="css/main.css?v=9">
+  <link rel="stylesheet" href="css/main.css?v=10">
   <link rel="stylesheet" href="css/themes.css?v=2">
   <link rel="stylesheet" href="css/anatomy-lens.css">
   <link rel="manifest" href="manifest.json">
@@ -1156,6 +1156,18 @@
           <span id="check-update-label">Buscar actualización</span>
           <span id="app-version-label" style="margin-left:auto;opacity:.45;font-size:.75rem"></span>
         </button>
+      </div>
+
+      <!-- Idioma -->
+      <div class="card config-section-card">
+        <div class="config-section-label">Idioma</div>
+        <div id="config-lang-picker" style="display:flex;gap:8px;flex-wrap:wrap;padding:10px 16px 14px">
+          <button class="config-lang-chip" data-lang="es" onclick="window.setLanguage('es')">🇪🇸 Español</button>
+          <button class="config-lang-chip" data-lang="en" onclick="window.setLanguage('en')">🇬🇧 English</button>
+          <button class="config-lang-chip" data-lang="fr" onclick="window.setLanguage('fr')">🇫🇷 Français</button>
+          <button class="config-lang-chip" data-lang="de" onclick="window.setLanguage('de')">🇩🇪 Deutsch</button>
+          <button class="config-lang-chip" data-lang="it" onclick="window.setLanguage('it')">🇮🇹 Italiano</button>
+        </div>
       </div>
 
       <!-- Modo beta (solo admin) -->

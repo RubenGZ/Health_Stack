@@ -15,7 +15,7 @@
   // ── Navegación SPA ─────────────────────────────────────────
   const SECTIONS = [
     'dashboard','peso','nutricion','ejercicios',
-    'rutinas','planner','gamificacion',
+    'rutinas','planner','gamificacion','config',
     'suplementos','timing','records','receipt','fatigue','plateau','deload','bodycomp','sessionreplay','workout','ranked','rehab','ia',
   ];
 
@@ -279,25 +279,47 @@
     const badge = document.getElementById('beta-mode-badge');
     if (!btn || !label) return;
 
-    function _refreshUI() {
+    function _refreshBetaUI() {
       const on = typeof Plan !== 'undefined' && Plan.isBeta();
-      label.textContent    = on ? 'Desactivar modo beta' : 'Activar modo beta';
+      label.textContent = on ? 'Desactivar modo beta' : 'Activar modo beta';
       if (badge) badge.style.display = on ? '' : 'none';
+      const statusEl = document.getElementById('beta-mode-status');
+      if (statusEl) statusEl.style.display = on ? 'flex' : 'none';
+      // Visual feedback on the button itself
+      if (btn) btn.classList.toggle('config-beta-btn--on', on);
     }
-    _refreshUI();
+    _refreshBetaUI();
+
+    // Show beta card only for admin users
+    const _betaCard = document.getElementById('config-beta-card');
+    if (_betaCard) {
+      let _isAdmin = false;
+      try {
+        const token = localStorage.getItem('hs_access_token') || '';
+        if (token) {
+          const raw = token.split('.')[1];
+          if (raw) {
+            const payload = JSON.parse(atob(raw.replace(/-/g, '+').replace(/_/g, '/')));
+            _isAdmin = payload.role === 'admin';
+          }
+        }
+      } catch { /* token malformado */ }
+      _betaCard.style.display = _isAdmin ? '' : 'none';
+    }
+
     window._toggleBetaMode = function () {
       if (typeof Plan === 'undefined') return;
       Plan.isBeta() ? Plan.disableBeta() : Plan.enableBeta();
-      _refreshUI();
+      _refreshBetaUI();
     };
 
-    // ── Theme picker en Perfil ────────────────────────────────
+    // ── Theme picker en Configuración ─────────────────────────
     function _syncThemePickerUI() {
       const current = document.documentElement.getAttribute('data-theme') || 'forge';
-      const label   = document.getElementById('perfil-theme-current');
-      if (label) label.textContent = current.charAt(0).toUpperCase() + current.slice(1);
-      document.querySelectorAll('.perfil-theme-swatch').forEach(btn => {
-        btn.classList.toggle('active', btn.dataset.t === current);
+      const lbl = document.getElementById('perfil-theme-current');
+      if (lbl) lbl.textContent = current.charAt(0).toUpperCase() + current.slice(1);
+      document.querySelectorAll('.perfil-theme-swatch').forEach(s => {
+        s.classList.toggle('active', s.dataset.t === current);
       });
     }
     window._openThemePicker = function () {
@@ -311,7 +333,6 @@
       if (typeof ThemeManager !== 'undefined') {
         ThemeManager.set(theme);
       } else {
-        // Fallback directo si ThemeManager no cargó aún
         document.documentElement.setAttribute('data-theme', theme);
         try { localStorage.setItem('hs_theme', theme); } catch {}
         window.dispatchEvent(new CustomEvent('hs:theme-changed', { detail: { theme } }));
@@ -319,9 +340,9 @@
       _syncThemePickerUI();
       if (typeof showToast === 'function') showToast('Tema aplicado: ' + theme.charAt(0).toUpperCase() + theme.slice(1));
     };
-    // Sincronizar cuando se navega al perfil
+    // Sincronizar al navegar a config (o a perfil si alguien tuviera enlace antiguo)
     window.addEventListener('hs:section-changed', e => {
-      if (e.detail?.section === 'perfil') _syncThemePickerUI();
+      if (e.detail?.section === 'config' || e.detail?.section === 'gamificacion') _syncThemePickerUI();
     });
     _syncThemePickerUI();
   }

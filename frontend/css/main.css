@@ -7065,5 +7065,73 @@ button[class*="wl-"]:not([class*="inp"]):active {
   color: var(--hs-text);
 }
 
+/* ── Sección Configuración ─────────────────────────────────── */
+.config-section-card {
+  margin-bottom: 12px;
+  padding: 0;
+  overflow: hidden;
+}
+.config-section-label {
+  padding: 10px 16px 6px;
+  font-size: 0.7rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--hs-text-3);
+}
+.config-section-card .perfil-update-btn {
+  border-top: 1px solid var(--hs-border);
+  border-radius: 0;
+}
+.config-section-card .perfil-update-btn:first-of-type {
+  border-top: none;
+}
+
+/* Beta card info text */
+.config-beta-info {
+  padding: 6px 16px 10px;
+  font-size: 0.8rem;
+  color: var(--hs-text-2);
+  line-height: 1.45;
+  border-top: 1px solid var(--hs-border);
+}
+.config-beta-info strong { color: var(--hs-text); }
+
+/* Beta button active state */
+.config-beta-btn--on {
+  color: var(--hs-accent) !important;
+}
+
+/* Beta status indicator */
+.config-beta-status {
+  display: none;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 16px;
+  font-size: 0.75rem;
+  color: var(--hs-success);
+  border-top: 1px solid var(--hs-border);
+}
+
+/* ── Macro percentage pill ─────────────────────────────────── */
+.macro-pct {
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: var(--hs-text-2);
+  min-width: 36px;
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: -0.01em;
+}
+.macro-item--protein .macro-pct { color: var(--hs-accent); }
+.macro-item--fat     .macro-pct { color: #f59e0b; }
+.macro-item--carbs   .macro-pct { color: #60a5fa; }
+.macro-amount {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 1px;
+}
+
 
 

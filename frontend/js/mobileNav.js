@@ -85,6 +85,7 @@
         { id: 'gamificacion', label: 'Logros' },
         { id: 'ranked',       label: 'Ranked' },
         { id: 'receipt',      label: 'Recibo' },
+        { id: 'config',       label: 'Config' },
       ],
     },
   ];

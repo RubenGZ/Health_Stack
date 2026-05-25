@@ -1,7 +1,7 @@
 /* ============================================================
    macroCalc.js — Calculadora TDEE + Macros
-   Fórmula Mifflin-St Jeor. Persiste en localStorage.
-   Gráfico de dona (doughnut) Chart.js para la distribución.
+   Fórmula Mifflin-St Jeor (validada meta-análisis 2025).
+   Persiste en localStorage. Gráfico de dona Chart.js.
    ============================================================ */
 
 const MacroCalc = (function () {
@@ -12,20 +12,23 @@ const MacroCalc = (function () {
   let macroChartInstance = null;
 
   // ── Ajuste calórico por objetivo ───────────────────────────
+  // Límite seguro: ±500 kcal/día ≈ ±0.5 kg/semana
+  // Los valores soft son más agresivos que antes para dar cambios
+  // perceptibles sin salirse del rango saludable.
   const GOAL_DELTA = {
-    deficit_hard: -500,
-    deficit_soft: -250,
+    deficit_hard: -500,  // máximo seguro — -0.5 kg/sem
+    deficit_soft: -350,  // déficit notable preservando músculo
     maintain:        0,
-    surplus_soft:  250,
-    surplus_hard:  500,
+    surplus_soft:  350,  // superávit perceptible, mínima grasa
+    surplus_hard:  500,  // máximo seguro — +0.5 kg/sem
   };
 
   const GOAL_TIPS = {
-    deficit_hard: 'Un déficit de 500 kcal es el límite recomendado para preservar masa muscular. Asegura ≥1.8 g de proteína por kg corporal.',
-    deficit_soft: 'Un déficit suave de 250 kcal es ideal para perder grasa sin perder músculo ni afectar el rendimiento.',
-    maintain:     'En mantenimiento es el momento ideal para recomposición corporal si entrenas con progresión de cargas.',
-    surplus_soft: 'Un superávit de 250 kcal minimiza la ganancia de grasa mientras maximiza la síntesis proteica muscular.',
-    surplus_hard: 'Un superávit agresivo acelera la ganancia muscular, pero espera algo más de ganancia de grasa. Ideal en fases de volumen.',
+    deficit_hard: 'Déficit de 500 kcal/día — pérdida estimada de ~0.5 kg/semana (límite saludable). Prioriza proteínas ≥2.0 g/kg para conservar músculo.',
+    deficit_soft: 'Déficit de 350 kcal/día — pérdida estimada de ~0.35 kg/semana. Opción ideal para perder grasa sin comprometer el rendimiento ni la masa muscular.',
+    maintain:     'Calorías de mantenimiento — el momento ideal para recomposición corporal si entrenas con sobrecarga progresiva.',
+    surplus_soft: 'Superávit de 350 kcal/día — ganancia estimada de ~0.35 kg/semana. Minimiza la grasa ganada mientras maximiza la síntesis proteica.',
+    surplus_hard: 'Superávit de 500 kcal/día — ganancia estimada de ~0.5 kg/semana (límite recomendado). Espera algo más de grasa. Ideal en fases de volumen.',
   };
 
   // ── Cálculo BMR (Mifflin-St Jeor) ─────────────────────────
@@ -46,8 +49,9 @@ const MacroCalc = (function () {
 
   // ── Macros ─────────────────────────────────────────────────
   function calcMacros(weight, targetKcal) {
-    // Proteína: 2.0 g/kg de peso corporal
-    const proteinG   = Math.round(weight * 2.0);
+    // Proteína: 2.2 g/kg — dosis óptima según meta-análisis 2023-2025
+    // (Morton et al. 2018; Stokes et al. 2023 reconfirman 1.6–2.2 g/kg)
+    const proteinG    = Math.round(weight * 2.2);
     const proteinKcal = proteinG * 4;
 
     // Grasa: 25% de las kcal objetivo (mínimo saludable ~20%)
@@ -149,13 +153,19 @@ const MacroCalc = (function () {
     set('result-tdee',   `${tdee}`);
     set('result-target', `${target}`);
 
-    // Macros
+    // Macros + porcentajes
+    const totalKcal = macros.proteinKcal + macros.fatKcal + macros.carbsKcal;
+    const pct = (n) => totalKcal > 0 ? `${Math.round((n / totalKcal) * 100)}%` : '--%';
+
     set('macro-protein-g',    `${macros.proteinG} g`);
     set('macro-protein-kcal', `${macros.proteinKcal} kcal`);
+    set('macro-protein-pct',  pct(macros.proteinKcal));
     set('macro-fat-g',        `${macros.fatG} g`);
     set('macro-fat-kcal',     `${macros.fatKcal} kcal`);
+    set('macro-fat-pct',      pct(macros.fatKcal));
     set('macro-carbs-g',      `${macros.carbsG} g`);
     set('macro-carbs-kcal',   `${macros.carbsKcal} kcal`);
+    set('macro-carbs-pct',    pct(macros.carbsKcal));
 
     // Tip
     set('tip-text', GOAL_TIPS[goal] || '');

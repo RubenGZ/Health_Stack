@@ -13,7 +13,7 @@
   <meta name="robots" content="index, follow, max-snippet:-1, max-image-preview:large" />
   <link rel="canonical" href="https://healthstack.pro/app/" />
 
-  <link rel="stylesheet" href="css/main.css?v=8">
+  <link rel="stylesheet" href="css/main.css?v=9">
   <link rel="stylesheet" href="css/themes.css?v=2">
   <link rel="stylesheet" href="css/anatomy-lens.css">
   <link rel="manifest" href="manifest.json">
@@ -267,6 +267,13 @@
           <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="8" r="6"/><path d="M15.477 12.89L17 22l-5-3-5 3 1.523-9.11"/></svg>
         </span>
         <span class="nav-label" data-i18n="nav.achievements">Logros</span>
+      </a>
+
+      <a class="nav-item" data-section="config" href="#config">
+        <span class="nav-icon">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+        </span>
+        <span class="nav-label">Configuración</span>
       </a>
 
       <!-- Admin Panel — visible solo para role=admin, gestionado por app.js -->
@@ -615,7 +622,7 @@
         <div class="card card--form">
           <div class="card-header">
             <h3 data-i18n="nutrition.tdee_title">Calculadora TDEE</h3>
-            <span class="formula-badge">Mifflin-St Jeor</span>
+            <span class="formula-badge" title="Fórmula validada como la más precisa para población general — meta-análisis 2025">Mifflin-St Jeor ✓</span>
           </div>
           <form id="tdee-form" class="form-grid">
             <div class="form-group">
@@ -709,12 +716,13 @@
             </div>
             <div class="macro-list">
               <div class="macro-item macro-item--protein">
-                <div class="macro-color" style="background:#0891b2"></div>
+                <div class="macro-color" style="background:var(--hs-accent)"></div>
                 <div class="macro-info">
                   <span class="macro-name" data-i18n="nutrition.protein">Proteína</span>
-                  <span class="macro-formula">2.0g × peso</span>
+                  <span class="macro-formula">2.2g × peso corporal</span>
                 </div>
                 <div class="macro-amount">
+                  <span class="macro-pct" id="macro-protein-pct">--%</span>
                   <span class="macro-g" id="macro-protein-g">-- g</span>
                   <span class="macro-kcal" id="macro-protein-kcal">-- kcal</span>
                 </div>
@@ -723,20 +731,22 @@
                 <div class="macro-color" style="background:#f59e0b"></div>
                 <div class="macro-info">
                   <span class="macro-name" data-i18n="nutrition.fat">Grasa</span>
-                  <span class="macro-formula">25% de TDEE objetivo</span>
+                  <span class="macro-formula">25% kcal objetivo</span>
                 </div>
                 <div class="macro-amount">
+                  <span class="macro-pct" id="macro-fat-pct">--%</span>
                   <span class="macro-g" id="macro-fat-g">-- g</span>
                   <span class="macro-kcal" id="macro-fat-kcal">-- kcal</span>
                 </div>
               </div>
               <div class="macro-item macro-item--carbs">
-                <div class="macro-color" style="background:#22d3ee"></div>
+                <div class="macro-color" style="background:#60a5fa"></div>
                 <div class="macro-info">
                   <span class="macro-name" data-i18n="nutrition.carbs">Hidratos</span>
                   <span class="macro-formula">Calorías restantes</span>
                 </div>
                 <div class="macro-amount">
+                  <span class="macro-pct" id="macro-carbs-pct">--%</span>
                   <span class="macro-g" id="macro-carbs-g">-- g</span>
                   <span class="macro-kcal" id="macro-carbs-kcal">-- kcal</span>
                 </div>
@@ -1101,21 +1111,25 @@
         </div>
       </div>
 
-      <!-- ── Footer discreto de Perfil ── -->
-      <div class="card perfil-footer-card">
-        <!-- Actualizar app -->
-        <button id="check-update-btn" class="perfil-update-btn" onclick="window._checkForUpdate()">
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
-          <span id="check-update-label">Buscar actualización</span>
-          <span id="app-version-label" style="margin-left:auto;opacity:.45;font-size:.75rem"></span>
-        </button>
-        <!-- Theme selector -->
+    </section>
+
+    <!-- ── CONFIGURACIÓN ─────────────────────────────────── -->
+    <section id="section-config" class="section">
+      <header class="section-header">
+        <div>
+          <h1 class="section-title">Configuración</h1>
+          <p class="section-subtitle">Apariencia, actualizaciones y preferencias de la app</p>
+        </div>
+      </header>
+
+      <!-- Apariencia -->
+      <div class="card config-section-card">
+        <div class="config-section-label">Apariencia</div>
         <button id="perfil-theme-btn" class="perfil-update-btn" onclick="window._openThemePicker()">
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 2a10 10 0 0 1 0 20C6.477 22 2 17.523 2 12"/><path d="M12 8v4l3 3"/></svg>
-          <span>Apariencia</span>
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 2a10 10 0 0 1 0 20C6.477 22 2 17.523 2 12"/></svg>
+          <span>Tema de color</span>
           <span id="perfil-theme-current" style="margin-left:auto;opacity:.55;font-size:.75rem;text-transform:capitalize"></span>
         </button>
-        <!-- Theme picker panel (inline, hidden by default) -->
         <div id="perfil-theme-panel" style="display:none;padding:12px 4px 4px;border-top:1px solid var(--glass-border)">
           <div style="display:flex;gap:10px;justify-content:center">
             <button class="perfil-theme-swatch" data-t="forge"    onclick="window._setThemeFromPerfil('forge')"    title="Forge">
@@ -1132,16 +1146,39 @@
             </button>
           </div>
         </div>
-        <!-- Beta mode toggle -->
-        <button id="beta-mode-btn" class="perfil-update-btn" onclick="window._toggleBetaMode()">
+      </div>
+
+      <!-- App -->
+      <div class="card config-section-card">
+        <div class="config-section-label">App</div>
+        <button id="check-update-btn" class="perfil-update-btn" onclick="window._checkForUpdate()">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+          <span id="check-update-label">Buscar actualización</span>
+          <span id="app-version-label" style="margin-left:auto;opacity:.45;font-size:.75rem"></span>
+        </button>
+      </div>
+
+      <!-- Modo beta (solo admin) -->
+      <div class="card config-section-card" id="config-beta-card" style="display:none">
+        <div class="config-section-label">Desarrollador</div>
+        <div class="config-beta-info">
+          <p>El <strong>modo beta</strong> activa todas las secciones y features de la app independientemente del plan. Solo visible para administradores.</p>
+        </div>
+        <button id="beta-mode-btn" class="perfil-update-btn config-beta-btn" onclick="window._toggleBetaMode()">
           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3M6.343 6.343l-.707-.707M12 21v-1"/><circle cx="12" cy="12" r="4"/></svg>
           <span id="beta-mode-label">Activar modo beta</span>
-          <span id="beta-mode-badge" style="display:none;margin-left:auto;background:#c4a561;color:#fff;font-size:.65rem;font-weight:700;padding:2px 7px;border-radius:20px;letter-spacing:.04em">BETA</span>
+          <span id="beta-mode-badge" style="display:none;margin-left:auto;background:var(--hs-accent);color:#07070f;font-size:.65rem;font-weight:700;padding:2px 7px;border-radius:20px;letter-spacing:.04em">BETA ON</span>
         </button>
-        <div class="perfil-footer-links">
-          <a href="/privacy.html" class="perfil-footer-pill" target="_blank" rel="noopener">Privacidad</a>
-          <a href="/terms.html"   class="perfil-footer-pill" target="_blank" rel="noopener">Términos</a>
+        <div id="beta-mode-status" class="config-beta-status" style="display:none">
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+          Modo beta activo — todas las secciones visibles
         </div>
+      </div>
+
+      <!-- Legal -->
+      <div class="perfil-footer-links" style="margin-top:8px">
+        <a href="/privacy.html" class="perfil-footer-pill" target="_blank" rel="noopener">Privacidad</a>
+        <a href="/terms.html"   class="perfil-footer-pill" target="_blank" rel="noopener">Términos</a>
       </div>
 
     </section>

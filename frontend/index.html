@@ -1175,6 +1175,24 @@
         </div>
       </div>
 
+      <!-- Cuenta -->
+      <div class="card config-section-card">
+        <div class="config-section-label">Cuenta</div>
+        <div id="config-account-info" style="padding:8px 16px 4px;display:flex;align-items:center;gap:10px">
+          <div style="width:34px;height:34px;border-radius:50%;background:var(--hs-accent-dim);border:1.5px solid var(--hs-accent);display:flex;align-items:center;justify-content:center;font-size:1rem;flex-shrink:0">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--hs-accent)" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+          </div>
+          <div style="min-width:0">
+            <div id="config-account-name" style="font-size:.85rem;font-weight:600;color:var(--hs-text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis">—</div>
+            <div id="config-account-email" style="font-size:.72rem;color:var(--hs-text-2);white-space:nowrap;overflow:hidden;text-overflow:ellipsis">—</div>
+          </div>
+        </div>
+        <button class="perfil-update-btn config-logout-btn" onclick="window._logoutUser()" style="color:#f87171;border-top:1px solid var(--glass-border);margin-top:4px">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#f87171" stroke-width="2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+          <span>Cerrar sesión</span>
+        </button>
+      </div>
+
       <!-- Legal -->
       <div class="perfil-footer-links" style="margin-top:8px">
         <a href="/privacy.html" class="perfil-footer-pill" target="_blank" rel="noopener">Privacidad</a>
@@ -1780,29 +1798,41 @@
       });
 
       // ── checkForUpdate: llamado por botón manual ──
+      // Cuando el usuario pulsa el botón explícitamente, aplicar la actualización
+      // de forma inmediata (skipWaiting + reload) sin requerir un segundo clic.
       window._checkForUpdate = function () {
         const label = document.getElementById('check-update-label');
         if (label) label.textContent = 'Buscando…';
-        if (_swReg) {
-          _swReg.update().then(() => {
-            // Si ya hay un worker waiting, mostrar banner
-            if (_swReg.waiting) {
-              _waitingWorker = _swReg.waiting;
-              _showUpdateBanner();
-            } else {
-              if (label) label.textContent = 'Buscar actualización';
-              // Toast: ya tienes la última versión
-              if (typeof showToast === 'function') {
-                showToast('Ya tienes la versión más reciente');
-              } else {
-                alert('Ya tienes la versión más reciente');
-              }
-            }
-          }).catch(() => {
-            if (label) label.textContent = 'Buscar actualización';
-            if (typeof showToast === 'function') showToast('Sin conexión al servidor');
-          });
+
+        // Si ya hay un worker esperando (detectado antes), aplicar de inmediato
+        if (_waitingWorker || (_swReg && _swReg.waiting)) {
+          if (label) label.textContent = 'Aplicando…';
+          _applyUpdate();
+          return;
         }
+
+        if (!_swReg) {
+          if (label) label.textContent = 'Buscar actualización';
+          if (typeof showToast === 'function') showToast('Service worker no disponible');
+          return;
+        }
+
+        _swReg.update().then(() => {
+          if (_swReg.waiting || _waitingWorker) {
+            // Update encontrado → aplicar inmediatamente (el usuario lo pidió)
+            if (label) label.textContent = 'Aplicando…';
+            _waitingWorker = _waitingWorker || _swReg.waiting;
+            _applyUpdate();
+          } else {
+            if (label) label.textContent = 'Buscar actualización';
+            if (typeof showToast === 'function') {
+              showToast('✓ Ya tienes la versión más reciente');
+            }
+          }
+        }).catch(() => {
+          if (label) label.textContent = 'Buscar actualización';
+          if (typeof showToast === 'function') showToast('Sin conexión al servidor');
+        });
       };
 
       window.addEventListener('load', () => {

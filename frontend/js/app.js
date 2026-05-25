@@ -347,6 +347,55 @@
     _syncThemePickerUI();
   }
 
+  // ── Cuenta — info de usuario + logout ────────────────────
+  function _updateAccountInfo() {
+    try {
+      const raw = localStorage.getItem('hs_user');
+      const user = raw ? JSON.parse(raw) : null;
+      const nameEl  = document.getElementById('config-account-name');
+      const emailEl = document.getElementById('config-account-email');
+      if (nameEl)  nameEl.textContent  = user?.display_name || user?.username || 'Usuario';
+      if (emailEl) emailEl.textContent = user?.email || '—';
+    } catch { /* ignore */ }
+  }
+
+  // Actualizar al navegar a config o al hacer login
+  window.addEventListener('hs:section-changed', e => {
+    if (e.detail?.section === 'config') _updateAccountInfo();
+  });
+  window.addEventListener('hs:login', _updateAccountInfo);
+
+  // Logout — accesible globalmente (botón en #section-config)
+  window._logoutUser = function () {
+    if (typeof showConfirm === 'function') {
+      showConfirm({
+        title:   '¿Cerrar sesión?',
+        message: 'Se borrarán los tokens de esta sesión. Tus datos guardados localmente se conservan.',
+        confirmText: 'Cerrar sesión',
+        cancelText:  'Cancelar',
+        danger: true,
+        onConfirm: () => {
+          if (typeof API !== 'undefined') { API.logout(); }
+          else {
+            ['hs_access_token','hs_refresh_token','hs_user'].forEach(k => localStorage.removeItem(k));
+            window.dispatchEvent(new Event('hs:logout'));
+          }
+        },
+      });
+    } else {
+      if (typeof API !== 'undefined') { API.logout(); }
+      else {
+        ['hs_access_token','hs_refresh_token','hs_user'].forEach(k => localStorage.removeItem(k));
+        window.dispatchEvent(new Event('hs:logout'));
+      }
+    }
+  };
+
+  // Redirigir al registro cuando se cierra sesión dentro de la SPA
+  window.addEventListener('hs:logout', () => {
+    window.location.replace('/?action=register');
+  });
+
   // ── Google OAuth callback ─────────────────────────────────
   function handleOAuthCallback() {
     const params  = new URLSearchParams(window.location.hash.replace(/^#/, ''));
@@ -501,6 +550,7 @@
 
     _initGettingStarted();
     _initBetaModeUI();
+    _updateAccountInfo();
 
     console.log('%c HealthStack Pro v2.0 ', 'background:#c4a561;color:white;padding:4px 8px;border-radius:4px;font-weight:bold');
   }

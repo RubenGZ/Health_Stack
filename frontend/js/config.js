@@ -1241,51 +1241,51 @@ window.HS_CONFIG = (function () {
   // ── Timing de nutrientes ───────────────────────────────────────────────────
   const TIMING_INFO = {
     pre: {
-      title: 'VENTANA PRE-ENTRENO',
+      title: 'Antes del entrenamiento',
       slots: [
         {
           time: '2-3 h antes',
-          label: 'COMIDA PRINCIPAL',
+          label: 'Comida principal',
           color: '#ff4757',
           items: [
-            'Comida completa: HC complejo + proteína moderada + poca grasa',
-            'Objetivo: maximizar glucógeno y aminoácidos disponibles',
-            'Ejemplos: pollo + arroz, pasta + atún',
+            'Comida completa: hidratos de carbono complejos (arroz, pasta, avena) + proteína + poca grasa',
+            'Objetivo: tener energía y aminoácidos listos cuando empieces a entrenar',
+            'Ejemplos: pollo + arroz, pasta + atún, avena con huevos',
           ],
         },
         {
           time: '30-45 min antes',
-          label: 'SNACK',
+          label: 'Snack rápido (opcional)',
           color: '#f59e0b',
           items: [
-            'En ayunas no es necesario, pero en sesiones largas puede ayudar',
-            '50-60 g de carbohidratos de rápida absorción + proteína opcional',
-            'Ejemplos: plátano + scoop de whey, arroz inflado + batido',
+            'Si ya comiste hace menos de 2 h, no es necesario; útil en sesiones largas (+90 min)',
+            '50-60 g de carbohidratos de rápida absorción (plátano, arroz blanco) + proteína opcional',
+            'Ejemplos: plátano + batido de proteína, arroz inflado + yogur griego',
           ],
         },
       ],
     },
     post: {
-      title: 'POST-ENTRENO',
+      title: 'Después del entrenamiento',
       slots: [
         {
-          time: 'Dentro de 60 min',
-          label: 'VENTANA ANABÓLICA',
+          time: 'En los 60 min siguientes',
+          label: 'Recuperación muscular',
           color: '#00d2ff',
           items: [
-            'La síntesis proteica se eleva 24-48 h post-entreno; no solo la primera hora',
-            'Proteína + CH en proporción 1:1 o 1:2 es óptimo',
-            'Ejemplos: whey + plátano, arroz + pollo, batido de recuperación',
+            'La recuperación muscular dura 24-48 h post-entreno, no solo la primera hora; cuanto antes comas, mejor',
+            'Combina proteína + hidratos de carbono en proporción 1:1 o 1:2 (ej: 30 g proteína + 60 g hidratos)',
+            'Ejemplos: batido de proteína + plátano, arroz + pollo, yogur griego + avena',
           ],
         },
       ],
     },
     principles: [
-      'Proteína distribuida: Come 30-40 g de proteína cada 3-5 horas. Esto maximiza la síntesis proteica muscular durante todo el día.',
-      'CH antes de entrenar: El superávit (volumen) > déficit (definición) es más importante que el timing aislado. Sin esto, nada funciona.',
-      'CH al entrenar: Son tus aliados en volumen. Solo en pocas situaciones se recomienda limitar durante el entrenamiento.',
-      'Hidratación: Mínimo 35 ml/kg. Por cada 1% de deshidratación el rendimiento baja un 2-5%.',
-      'No temas los carbohidratos: La insulina no es el enemigo. Es un potente agente anabólico. Lo que importa es el balance calórico total.',
+      'Proteína distribuida: Come 30-40 g de proteína cada 3-5 horas. Así maximizas la construcción muscular a lo largo del día.',
+      'Hidratos de carbono antes de entrenar: Tener el depósito de glucógeno lleno mejora el rendimiento más que cualquier otro factor de timing.',
+      'Hidratos de carbono durante el entreno: Son tu combustible en volumen (ganar músculo). Solo en ciertas dietas se reducen; si dudas, inclúyelos.',
+      'Hidratación: Mínimo 35 ml por kg de peso corporal al día. Con solo un 1% de deshidratación el rendimiento baja un 2-5%.',
+      'No temas los carbohidratos: La insulina no es el enemigo. Es una hormona anabólica que ayuda a construir músculo. Lo que importa es el total calórico diario.',
     ],
   };
 

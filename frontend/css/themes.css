@@ -23,23 +23,23 @@ html:not([data-theme]) {
   --hs-text-3:      rgba(255, 255, 255, 0.22);
   --hs-accent:      #c4a561;
   --hs-accent-dim:  rgba(196, 165, 97, 0.15);
-  --hs-accent-glow: rgba(196, 165, 97, 0.08);
+  --hs-accent-glow: rgba(196, 165, 97, 0.05);
   --shadow-card:    0 4px 24px rgba(0, 0, 0, 0.45);
-  --shadow-glow:    0 0 40px rgba(196, 165, 97, 0.12);
-  --mesh-1: radial-gradient(ellipse 60% 50% at 75% 10%,  rgba(196,165,97,0.10) 0%, transparent 65%);
-  --mesh-2: radial-gradient(ellipse 45% 40% at 15% 85%,  rgba(196,165,97,0.06) 0%, transparent 60%);
-  --mesh-3: radial-gradient(ellipse 35% 30% at 90% 60%,  rgba(212,185,122,0.05) 0%, transparent 55%);
+  --shadow-glow:    0 0 40px rgba(196, 165, 97, 0.07);
+  --mesh-1: radial-gradient(ellipse 60% 50% at 75% 10%,  rgba(196,165,97,0.05) 0%, transparent 65%);
+  --mesh-2: radial-gradient(ellipse 45% 40% at 15% 85%,  rgba(196,165,97,0.03) 0%, transparent 60%);
+  --mesh-3: radial-gradient(ellipse 35% 30% at 90% 60%,  rgba(212,185,122,0.02) 0%, transparent 55%);
   /* Aliases de compatibilidad */
   --primary:       #c4a561;
   --primary-light: rgba(196,165,97,0.15);
-  --primary-glow:  rgba(196,165,97,0.35);
+  --primary-glow:  rgba(196,165,97,0.30);
   --secondary:     #d4b97a;
   --secondary-light: rgba(212,185,122,0.15);
   --bg-base:       #07070f;
   --bg-surface:    #0f0f1a;
-  --glass-bg:      rgba(196,165,97,0.08);
+  --glass-bg:      rgba(255,255,255,0.03);
   --glass-border:  rgba(255,255,255,0.07);
-  --glass-hover:   rgba(196,165,97,0.15);
+  --glass-hover:   rgba(196,165,97,0.10);
 }
 
 /* ══════════════════════════════════════════════════════════════
@@ -194,6 +194,28 @@ html[data-theme="midnight"] .muscle-tab.active {
   color: #4f9cf4 !important;
 }
 
+/* Midnight: mobile bottom nav — pure black */
+html[data-theme="midnight"] #mobile-bottom-nav {
+  background: rgba(0, 0, 0, 0.96) !important;
+}
+html[data-theme="midnight"] #mobile-subtab-bar {
+  background: rgba(0, 0, 0, 0.97) !important;
+}
+
+/* Midnight: gamification — override hardcoded gold gradients */
+html[data-theme="midnight"] .level-progress-fill {
+  background: linear-gradient(90deg, #1d4ed8 0%, #4f9cf4 40%, #7ab8ff 70%, #4f9cf4 100%) !important;
+}
+html[data-theme="midnight"] .level-badge {
+  background: linear-gradient(135deg, #1d4ed8, #4f9cf4, #93c5fd) !important;
+}
+html[data-theme="midnight"] .badge-icon-earned {
+  filter: drop-shadow(0 0 6px rgba(79,156,244,0.55)) !important;
+}
+html[data-theme="midnight"] .stat-icon {
+  background: rgba(79,156,244,0.10) !important;
+}
+
 /* ══════════════════════════════════════════════════════════════
    TEMA 3: AURORA — Violeta oscuro. Diferente. Para los que destacan.
    Diseñado para aesthetic fitness: cuerpo, nutrición, bienestar.
@@ -346,6 +368,28 @@ html[data-theme="aurora"] .muscle-tab.active {
   background: rgba(167,139,250,0.14) !important;
   border-color: #a78bfa !important;
   color: #a78bfa !important;
+}
+
+/* Aurora: mobile bottom nav — purple-dark */
+html[data-theme="aurora"] #mobile-bottom-nav {
+  background: rgba(8, 5, 20, 0.96) !important;
+}
+html[data-theme="aurora"] #mobile-subtab-bar {
+  background: rgba(10, 7, 24, 0.97) !important;
+}
+
+/* Aurora: gamification — override hardcoded gold gradients */
+html[data-theme="aurora"] .level-progress-fill {
+  background: linear-gradient(90deg, #6d28d9 0%, #a78bfa 40%, #c4b5fd 70%, #a78bfa 100%) !important;
+}
+html[data-theme="aurora"] .level-badge {
+  background: linear-gradient(135deg, #6d28d9, #a78bfa, #c4b5fd) !important;
+}
+html[data-theme="aurora"] .badge-icon-earned {
+  filter: drop-shadow(0 0 6px rgba(167,139,250,0.55)) !important;
+}
+html[data-theme="aurora"] .stat-icon {
+  background: rgba(167,139,250,0.10) !important;
 }
 
 /* Aurora: exercise card hover */

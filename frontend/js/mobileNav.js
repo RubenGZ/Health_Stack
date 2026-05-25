@@ -65,8 +65,9 @@
                <circle cx="12" cy="12" r="10"/>
                <path d="M12 8v4l3 3"/>
              </svg>`,
-      section: null,
+      section: 'ia',
       subtabs: [
+        { id: 'ia',       label: 'Inicio' },
         { id: 'chatbot',  label: 'Chat IA',   action: 'chatbot' },
         { id: 'fatigue',  label: 'Fatiga' },
         { id: 'plateau',  label: 'Estancamiento' },
@@ -246,6 +247,14 @@
     if (!section) return;
     activeSection = section;
 
+    // Safety: si la nav está oculta pero el chatbot NO está abierto, restaurarla.
+    // Esto previene quedar atascado si el panel se cierra por otra vía.
+    const chatPanel = document.getElementById('chatbot-panel');
+    if (chatPanel && chatPanel.style.display !== 'flex') {
+      if (navEl)       navEl.classList.remove('mbn--hidden');
+      if (subtabBarEl) subtabBarEl.classList.remove('mbn--hidden');
+    }
+
     // Sincronizar grupo activo
     const group = groupForSection(section);
     if (group.id !== activeGroupId) {
@@ -289,17 +298,17 @@
 
     syncContentPadding();
 
-    // Esconder nav cuando se abre el chatbot, mostrar cuando se cierra
-    // IMPORTANTE: usar add/remove según qué botón se pulsó — no leer el estado del panel,
-    // porque el listener del elemento ya ha ejecutado (cierre) antes de que llegue aquí,
-    // lo que causa que el panel aparezca como 'none' en ambos casos (open y close).
+    // Esconder/mostrar nav en función del estado REAL del panel tras el click.
+    // Verificamos el estado resultante del panel (no qué botón se pulsó), porque
+    // tanto #chatbot-btn como el tab de IA hacen toggle y la lógica de add/remove
+    // separada causaba que una doble pulsación escondiera la nav permanentemente.
     document.addEventListener('click', e => {
-      if (e.target.closest('#chatbot-btn')) {
-        if (navEl) navEl.classList.add('mbn--hidden');
-        if (subtabBarEl) subtabBarEl.classList.add('mbn--hidden');
-      } else if (e.target.closest('#chatbot-close')) {
-        if (navEl) navEl.classList.remove('mbn--hidden');
-        if (subtabBarEl) subtabBarEl.classList.remove('mbn--hidden');
+      if (e.target.closest('#chatbot-btn') || e.target.closest('#chatbot-close')) {
+        // chatbot.js ya ejecutó togglePanel antes de que llegue el evento al documento
+        const panel  = document.getElementById('chatbot-panel');
+        const isOpen = panel && panel.style.display === 'flex';
+        if (navEl)       navEl.classList.toggle('mbn--hidden', isOpen);
+        if (subtabBarEl) subtabBarEl.classList.toggle('mbn--hidden', isOpen);
       }
     });
   }

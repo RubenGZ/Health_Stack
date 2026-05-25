@@ -196,8 +196,8 @@ const TimingPlanner = (function () {
 
   function slotIcon(slot) {
     const icons = {
-      breakfast: 'AM', snack1: 'SN', pre: 'PRE', post: 'PST',
-      lunch: 'PM', snack2: 'SN', dinner: 'PM',
+      breakfast: '🌅', snack1: '🥜', pre: '💪', post: '⚡',
+      lunch: '🍽️', snack2: '🥛', dinner: '🌙',
     };
     return icons[slot] || '';
   }
@@ -263,7 +263,7 @@ const TimingPlanner = (function () {
     }
 
     // Consejo general siempre visible
-    tips.push({ icon: '', text: 'Ventana anabólica: consume proteína + carbohidratos en los 45-60 min post-entreno. Cuanto más entrenas en ayunas o con sesiones largas, más importante es esta ventana.' });
+    tips.push({ icon: '', text: 'Recuperación post-entreno: come proteína + hidratos de carbono en los 45-60 min después de terminar. Cuanto más larga sea la sesión o más hayas entrenado en ayunas, más importa este momento.' });
 
     return tips;
   }
@@ -280,9 +280,9 @@ const TimingPlanner = (function () {
       <div class="ts-header">
         <div class="ts-totals">
           <div class="ts-total-item"><span class="ts-total-val">${totals.kcal}</span><span class="ts-total-label">kcal/día</span></div>
-          <div class="ts-total-item"><span class="ts-total-val" style="color:#c4a561">${totals.p}g</span><span class="ts-total-label">Proteína</span></div>
-          <div class="ts-total-item"><span class="ts-total-val" style="color:#00d2ff">${totals.c}g</span><span class="ts-total-label">Hidratos</span></div>
-          <div class="ts-total-item"><span class="ts-total-val" style="color:#f59e0b">${totals.f}g</span><span class="ts-total-label">Grasa</span></div>
+          <div class="ts-total-item"><span class="ts-total-val" style="color:var(--hs-accent)">${totals.p}g</span><span class="ts-total-label">Proteína</span></div>
+          <div class="ts-total-item"><span class="ts-total-val" style="color:#7ab8ff">${totals.c}g</span><span class="ts-total-label">Hidratos</span></div>
+          <div class="ts-total-item"><span class="ts-total-val" style="color:#f59e0b">${totals.f}g</span><span class="ts-total-label">Grasas</span></div>
         </div>
         <div class="ts-actions">
           <button class="btn btn--primary btn--sm" id="btn-apply-to-planner">Aplicar al Planner</button>
@@ -309,9 +309,9 @@ const TimingPlanner = (function () {
               <p class="ts-event-desc">${e.desc}</p>
               ${e.type === 'meal' ? `
                 <div class="ts-event-macros">
-                  <span class="rmacro rmacro--p">P ${e.p}g</span>
-                  <span class="rmacro rmacro--c">H ${e.c}g</span>
-                  <span class="rmacro rmacro--f">G ${e.f}g</span>
+                  <span class="rmacro rmacro--p" title="Proteína">Prot. ${e.p}g</span>
+                  <span class="rmacro rmacro--c" title="Hidratos de carbono">Hidr. ${e.c}g</span>
+                  <span class="rmacro rmacro--f" title="Grasas">Gras. ${e.f}g</span>
                 </div>` : ''}
             </div>
           </div>

@@ -16,7 +16,7 @@
   const SECTIONS = [
     'dashboard','peso','nutricion','ejercicios',
     'rutinas','planner','gamificacion',
-    'suplementos','timing','records','receipt','fatigue','plateau','deload','bodycomp','sessionreplay','workout','ranked','rehab',
+    'suplementos','timing','records','receipt','fatigue','plateau','deload','bodycomp','sessionreplay','workout','ranked','rehab','ia',
   ];
 
   // ── Historia de navegación (back button móvil) ─────────────
@@ -387,6 +387,12 @@
     if (typeof Supplements      !== 'undefined') Supplements.init();
     if (typeof MyRecipes        !== 'undefined') MyRecipes.init();
     if (typeof TimingPlanner    !== 'undefined') TimingPlanner.init();
+
+    // ── IA Home — botón "Abrir Chat IA" ───────────────────────
+    document.getElementById('ia-open-chat')?.addEventListener('click', () => {
+      const btn = document.getElementById('chatbot-btn');
+      if (btn) btn.click();
+    });
 
     // Onboarding solo si hay token
     if (typeof Onboarding !== 'undefined') {

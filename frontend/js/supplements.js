@@ -167,7 +167,7 @@ const Supplements = (function () {
         </div>
       </div>
       <div class="principles-panel card">
-        <h4 class="principles-title">PRINCIPIOS BASADOS EN EVIDENCIA</h4>
+        <h4 class="principles-title">Principios basados en evidencia científica</h4>
         <ul class="principles-list">${principlesHTML}</ul>
       </div>
     `;

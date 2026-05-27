@@ -62,11 +62,20 @@ _optional_bearer = HTTPBearer(auto_error=False)
 
 # ── System prompt base ────────────────────────────────────────────────────────
 
+# Language instructions injected dynamically based on request.language
+_LANG_INSTRUCTIONS: dict[str, str] = {
+    'es': 'Siempre en español.',
+    'en': 'Always in English.',
+    'fr': 'Toujours en français.',
+    'de': 'Immer auf Deutsch.',
+    'it': 'Sempre in italiano.',
+}
+
 _BASE_SYSTEM_PROMPT = """\
 Eres el asistente de HealthStack Pro: entrenador personal y nutricionista experto. \
 Directo, con criterio, sin rollos. Hablas como un amigo que sabe mucho, no como un manual.
 
-Siempre en español. Números concretos cuando los tengas. Nunca te disculpes.
+{lang_instruction} Números concretos cuando los tengas. Nunca te disculpes.
 
 Si tienes [CONTEXTO DEL USUARIO] al inicio: úsalo para personalizar. \
 Menciona sus datos cuando sea relevante — "dado que estás en nivel 12…", \
@@ -150,6 +159,7 @@ class ChatMessage(BaseModel):
 class ChatRequest(BaseModel):
     message: str = Field(..., min_length=1, max_length=2000)
     history: list[ChatMessage] = Field(default_factory=list, max_length=20)
+    language: str = Field(default='es', pattern='^(es|en|fr|de|it)$')
 
 
 # ── Action parser ────────────────────────────────────────────────────────────
@@ -201,8 +211,12 @@ async def chat_message(
     client_ip = request.headers.get("X-Forwarded-For", request.client.host if request.client else "unknown")
     client_ip = client_ip.split(",")[0].strip()  # first IP from proxy chain
 
+    # ── Construir system prompt con instrucción de idioma ─────────────────────
+    lang_instruction = _LANG_INSTRUCTIONS.get(body.language, _LANG_INSTRUCTIONS['es'])
+    base_prompt = _BASE_SYSTEM_PROMPT.format(lang_instruction=lang_instruction)
+
     # ── Resolver contexto de usuario (opcional) ───────────────────────────────
-    system_prompt = _BASE_SYSTEM_PROMPT
+    system_prompt = base_prompt
     user_is_authenticated = False
 
     if credentials is not None:
@@ -213,7 +227,7 @@ async def chat_message(
                 user_is_authenticated = True
                 context_block = await build_user_context(user_id, db)
                 if context_block:
-                    system_prompt = context_block + "\n\n" + _BASE_SYSTEM_PROMPT
+                    system_prompt = context_block + "\n\n" + base_prompt
                     logger.debug("Chat: contexto de usuario inyectado para %s…", user_id[:8])
         except Exception:
             # Token inválido/expirado → chat anónimo sin bloquear

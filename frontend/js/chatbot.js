@@ -14,18 +14,46 @@ const Chatbot = (function () {
   let history = [];
   let _online  = false;
 
-  const SUGGESTIONS = [
-    '¿Cuánta proteína necesito?',
-    '¿Cómo pierdo grasa sin perder músculo?',
-    '¿Qué es el TDEE?',
-    '¿La creatina funciona?',
-    '¿Cuántos días debo entrenar?',
-    '¿Cómo genero mi rutina personalizada?',
-    '¿Qué comer antes de entrenar?',
-    '¿Cómo mejorar el sueño y la recuperación?',
-    '¿Qué suplementos vale la pena tomar?',
-    'Explícame la técnica de la sentadilla',
-  ];
+  // ── i18n helpers ──────────────────────────────────────────
+
+  /** Current language code ('es'|'en'|'fr'|'de'|'it'). */
+  function _lang() {
+    return (typeof getLanguage === 'function' ? getLanguage() : null)
+      || localStorage.getItem('hs-app-lang')
+      || 'es';
+  }
+
+  /**
+   * Translate a chatbot key with optional variable substitution.
+   * Falls back to Spanish if the key is missing in the current locale.
+   * Usage: _t('pill_weight', { kg: 83 })  →  'Guardar 83 kg en tu historial'
+   */
+  function _t(key, vars) {
+    const raw = (typeof t === 'function')
+      ? t(`chatbot.${key}`)
+      : key;   // fallback if i18n not loaded
+    if (!vars || typeof raw !== 'string') return raw;
+    return raw.replace(/\{(\w+)\}/g, (_, k) => (vars[k] !== undefined ? vars[k] : `{${k}}`));
+  }
+
+  /** Return the localized SUGGESTIONS array for the current language. */
+  function _getSuggestions() {
+    const arr = (typeof t === 'function') ? t('chatbot.suggestions') : null;
+    if (Array.isArray(arr) && arr.length) return arr;
+    // Fallback to Spanish hardcoded list
+    return [
+      '¿Cuánta proteína necesito?',
+      '¿Cómo pierdo grasa sin perder músculo?',
+      '¿Qué es el TDEE?',
+      '¿La creatina funciona?',
+      '¿Cuántos días debo entrenar?',
+      '¿Cómo genero mi rutina personalizada?',
+      '¿Qué comer antes de entrenar?',
+      '¿Cómo mejorar el sueño y la recuperación?',
+      '¿Qué suplementos vale la pena tomar?',
+      'Explícame la técnica de la sentadilla',
+    ];
+  }
 
   // ── Connection status ─────────────────────────────────────
 
@@ -36,11 +64,11 @@ const Chatbot = (function () {
     if (online) {
       dot.style.background = '#22c55e';
       dot.style.boxShadow  = '0 0 6px #22c55e';
-      dot.title = 'Conectado al servidor';
+      dot.title = _t('connected');
     } else {
       dot.style.background = '#ef4444';
       dot.style.boxShadow  = '0 0 6px #ef4444';
-      dot.title = 'Sin conexión con el servidor';
+      dot.title = _t('disconnected');
     }
   }
 
@@ -126,19 +154,24 @@ const Chatbot = (function () {
 
     if (type === 'save_weight' && action.kg) {
       icon  = '';
-      label = `Guardar ${action.kg} kg en tu historial`;
+      label = _t('pill_weight', { kg: action.kg });
     } else if (type === 'save_pr' && action.exercise) {
       const rm = action.weight_kg && action.reps
         ? ` (1RM ~${calcEpley(action.weight_kg, action.reps)} kg)`
         : '';
       icon  = '';
-      label = `Guardar PR: ${action.exercise} ${action.weight_kg}×${action.reps}${rm}`;
+      label = _t('pill_pr', {
+        exercise: action.exercise,
+        weight:   action.weight_kg,
+        reps:     action.reps,
+        rm,
+      });
     } else if (type === 'log_workout') {
       icon  = '';
-      label = 'Registrar entreno (+XP)';
+      label = _t('pill_workout');
     } else if (type === 'save_sleep' && action.hours) {
       icon  = '';
-      label = `Guardar ${action.hours}h de sueño en tu historial`;
+      label = _t('pill_sleep', { hours: action.hours });
     } else {
       return null;
     }
@@ -148,8 +181,8 @@ const Chatbot = (function () {
     pill.innerHTML = `
       <span class="cap-icon">${icon}</span>
       <span class="cap-label">${label}</span>
-      <button class="cap-btn cap-btn--confirm" title="Guardar">Guardar</button>
-      <button class="cap-btn cap-btn--dismiss" title="Descartar">✕</button>`;
+      <button class="cap-btn cap-btn--confirm" title="${_t('save_btn')}">${_t('save_btn')}</button>
+      <button class="cap-btn cap-btn--dismiss" title="✕">✕</button>`;
 
     pill.querySelector('.cap-btn--confirm').addEventListener('click', () => {
       executeAction(action, pill);
@@ -211,13 +244,13 @@ const Chatbot = (function () {
       }
 
       if (ok) {
-        pill.innerHTML = '<span style="color:#22c55e;font-size:.85rem;">✓ Guardado</span>';
+        pill.innerHTML = `<span style="color:#22c55e;font-size:.85rem;">${_t('saved_ok')}</span>`;
         setTimeout(() => pill.remove(), 2500);
       } else {
-        _pillError(pill, 'Error al guardar. Inténtalo desde la app.');
+        _pillError(pill, _t('err_save'));
       }
     } catch {
-      _pillError(pill, 'Sin conexión. Datos no guardados.');
+      _pillError(pill, _t('err_connection'));
     }
   }
 
@@ -259,7 +292,7 @@ const Chatbot = (function () {
       const res = await fetch(API_URL, {
         method: 'POST',
         headers,
-        body: JSON.stringify({ message: trimmed, history }),
+        body: JSON.stringify({ message: trimmed, history, language: _lang() }),
         signal: AbortSignal.timeout(30000),
       });
 
@@ -281,15 +314,15 @@ const Chatbot = (function () {
       } else {
         setDotStatus(false);
         const errMsg = res.status >= 500
-          ? 'El servicio de IA está temporalmente fuera de línea. Inténtalo en unos minutos.'
-          : (data.detail || 'Error al procesar tu mensaje. Inténtalo de nuevo.');
+          ? _t('err_service')
+          : (data.detail || _t('err_service'));
         addMessage(errMsg, true);
       }
 
     } catch (err) {
       if (typing) typing.remove();
       setDotStatus(false);
-      addMessage('Sin conexión con el servidor. Comprueba tu conexión e inténtalo de nuevo.', true);
+      addMessage(_t('err_offline'), true);
 
     } finally {
       if (sendBtn) sendBtn.disabled = false;
@@ -303,7 +336,7 @@ const Chatbot = (function () {
   function renderSuggestions() {
     const wrap = document.getElementById('chatbot-suggestions');
     if (!wrap) return;
-    const picks = [...SUGGESTIONS].sort(() => Math.random() - 0.5).slice(0, 3);
+    const picks = [..._getSuggestions()].sort(() => Math.random() - 0.5).slice(0, 3);
     wrap.innerHTML = picks
       .map(s => `<button class="chat-suggestion">${s}</button>`)
       .join('');

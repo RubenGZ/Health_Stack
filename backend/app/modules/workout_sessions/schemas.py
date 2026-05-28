@@ -4,6 +4,7 @@ from __future__ import annotations
 
 from datetime import datetime
 import uuid
+from typing import Literal
 
 from pydantic import BaseModel, ConfigDict, Field
 
@@ -102,3 +103,49 @@ class ExerciseHistoryPoint(BaseModel):
 class ExerciseHistoryResponse(BaseModel):
     exercise_key: str
     sessions:     list[ExerciseHistoryPoint]
+
+
+# ---------------------------------------------------------------------------
+# Post-Workout AI Coach schemas
+# ---------------------------------------------------------------------------
+
+class PostWorkoutCoachRequest(BaseModel):
+    session_id: uuid.UUID
+    notes: str | None = Field(None, max_length=500)
+
+
+class CoachTip(BaseModel):
+    category: Literal["recovery", "technique", "progression", "nutrition", "mindset"]
+    tip: str
+
+
+class NextSessionPlan(BaseModel):
+    focus: str
+    suggested_exercises: list[str]
+    intensity: Literal["light", "moderate", "hard"]
+    estimated_duration_min: int
+
+
+class PostWorkoutCoachResponse(BaseModel):
+    session_id: uuid.UUID
+    summary: str
+    tips: list[CoachTip]
+    next_session: NextSessionPlan
+    plan_id: int
+    expires_at: datetime
+    provider_used: str
+
+
+class PostWorkoutPlanOut(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
+
+    id: int
+    session_id: uuid.UUID
+    plan_json: dict
+    used: bool
+    expires_at: datetime
+    created_at: datetime
+
+
+class DismissPlanRequest(BaseModel):
+    plan_id: int

@@ -1,0 +1,19 @@
+{
+  "name": "healthstack-e2e",
+  "version": "1.0.0",
+  "description": "Playwright E2E tests for HealthStack Pro",
+  "scripts": {
+    "test":         "playwright test",
+    "test:desktop": "playwright test --project=desktop-chrome",
+    "test:mobile":  "playwright test --project=mobile-chrome",
+    "test:headed":  "playwright test --headed",
+    "test:ui":      "playwright test --ui",
+    "report":       "playwright show-report",
+    "seed":         "python scripts/seed.py",
+    "teardown":     "python scripts/teardown.py"
+  },
+  "devDependencies": {
+    "@playwright/test": "^1.44.0",
+    "dotenv": "^16.4.5"
+  }
+}

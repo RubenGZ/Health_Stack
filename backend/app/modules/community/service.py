@@ -88,6 +88,10 @@ class CommunityService:
                 detail="Post no encontrado.",
             )
         liked = await CommunityRepository.toggle_like(db, user_id, post_id)
+        # Refresh the post object — toggle_like calls db.flush() which expires
+        # SQLAlchemy ORM instances; accessing post.likes_count without refresh
+        # triggers an async lazy-load that raises MissingGreenlet → HTTP 500.
+        await db.refresh(post)
         return PostResponse(
             id=post.id,
             display_name=post.display_name,

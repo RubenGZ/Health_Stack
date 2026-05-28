@@ -44,12 +44,11 @@ def upgrade() -> None:
     )
 
     # refresh_tokens.jti: se queda 'ix_refresh_tokens_jti' (UNIQUE + index=True en modelo)
-    # se elimina 'uq_refresh_tokens_jti' (duplicado)
-    op.drop_index(
-        'uq_refresh_tokens_jti',
-        table_name='refresh_tokens',
-        schema='public',
-        if_exists=True,
+    # se elimina 'uq_refresh_tokens_jti' — OJO: es una UNIQUE CONSTRAINT, no un índice
+    # standalone. PostgreSQL prohíbe DROP INDEX sobre un índice que respalda un constraint.
+    # Hay que dropear la constraint (esto también elimina el índice automáticamente).
+    op.execute(
+        "ALTER TABLE public.refresh_tokens DROP CONSTRAINT IF EXISTS uq_refresh_tokens_jti"
     )
 
     # health_records.health_subject_id: se queda 'ix_health_records_health_subject_id'

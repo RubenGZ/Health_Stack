@@ -1248,9 +1248,9 @@ const RoutineGenerator = (function () {
           '<span class="injury-badge injury-badge--area">' + _escHtml(inj.body_area) + '</span>' +
           '<span class="injury-label">' + _escHtml(inj.injury_label) + '</span>' +
           '<span class="injury-badge injury-badge--sev" style="color:' + color + ';border-color:' + color + '40">' +
-            (sevLabel[inj.severity] || inj.severity) +
+            (sevLabel[inj.severity] || _escHtml(String(inj.severity))) +
           '</span>' +
-          '<button class="injury-remove-btn" data-id="' + inj.id + '" title="Eliminar">×</button>' +
+          '<button class="injury-remove-btn" data-id="' + _escHtml(String(inj.id)) + '" title="Eliminar">×</button>' +
         '</div>';
       }).join('');
       container.querySelectorAll('.injury-remove-btn').forEach(function (btn) {
@@ -1272,7 +1272,8 @@ const RoutineGenerator = (function () {
       .replace(/&/g, '&amp;')
       .replace(/</g, '&lt;')
       .replace(/>/g, '&gt;')
-      .replace(/"/g, '&quot;');
+      .replace(/"/g, '&quot;')
+      .replace(/'/g, '&#39;');
   }
 
   // ── Inject InjuryManager UI section ──────────────────────────────────────
@@ -1345,8 +1346,8 @@ const RoutineGenerator = (function () {
       e.target.reset();
     });
 
-    // Initial load
-    InjuryManager.load();
+    // Initial load — only if the user is authenticated
+    if (_getToken()) InjuryManager.load();
   }
 
   // ── AI generate with injury context ──────────────────────────────────────

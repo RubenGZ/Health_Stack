@@ -407,6 +407,9 @@ const Chatbot = (function () {
     if (!panel || panel.style.display !== 'flex') return;
     panel.style.display = 'none';
     _destroyKeyboardAware();
+    // Restaurar badge: el panel se cerró sin que el usuario lo pidiera
+    const badge = document.getElementById('chatbot-badge');
+    if (badge) badge.style.display = '';
     // Avisar a mobileNav para que restaure la navegación
     window.dispatchEvent(new CustomEvent('hs:nav-unlock'));
   }

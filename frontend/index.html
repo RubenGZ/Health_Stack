@@ -2,7 +2,7 @@
 <html lang="es">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
   <!-- Aplicar tema antes del primer paint (evita flash de tema incorrecto) -->
   <script>
     (function(){try{var t=localStorage.getItem('hs_theme');if(t&&['forge','midnight','aurora'].includes(t)){document.documentElement.setAttribute('data-theme',t);}}catch(e){}})();
@@ -13,7 +13,7 @@
   <meta name="robots" content="index, follow, max-snippet:-1, max-image-preview:large" />
   <link rel="canonical" href="https://healthstack.pro/app/" />
 
-  <link rel="stylesheet" href="css/main.css?v=10">
+  <link rel="stylesheet" href="css/main.css?v=11">
   <link rel="stylesheet" href="css/themes.css?v=2">
   <link rel="stylesheet" href="css/anatomy-lens.css">
   <link rel="manifest" href="manifest.json">
@@ -88,6 +88,7 @@
   <!-- Google Fonts: Inter -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 
 
@@ -1720,10 +1721,10 @@
 
   <!-- ── SCRIPTS APP (defer — ejecutan en orden tras parsear HTML) ── -->
   <!-- toast.js antes que todo: reemplaza alert/confirm globales -->
-  <script defer src="js/toast.js"></script>
+  <script defer src="js/toast.js?v=2"></script>
   <script defer src="js/i18n.js"></script>
   <script defer src="js/config.js?v=6"></script>
-  <script defer src="js/api.js?v=2"></script>
+  <script defer src="js/api.js?v=3"></script>
   <script type="module" src="js/background3d.js"></script>
   <!-- chartDefaults.js tras CDN de Chart.js, antes de módulos con charts -->
   <script defer src="js/chartDefaults.js"></script>
@@ -1755,10 +1756,10 @@
   <script defer src="js/bodyCompForecast.js"></script>
   <script defer src="js/autoDeload.js"></script>
   <script defer src="js/auth.js"></script>
-  <script defer src="js/themeManager.js"></script>
+  <script defer src="js/themeManager.js?v=2"></script>
   <!-- Fase 5 — submódulos extraídos de app.js (cargados ANTES que app.js) -->
   <script defer src="js/dashboard/index.js?v=1"></script>
-  <script defer src="js/pwa/index.js?v=1"></script>
+  <script defer src="js/pwa/index.js?v=2"></script>
   <script defer src="js/app.js"></script>
   <script defer src="js/mobileNav.js?v=2"></script>
   <script type="module" src="js/athleteViewer.js"></script>

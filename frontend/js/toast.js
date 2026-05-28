@@ -20,7 +20,7 @@
     if (_container && document.body.contains(_container)) return _container;
     _container = document.createElement('div');
     _container.id = 'hs-toast-container';
-    _container.setAttribute('aria-live', 'polite');
+    _container.setAttribute('aria-live', 'assertive'); /* anunciar inmediatamente a lectores de pantalla */
     _container.setAttribute('aria-atomic', 'false');
     document.body.appendChild(_container);
     return _container;
@@ -74,9 +74,13 @@
       toast._dismissTimer = timer;
     }
 
-    // Limitar stack a 4 toasts
+    // Limitar stack a 4 toasts — cancelar su timer antes de remover para evitar leak
     const toasts = container.querySelectorAll('.hs-toast');
-    if (toasts.length > 4) _dismiss(toasts[0]);
+    if (toasts.length > 4) {
+      const oldest = toasts[0];
+      if (oldest._dismissTimer) { clearTimeout(oldest._dismissTimer); oldest._dismissTimer = null; }
+      _dismiss(oldest);
+    }
 
     return toast;
   }

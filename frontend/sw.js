@@ -4,7 +4,7 @@
                Network-first para CDN externos
    ============================================================ */
 
-const CACHE_NAME    = 'healthstack-v66';
+const CACHE_NAME    = 'healthstack-v67';
 const CDN_CACHE     = 'healthstack-cdn-v2';
 
 // Assets locales a pre-cachear en install
@@ -72,7 +72,7 @@ self.addEventListener('install', event => {
     caches.open(CACHE_NAME).then(cache =>
       Promise.allSettled(
         STATIC_ASSETS.map(url =>
-          fetch(url, { cache: 'no-store' })
+          fetch(url, { cache: 'reload' })
             .then(r => { if (r.ok) cache.put(url, r); })
             .catch(() => { /* asset no disponible — ignorar */ })
         )
@@ -154,11 +154,15 @@ async function staleWhileRevalidate(request, cacheName) {
   return cached || fetchPromise;
 }
 
-async function networkFirst(request) {
+async function networkFirst(request, timeoutMs = 5000) {
   try {
-    const response = await fetch(request);
+    const controller = new AbortController();
+    const timer = setTimeout(() => controller.abort(), timeoutMs);
+    const response = await fetch(new Request(request, { signal: controller.signal }));
+    clearTimeout(timer);
     return response;
   } catch {
+    // Timeout o sin red → servir desde caché si existe
     const cached = await caches.match(request);
     return cached || offlineFallback();
   }

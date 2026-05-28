@@ -106,6 +106,7 @@ window.PWAManager = (function () {
     });
 
     window.addEventListener('appinstalled', () => {
+      _deferredInstallPrompt = null; // evitar que el prompt vuelva a mostrarse
       const banner = document.getElementById('pwa-install-banner');
       if (banner) banner.style.display = 'none';
     });

@@ -75,6 +75,13 @@
       if (!swatch) return;
       set(swatch.dataset.t);
     });
+
+    // Sincronizar tema entre tabs / instancias PWA del mismo origen
+    window.addEventListener('storage', (e) => {
+      if (e.key === STORAGE_KEY && e.newValue && VALID_THEMES.includes(e.newValue)) {
+        _apply(e.newValue);
+      }
+    });
   }
 
   // ── Render del picker HTML ───────────────────────────────────

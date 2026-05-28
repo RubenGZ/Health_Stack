@@ -337,7 +337,19 @@
     window.addEventListener('pageshow', _unlockNav);
 
     // Watchdog: cada 3 s revisa que la nav no esté atascada si el chatbot está cerrado
-    setInterval(_unlockNav, 3_000);
+    const _watchdogId = setInterval(_unlockNav, 3_000);
+
+    // Desbloquear nav también en hashchange (ej: navegación por botón atrás del OS)
+    window.addEventListener('hashchange', _unlockNav);
+
+    // Recuperar nav si vuelve la red (podría haberse bloqueado durante offline)
+    window.addEventListener('online', _unlockNav);
+
+    // Cleanup del MutationObserver si la página se destruye
+    window.addEventListener('beforeunload', () => {
+      observer.disconnect();
+      clearInterval(_watchdogId);
+    });
   }
 
   // Esperar a que app.js termine (está deferrido, mobileNav también)

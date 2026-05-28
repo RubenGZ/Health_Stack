@@ -100,7 +100,7 @@ const API = (function () {
       const refreshResult = await tryRefresh();
       if (refreshResult === 'ok') {
         headers['Authorization'] = `Bearer ${getToken()}`;
-        res = await fetch(url, { ...options, headers });
+        res = await fetch(url, { ...options, headers, signal: AbortSignal.timeout(8000) });
       } else if (refreshResult === 'invalid') {
         // Server explicitly rejected the refresh token — user must log in again
         clearAuth();

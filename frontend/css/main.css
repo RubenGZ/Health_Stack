@@ -104,6 +104,7 @@ body {
   display: flex;
   overflow-x: hidden;
   -webkit-font-smoothing: antialiased;
+  overscroll-behavior-y: contain; /* evita bounce iOS que puede confundirse con nav-back */
 }
 body::before {
   content: '';
@@ -880,6 +881,7 @@ select.form-input option { background: var(--bg-surface); color: var(--text-prim
   white-space: nowrap;
   position: relative;
   overflow: hidden;
+  touch-action: manipulation; /* elimina 300ms delay tap iOS */
 }
 .btn:active {
   transform: scale(0.97);
@@ -2103,6 +2105,8 @@ select.form-input option { background: var(--bg-surface); color: var(--text-prim
   flex-direction: column;
   overflow: hidden;
   animation: wizardSlideUp 0.24s var(--ease-out);
+  will-change: transform;       /* compositing layer — evita repaints en animación */
+  contain: layout style paint;  /* aislar repercusiones de layout */
 }
 @keyframes wizardSlideUp {
   from { opacity: 0; transform: translateY(16px); }
@@ -5543,16 +5547,18 @@ select.form-input option { background: var(--bg-surface); color: var(--text-prim
   display: none; /* JS lo muestra al init en mobile */
   position: fixed;
   bottom: 0; left: 0; right: 0;
-  height: 56px;
+  /* height se extiende bajo el home indicator (iOS safe area) y el padding
+     empuja el contenido hacia arriba — tap targets mantienen 56px reales */
+  height: calc(56px + env(safe-area-inset-bottom, 0px));
   background: rgba(7, 14, 22, 0.96);
   backdrop-filter: blur(20px);
   -webkit-backdrop-filter: blur(20px);
   border-top: 1px solid var(--glass-border);
   z-index: 200;
   flex-direction: row;
-  align-items: stretch;
+  align-items: flex-start;  /* alinear tabs al top del área útil */
   justify-content: space-around;
-  padding-bottom: env(safe-area-inset-bottom, 0px); /* iPhone notch */
+  padding-bottom: env(safe-area-inset-bottom, 0px); /* empujar tabs arriba del home indicator */
 }
 
 @media (max-width: 768px) {
@@ -5584,6 +5590,8 @@ select.form-input option { background: var(--bg-surface); color: var(--text-prim
   transition: color 0.18s ease;
   -webkit-tap-highlight-color: transparent;
   min-width: 0;
+  touch-action: manipulation; /* elimina 300ms delay tap iOS */
+  min-height: 44px; /* tap target mínimo Apple HIG */
 }
 
 .mbn-tab {
@@ -5644,7 +5652,7 @@ select.form-input option { background: var(--bg-surface); color: var(--text-prim
 #mobile-subtab-bar {
   display: none;
   position: fixed;
-  bottom: 56px; /* encima del nav */
+  bottom: calc(56px + env(safe-area-inset-bottom, 0px)); /* encima del nav */
   left: 0; right: 0;
   height: 44px;
   background: rgba(10, 18, 28, 0.97);
@@ -5683,6 +5691,7 @@ select.form-input option { background: var(--bg-surface); color: var(--text-prim
   transition: background 0.15s ease, color 0.15s ease, border-color 0.15s ease;
   white-space: nowrap;
   -webkit-tap-highlight-color: transparent;
+  touch-action: manipulation; /* elimina 300ms delay tap iOS */
 }
 
 .mbn-chip--active {

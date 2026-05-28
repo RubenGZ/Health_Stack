@@ -378,27 +378,20 @@
 
   // Logout — accesible globalmente (botón en #section-config)
   window._logoutUser = function () {
-    if (typeof showConfirm === 'function') {
-      showConfirm({
-        title:   '¿Cerrar sesión?',
-        message: 'Se borrarán los tokens de esta sesión. Tus datos guardados localmente se conservan.',
-        confirmText: 'Cerrar sesión',
-        cancelText:  'Cancelar',
-        danger: true,
-        onConfirm: () => {
-          if (typeof API !== 'undefined') { API.logout(); }
-          else {
-            ['hs_access_token','hs_refresh_token','hs_user'].forEach(k => localStorage.removeItem(k));
-            window.dispatchEvent(new Event('hs:logout'));
-          }
-        },
-      });
-    } else {
+    const _doLogout = () => {
       if (typeof API !== 'undefined') { API.logout(); }
       else {
         ['hs_access_token','hs_refresh_token','hs_user'].forEach(k => localStorage.removeItem(k));
         window.dispatchEvent(new Event('hs:logout'));
       }
+    };
+    if (typeof showConfirm === 'function') {
+      showConfirm(
+        'Se borrarán los tokens de esta sesión. Tus datos guardados localmente se conservan.',
+        { title: '¿Cerrar sesión?', type: 'danger', confirmText: 'Cerrar sesión', cancelText: 'Cancelar' }
+      ).then(confirmed => { if (confirmed) _doLogout(); });
+    } else {
+      _doLogout();
     }
   };
 

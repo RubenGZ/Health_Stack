@@ -14,7 +14,7 @@ Endpoints:
 """
 
 
-from fastapi import APIRouter, Query, status
+from fastapi import APIRouter, Depends, Query, status
 
 from app.core.security.dependencies import CurrentUser
 from app.modules.routines.schemas import (
@@ -24,7 +24,10 @@ from app.modules.routines.schemas import (
     RoutineListResponse,
     RoutineResponse,
 )
-from app.modules.routines.service import RoutineService
+from app.modules.routines.schemas import ChronicInjuryCreate, ChronicInjuryOut
+from app.modules.routines.service import InjuryService, RoutineService, generate_ai_routine_injury_aware
+from app.services.ai_router.dependencies import get_ai_router
+from app.services.ai_router.router import AIRouter
 from app.session import DBSession
 
 router = APIRouter()
@@ -99,3 +102,65 @@ async def ai_generate_routine(
     Con fallback graceful si la API key no está configurada.
     """
     return await RoutineService.generate_ai_routine(body)
+
+
+@router.get(
+    "/injuries",
+    response_model=list[ChronicInjuryOut],
+    summary="Listar lesiones crónicas activas",
+)
+async def list_injuries(
+    db: DBSession,
+    current_user: CurrentUser,
+):
+    return await InjuryService.list_injuries(db, current_user["user_id"])
+
+
+@router.post(
+    "/injuries",
+    response_model=ChronicInjuryOut,
+    status_code=status.HTTP_201_CREATED,
+    summary="Registrar lesión crónica",
+)
+async def create_injury(
+    body: ChronicInjuryCreate,
+    db: DBSession,
+    current_user: CurrentUser,
+):
+    return await InjuryService.create_injury(db, current_user["user_id"], body)
+
+
+@router.delete(
+    "/injuries/{injury_id}",
+    status_code=status.HTTP_204_NO_CONTENT,
+    summary="Eliminar lesión crónica (soft delete)",
+)
+async def delete_injury(
+    injury_id: str,
+    db: DBSession,
+    current_user: CurrentUser,
+):
+    await InjuryService.delete_injury(db, current_user["user_id"], injury_id)
+
+
+@router.post(
+    "/ai-generate-injury-aware",
+    response_model=AIRoutineResponse,
+    summary="Generar rutina IA adaptada a lesiones crónicas",
+)
+async def ai_generate_injury_aware(
+    body: AIRoutineRequest,
+    db: DBSession,
+    current_user: CurrentUser,
+    ai_router: AIRouter = Depends(get_ai_router),
+):
+    """
+    Genera una rutina personalizada respetando las lesiones crónicas del usuario.
+    Si no hay lesiones, equivale a /ai-generate. Fallback graceful si la IA falla.
+    """
+    return await generate_ai_routine_injury_aware(
+        request=body,
+        db=db,
+        user_id=current_user["user_id"],
+        ai_router=ai_router,
+    )

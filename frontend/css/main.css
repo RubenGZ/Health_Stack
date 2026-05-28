@@ -4850,6 +4850,168 @@ select.form-input option { background: var(--bg-surface); color: var(--text-prim
 .wl-ai-coach-btn:active { transform: scale(0.97); opacity: 0.90; }
 .wl-ai-coach-btn svg { flex-shrink: 0; }
 
+/* ── Post-Workout Coach card ────────────────────────────────────────── */
+.pw-coach-card {
+  background: var(--hs-surface-2, #1a1a2e);
+  border: 1px solid rgba(196,165,97,0.25);
+  border-top: 2px solid var(--hs-accent, #c4a561);
+  border-radius: var(--hs-r-lg, 16px);
+  padding: 20px;
+  margin-top: 16px;
+  animation: pw-card-in 0.35s cubic-bezier(0.22,1,0.36,1);
+}
+@keyframes pw-card-in {
+  from { opacity: 0; transform: translateY(12px); }
+  to   { opacity: 1; transform: translateY(0);    }
+}
+
+/* Header row */
+.pw-coach-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 14px;
+}
+.pw-coach-badge {
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+  color: var(--hs-accent, #c4a561);
+  background: rgba(196,165,97,0.12);
+  border: 1px solid rgba(196,165,97,0.22);
+  border-radius: 20px;
+  padding: 3px 10px;
+}
+.pw-dismiss-btn {
+  background: none;
+  border: none;
+  color: var(--hs-text-muted, #888);
+  font-size: 16px;
+  cursor: pointer;
+  padding: 4px 6px;
+  border-radius: 6px;
+  line-height: 1;
+  transition: color 0.15s, background 0.15s;
+}
+.pw-dismiss-btn:hover {
+  color: var(--hs-text, #e0e0e0);
+  background: rgba(255,255,255,0.06);
+}
+
+/* Summary paragraph */
+.pw-coach-summary {
+  font-size: 14px;
+  line-height: 1.6;
+  color: var(--hs-text, #e0e0e0);
+  margin-bottom: 18px;
+}
+.pw-coach-summary p { margin: 0; }
+
+/* Section titles */
+.pw-section-title {
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.6px;
+  text-transform: uppercase;
+  color: var(--hs-text-muted, #888);
+  margin: 0 0 10px;
+}
+
+/* Tips */
+.pw-tips-section { margin-bottom: 18px; }
+.pw-tips-list    { display: flex; flex-direction: column; gap: 10px; }
+.pw-tip-item {
+  display: flex;
+  gap: 10px;
+  background: rgba(255,255,255,0.03);
+  border: 1px solid rgba(255,255,255,0.06);
+  border-radius: var(--hs-r-md, 10px);
+  padding: 10px 12px;
+}
+.pw-tip-icon {
+  font-size: 18px;
+  flex-shrink: 0;
+  line-height: 1.3;
+}
+.pw-tip-body  { display: flex; flex-direction: column; gap: 2px; }
+.pw-tip-category {
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.4px;
+  text-transform: uppercase;
+  color: var(--hs-accent, #c4a561);
+  opacity: 0.85;
+}
+.pw-tip-text {
+  margin: 0;
+  font-size: 13px;
+  line-height: 1.5;
+  color: var(--hs-text, #e0e0e0);
+}
+
+/* Next session */
+.pw-next-session {
+  background: rgba(196,165,97,0.06);
+  border: 1px solid rgba(196,165,97,0.15);
+  border-radius: var(--hs-r-md, 10px);
+  padding: 14px;
+}
+.pw-next-focus {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+  margin-bottom: 8px;
+}
+.pw-next-focus-label {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--hs-text-muted, #888);
+}
+.pw-next-focus-value {
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--hs-text, #e0e0e0);
+}
+.pw-intensity-badge {
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.3px;
+  padding: 2px 9px;
+  border-radius: 20px;
+}
+.pw-intensity-badge--light    { background: rgba(74,222,128,0.15); color: #4ade80; border: 1px solid rgba(74,222,128,0.25); }
+.pw-intensity-badge--moderate { background: rgba(251,191,36,0.15); color: #fbbf24; border: 1px solid rgba(251,191,36,0.25); }
+.pw-intensity-badge--hard     { background: rgba(248,113,113,0.15); color: #f87171; border: 1px solid rgba(248,113,113,0.25); }
+.pw-next-exercises {
+  margin: 0 0 8px;
+  font-size: 13px;
+  color: var(--hs-text, #e0e0e0);
+  line-height: 1.5;
+}
+.pw-next-exercises strong { color: var(--hs-text-muted, #888); font-weight: 600; }
+.pw-next-duration {
+  display: inline-block;
+  font-size: 12px;
+  color: var(--hs-text-muted, #888);
+}
+
+/* Spinner inside button while loading */
+.pw-btn-spinner {
+  display: inline-block;
+  width: 14px;
+  height: 14px;
+  border: 2px solid rgba(15,15,26,0.35);
+  border-top-color: #0f0f1a;
+  border-radius: 50%;
+  animation: pw-spin 0.65s linear infinite;
+  vertical-align: middle;
+}
+@keyframes pw-spin {
+  to { transform: rotate(360deg); }
+}
+
 /* ── Legacy compat ──────────────────────────────────────────────────── */
 .wl-history-title { font-size: 15px; font-weight: 600; margin-bottom: 10px; }
 .wl-session-card {

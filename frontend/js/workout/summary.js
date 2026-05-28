@@ -58,6 +58,8 @@ export async function onFinish() {
     Plan.incrementSessionCount();
   }
   window.dispatchEvent(new CustomEvent('hs:workout-session-changed'));
+  // Store the backend session UUID so PostWorkoutCoach can read it without extra coupling
+  if (result?.session_id) sessionStorage.setItem('hs_last_session_id', result.session_id);
   renderSummary(result);
 }
 

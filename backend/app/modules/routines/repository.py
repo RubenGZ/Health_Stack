@@ -12,7 +12,7 @@ import uuid
 from sqlalchemy import func, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.modules.routines.models import SavedRoutine
+from app.modules.routines.models import SavedRoutine, UserChronicInjury
 
 
 class RoutineRepository:
@@ -76,4 +76,62 @@ class RoutineRepository:
     @staticmethod
     async def delete(db: AsyncSession, routine: SavedRoutine) -> None:
         await db.delete(routine)
+        await db.flush()
+
+
+class InjuryRepository:
+
+    @staticmethod
+    async def create(
+        db: AsyncSession,
+        *,
+        user_id: uuid.UUID,
+        body_area: str,
+        injury_label: str,
+        severity: str,
+        notes: str | None,
+    ) -> UserChronicInjury:
+        injury = UserChronicInjury(
+            user_id=user_id,
+            body_area=body_area,
+            injury_label=injury_label,
+            severity=severity,
+            notes=notes,
+        )
+        db.add(injury)
+        await db.flush()
+        await db.refresh(injury)
+        return injury
+
+    @staticmethod
+    async def list_active(
+        db: AsyncSession,
+        user_id: uuid.UUID,
+    ) -> list[UserChronicInjury]:
+        result = await db.execute(
+            select(UserChronicInjury).where(
+                UserChronicInjury.user_id == user_id,
+                UserChronicInjury.is_active == True,  # noqa: E712
+            ).order_by(UserChronicInjury.created_at.asc())
+        )
+        return list(result.scalars().all())
+
+    @staticmethod
+    async def get_by_id(
+        db: AsyncSession,
+        injury_id: uuid.UUID,
+        user_id: uuid.UUID,
+    ) -> UserChronicInjury | None:
+        result = await db.execute(
+            select(UserChronicInjury).where(
+                UserChronicInjury.id == injury_id,
+                UserChronicInjury.user_id == user_id,
+                UserChronicInjury.is_active == True,  # noqa: E712
+            )
+        )
+        return result.scalar_one_or_none()
+
+    @staticmethod
+    async def soft_delete(db: AsyncSession, injury: UserChronicInjury) -> None:
+        injury.is_active = False
         await db.flush()

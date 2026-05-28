@@ -14,7 +14,6 @@ import uuid
 
 from sqlalchemy import Boolean, CheckConstraint, Column, ForeignKey, String, Text
 from sqlalchemy.dialects.postgresql import JSONB, UUID
-from sqlalchemy.dialects.postgresql import UUID as PG_UUID
 from sqlalchemy.orm import Mapped, mapped_column
 
 from app.shared.base_model import Base, TimestampMixin, UUIDPrimaryKeyMixin
@@ -65,13 +64,13 @@ class UserChronicInjury(Base, TimestampMixin):
     __tablename__ = "user_chronic_injuries"
 
     id = Column(
-        PG_UUID(as_uuid=True),
+        UUID(as_uuid=True),
         primary_key=True,
         default=uuid.uuid4,
     )
     user_id = Column(
-        PG_UUID(as_uuid=True),
-        ForeignKey("users.id", ondelete="CASCADE"),
+        UUID(as_uuid=True),
+        ForeignKey("public.users.id", ondelete="CASCADE"),
         nullable=False,
         index=True,
     )

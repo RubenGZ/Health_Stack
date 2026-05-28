@@ -4,20 +4,28 @@ from __future__ import annotations
 
 import uuid
 
-from fastapi import APIRouter, HTTPException, Query, status
+from fastapi import APIRouter, Depends, HTTPException, Query, status
 
 from app.core.security.dependencies import CurrentUser
 from app.modules.workout_sessions import repository as repo
 from app.modules.workout_sessions import service as svc
+from app.modules.workout_sessions.post_workout_repository import PostWorkoutRepository
+from app.modules.workout_sessions.post_workout_service import generate_post_workout_coaching
 from app.modules.workout_sessions.schemas import (
+    DismissPlanRequest,
     ExerciseHistoryPoint,
     ExerciseHistoryResponse,
+    PostWorkoutCoachRequest,
+    PostWorkoutCoachResponse,
+    PostWorkoutPlanOut,
     SessionCreateRequest,
     SessionCreateResponse,
     SessionDetail,
     SessionListResponse,
     SessionSummary,
 )
+from app.services.ai_router.dependencies import get_ai_router
+from app.services.ai_router.router import AIRouter
 from app.session import DBSession
 
 router = APIRouter()
@@ -130,3 +138,68 @@ async def exercise_history(
         for r in rows
     ]
     return ExerciseHistoryResponse(exercise_key=exercise_key, sessions=points)
+
+
+@router.post(
+    "/post-workout-coach",
+    response_model=PostWorkoutCoachResponse,
+    summary="Coaching AI post-entrenamiento",
+    description="Genera feedback de coaching IA tras una sesión de entrenamiento.",
+)
+async def post_workout_coaching(
+    body: PostWorkoutCoachRequest,
+    current_user: CurrentUser,
+    db: DBSession,
+    ai_router: AIRouter = Depends(get_ai_router),
+) -> PostWorkoutCoachResponse:
+    """Generate AI coaching feedback after a workout session."""
+    return await generate_post_workout_coaching(
+        db=db,
+        user_id=uuid.UUID(current_user["user_id"]),
+        session_id=body.session_id,
+        notes=body.notes,
+        ai_router=ai_router,
+    )
+
+
+@router.post(
+    "/post-workout-coach/dismiss",
+    status_code=status.HTTP_204_NO_CONTENT,
+    summary="Descartar plan de coaching",
+    description="Marca un plan de coaching como usado/descartado.",
+)
+async def dismiss_post_workout_plan(
+    body: DismissPlanRequest,
+    current_user: CurrentUser,
+    db: DBSession,
+) -> None:
+    """Mark a coaching plan as used/dismissed."""
+    found = await PostWorkoutRepository.mark_used(
+        db=db,
+        plan_id=body.plan_id,
+        user_id=uuid.UUID(current_user["user_id"]),
+    )
+    if not found:
+        raise HTTPException(status_code=404, detail="Plan no encontrado")
+
+
+@router.get(
+    "/post-workout-coach/{session_id}",
+    response_model=PostWorkoutPlanOut,
+    summary="Obtener plan de coaching de una sesión",
+    description="Recupera el plan de coaching IA almacenado para una sesión.",
+)
+async def get_post_workout_plan(
+    session_id: uuid.UUID,
+    current_user: CurrentUser,
+    db: DBSession,
+) -> PostWorkoutPlanOut:
+    """Retrieve the stored AI coaching plan for a session."""
+    plan = await PostWorkoutRepository.get_plan_by_session(
+        db=db,
+        session_id=session_id,
+        user_id=uuid.UUID(current_user["user_id"]),
+    )
+    if not plan:
+        raise HTTPException(status_code=404, detail="Plan no encontrado")
+    return plan

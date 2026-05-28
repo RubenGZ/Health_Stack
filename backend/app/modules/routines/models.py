@@ -12,8 +12,9 @@ from __future__ import annotations
 
 import uuid
 
-from sqlalchemy import ForeignKey, String
+from sqlalchemy import Boolean, CheckConstraint, Column, ForeignKey, String, Text
 from sqlalchemy.dialects.postgresql import JSONB, UUID
+from sqlalchemy.dialects.postgresql import UUID as PG_UUID
 from sqlalchemy.orm import Mapped, mapped_column
 
 from app.shared.base_model import Base, TimestampMixin, UUIDPrimaryKeyMixin
@@ -56,3 +57,33 @@ class SavedRoutine(UUIDPrimaryKeyMixin, TimestampMixin, Base):
 
     def __repr__(self) -> str:
         return f"<SavedRoutine id={str(self.id)[:8]}... label={self.label[:20]}>"
+
+
+class UserChronicInjury(Base, TimestampMixin):
+    """Lesión crónica registrada por el usuario. Soft-delete con is_active."""
+
+    __tablename__ = "user_chronic_injuries"
+
+    id = Column(
+        PG_UUID(as_uuid=True),
+        primary_key=True,
+        default=uuid.uuid4,
+    )
+    user_id = Column(
+        PG_UUID(as_uuid=True),
+        ForeignKey("users.id", ondelete="CASCADE"),
+        nullable=False,
+        index=True,
+    )
+    body_area = Column(String(30), nullable=False)
+    injury_label = Column(String(100), nullable=False)
+    severity = Column(String(10), nullable=False)
+    notes = Column(Text, nullable=True)
+    is_active = Column(Boolean, nullable=False, default=True)
+
+    __table_args__ = (
+        CheckConstraint(
+            "severity IN ('mild','moderate','severe')",
+            name="ck_injury_severity",
+        ),
+    )

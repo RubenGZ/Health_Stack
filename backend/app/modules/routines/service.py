@@ -13,8 +13,12 @@ import httpx
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core.config import get_settings
-from app.modules.routines.repository import RoutineRepository
+import uuid
+
+from app.modules.routines.repository import InjuryRepository, RoutineRepository
 from app.modules.routines.schemas import (
+    ChronicInjuryCreate,
+    ChronicInjuryOut,
     AIRoutineDay,
     AIRoutineExercise,
     AIRoutineRequest,
@@ -23,6 +27,8 @@ from app.modules.routines.schemas import (
     RoutineListResponse,
     RoutineResponse,
 )
+from app.services.ai_router.base import AIProviderError
+from app.services.ai_router.schemas import AIMessage, AIRequest, AIUseCase
 from app.shared.exceptions import HealthRecordNotFoundError
 
 logger = logging.getLogger(__name__)
@@ -243,3 +249,189 @@ Incluye exactamente {params.days_per_week} días. Cada día debe tener entre 4 y
         except Exception as exc:
             logger.error("[Routines] Failed to parse Groq JSON: %s | raw: %s", exc, raw_text[:200])
             return _FALLBACK_ROUTINE
+
+
+# ── Severity constraint map (used in AI prompt) ───────────────────────────────
+_SEVERITY_CONSTRAINTS: dict[str, str] = {
+    "mild": (
+        "evitar variantes de alta carga, sustituir con alternativas de bajo impacto articular"
+    ),
+    "moderate": (
+        "excluir todo ejercicio con estrés directo sobre la articulación afectada; "
+        "usar solo ejercicios rehab-compatibles"
+    ),
+    "severe": (
+        "evitación completa de toda la cadena cinética afectada"
+    ),
+}
+
+
+def _build_injury_prompt_block(injuries: list) -> str:
+    """Construye el bloque de restricciones para el prompt de generación."""
+    if not injuries:
+        return ""
+    lines = ["RESTRICCIONES POR LESIONES CRÓNICAS DEL USUARIO:"]
+    for inj in injuries:
+        constraint = _SEVERITY_CONSTRAINTS.get(inj.severity, "precaución adicional")
+        lines.append(f"- {inj.body_area} (severidad: {inj.severity}): {constraint}.")
+    lines.append("")
+    lines.append(
+        "REGLA IMPORTANTE: Para cada ejercicio que involucre una zona lesionada, incluye en el "
+        'campo "notes" del ejercicio la modificación aplicada y el motivo.'
+    )
+    return "\n".join(lines)
+
+
+# ── InjuryService ─────────────────────────────────────────────────────────────
+
+class InjuryService:
+    """Servicio para CRUD de lesiones crónicas del usuario."""
+
+    @staticmethod
+    async def list_injuries(db: AsyncSession, user_id: str) -> list[ChronicInjuryOut]:
+        uid = uuid.UUID(user_id)
+        injuries = await InjuryRepository.list_active(db, uid)
+        return [ChronicInjuryOut.model_validate(i) for i in injuries]
+
+    @staticmethod
+    async def create_injury(
+        db: AsyncSession, user_id: str, data: ChronicInjuryCreate
+    ) -> ChronicInjuryOut:
+        uid = uuid.UUID(user_id)
+        injury = await InjuryRepository.create(
+            db,
+            user_id=uid,
+            body_area=data.body_area,
+            injury_label=data.injury_label,
+            severity=data.severity,
+            notes=data.notes,
+        )
+        return ChronicInjuryOut.model_validate(injury)
+
+    @staticmethod
+    async def delete_injury(
+        db: AsyncSession, user_id: str, injury_id: str
+    ) -> None:
+        from fastapi import HTTPException
+        uid = uuid.UUID(user_id)
+        iid = uuid.UUID(injury_id)
+        injury = await InjuryRepository.get_by_id(db, iid, uid)
+        if not injury:
+            raise HTTPException(status_code=404, detail="Lesión no encontrada")
+        await InjuryRepository.soft_delete(db, injury)
+
+
+# ── generate_ai_routine_injury_aware ─────────────────────────────────────────
+
+async def generate_ai_routine_injury_aware(
+    request: AIRoutineRequest,
+    db: AsyncSession,
+    user_id: str,
+    ai_router,
+) -> AIRoutineResponse:
+    """
+    Genera una rutina adaptada a las lesiones crónicas del usuario.
+
+    Si no hay lesiones activas, delega al generate_ai_routine() estándar.
+    Siempre devuelve una respuesta válida: fallback estático si la IA falla.
+    RGPD: solo envía body_area y severity (no injury_label, que es texto libre del usuario).
+    """
+    uid = uuid.UUID(user_id)
+    injuries = await InjuryRepository.list_active(db, uid)
+
+    if not injuries:
+        return await RoutineService.generate_ai_routine(request)
+
+    injury_block = _build_injury_prompt_block(injuries)
+
+    base_prompt = f"""Eres un entrenador personal experto. Genera una rutina de entrenamiento estructurada en JSON.
+
+Parámetros:
+- Objetivo: {request.goal}
+- Nivel: {request.level}
+- Días por semana: {request.days_per_week}
+- Equipamiento: {request.equipment}
+
+{injury_block}
+
+Responde SOLO con JSON válido con esta estructura exacta:
+{{
+  "label": "Nombre descriptivo de la rutina",
+  "description": "Descripción breve de 1-2 frases",
+  "days_per_week": {request.days_per_week},
+  "focus_area": "área principal",
+  "days": [
+    {{
+      "day_label": "Nombre del día",
+      "focus": "Grupo muscular principal",
+      "exercises": [
+        {{
+          "name": "Nombre del ejercicio",
+          "muscle_group": "Músculo principal",
+          "sets": 3,
+          "reps": "8-12",
+          "rest_sec": 90,
+          "notes": "nota sobre modificación si aplica"
+        }}
+      ]
+    }}
+  ]
+}}
+
+Incluye exactamente {request.days_per_week} días. Cada día debe tener entre 4 y 6 ejercicios."""
+
+    _STATIC_FALLBACK = AIRoutineResponse(
+        label="Rutina de fuerza adaptada",
+        description="Rutina adaptada a tus restricciones. Ajusta los ejercicios según tus sensaciones.",
+        days_per_week=request.days_per_week,
+        focus_area=request.goal,
+        days=[],
+    )
+
+    try:
+        response = await ai_router.call(
+            use_case=AIUseCase.ROUTINE_GENERATION,
+            request=AIRequest(
+                messages=[AIMessage(role="user", content=base_prompt)],
+                max_tokens=2048,
+                temperature=0.7,
+                timeout_s=30.0,
+                response_format="json_object",
+            ),
+        )
+        raw_text = response.content.strip()
+        # Strip markdown code fences if present
+        if raw_text.startswith("```"):
+            raw_text = "\n".join(raw_text.split("\n")[1:])
+            if raw_text.endswith("```"):
+                raw_text = raw_text[: raw_text.rfind("```")]
+        data = json.loads(raw_text)
+        days = [
+            AIRoutineDay(
+                day_label=d["day_label"],
+                focus=d["focus"],
+                exercises=[
+                    AIRoutineExercise(
+                        name=e["name"],
+                        muscle_group=e["muscle_group"],
+                        sets=int(e["sets"]),
+                        reps=str(e["reps"]),
+                        rest_sec=int(e["rest_sec"]),
+                        notes=e.get("notes", ""),
+                    )
+                    for e in d["exercises"]
+                ],
+            )
+            for d in data["days"]
+        ]
+        return AIRoutineResponse(
+            label=data["label"],
+            description=data["description"],
+            days_per_week=data["days_per_week"],
+            focus_area=data["focus_area"],
+            days=days,
+        )
+
+    except (AIProviderError, json.JSONDecodeError, Exception) as exc:
+        logger.warning("generate_ai_routine_injury_aware fallback: %s", exc)
+        return _STATIC_FALLBACK

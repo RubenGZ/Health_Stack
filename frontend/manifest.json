@@ -45,6 +45,13 @@
       "description": "Generar mi rutina semanal",
       "url": "/#rutinas",
       "icons": [{ "src": "/icons/icon-192.png", "sizes": "192x192" }]
+    },
+    {
+      "name": "Nuevo entreno",
+      "short_name": "Entreno",
+      "description": "Empezar sesión de entrenamiento",
+      "url": "/#workout",
+      "icons": [{ "src": "/icons/icon-192.png", "sizes": "192x192" }]
     }
   ]
 }

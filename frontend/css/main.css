@@ -4747,14 +4747,29 @@ select.form-input option { background: var(--bg-surface); color: var(--text-prim
   background: rgba(245,158,11,0.08); border: 1px solid rgba(245,158,11,0.22);
   border-radius: 10px; padding: 9px 14px;
 }
-.wl-done-btn {
-  width: 100%; margin-top: 8px; font-size: 16px;
-  padding: 14px; font-weight: 700;
-  background: linear-gradient(135deg, #c4a561, #a8843e);
-  border: none; border-radius: 14px;
-  box-shadow: 0 4px 18px rgba(196, 165, 97,0.40);
+/* summary actions row */
+.wl-summary-actions {
+  display: flex; gap: 10px; margin-top: 8px;
 }
-.wl-done-btn:hover { box-shadow: 0 6px 24px rgba(196, 165, 97,0.58); }
+.wl-done-btn {
+  flex: 1; font-size: 15px;
+  padding: 13px; font-weight: 700;
+  background: transparent;
+  border: 1px solid rgba(255,255,255,0.13);
+  border-radius: 14px; color: var(--hs-text-2);
+  cursor: pointer;
+}
+.wl-done-btn:hover { background: rgba(255,255,255,0.05); color: var(--hs-text); }
+.wl-share-btn {
+  display: inline-flex; align-items: center; gap: 7px;
+  padding: 13px 20px; font-size: 15px; font-weight: 700;
+  background: linear-gradient(135deg, #c4a561, #a8843e);
+  color: #07070f; border: none; border-radius: 14px;
+  box-shadow: 0 4px 18px rgba(196,165,97,0.38);
+  cursor: pointer; white-space: nowrap;
+}
+.wl-share-btn:hover { box-shadow: 0 6px 24px rgba(196,165,97,0.55); }
+.wl-share-btn:active, .wl-done-btn:active { transform: scale(0.97); }
 
 /* ── Legacy compat ──────────────────────────────────────────────────── */
 .wl-history-title { font-size: 15px; font-weight: 600; margin-bottom: 10px; }

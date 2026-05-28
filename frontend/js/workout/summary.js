@@ -121,6 +121,27 @@ export function renderSummary(result) {
   const xp  = result?.xp_awarded;
   const prs = result?.prs || [];
 
+  // ── Confetti ────────────────────────────────────────────────
+  if (typeof Celebrations !== 'undefined') {
+    if (prs.length) {
+      Celebrations.firePR();
+      setTimeout(() => Celebrations.fireWorkoutDone(), 600);
+    } else {
+      Celebrations.fireWorkoutDone();
+    }
+  }
+
+  // ── Haptic ──────────────────────────────────────────────────
+  if (typeof haptic === 'function') haptic('heavy');
+
+  // ── Share text ──────────────────────────────────────────────
+  const _shareText = () => {
+    const mins = Math.floor(durationSecs / 60);
+    const vStr = volume ? ` · ${volume.toLocaleString('es-ES')} kg` : '';
+    const prStr = prs.length ? ` · 🏆 ${prs.length} PR${prs.length > 1 ? 's' : ''}` : '';
+    return `💪 Entreno completado — ${mins} min${vStr} · ${exerciseCount} ejercicios · ${setCount} sets${prStr}`;
+  };
+
   S.root.innerHTML = `
     <div class="wl-summary">
       <div class="wl-summary-header">
@@ -131,38 +152,99 @@ export function renderSummary(result) {
 
       <div class="wl-summary-stats">
         <div class="wl-stat-box">
-          <span class="wl-stat-box-val">${fmtTime(durationSecs)}</span>
+          <span class="wl-stat-box-val" data-countup-time="${durationSecs}">${fmtTime(durationSecs)}</span>
           <span class="wl-stat-box-lbl">Duración</span>
         </div>
         <div class="wl-stat-box">
-          <span class="wl-stat-box-val">${volume ? volume.toLocaleString('es-ES') + ' kg' : '—'}</span>
+          <span class="wl-stat-box-val" data-countup-vol="${volume || 0}">${volume ? volume.toLocaleString('es-ES') + ' kg' : '—'}</span>
           <span class="wl-stat-box-lbl">Volumen total</span>
         </div>
         <div class="wl-stat-box">
-          <span class="wl-stat-box-val">${exerciseCount}</span>
+          <span class="wl-stat-box-val" data-countup="${exerciseCount}">0</span>
           <span class="wl-stat-box-lbl">Ejercicios</span>
         </div>
         <div class="wl-stat-box">
-          <span class="wl-stat-box-val">${setCount}</span>
+          <span class="wl-stat-box-val" data-countup="${setCount}">0</span>
           <span class="wl-stat-box-lbl">Sets completados</span>
         </div>
       </div>
 
-      ${xp ? `<div class="wl-summary-xp">+${xp} XP <span class="wl-xp-label">Gamificación</span></div>` : ''}
+      ${xp ? `<div class="wl-summary-xp" data-countup-xp="${xp}">+0 XP <span class="wl-xp-label">Gamificación</span></div>` : ''}
 
       ${prs.length ? `
         <div class="wl-summary-prs">
-          ${prs.map(pr => `<div class="wl-pr-item">PR — ${pr.exercise_key.replace(/_/g,' ')}: ${pr.value} kg 1RM</div>`).join('')}
+          ${prs.map(pr => `<div class="wl-pr-item">🏆 PR — ${pr.exercise_key.replace(/_/g,' ')}: ${pr.value} kg 1RM</div>`).join('')}
         </div>` : ''}
 
       ${buildMuscleBreakdown()}
 
-      <button class="wl-done-btn btn" id="wl-done">Nueva sesión</button>
+      <div class="wl-summary-actions">
+        <button class="wl-done-btn btn btn--ghost" id="wl-done">Nueva sesión</button>
+        ${typeof navigator !== 'undefined' && navigator.share ? `
+          <button class="wl-share-btn btn btn--primary" id="wl-share">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg>
+            Compartir
+          </button>` : ''}
+      </div>
     </div>`;
 
+  // ── Count-up animation ──────────────────────────────────────
+  _animateCounters(S.root);
+
+  // ── Buttons ─────────────────────────────────────────────────
   S.root.querySelector('#wl-done').addEventListener('click', () => {
     S.session   = null;
     S.wlViewer  = null;
     _onRenderIdle?.();
   });
+
+  const shareBtn = S.root.querySelector('#wl-share');
+  if (shareBtn) {
+    shareBtn.addEventListener('click', async () => {
+      try {
+        await navigator.share({ title: 'HealthStack Pro', text: _shareText(), url: location.origin });
+      } catch { /* user dismissed — no-op */ }
+    });
+  }
+}
+
+// ─── Count-up helper ───────────────────────────────────────────────────────────
+function _animateCounters(root) {
+  const DURATION = 900; // ms
+  const start = performance.now();
+
+  // Inline numbers (exercises, sets)
+  const nums = root.querySelectorAll('[data-countup]');
+  // Volume with unit
+  const volEl = root.querySelector('[data-countup-vol]');
+  // XP
+  const xpEl  = root.querySelector('[data-countup-xp]');
+
+  function easeOut(t) { return 1 - Math.pow(1 - t, 3); }
+
+  function tick(now) {
+    const t = Math.min(1, (now - start) / DURATION);
+    const e = easeOut(t);
+
+    nums.forEach(el => {
+      const target = parseInt(el.dataset.countup, 10);
+      el.textContent = Math.round(target * e);
+    });
+
+    if (volEl) {
+      const target = parseFloat(volEl.dataset.countupVol);
+      if (target > 0) {
+        volEl.textContent = (target * e).toLocaleString('es-ES', { maximumFractionDigits: 1 }) + ' kg';
+      }
+    }
+
+    if (xpEl) {
+      const target = parseInt(xpEl.dataset.countupXp, 10);
+      xpEl.innerHTML = `+${Math.round(target * e)} XP <span class="wl-xp-label">Gamificación</span>`;
+    }
+
+    if (t < 1) requestAnimationFrame(tick);
+  }
+
+  requestAnimationFrame(tick);
 }

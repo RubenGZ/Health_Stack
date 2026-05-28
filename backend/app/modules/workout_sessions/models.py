@@ -21,8 +21,9 @@ from sqlalchemy import (
     Integer,
     String,
     Text,
+    func,
 )
-from sqlalchemy.dialects.postgresql import UUID
+from sqlalchemy.dialects.postgresql import JSONB, UUID
 from sqlalchemy.orm import relationship
 
 from app.shared.base_model import Base
@@ -103,3 +104,42 @@ class ExerciseSet(Base):
 
     def __repr__(self) -> str:
         return f"<ExerciseSet id={self.id} {self.weight_kg}kg×{self.reps}>"
+
+
+class WorkoutAIPlan(Base):
+    """
+    Plan IA post-entrenamiento generado por el AI Coach.
+
+    Cached per user+session. TTL controlado por expires_at.
+    Una vez leído por el usuario se marca used=True.
+    """
+
+    __tablename__ = "workout_ai_plans"
+    __table_args__ = (
+        Index("ix_workout_ai_plans_user_expires", "user_id", "used", "expires_at"),
+        {"schema": "public", "comment": "Planes IA post-entrenamiento. TTL via expires_at."},
+    )
+
+    id = Column(Integer, primary_key=True, autoincrement=True)
+    user_id = Column(
+        UUID(as_uuid=True),
+        ForeignKey("public.users.id", ondelete="CASCADE"),
+        nullable=False,
+        index=True,
+    )
+    source_session_id = Column(
+        UUID(as_uuid=True),
+        unique=True,
+        nullable=True,
+    )
+    plan_json = Column(JSONB, nullable=False)
+    used = Column(Boolean, nullable=False, default=False)
+    expires_at = Column(DateTime(timezone=True), nullable=False)
+    created_at = Column(
+        DateTime(timezone=True),
+        nullable=False,
+        server_default=func.now(),
+    )
+
+    def __repr__(self) -> str:
+        return f"<WorkoutAIPlan id={self.id} user={str(self.user_id)[:8]}... used={self.used}>"

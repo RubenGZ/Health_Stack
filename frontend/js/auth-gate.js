@@ -51,12 +51,14 @@
   var token = localStorage.getItem(TOKEN_KEY);
 
   if (!token || isExpired(token)) {
-    // Limpiar cualquier dato de sesión obsoleto
+    // Solo borrar el access token expirado.
+    // REFRESH_KEY y USER_KEY se conservan intencionalmente:
+    // api.js init() los usará para hacer un silent refresh y evitar
+    // forzar un login manual cuando la sesión sigue siendo válida.
     localStorage.removeItem(TOKEN_KEY);
-    localStorage.removeItem(REFRESH_KEY);
-    localStorage.removeItem(USER_KEY);
     // Abrir el modal de registro directamente en la app.
     // ?action=register está whitelisted arriba, así que no entra en bucle.
+    // Si el silent refresh tiene éxito, auth.js cerrará el modal automáticamente.
     window.location.replace('/?action=register');
   }
 })();

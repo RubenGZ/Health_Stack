@@ -405,7 +405,7 @@
 
     updateUserChip();
 
-    window.addEventListener('hs:login',  () => updateUserChip());
+    window.addEventListener('hs:login',  () => { closeModal(); updateUserChip(); });
     window.addEventListener('hs:logout', () => updateUserChip());
   }
 

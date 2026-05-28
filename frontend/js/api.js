@@ -54,8 +54,21 @@ const API = (function () {
     } else if (result === 'invalid') {
       clearAuth();
       window.dispatchEvent(new Event('hs:logout'));
+    } else {
+      // 'network' — sin conexión: no cerrar sesión, reintento en 30 s
+      // (más corto que el timer proactivo de 60 s para recuperar antes)
+      if (_proactiveTimer) clearTimeout(_proactiveTimer);
+      _proactiveTimer = setTimeout(_doRefreshOnce, 30_000);
     }
-    // 'network' — sin conexión, no cerrar sesión; lo reintentará al próximo request
+  }
+
+  // Comprueba el estado del token al retomar el foco (iOS resume, bfcache).
+  // iOS puede matar setTimeout mientras la app está en background.
+  function _checkTokenOnResume() {
+    const token = getToken();
+    if (!token && getRefresh()) { _doRefreshOnce(); return; }
+    if (token && _isTokenExpired(token)) { _doRefreshOnce(); return; }
+    _scheduleProactiveRefresh(token); // reprogramar por si el timer murió en background
   }
   // Mutex: devuelve la promesa en curso si ya hay un refresh activo
   function _acquireRefresh() {
@@ -442,7 +455,32 @@ const API = (function () {
     if (isLoggedIn()) {
       _applyPlanFromUser(getUser());
       _scheduleProactiveRefresh(getToken()); // renovar si el token está próximo a expirar
+    } else if (getRefresh()) {
+      // Access token ausente o expirado, pero el refresh token sigue ahí.
+      // auth-gate.js ya no lo borra — intentar renovar silenciosamente
+      // antes de que el usuario vea el modal de login.
+      // Si tiene éxito, dispara hs:login y auth.js cerrará el modal solo.
+      _doRefreshOnce();
     }
+
+    // ── iOS/Chrome resume: reprogramar timer si murió en background ────────
+    document.addEventListener('visibilitychange', () => {
+      if (document.visibilityState === 'visible') _checkTokenOnResume();
+    });
+    // bfcache restore (navegadores modernos que serializan la página)
+    window.addEventListener('pageshow', (e) => {
+      if (e.persisted) _checkTokenOnResume();
+    });
+    // Offline → Online: puede que el token haya expirado sin red
+    window.addEventListener('online', async () => {
+      await checkBackend();
+      if (_backendOnline) {
+        const token = getToken();
+        if (!token && getRefresh()) { _doRefreshOnce(); }
+        else if (token && _isTokenExpired(token)) { _doRefreshOnce(); }
+        else { _scheduleProactiveRefresh(token); } // reiniciar timer
+      }
+    });
 
     // Resetear plan a 'free' al cerrar sesión
     window.addEventListener('hs:logout', () => {

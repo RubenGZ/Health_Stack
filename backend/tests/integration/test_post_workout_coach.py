@@ -213,6 +213,29 @@ class TestPostWorkoutCoach:
         )
         assert r.status_code == 404, r.text
 
+    async def test_generate_coaching_no_auth(self, client: AsyncClient):
+        """
+        POST /post-workout-coach sin auth headers devuelve 401.
+        """
+        r = await client.post(BASE_COACH, json={"session_id": str(uuid.uuid4())})
+        assert r.status_code == 401
+
+    async def test_get_plan_no_auth(self, client: AsyncClient):
+        """
+        GET /post-workout-coach/{session_id} sin auth headers devuelve 401.
+        """
+        r = await client.get(f"{BASE_COACH}/{uuid.uuid4()}")
+        assert r.status_code == 401
+
+    async def test_dismiss_plan_no_auth(self, client: AsyncClient):
+        """
+        POST /post-workout-coach/dismiss sin auth headers devuelve 401.
+        """
+        r = await client.post(
+            f"{BASE_COACH}/dismiss", json={"plan_id": 1}
+        )
+        assert r.status_code == 401
+
     async def test_coaching_prompt_contains_rgpd_safe_data(
         self, client: AsyncClient, auth_headers: dict
     ):
@@ -274,9 +297,9 @@ class TestPostWorkoutCoach:
         )
 
         # RGPD check: no UUID pattern in any prompt message
-        uuid_pattern = re.compile(r"[0-9a-f]{8}-[0-9a-f]{4}", re.IGNORECASE)
+        UUID_PATTERN = re.compile(r"[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}", re.IGNORECASE)
         full_blob = "\n".join(captured_prompts)
-        matches = uuid_pattern.findall(full_blob)
+        matches = UUID_PATTERN.findall(full_blob)
         assert not matches, (
             f"UUID fragment(s) found in AI prompt — RGPD violation: "
             f"{matches[:5]}\nBlob (first 500 chars): {full_blob[:500]}"

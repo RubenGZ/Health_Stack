@@ -1037,6 +1037,7 @@ const RoutineGenerator = (function () {
   // ── Init ──────────────────────────────────────────────────────────────────
   // Usamos onclick para que sea idempotente — múltiples llamadas a init() no duplican listeners
   function init() {
+    _injectInjuryUI();
     renderStep();
 
     const nextBtn   = document.getElementById('quiz-next');
@@ -1046,13 +1047,25 @@ const RoutineGenerator = (function () {
     const closeBtn  = document.getElementById('share-close');
     const closeBtn2 = document.getElementById('share-close-2');
 
-    if (nextBtn) nextBtn.onclick = () => {
+    if (nextBtn) nextBtn.onclick = async () => {
       if (!validateStep()) return;
       if (currentStep < STEPS.length - 1) {
         currentStep++;
         renderStep();
       } else {
-        const routine = generateRoutine(answers);
+        // Try AI endpoint if user has an active token; fall back to local generation
+        let routine = null;
+        const token = _getToken();
+        if (token) {
+          nextBtn.disabled = true;
+          nextBtn.textContent = 'Generando…';
+          routine = await _aiGenerateWithInjuries(answers);
+          nextBtn.disabled = false;
+          nextBtn.textContent = 'Generar mi rutina';
+        }
+        if (!routine) {
+          routine = generateRoutine(answers);
+        }
         showResult(routine);
       }
     };
@@ -1152,6 +1165,208 @@ const RoutineGenerator = (function () {
     if (overlay) overlay.style.display = 'none';
   }
 
+  // ── InjuryManager ─────────────────────────────────────────────────────────
+  const _BASE = (typeof CONFIG !== 'undefined' && CONFIG.API_BASE) || '/api/v1';
+
+  function _getToken() {
+    return localStorage.getItem('hs_access_token') || sessionStorage.getItem('hs_access_token') || '';
+  }
+
+  function _authHeaders() {
+    const t = _getToken();
+    const h = { 'Content-Type': 'application/json' };
+    if (t) h['Authorization'] = 'Bearer ' + t;
+    return h;
+  }
+
+  // Internal state — array of injury objects from the API
+  let _injuries = [];
+
+  const InjuryManager = {
+    // Load active injuries from the API and re-render
+    load: async function () {
+      try {
+        const res = await fetch(_BASE + '/routines/injuries', {
+          headers: _authHeaders(),
+        });
+        if (!res.ok) throw new Error('HTTP ' + res.status);
+        _injuries = await res.json();
+      } catch (err) {
+        console.warn('[InjuryManager] load error:', err);
+        _injuries = [];
+        if (window.showToast) window.showToast('No se pudieron cargar las lesiones.', 'error');
+      }
+      const container = document.getElementById('injury-manager-list');
+      if (container) InjuryManager.renderList(container);
+    },
+
+    // Post a new injury and refresh
+    add: async function (payload) {
+      try {
+        const res = await fetch(_BASE + '/routines/injuries', {
+          method: 'POST',
+          headers: _authHeaders(),
+          body: JSON.stringify(payload),
+        });
+        if (!res.ok) throw new Error('HTTP ' + res.status);
+        await InjuryManager.load();
+        if (window.showToast) window.showToast('Lesión añadida.', 'success');
+      } catch (err) {
+        console.warn('[InjuryManager] add error:', err);
+        if (window.showToast) window.showToast('No se pudo añadir la lesión.', 'error');
+      }
+    },
+
+    // Soft-delete an injury and refresh
+    remove: async function (id) {
+      try {
+        const res = await fetch(_BASE + '/routines/injuries/' + id, {
+          method: 'DELETE',
+          headers: _authHeaders(),
+        });
+        if (!res.ok && res.status !== 204) throw new Error('HTTP ' + res.status);
+        await InjuryManager.load();
+        if (window.showToast) window.showToast('Lesión eliminada.', 'info');
+      } catch (err) {
+        console.warn('[InjuryManager] remove error:', err);
+        if (window.showToast) window.showToast('No se pudo eliminar la lesión.', 'error');
+      }
+    },
+
+    // Render injury list into a given DOM element
+    renderList: function (container) {
+      if (!container) return;
+      if (!_injuries.length) {
+        container.innerHTML = '<p class="injury-empty">Sin lesiones activas registradas.</p>';
+        return;
+      }
+      const sevColor = { mild: '#4ade80', moderate: '#f59e0b', severe: '#f87171' };
+      const sevLabel = { mild: 'Leve', moderate: 'Moderada', severe: 'Severa' };
+      container.innerHTML = _injuries.map(function (inj) {
+        const color = sevColor[inj.severity] || '#e2e8f0';
+        return '<div class="injury-item">' +
+          '<span class="injury-badge injury-badge--area">' + _escHtml(inj.body_area) + '</span>' +
+          '<span class="injury-label">' + _escHtml(inj.injury_label) + '</span>' +
+          '<span class="injury-badge injury-badge--sev" style="color:' + color + ';border-color:' + color + '40">' +
+            (sevLabel[inj.severity] || inj.severity) +
+          '</span>' +
+          '<button class="injury-remove-btn" data-id="' + inj.id + '" title="Eliminar">×</button>' +
+        '</div>';
+      }).join('');
+      container.querySelectorAll('.injury-remove-btn').forEach(function (btn) {
+        btn.addEventListener('click', function () {
+          InjuryManager.remove(btn.dataset.id);
+        });
+      });
+    },
+
+    // Return the current cached list (used by generate flow)
+    getActive: function () {
+      return _injuries.slice();
+    },
+  };
+
+  // ── Sanitize helper for injury UI ─────────────────────────────────────────
+  function _escHtml(str) {
+    return String(str)
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;');
+  }
+
+  // ── Inject InjuryManager UI section ──────────────────────────────────────
+  function _injectInjuryUI() {
+    if (document.getElementById('injury-manager-section')) return; // idempotent
+    const questionnaire = document.getElementById('routine-questionnaire');
+    if (!questionnaire) return;
+
+    const section = document.createElement('div');
+    section.id = 'injury-manager-section';
+    section.innerHTML = [
+      '<div class="injury-manager">',
+        '<h3 class="injury-manager-title">Lesiones activas</h3>',
+        '<p class="injury-manager-hint">Registra lesiones para que la IA las tenga en cuenta al generar tu rutina.</p>',
+        '<div id="injury-manager-list" class="injury-list"></div>',
+        '<form id="injury-add-form" class="injury-add-form" autocomplete="off">',
+          '<div class="injury-form-row">',
+            '<input id="inj-area"     class="form-input injury-input" type="text"   placeholder="Zona (p.ej. hombro)" maxlength="60" required>',
+            '<input id="inj-label"    class="form-input injury-input" type="text"   placeholder="Descripción (p.ej. tendinitis)" maxlength="120" required>',
+            '<select id="inj-sev" class="form-input injury-input">',
+              '<option value="mild">Leve</option>',
+              '<option value="moderate">Moderada</option>',
+              '<option value="severe">Severa</option>',
+            '</select>',
+            '<input id="inj-notes"    class="form-input injury-input" type="text"   placeholder="Notas (opcional)" maxlength="200">',
+            '<button type="submit" class="btn btn--accent btn--sm">Añadir</button>',
+          '</div>',
+        '</form>',
+      '</div>',
+    ].join('');
+
+    // Insert before the questionnaire
+    questionnaire.parentNode.insertBefore(section, questionnaire);
+
+    // Inject styles once
+    if (!document.getElementById('injury-manager-styles')) {
+      const style = document.createElement('style');
+      style.id = 'injury-manager-styles';
+      style.textContent = [
+        '.injury-manager{background:var(--hs-surface-2,#161626);border:1px solid rgba(196,165,97,.18);border-radius:12px;padding:16px 20px;margin-bottom:20px;}',
+        '.injury-manager-title{font-size:.95rem;font-weight:600;color:#c4a561;margin:0 0 4px;}',
+        '.injury-manager-hint{font-size:.78rem;color:rgba(255,255,255,.45);margin:0 0 12px;}',
+        '.injury-list{display:flex;flex-direction:column;gap:8px;margin-bottom:12px;}',
+        '.injury-empty{font-size:.82rem;color:rgba(255,255,255,.35);margin:0 0 8px;}',
+        '.injury-item{display:flex;align-items:center;gap:8px;flex-wrap:wrap;background:rgba(255,255,255,.04);border-radius:8px;padding:8px 10px;}',
+        '.injury-badge{font-size:.72rem;padding:2px 8px;border-radius:6px;border:1px solid;font-weight:600;}',
+        '.injury-badge--area{color:#c4a561;border-color:rgba(196,165,97,.4);background:rgba(196,165,97,.1);}',
+        '.injury-label{flex:1;font-size:.82rem;color:#e2e8f0;}',
+        '.injury-remove-btn{background:rgba(248,113,113,.12);color:#f87171;border:1px solid rgba(248,113,113,.3);border-radius:6px;width:24px;height:24px;cursor:pointer;font-size:1rem;line-height:1;padding:0;flex-shrink:0;}',
+        '.injury-remove-btn:hover{background:rgba(248,113,113,.25);}',
+        '.injury-add-form{margin-top:4px;}',
+        '.injury-form-row{display:flex;gap:8px;flex-wrap:wrap;align-items:center;}',
+        '.injury-input{flex:1;min-width:120px;font-size:.82rem;padding:6px 10px;height:34px;}',
+      ].join('');
+      document.head.appendChild(style);
+    }
+
+    // Wire form submit
+    section.querySelector('#injury-add-form').addEventListener('submit', function (e) {
+      e.preventDefault();
+      const area  = document.getElementById('inj-area').value.trim();
+      const label = document.getElementById('inj-label').value.trim();
+      const sev   = document.getElementById('inj-sev').value;
+      const notes = document.getElementById('inj-notes').value.trim();
+      if (!area || !label) {
+        if (window.showToast) window.showToast('Indica la zona y la descripción de la lesión.', 'error');
+        return;
+      }
+      InjuryManager.add({ body_area: area, injury_label: label, severity: sev, notes: notes || null });
+      e.target.reset();
+    });
+
+    // Initial load
+    InjuryManager.load();
+  }
+
+  // ── AI generate with injury context ──────────────────────────────────────
+  async function _aiGenerateWithInjuries(answers) {
+    const active = InjuryManager.getActive();
+    const endpoint = active.length > 0 ? '/routines/ai-generate-injury-aware' : '/routines/ai-generate';
+    try {
+      const res = await fetch(_BASE + endpoint, {
+        method: 'POST',
+        headers: _authHeaders(),
+        body: JSON.stringify(answers),
+      });
+      if (!res.ok) throw new Error('HTTP ' + res.status);
+      return await res.json();
+    } catch (err) {
+      console.warn('[RoutineGenerator] AI generate error, falling back to local:', err);
+      return null;
+    }
+  }
+
   // ── Mapa de nombres canónicos (igual que workoutSession.js) ──────────────
   var EXERCISE_KEY_MAP = {
     'press banca plano':'press_banca_plano','press banca':'press_banca_plano',
@@ -1246,5 +1461,5 @@ const RoutineGenerator = (function () {
     }
   }
 
-  return { init };
+  return { init, InjuryManager };
 })();

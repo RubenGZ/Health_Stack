@@ -41,14 +41,11 @@ def upgrade() -> None:
         CREATE TABLE workout_ai_plans (
             id                SERIAL       PRIMARY KEY,
             user_id           UUID         NOT NULL REFERENCES users(id) ON DELETE CASCADE,
-            source_session_id INTEGER      NOT NULL REFERENCES workout_sessions(id) ON DELETE CASCADE,
-            created_at        TIMESTAMPTZ  NOT NULL DEFAULT now(),
-            expires_at        TIMESTAMPTZ,
+            source_session_id UUID         UNIQUE,
             plan_json         JSONB        NOT NULL,
-            coach_notes       TEXT,
-            deload_signal     BOOLEAN      NOT NULL DEFAULT FALSE,
             used              BOOLEAN      NOT NULL DEFAULT FALSE,
-            UNIQUE (source_session_id)
+            expires_at        TIMESTAMPTZ  NOT NULL,
+            created_at        TIMESTAMPTZ  NOT NULL DEFAULT now()
         )
     """)
     op.execute("""

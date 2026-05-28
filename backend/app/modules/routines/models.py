@@ -12,8 +12,8 @@ from __future__ import annotations
 
 import uuid
 
-from sqlalchemy import ForeignKey, String, Text
-from sqlalchemy.dialects.postgresql import UUID
+from sqlalchemy import ForeignKey, String
+from sqlalchemy.dialects.postgresql import JSONB, UUID
 from sqlalchemy.orm import Mapped, mapped_column
 
 from app.shared.base_model import Base, TimestampMixin, UUIDPrimaryKeyMixin
@@ -23,8 +23,9 @@ class SavedRoutine(UUIDPrimaryKeyMixin, TimestampMixin, Base):
     """
     Tabla `routines` — Rutinas de entrenamiento guardadas por el usuario.
 
-    routine_json almacena la rutina completa serializada como JSON string.
-    Este diseño flexible permite que el frontend evolucione sin migraciones.
+    routine_json almacena la rutina completa como JSONB (desde migración 0014,
+    previamente TEXT). JSONB permite queries JSON nativas y validación de estructura.
+    El frontend recibe el campo serializado como JSON string (ver RoutineResponse).
     """
 
     __tablename__ = "saved_routines"
@@ -47,10 +48,10 @@ class SavedRoutine(UUIDPrimaryKeyMixin, TimestampMixin, Base):
         comment="Etiqueta/nombre de la rutina (ej: 'Fullbody Fuerza - Semana 1').",
     )
 
-    routine_json: Mapped[str] = mapped_column(
-        Text,
+    routine_json: Mapped[dict] = mapped_column(
+        JSONB,
         nullable=False,
-        comment="JSON string completo de la rutina generada por routineGenerator.js.",
+        comment="Rutina completa en JSONB (migrado de TEXT en 0014). Permite queries JSON nativas.",
     )
 
     def __repr__(self) -> str:

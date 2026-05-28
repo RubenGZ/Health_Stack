@@ -83,7 +83,8 @@ _DEFAULT_ROUTING: dict[AIUseCase, RoutingRule] = {
         fallback="groq",
         fallback_model="llama-3.3-70b-versatile",
     ),
-    # Generación de rutinas injury-aware: Groq llama-3.3 (instruction-following, JSON output)
+    # Rutinas injury-aware: Groq llama-3.3 (instruction-following, salida JSON estructurada)
+    # TODO: P0-RGPD — envía restricciones de lesión (health-adjacent). Revisar antes de prod.
     AIUseCase.ROUTINE_GENERATION: RoutingRule(
         primary="groq",
         primary_model="llama-3.3-70b-versatile",
@@ -91,6 +92,7 @@ _DEFAULT_ROUTING: dict[AIUseCase, RoutingRule] = {
         fallback_model="gemini-2.5-flash",
     ),
     # Coach post-entreno: Groq llama-3.3 (análisis numérico + JSON estructurado)
+    # TODO: P0-RGPD — envía métricas de sesión (pesos, reps, volumen, notas). Revisar antes de prod.
     AIUseCase.POST_WORKOUT_COACH: RoutingRule(
         primary="groq",
         primary_model="llama-3.3-70b-versatile",

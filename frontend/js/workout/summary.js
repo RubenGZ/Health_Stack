@@ -178,6 +178,25 @@ export function renderSummary(result) {
 
       ${buildMuscleBreakdown()}
 
+      <div class="wl-summary-notes-section">
+        <label class="wl-notes-label" for="workout-session-notes">Notas del entrenamiento (opcional)</label>
+        <div class="wl-notes-wrap">
+          <textarea
+            id="workout-session-notes"
+            class="wl-notes-textarea"
+            placeholder="¿Cómo te has sentido? Notas sobre el entrenamiento..."
+            maxlength="500"
+            rows="3"
+          ></textarea>
+          <span class="wl-notes-counter" id="wl-notes-counter">0/500</span>
+        </div>
+      </div>
+
+      <button class="wl-ai-coach-btn" id="btn-get-ai-coaching">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2a10 10 0 1 0 10 10"/><path d="M12 6v6l4 2"/><circle cx="19" cy="5" r="3" fill="currentColor" stroke="none"/></svg>
+        Obtener feedback del coach IA
+      </button>
+
       <div class="wl-summary-actions">
         <button class="wl-done-btn btn btn--ghost" id="wl-done">Nueva sesión</button>
         ${typeof navigator !== 'undefined' && navigator.share ? `
@@ -192,6 +211,22 @@ export function renderSummary(result) {
   _animateCounters(S.root);
 
   // ── Buttons ─────────────────────────────────────────────────
+  // ── Notes textarea — character counter ─────────────────────
+  const notesEl   = S.root.querySelector('#workout-session-notes');
+  const counterEl = S.root.querySelector('#wl-notes-counter');
+  if (notesEl && counterEl) {
+    notesEl.addEventListener('input', () => {
+      const len = notesEl.value.length;
+      counterEl.textContent = `${len}/500`;
+      counterEl.classList.toggle('wl-notes-counter--near', len >= 450);
+    });
+  }
+
+  // ── AI Coach CTA ─────────────────────────────────────────────
+  S.root.querySelector('#btn-get-ai-coaching').addEventListener('click', () => {
+    window.PostWorkoutCoach?.requestCoaching();
+  });
+
   S.root.querySelector('#wl-done').addEventListener('click', () => {
     S.session   = null;
     S.wlViewer  = null;

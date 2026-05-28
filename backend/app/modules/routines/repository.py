@@ -6,6 +6,7 @@ Capa de acceso a datos para el módulo de rutinas.
 
 from __future__ import annotations
 
+import json
 import uuid
 
 from sqlalchemy import func, select
@@ -22,10 +23,12 @@ class RoutineRepository:
         *,
         user_id: str | uuid.UUID,
         label: str,
-        routine_json: str,
+        routine_json: str | dict,
     ) -> SavedRoutine:
         uid = uuid.UUID(str(user_id)) if isinstance(user_id, str) else user_id
-        routine = SavedRoutine(user_id=uid, label=label, routine_json=routine_json)
+        # JSONB requiere dict; el frontend envía JSON string → parsear si es necesario
+        routine_dict = json.loads(routine_json) if isinstance(routine_json, str) else routine_json
+        routine = SavedRoutine(user_id=uid, label=label, routine_json=routine_dict)
         db.add(routine)
         await db.flush()
         await db.refresh(routine)

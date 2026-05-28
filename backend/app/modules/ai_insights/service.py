@@ -410,8 +410,10 @@ async def get_injury_risk(
 
     latest_json: dict = {}
     try:
-        latest_json = json.loads(routines[0].routine_json)
-    except (json.JSONDecodeError, AttributeError):
+        raw_routine = routines[0].routine_json
+        # routine_json es JSONB (dict) desde migración 0014; fallback para TEXT legacy
+        latest_json = raw_routine if isinstance(raw_routine, dict) else json.loads(raw_routine)
+    except (json.JSONDecodeError, AttributeError, TypeError):
         pass
 
     sessions = latest_json.get("sessions", [])

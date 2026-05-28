@@ -27,7 +27,13 @@ from app.modules.nutrition.schemas import (
     UserRecipeResponse,
     UserRecipeUpdate,
 )
+from app.shared.cache import cache_delete_pattern, cache_get, cache_set
 from app.shared.exceptions import ValidationError
+
+# ── Claves de caché Redis ─────────────────────────────────────────────────────
+# Catálogos estáticos → sin TTL (invalidar manualmente en deploy o admin update)
+_CACHE_KEY_SUPPLEMENTS = "catalog:supplements:all"
+_CACHE_KEY_INGREDIENTS  = "catalog:ingredients:all"
 
 # Mapa numérico para calcular el índice inflamatorio ponderado
 _INFLAMMATION_SCORE: dict[str, int] = {"low": 1, "medium": 2, "high": 3}
@@ -88,15 +94,43 @@ class NutritionService:
 
     @staticmethod
     async def list_supplements(db: AsyncSession) -> list[SupplementResponse]:
+        # L1: Redis (catálogo estático — sin TTL)
+        cached = await cache_get(_CACHE_KEY_SUPPLEMENTS)
+        if cached is not None:
+            return [SupplementResponse.model_validate(item) for item in cached]
+
+        # L2: Base de datos
         rows = await SupplementRepository.get_all_active(db)
-        return [SupplementResponse.model_validate(r) for r in rows]
+        result = [SupplementResponse.model_validate(r) for r in rows]
+
+        # Guardar en Redis (serializar con model_dump para compatibilidad Pydantic v2)
+        await cache_set(_CACHE_KEY_SUPPLEMENTS, [r.model_dump() for r in result])
+        return result
 
     # ── Ingredients ───────────────────────────────────────────────────────────
 
     @staticmethod
     async def list_ingredients(db: AsyncSession) -> list[IngredientResponse]:
+        # L1: Redis (catálogo estático — sin TTL)
+        cached = await cache_get(_CACHE_KEY_INGREDIENTS)
+        if cached is not None:
+            return [IngredientResponse.model_validate(item) for item in cached]
+
+        # L2: Base de datos
         rows = await IngredientRepository.get_all(db)
-        return [IngredientResponse.model_validate(r) for r in rows]
+        result = [IngredientResponse.model_validate(r) for r in rows]
+
+        # Guardar en Redis
+        await cache_set(_CACHE_KEY_INGREDIENTS, [r.model_dump() for r in result])
+        return result
+
+    @staticmethod
+    async def invalidate_catalog_cache() -> None:
+        """
+        Invalida el caché de catálogos estáticos en Redis.
+        Llamar desde endpoints de admin al modificar suplementos o ingredientes.
+        """
+        await cache_delete_pattern("catalog:*")
 
     # ── User Recipes ──────────────────────────────────────────────────────────
 

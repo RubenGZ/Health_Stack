@@ -9,7 +9,10 @@ from __future__ import annotations
 from datetime import datetime
 from uuid import UUID
 
-from pydantic import BaseModel, ConfigDict, Field
+import json
+from typing import Any
+
+from pydantic import BaseModel, ConfigDict, Field, field_validator
 
 
 class RoutineCreate(BaseModel):
@@ -23,19 +26,45 @@ class RoutineCreate(BaseModel):
     )
     routine_json: str = Field(
         ...,
-        description="JSON string completo de la rutina generada por el frontend.",
+        description="JSON string de la rutina generada por el frontend.",
     )
+
+    @field_validator("routine_json")
+    @classmethod
+    def validate_routine_json(cls, v: str) -> str:
+        """Valida que routine_json sea JSON válido antes de persistir."""
+        try:
+            json.loads(v)
+        except json.JSONDecodeError as exc:
+            raise ValueError(f"routine_json no es JSON válido: {exc}") from exc
+        return v
 
 
 class RoutineResponse(BaseModel):
-    """Respuesta de una rutina guardada."""
+    """Respuesta de una rutina guardada.
+
+    routine_json se almacena como JSONB (dict) en la BD desde migración 0014.
+    Se serializa de vuelta a string JSON para mantener compatibilidad con el frontend.
+    """
 
     id: UUID
     label: str
-    routine_json: str
+    routine_json: Any  # dict desde JSONB; serializado a str en model_post_init
     created_at: datetime
 
     model_config = ConfigDict(from_attributes=True)
+
+    @field_validator("routine_json", mode="before")
+    @classmethod
+    def serialize_routine_json(cls, v: Any) -> str:
+        """
+        Normaliza routine_json a JSON string.
+        - Si es dict (JSONB desde ORM) → serializar a JSON string
+        - Si es str (legacy o tests) → devolver tal cual
+        """
+        if isinstance(v, dict):
+            return json.dumps(v, ensure_ascii=False)
+        return v
 
 
 class RoutineListResponse(BaseModel):

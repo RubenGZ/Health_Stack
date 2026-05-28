@@ -22,8 +22,47 @@ const API = (function () {
   const REFRESH_KEY = 'hs_refresh_token';
   const USER_KEY    = 'hs_user';
 
-  let _backendOnline = false;   // se actualiza con checkBackend()
-  let _checkInterval = null;
+  let _backendOnline  = false;   // se actualiza con checkBackend()
+  let _checkInterval  = null;
+  let _refreshPromise = null;   // mutex: solo un refresh en vuelo a la vez
+  let _proactiveTimer = null;   // timer para refresh proactivo antes de expirar
+
+  // ── JWT helpers ────────────────────────────────────────────
+  function _decodeExp(token) {
+    try { return JSON.parse(atob(token.split('.')[1])).exp || 0; }
+    catch { return 0; }
+  }
+  function _isTokenExpired(token) {
+    const exp = _decodeExp(token);
+    return exp > 0 && Date.now() / 1000 >= exp;
+  }
+  // Programa un refresh 60 s antes de que expire el access token
+  function _scheduleProactiveRefresh(token) {
+    if (_proactiveTimer) clearTimeout(_proactiveTimer);
+    if (!token) return;
+    const exp = _decodeExp(token);
+    if (!exp) return;
+    const msLeft = exp * 1000 - Date.now() - 60_000; // 60 s de margen
+    if (msLeft <= 0) { _doRefreshOnce(); return; }
+    _proactiveTimer = setTimeout(_doRefreshOnce, msLeft);
+  }
+  async function _doRefreshOnce() {
+    if (!getRefresh()) return;
+    const result = await _acquireRefresh();
+    if (result === 'ok') {
+      _scheduleProactiveRefresh(getToken()); // reprogramar para el nuevo token
+    } else if (result === 'invalid') {
+      clearAuth();
+      window.dispatchEvent(new Event('hs:logout'));
+    }
+    // 'network' — sin conexión, no cerrar sesión; lo reintentará al próximo request
+  }
+  // Mutex: devuelve la promesa en curso si ya hay un refresh activo
+  function _acquireRefresh() {
+    if (_refreshPromise) return _refreshPromise;
+    _refreshPromise = tryRefresh().finally(() => { _refreshPromise = null; });
+    return _refreshPromise;
+  }
 
   // ── Token helpers ──────────────────────────────────────────
   function getToken()   { return localStorage.getItem(TOKEN_KEY); }
@@ -38,6 +77,7 @@ const API = (function () {
     localStorage.setItem(REFRESH_KEY, data.refresh_token);
     localStorage.setItem(USER_KEY,    JSON.stringify(data.user));
     _applyPlanFromUser(data.user);
+    _scheduleProactiveRefresh(data.access_token); // renovar 60 s antes de que expire
     window.dispatchEvent(new Event('hs:login'));
   }
 
@@ -89,25 +129,40 @@ const API = (function () {
   // ── Fetch wrapper ─────────────────────────────────────────
   async function request(path, options = {}) {
     const url     = `${BASE_URL}${path}`;
-    const token   = getToken();
+    let   token   = getToken();
     const headers = { 'Content-Type': 'application/json', ...options.headers };
+
+    // Pre-check: si el token ya expiró, refrescar ANTES de hacer el request
+    // evita la vuelta extra de 401 y el parpadeo de UI
+    if (token && _isTokenExpired(token) && getRefresh()) {
+      const pre = await _acquireRefresh();
+      if (pre === 'invalid') {
+        clearAuth();
+        window.dispatchEvent(new Event('hs:logout'));
+        return null;
+      } else if (pre === 'network') {
+        throw new Error('Sin conexión — inténtalo de nuevo');
+      }
+      token = getToken(); // actualizar con el nuevo token
+    }
+
     if (token) headers['Authorization'] = `Bearer ${token}`;
 
     let res = await fetch(url, { ...options, headers, signal: AbortSignal.timeout(8000) });
 
-    // Token expirado → renovar una vez
+    // 401 reactivo (race condition o clock skew) → reintentar con mutex
     if (res.status === 401 && getRefresh()) {
-      const refreshResult = await tryRefresh();
+      const refreshResult = await _acquireRefresh(); // mutex: si ya hay refresh, espera
       if (refreshResult === 'ok') {
         headers['Authorization'] = `Bearer ${getToken()}`;
         res = await fetch(url, { ...options, headers, signal: AbortSignal.timeout(8000) });
       } else if (refreshResult === 'invalid') {
-        // Server explicitly rejected the refresh token — user must log in again
+        // El servidor rechazó explícitamente el refresh — sesión caducada
         clearAuth();
         window.dispatchEvent(new Event('hs:logout'));
         return null;
       } else {
-        // 'network' — offline or server error; preserve session, let the request fail
+        // 'network' — sin conexión; preservar sesión, dejar que el request falle
         throw new Error('Sin conexión — inténtalo de nuevo');
       }
     }
@@ -141,6 +196,10 @@ const API = (function () {
       if (!res.ok) return 'network'; // 5xx or other transient
       const data = await res.json();
       localStorage.setItem(TOKEN_KEY, data.access_token);
+      if (data.refresh_token) {
+        localStorage.setItem(REFRESH_KEY, data.refresh_token); // rotación de tokens
+      }
+      _scheduleProactiveRefresh(data.access_token); // reprogramar para el nuevo token
       return 'ok';
     } catch {
       return 'network'; // timeout or offline
@@ -379,9 +438,10 @@ const API = (function () {
     await startOnlineMonitor();
 
     // Si el usuario ya está logueado al cargar (token en localStorage),
-    // aplicar el plan correcto según su rol antes de que la UI termine de pintar.
+    // aplicar el plan correcto y programar el refresh proactivo.
     if (isLoggedIn()) {
       _applyPlanFromUser(getUser());
+      _scheduleProactiveRefresh(getToken()); // renovar si el token está próximo a expirar
     }
 
     // Resetear plan a 'free' al cerrar sesión

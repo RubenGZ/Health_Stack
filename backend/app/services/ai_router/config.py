@@ -83,6 +83,20 @@ _DEFAULT_ROUTING: dict[AIUseCase, RoutingRule] = {
         fallback="groq",
         fallback_model="llama-3.3-70b-versatile",
     ),
+    # Generación de rutinas injury-aware: Groq llama-3.3 (instruction-following, JSON output)
+    AIUseCase.ROUTINE_GENERATION: RoutingRule(
+        primary="groq",
+        primary_model="llama-3.3-70b-versatile",
+        fallback="gemini",
+        fallback_model="gemini-2.5-flash",
+    ),
+    # Coach post-entreno: Groq llama-3.3 (análisis numérico + JSON estructurado)
+    AIUseCase.POST_WORKOUT_COACH: RoutingRule(
+        primary="groq",
+        primary_model="llama-3.3-70b-versatile",
+        fallback="gemini",
+        fallback_model="gemini-2.5-flash",
+    ),
 }
 
 

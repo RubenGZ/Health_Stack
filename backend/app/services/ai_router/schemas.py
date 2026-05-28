@@ -27,6 +27,8 @@ class AIUseCase(str, Enum):
     INJURY_RISK         = "injury_risk"          # Análisis de riesgo de lesión — envía rutinas
     WEEKLY_GOALS        = "weekly_goals"         # Micro-objetivos semanales — envía peso/XP
     FOOD_VISION         = "food_vision"          # Análisis de foto de comida — requiere visión (futuro)
+    ROUTINE_GENERATION  = "routine_generation"   # Rutinas con restricciones de lesión
+    POST_WORKOUT_COACH  = "post_workout_coach"   # Análisis post-entreno y plan siguiente sesión
 
 
 # ── Request / Response ────────────────────────────────────────────────────────

@@ -118,7 +118,7 @@ const Onboarding = (function () {
 
     // Event delegation — works even after innerHTML re-renders inside the overlay
     overlay.addEventListener('click', e => {
-      if (e.target.closest('#ob-skip-btn')) { finish(); return; }
+      if (e.target.closest('#ob-skip-btn')) { finish(true); return; }
       if (e.target.closest('#ob-prev-btn')) { prevStep(); return; }
       if (e.target.closest('#ob-next-btn')) { nextStep(); return; }
     });
@@ -394,9 +394,9 @@ const Onboarding = (function () {
   }
 
   // ── Cerrar modal y marcar como completado ─────────────────
-  function finish() {
+  function finish(skipped = false) {
     localStorage.setItem(LS_FLAG, '1');
-    syncToServer();
+    if (!skipped) syncToServer(); // solo si completó todos los pasos, no al saltar
     const overlay = document.getElementById('onboarding-modal');
     const hasTDEE = answers['ob-weight'] && answers.goal;
 

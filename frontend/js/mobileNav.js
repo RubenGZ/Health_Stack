@@ -96,6 +96,19 @@
   let navEl          = null;
   let subtabBarEl    = null;
 
+  // ── PWA resume recovery ────────────────────────────────────
+  // Restaura la nav inferior si el chatbot no está abierto.
+  // Se llama en visibilitychange, pageshow y periódicamente (watchdog).
+  function _unlockNav() {
+    if (!navEl) return;
+    const chatPanel = document.getElementById('chatbot-panel');
+    const chatOpen  = chatPanel && chatPanel.style.display === 'flex';
+    if (!chatOpen) {
+      navEl.classList.remove('mbn--hidden');
+      if (subtabBarEl) subtabBarEl.classList.remove('mbn--hidden');
+    }
+  }
+
   // ── Mapear sección → grupo ─────────────────────────────────
   function groupForSection(sectionId) {
     for (const g of NAV_GROUPS) {
@@ -312,6 +325,19 @@
         if (subtabBarEl) subtabBarEl.classList.toggle('mbn--hidden', isOpen);
       }
     });
+
+    // ── PWA lifecycle: restaurar nav en reanudación ────────────
+    // Desbloquea la nav cuando chatbot.js la cierra al pasar a segundo plano
+    window.addEventListener('hs:nav-unlock', _unlockNav);
+
+    // Reanudación desde segundo plano (visibilitychange) o bfcache (pageshow)
+    document.addEventListener('visibilitychange', () => {
+      if (!document.hidden) _unlockNav();
+    });
+    window.addEventListener('pageshow', _unlockNav);
+
+    // Watchdog: cada 3 s revisa que la nav no esté atascada si el chatbot está cerrado
+    setInterval(_unlockNav, 3_000);
   }
 
   // Esperar a que app.js termine (está deferrido, mobileNav también)

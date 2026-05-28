@@ -399,6 +399,18 @@ const Chatbot = (function () {
     if (panel) panel.style.bottom = '';
   }
 
+  // ── PWA background safety ─────────────────────────────────
+  // Cierra el panel cuando la app pasa a segundo plano (visibilitychange/pagehide).
+  // Evita que el panel quede cubriendo la pantalla al retomar la app en iOS/Android.
+  function _closeOnBackground() {
+    const panel = document.getElementById('chatbot-panel');
+    if (!panel || panel.style.display !== 'flex') return;
+    panel.style.display = 'none';
+    _destroyKeyboardAware();
+    // Avisar a mobileNav para que restaure la navegación
+    window.dispatchEvent(new CustomEvent('hs:nav-unlock'));
+  }
+
   // ── Init ──────────────────────────────────────────────────
 
   function init() {
@@ -427,6 +439,12 @@ const Chatbot = (function () {
       const badge = document.getElementById('chatbot-badge');
       if (badge) { badge.style.display = ''; badge.textContent = '1'; }
     }, 4000);
+
+    // PWA lifecycle: cerrar el panel al pasar a segundo plano
+    document.addEventListener('visibilitychange', () => {
+      if (document.hidden) _closeOnBackground();
+    });
+    window.addEventListener('pagehide', _closeOnBackground);
   }
 
   return { init };

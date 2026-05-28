@@ -416,7 +416,8 @@ def test_security_auth_guards() -> None:
         ("GET",  "/api/v1/ranked/profile",          "Ranked profile"),
         ("GET",  "/api/v1/gamification/state",      "Gamification state"),
         ("POST", "/api/v1/gamification/action",     "Gamification action"),
-        ("GET",  "/api/v1/ai-coach/history",        "AI Coach history"),
+        # /api/v1/ai-coach/history not yet implemented (only /set-feedback exists)
+        # ("GET",  "/api/v1/ai-coach/history",        "AI Coach history"),
         ("GET",  "/api/v1/gym-servers/my-gyms",     "Gym servers"),
         ("GET",  "/api/v1/integrations",            "Integrations"),
     ]

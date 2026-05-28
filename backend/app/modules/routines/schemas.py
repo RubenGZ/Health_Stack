@@ -126,3 +126,29 @@ class AIRoutineResponse(BaseModel):
     days_per_week: int
     focus_area: str
     days: list[AIRoutineDay]
+
+
+# ── Injury-aware routine schemas ──────────────────────────────────────────────
+
+import uuid as _uuid
+from typing import Literal, Optional
+
+from app.modules.rehab.schemas import BodyArea
+
+
+class ChronicInjuryCreate(BaseModel):
+    body_area: BodyArea
+    injury_label: str = Field(..., min_length=1, max_length=100)
+    severity: Literal["mild", "moderate", "severe"]
+    notes: Optional[str] = Field(None, max_length=500)
+
+
+class ChronicInjuryOut(BaseModel):
+    id: _uuid.UUID
+    body_area: str
+    injury_label: str
+    severity: str
+    notes: Optional[str] = None
+    is_active: bool
+
+    model_config = {"from_attributes": True}

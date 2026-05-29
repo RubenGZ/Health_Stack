@@ -560,6 +560,50 @@
     console.log('%c HealthStack Pro v2.0 ', 'background:#c4a561;color:white;padding:4px 8px;border-radius:4px;font-weight:bold');
   }
 
+  // ── JS Error tracking (beta) ─────────────────────────────────────────────
+  // Stores last 20 errors in localStorage['hs_js_errors'] as a ring buffer.
+  // No PII — only message, file, line, col, timestamp.
+  // feedbackWidget reads this to auto-attach context to bug reports.
+  (function _installErrorTracking() {
+    var LS_KEY = 'hs_js_errors';
+    var MAX    = 20;
+
+    function _store(entry) {
+      try {
+        var arr = JSON.parse(localStorage.getItem(LS_KEY) || '[]');
+        arr.push(entry);
+        if (arr.length > MAX) arr = arr.slice(-MAX);
+        localStorage.setItem(LS_KEY, JSON.stringify(arr));
+      } catch (_) {}
+    }
+
+    window.onerror = function (msg, src, line, col, err) {
+      // Ignore extension errors and cross-origin scripts (empty src)
+      if (!src || src.indexOf(location.hostname) === -1) return false;
+      _store({
+        ts:   new Date().toISOString(),
+        msg:  String(msg).slice(0, 200),
+        file: (src || '').replace(location.origin, '').slice(0, 80),
+        line: line || 0,
+        col:  col  || 0,
+      });
+      return false; // let default handler run too
+    };
+
+    window.onunhandledrejection = function (evt) {
+      var msg = evt.reason
+        ? (evt.reason.message || String(evt.reason)).slice(0, 200)
+        : 'Unhandled promise rejection';
+      _store({
+        ts:   new Date().toISOString(),
+        msg:  '[Promise] ' + msg,
+        file: 'promise',
+        line: 0,
+        col:  0,
+      });
+    };
+  }());
+
   // ── Bootstrap ─────────────────────────────────────────────
   if (document.readyState === 'loading') {
     document.addEventListener('DOMContentLoaded', () => { handleOAuthCallback(); handleLandingBridge(); init(); });

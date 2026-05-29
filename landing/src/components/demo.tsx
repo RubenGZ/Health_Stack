@@ -25,7 +25,7 @@ import { TypewriterEffect }       from '@/components/ui/typewriter'
 import { ScrollExpandMedia }      from '@/components/blocks/scroll-expansion-hero'
 import { LanguageSelector }       from '@/components/ui/language-selector'
 import {
-  Zap, Dumbbell, Apple, Users, Trophy, Clock,
+  Zap, Dumbbell, Apple, Users, Trophy,
   Star, Check, X, ChevronRight, Menu, Calculator, Target, Flame,
 } from 'lucide-react'
 
@@ -91,7 +91,7 @@ const FEATURE_META = [
   { icon: <Dumbbell className="w-6 h-6 text-green-400" />, iconCls: 'bg-green-500/10 border border-green-500/20', cardHover: 'hover:border-green-500/20 hover:bg-green-500/[0.03]' },
   { icon: <Users className="w-6 h-6 text-purple-400" />, iconCls: 'bg-purple-500/10 border border-purple-500/20', cardHover: 'hover:border-purple-500/20 hover:bg-purple-500/[0.03]' },
   { icon: <Trophy className="w-6 h-6 text-amber-400" />, iconCls: 'bg-amber-500/10 border border-amber-500/20',  cardHover: 'hover:border-amber-500/20 hover:bg-amber-500/[0.03]'  },
-  { icon: <Clock  className="w-6 h-6 text-rose-400"  />, iconCls: 'bg-rose-500/10 border border-rose-500/20',   cardHover: 'hover:border-rose-500/20 hover:bg-rose-500/[0.03]'   },
+  { icon: <Flame  className="w-6 h-6 text-rose-400"  />, iconCls: 'bg-rose-500/10 border border-rose-500/20',   cardHover: 'hover:border-rose-500/20 hover:bg-rose-500/[0.03]'   },
 ]
 
 const TESTIMONIAL_META = [

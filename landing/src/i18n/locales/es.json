@@ -5,11 +5,11 @@
     "cta": "Empezar Gratis"
   },
   "hero": {
-    "badge": "#1 App Fitness Freemium · Empieza gratis, escala cuando quieras",
-    "line1": "MOLDEA TU",
-    "line3": "VERSIÓN",
-    "typewriter": ["FUERZA", "MÚSCULO", "POTENCIA", "RESISTENCIA", "CUERPO"],
-    "body": "Rutinas generadas por algoritmos inteligentes, nutrición de precisión y una comunidad que te impulsa más lejos. Todo lo que necesitas para construir el cuerpo — y la vida — que quieres.",
+    "badge": "Tus datos cifrados · Nunca vendidos · Gratis para siempre",
+    "line1": "DEJA DE",
+    "line3": "ENTRENAR A CIEGAS",
+    "typewriter": ["FUERZA", "MÚSCULO", "POTENCIA", "RESISTENCIA", "CONSTANCIA"],
+    "body": "Tus entrenos, tu nutrición y tu progreso por fin en un solo sitio — y una IA que cruza los datos para decirte por qué te estancas. Cifrado de extremo a extremo. Tuyo, nunca vendido.",
     "cta_primary": "Empieza Ya — Es Gratis",
     "cta_secondary": "Entrar con Google",
     "stats": ["Miembros activos", "Entrenamientos", "Valoración media"],
@@ -27,16 +27,16 @@
   },
   "features": {
     "label": "Lo que obtienes",
-    "title_1": "TODO LO QUE",
-    "title_2": "NECESITAS PARA GANAR",
-    "subtitle": "Seis herramientas potentes, una sola plataforma. Construida por atletas, para atletas.",
+    "title_1": "DEJA DE PAGAR",
+    "title_2": "CUATRO APPS A LA VEZ",
+    "subtitle": "Entreno, nutrición, progreso y comunidad en una sola plataforma — y se hablan entre sí. Lo que Hevy, MyFitnessPal y tu wearable nunca harán.",
     "items": [
-      { "title": "Generador de Rutinas", "desc": "Responde 7 preguntas inteligentes. Obtén un plan semanal personalizado construido para tu cuerpo, objetivos y equipamiento." },
-      { "title": "Nutrición de Precisión", "desc": "Calculadora TDEE, seguimiento de macros en 142 ingredientes, planificador de comidas 7 días y creador de recetas." },
-      { "title": "Seguimiento de Peso", "desc": "Registra tu progreso con gráficas hermosas, análisis de tendencias y rachas semanales que te mantienen constante." },
-      { "title": "Retos Comunitarios", "desc": "Compite en clasificaciones, gana XP, desbloquea logros y comparte tus victorias con la comunidad." },
-      { "title": "Gamificación y XP", "desc": "Sube de nivel de Novato a Leyenda. Cada entrenamiento registrado y cada racha mantenida tiene recompensa real." },
-      { "title": "Timing Óptimo", "desc": "Planificador de nutrición respaldado por ciencia — sabe exactamente qué comer antes y después de cada sesión." }
+      { "title": "Coach IA que te entiende", "desc": "Cruza tu sueño, tu nutrición y tu volumen para decirte por qué te estancas — y qué cambiar. No es bro-science genérica: es tu cuerpo, leído de verdad." },
+      { "title": "Generador de Rutinas", "desc": "Responde 7 preguntas y obtén un plan hecho para tu cuerpo, objetivos y equipo. ¿Lesión? La rutina se adapta sola — sin parar de entrenar." },
+      { "title": "Nutrición sin culpa", "desc": "TDEE, macros en 142 ingredientes y planificador de 7 días — con contexto, no números rojos que te avergüencen por un mal día." },
+      { "title": "Tu progreso, imposible de ignorar", "desc": "PRs automáticos, 1RM estimado y gráficas que hacen visible lo invisible. La prueba de que tu esfuerzo está funcionando." },
+      { "title": "La tribu de tu gimnasio", "desc": "Clasificaciones de tu box real, retos y XP. No un feed de vanidad: la gente con la que de verdad entrenas, compitiendo a tu nivel." },
+      { "title": "Identidad que se construye", "desc": "De Novato a Leyenda. Cada entreno y cada racha son evidencia de quién te estás convirtiendo — no solo un número." }
     ]
   },
   "preview": {
@@ -64,40 +64,40 @@
   },
   "pricing": {
     "label": "Precios",
-    "title_1": "SIN EXCUSAS.",
-    "title_2": "EMPIEZA GRATIS.",
-    "subtitle": "Empieza gratis con acceso completo a las funciones core. Pro y Elite eliminan los anuncios y añaden herramientas de análisis avanzado que separan a los que progresan de los que se estancan.",
+    "title_1": "EL CORE ES GRATIS.",
+    "title_2": "PARA SIEMPRE.",
+    "subtitle": "Entrenar, registrar y progresar no cuesta nada y nunca costará. Pro protege todo tu historial en la nube y desbloquea la IA sin límites — por menos del 20% de lo que pagas por el gym.",
     "popular": "Más popular",
     "plans": [
       {
         "tier": "Starter",
         "period": "/siempre",
-        "desc": "Todo lo que necesitas para arrancar — sin tarjeta, sin compromiso.",
+        "desc": "Todo lo que necesitas para empezar y formar el hábito — sin tarjeta, sin trampas.",
         "cta": "Empezar gratis",
         "features": ["Seguimiento de peso y gráficas", "+300 ejercicios en biblioteca", "Calculadora TDEE y macros", "Comunidad + gamificación", "Generador de rutinas semanal", "Planificador de comidas 7 días"]
       },
       {
         "tier": "Pro",
         "period": "/mes",
-        "desc": "Sin anuncios, herramientas de análisis y IA para quien va en serio.",
-        "cta": "Activar Pro — 9 €/mes",
-        "features": ["Todo lo de Starter", "Sin anuncios", "Horario Óptimo de Nutrición", "Records & Tracker de 1RM", "Rest Timer inteligente", "Macro Autopilot IA"]
+        "desc": "No pierdas tu progreso. PRs, racha y 1RM protegidos en la nube — más IA sin límites.",
+        "cta": "Proteger mi progreso — 9 €/mes",
+        "features": ["Todo lo de Starter", "Historial y PRs en la nube", "Coach IA sin límites", "Records & Tracker de 1RM", "Protege tu racha (Streak Freeze)", "Sin anuncios"]
       },
       {
         "tier": "Elite",
         "period": "/mes",
-        "desc": "Análisis de élite para atletas competitivos, coaches y quienes no aceptan estancarse.",
+        "desc": "Análisis de élite para quien compite, entrena a otros o se niega a estancarse.",
         "cta": "Ir a Elite — 24 €/mes",
-        "features": ["Todo lo de Pro", "Fatigue Heatmap muscular", "Plateau Radar + diagnóstico IA", "Session Replay + notas de voz", "Body-Comp Forecast (Navy)", "Auto-Deload Detector IA"]
+        "features": ["Todo lo de Pro", "Fatigue Heatmap muscular", "Plateau Radar + diagnóstico IA", "Resumen anual de atleta (Wrapped)", "Body-Comp Forecast (Navy)", "Auto-Deload Detector IA"]
       }
     ]
   },
   "cta": {
     "label": "El momento es ahora",
-    "title_1": "TU MEJOR VERSIÓN",
-    "title_2": "EMPIEZA HOY",
-    "subtitle": "Únete a miles de atletas que ya entrenan de forma más inteligente. Sin gym necesario. Sin excusas aceptadas.",
-    "primary": "Lanzar la App — Es Gratis",
+    "title_1": "DEJA DE ADIVINAR",
+    "title_2": "EMPIEZA A PROGRESAR",
+    "subtitle": "Tu primer entreno registrado en menos de 2 minutos. Tu primer dato que no sabías de ti mismo, esta semana. Gratis, cifrado y sin tarjeta.",
+    "primary": "Crear mi cuenta — Es Gratis",
     "secondary": "Conocer la Comunidad"
   },
   "footer": {
@@ -183,7 +183,7 @@
       ["Seguimiento de macros", "✅ Gratis", "✅ Limitado", "✅ Gratis", "❌", "✅ Gratis"],
       ["Seguimiento de peso", "✅ Gratis", "✅ Gratis", "✅ Gratis", "❌", "✅ Gratis"],
       ["Gamificación XP", "✅ Gratis", "❌", "❌", "❌", "❌"],
-      ["Sin anuncios (gratis)", "❌ Ads financian gratis", "❌", "✅", "✅", "❌"],
+      ["Datos cifrados (RGPD)", "✅ AES-256, nunca vendidos", "❌", "Parcial", "❌", "❌"],
       ["Comunidad", "✅", "✅", "❌", "❌", "✅"],
       ["Idioma español", "✅ Nativo", "Parcial", "Parcial", "❌", "Parcial"]
     ],

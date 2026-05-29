@@ -1,0 +1,487 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>HealthStack Pro — Síntesis Estratégica Maestra</title>
+<style>
+  :root{
+    --bg:#0a0a0f; --card:#141420; --card2:#1a1a28; --border:#24243a;
+    --text:#e8e8f0; --muted:#8a8aa0; --dim:#5c5c75;
+    --gold:#c4a561; --gold-dim:rgba(196,165,97,0.12); --gold-bd:rgba(196,165,97,0.30);
+    --green:#10b981; --amber:#f59e0b; --red:#ef4444; --blue:#3b82f6; --violet:#8b5cf6;
+    --mono:ui-monospace,"SF Mono",Menlo,Consolas,monospace;
+    --sans:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html{scroll-behavior:smooth}
+  body{background:var(--bg);color:var(--text);font-family:var(--sans);font-size:15px;line-height:1.65;-webkit-font-smoothing:antialiased}
+  body::before{content:'';position:fixed;inset:0;z-index:0;pointer-events:none;
+    background:radial-gradient(ellipse 60% 40% at 15% 5%,rgba(196,165,97,0.05) 0%,transparent 70%),
+               radial-gradient(ellipse 50% 40% at 85% 95%,rgba(196,165,97,0.035) 0%,transparent 70%);}
+  .wrap{position:relative;z-index:1;max-width:1000px;margin:0 auto;padding:56px 32px 110px}
+
+  header.doc-head{border-bottom:1px solid var(--border);padding-bottom:34px;margin-bottom:18px}
+  .eyebrow{font-family:var(--mono);font-size:11px;letter-spacing:.2em;text-transform:uppercase;color:var(--gold);display:flex;justify-content:space-between;flex-wrap:wrap;gap:12px;margin-bottom:18px}
+  .conf{color:var(--red);border:1px solid rgba(239,68,68,.4);padding:2px 9px;border-radius:3px}
+  h1{font-size:38px;line-height:1.15;font-weight:800;letter-spacing:-.02em;margin-bottom:14px}
+  h1 .sub{display:block;font-size:20px;font-weight:600;color:var(--gold);margin-top:8px;letter-spacing:0}
+  .doc-meta{font-family:var(--mono);font-size:12px;color:var(--muted)}
+  .lede{font-size:17px;color:var(--text);max-width:760px;margin-top:22px;line-height:1.7}
+
+  nav.toc{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:8px;margin:40px 0 8px}
+  nav.toc a{display:flex;align-items:center;gap:9px;padding:11px 14px;border-radius:9px;background:var(--card);border:1px solid var(--border);text-decoration:none;color:var(--muted);font-size:12.5px;font-weight:600;transition:all .15s}
+  nav.toc a:hover{border-color:var(--gold-bd);color:var(--text);transform:translateY(-1px)}
+  nav.toc .d{width:7px;height:7px;border-radius:50%;background:var(--gold);flex-shrink:0}
+
+  h2{font-size:13px;letter-spacing:.18em;text-transform:uppercase;color:var(--gold);margin:64px 0 8px;font-weight:700;font-family:var(--mono)}
+  h2 .n{color:var(--dim);margin-right:10px}
+  .sect-title{font-size:27px;font-weight:700;letter-spacing:-.015em;margin-bottom:22px;padding-bottom:14px;border-bottom:1px solid var(--border)}
+  h3{font-size:18px;font-weight:600;margin:30px 0 12px;letter-spacing:-.01em}
+  h4{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.1em;color:var(--muted);margin:20px 0 8px;font-family:var(--mono)}
+  p{margin-bottom:13px}
+  .muted{color:var(--muted)}
+  strong{color:#fff;font-weight:600}
+  em{color:var(--gold);font-style:normal}
+  ul,ol{padding-left:20px;margin-bottom:14px}
+  li{margin-bottom:7px}
+
+  .card{background:var(--card);border:1px solid var(--border);border-radius:10px;padding:24px 26px;margin:16px 0}
+  .card.gold{border-left:3px solid var(--gold)}
+  .card.green{border-left:3px solid var(--green)}
+  .card.amber{border-left:3px solid var(--amber)}
+  .card.red{border-left:3px solid var(--red)}
+  .card.blue{border-left:3px solid var(--blue)}
+
+  ul.clean{list-style:none;padding:0;margin:0}
+  ul.clean li{padding:12px 0 12px 26px;position:relative;border-bottom:1px solid var(--border)}
+  ul.clean li:last-child{border-bottom:none}
+  ul.clean li::before{content:"▸";position:absolute;left:4px;top:12px;color:var(--gold);font-family:var(--mono)}
+
+  table{width:100%;border-collapse:collapse;margin:16px 0;font-size:13px}
+  th,td{text-align:left;padding:11px 13px;border-bottom:1px solid var(--border);vertical-align:top}
+  th{background:var(--card2);color:var(--muted);font-family:var(--mono);font-size:10.5px;text-transform:uppercase;letter-spacing:.07em;font-weight:600}
+  td.mono,.mono{font-family:var(--mono)}
+  tbody tr:hover{background:rgba(196,165,97,.03)}
+
+  .pill{display:inline-block;padding:2px 9px;font-family:var(--mono);font-size:10px;border-radius:3px;letter-spacing:.04em;text-transform:uppercase;font-weight:600;white-space:nowrap}
+  .pill.free{background:rgba(16,185,129,.14);color:var(--green)}
+  .pill.pro{background:var(--gold-dim);color:var(--gold);border:1px solid var(--gold-bd)}
+  .pill.b2b{background:rgba(59,130,246,.14);color:var(--blue)}
+  .pill.hi{background:rgba(239,68,68,.14);color:var(--red)}
+  .pill.md{background:rgba(245,158,11,.14);color:var(--amber)}
+
+  .grid2{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+  .grid3{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}
+  @media(max-width:760px){.grid2,.grid3{grid-template-columns:1fr}nav.toc{grid-template-columns:repeat(2,1fr)}h1{font-size:28px}}
+
+  .callout{border-radius:10px;padding:22px 26px;margin:20px 0;background:linear-gradient(135deg,rgba(196,165,97,.08),rgba(196,165,97,.02));border:1px solid var(--gold-bd)}
+  .callout .lbl{font-family:var(--mono);font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:var(--gold);margin-bottom:9px;font-weight:700}
+  .callout .big{font-size:18px;font-weight:600;line-height:1.6;color:#fff}
+  .callout .big em{color:var(--gold)}
+
+  .kpi-row{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin:18px 0}
+  @media(max-width:760px){.kpi-row{grid-template-columns:repeat(2,1fr)}}
+  .kpi{background:var(--card2);border:1px solid var(--border);border-radius:8px;padding:15px 16px}
+  .kpi .v{font-family:var(--mono);font-size:22px;font-weight:700;color:var(--gold)}
+  .kpi .v.green{color:var(--green)} .kpi .v.red{color:var(--red)} .kpi .v.amber{color:var(--amber)} .kpi .v.blue{color:var(--blue)}
+  .kpi .l{font-size:10.5px;color:var(--muted);text-transform:uppercase;letter-spacing:.05em;margin-top:5px;line-height:1.4}
+
+  .hook{display:grid;grid-template-columns:repeat(4,1fr);gap:0;margin:14px 0;border:1px solid var(--border);border-radius:8px;overflow:hidden}
+  @media(max-width:760px){.hook{grid-template-columns:1fr}}
+  .hook .step{padding:14px 16px;border-right:1px solid var(--border)}
+  .hook .step:last-child{border-right:none}
+  @media(max-width:760px){.hook .step{border-right:none;border-bottom:1px solid var(--border)}}
+  .hook .k{font-family:var(--mono);font-size:9.5px;letter-spacing:.1em;text-transform:uppercase;color:var(--gold);margin-bottom:5px}
+  .hook .t{font-size:12.5px;color:var(--text);line-height:1.5}
+
+  .quote{border-left:3px solid var(--gold);padding:12px 18px;margin:18px 0;color:var(--muted);font-style:italic;background:rgba(196,165,97,.04);border-radius:0 6px 6px 0;font-size:14px}
+
+  .step-card{display:grid;grid-template-columns:34px 1fr;gap:16px;background:var(--card);border:1px solid var(--border);border-radius:9px;padding:18px 20px;margin-bottom:11px}
+  .step-card .num{font-family:var(--mono);font-size:18px;font-weight:700;color:var(--gold)}
+  .step-card .t{font-size:15px;font-weight:600;margin-bottom:5px}
+  .step-card .d{font-size:13.5px;color:var(--muted);line-height:1.6}
+
+  .okr{background:var(--card);border:1px solid var(--border);border-radius:9px;padding:18px 22px;margin-bottom:12px}
+  .okr .o{font-size:15px;font-weight:600;margin-bottom:10px;color:var(--gold)}
+  .okr .kr{display:flex;justify-content:space-between;gap:14px;padding:8px 0;border-bottom:1px dashed var(--border);font-size:13px}
+  .okr .kr:last-child{border-bottom:none}
+  .okr .kr .v{font-family:var(--mono);color:#fff;white-space:nowrap}
+
+  footer{margin-top:72px;padding-top:26px;border-top:1px solid var(--border);font-size:12px;color:var(--dim);line-height:1.7}
+  code{font-family:var(--mono);font-size:12px;background:var(--card2);padding:1px 6px;border-radius:3px;color:var(--gold)}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<header class="doc-head">
+  <div class="eyebrow">
+    <span>Síntesis Estratégica Maestra · Producto · Psicología · Monetización</span>
+    <span class="conf">Confidencial — Uso interno</span>
+  </div>
+  <h1>HealthStack Pro
+    <span class="sub">El sistema de fuerza con grado RGPD donde tus datos son tuyos — y la IA los entiende</span>
+  </h1>
+  <div class="doc-meta">Elaborado: 2026-05-29 · Integra: Monetización, Roadmap, Benchmarking, ICP, Mercado, Psicología · Estado: Pre-beta (SW v80)</div>
+  <p class="lede">Este documento une los seis informes de negocio con el estado real del producto a 6 días del lanzamiento beta. No repite los análisis — los <strong>reconcilia con la realidad de ingeniería</strong>, traduce la psicología del usuario en mecánicas concretas, y fija una secuencia de monetización que respeta la promesa "tier gratuito completo" sin dejar dinero sobre la mesa.</p>
+</header>
+
+<nav class="toc">
+  <a href="#a"><span class="d"></span>A · Diagnóstico de gaps</a>
+  <a href="#b"><span class="d"></span>B · Psicología profunda</a>
+  <a href="#c"><span class="d"></span>C · UX / fricción crítica</a>
+  <a href="#d"><span class="d"></span>D · Monetización post-beta</a>
+  <a href="#e"><span class="d"></span>E · Ingeniería = ventaja</a>
+  <a href="#f"><span class="d"></span>F · Go-to-Market</a>
+  <a href="#g"><span class="d"></span>G · North Star + OKRs</a>
+</nav>
+
+<!-- ════════════ A · DIAGNÓSTICO DE GAPS ════════════ -->
+<section id="a">
+  <h2><span class="n">A</span>Diagnóstico de gaps</h2>
+  <div class="sect-title">Lo que dicen los docs vs. lo que existe hoy</div>
+
+  <p>Los seis informes describen una empresa que ya es líder de categoría (32/40 en el heatmap, ARR de seis cifras, moats múltiples). El producto a fecha de hoy es una <strong>PWA pre-beta sobre una Raspberry Pi, sin una sola persona pagando, sin URL estable y con 5 módulos en estado WIP</strong>. El primer gap es de calibración: los docs son la tesis a 18 meses; la beta del viernes es el día 0. La estrategia debe sobrevivir al contacto con esa realidad.</p>
+
+  <div class="card gold">
+    <h4>Gap 1 — La narrativa de privacidad es real pero invisible</h4>
+    <p>Los docs (Mercado §5, Benchmarking A1) coinciden: AES-256-GCM + pseudonimización AEPD es <em>la</em> cuña de mayor conversión post-brecha Cal AI. <strong>Hoy esa historia no existe en ningún punto de contacto del usuario.</strong> La landing vende "freemium #1" y velocidad, no soberanía de datos. El moat está construido en el backend y sin marketizar — exactamente el diagnóstico de Mercado §06.</p>
+  </div>
+
+  <div class="card amber">
+    <h4>Gap 2 — Monetización: los docs piden Pro, el producto es 100% gratis</h4>
+    <p>Monetización recomienda lanzar Pro a 7,99 €/mes. <code>CLAUDE.md</code> registra la decisión opuesta (todo Free, <code>PLAN_OK[0]=todo true</code>) y AdSense fue <strong>eliminado para beta</strong>. La landing ya muestra 3 tiers (Starter/Pro/Elite) con precios — pero no hay paywall ni pasarela de pago. <strong>No es contradicción, es secuencia</strong>: beta = todo gratis para formar hábito; el paywall llega después del evento "habit formed" (ver §D). El gap es que no existe aún la infraestructura de cobro (Stripe) ni el gating de features.</p>
+  </div>
+
+  <div class="card red">
+    <h4>Gap 3 — Las features estrella de los docs están a medias o ausentes</h4>
+    <ul>
+      <li><strong>Ranked</strong> (palanca de retención Strava 18%→32%): <code>season=1</code> hardcodeado, leaderboards city/national/global comparten implementación. Es la acción #1 de Benchmarking y Mercado, aún sin resolver.</li>
+      <li><strong>gym_servers</strong> (el moat "imposible de copiar"): WIP, sin endpoint de descubrimiento, sin registro de progreso de retos. Toda la tesis B2B2C descansa sobre un módulo no terminado.</li>
+      <li><strong>Sueño</strong> (2ª prioridad del consumidor según McKinsey): no existe ingesta pasiva. Es la mayor brecha del heatmap (3/5).</li>
+      <li><strong>Integraciones / wearables</strong>: 0 tests, OAuth cableado pero ninguna plataforma E2E. La landing ya anuncia "Activo" para Google Fit / Strava / Fitbit — <em>riesgo de promesa incumplida</em>.</li>
+    </ul>
+  </div>
+
+  <div class="card green">
+    <h4>Gap 4 — Lo que SÍ está listo y los docs infravaloran</h4>
+    <p>Módulos production-ready que ya entregan la psicología de §B: workout logger con PRs + 1RM Epley, gamificación XP/niveles/streak, AI Coach + AI Insights (RGPD-safe), <strong>Post-Workout AI Coach</strong> (módulo B, nuevo) e <strong>Injury-Aware routines</strong> (módulo A, nuevo). El "AI insight que nombra un patrón que no viste" — el detonante de compra de Marcus en el ICP — <em>ya es técnicamente posible hoy</em>. Está infrautilizado en la narrativa.</p>
+  </div>
+
+  <h3>Gap de ICP: el doc apunta a EE.UU., la beta es España</h3>
+  <p>El ICP primario ("Marcus, Austin, $95k, paga Hevy Pro") está modelado sobre Reddit/YouTube de EE.UU. La beta del viernes son <strong>5-10 personas de confianza, en España, en una PWA</strong>. Para beta, el ICP operativo real es "David T. de Madrid" + el círculo cercano de Ruben. La estrategia GTM (§F) debe arrancar hiperlocal, no con la táctica "migra desde Hevy" del doc ICP (válida para GA, no para beta).</p>
+</section>
+
+<!-- ════════════ B · PSICOLOGÍA ════════════ -->
+<section id="b">
+  <h2><span class="n">B</span>Psicología del usuario — deepdive</h2>
+  <div class="sect-title">De las 8 teorías a las mecánicas concretas</div>
+
+  <h3>Jobs-to-be-Done emocionales (no los funcionales obvios)</h3>
+  <p>El doc ICP lista los JTBD funcionales ("registrar series en &lt;90s", "controlar macros"). Esos son tabla de apuestas — Hevy los cumple. Los <strong>jobs emocionales reales</strong>, donde se gana o se pierde al usuario, son otros:</p>
+  <div class="card">
+    <ul class="clean">
+      <li><strong>"Demuéstrame que no estoy perdiendo el tiempo."</strong> El miedo profundo del que entrena en serio no es fallar — es <em>esforzarse y no progresar sin darse cuenta</em>. El job es validación objetiva: "lo que hago funciona". Aquí gana el AI Insight que detecta el patrón invisible (sueño↓ → press estancado).</li>
+      <li><strong>"Hazme sentir un atleta, no un usuario de app."</strong> Identidad &gt; funcionalidad (Clear). El usuario contrata HealthStack para <em>convertirse en alguien</em>. Cada PR, cada nivel, cada "Athlete Receipt" es evidencia de identidad. La app que se siente como una hoja de cálculo pierde este job aunque registre más rápido.</li>
+      <li><strong>"Protege la historia que he construido."</strong> El usuario con 6 meses de historial no quiere una feature nueva — quiere no perder lo que ya es suyo (Loss Aversion). Job emocional: continuidad del yo cuantificado.</li>
+      <li><strong>"No me hagas sentir vigilado ni vendido."</strong> Especialmente el segmento europeo/privacy-native (Mercado §5.1) y la mujer millennial (Sarah, ICP). El job no es "privacidad" en abstracto — es <em>dignidad de los datos íntimos del cuerpo</em>.</li>
+      <li><strong>"Dame una tribu que entienda lo que hago."</strong> Pertenencia específica, no un feed de vanidad. El gimnasio físico es la unidad de tribu correcta — nadie más la ocupa.</li>
+    </ul>
+  </div>
+
+  <h3>Momentos de dolor máximo que HealthStack resuelve mejor que nadie</h3>
+  <table>
+    <thead><tr><th>Momento de dolor</th><th>Qué hace el competidor</th><th>Ventaja HealthStack</th></tr></thead>
+    <tbody>
+      <tr><td>El press se estanca y no sé por qué</td><td>Hevy: solo muestra el número. Whoop: recovery aislada</td><td>AI Insights cruza sueño + nutrición + volumen → narrativa causal</td></tr>
+      <tr><td>Me lesioné y no sé cómo seguir entrenando</td><td>Ninguno lo aborda; el usuario para o improvisa</td><td><strong>Injury-Aware Generator</strong> (módulo A) — rutina adaptada hoy mismo</td></tr>
+      <tr><td>Acabo de entrenar y no sé si lo hice bien</td><td>El log se cierra y ya está</td><td><strong>Post-Workout AI Coach</strong> (módulo B) — feedback inmediato post-set</td></tr>
+      <tr><td>Pago 4 apps que no se hablan entre sí (dolor de Marcus)</td><td>Silos: Hevy + MFP + Strava + wearable</td><td>Stack unificado en una identidad cifrada</td></tr>
+      <tr><td>La app de calorías me avergüenza (dolor de Sarah)</td><td>MFP: números rojos = "fallaste"</td><td>Encuadre sin shaming + RFM en vez de IMC punitivo</td></tr>
+    </tbody>
+  </table>
+
+  <h3>Sesgos cognitivos a activar — y dónde</h3>
+  <div class="grid2">
+    <div class="card red">
+      <h4>Loss Aversion · el más potente para conversión</h4>
+      <p>El dolor de perder es 2× el placer de ganar. Cuanto más historial acumula el usuario gratis, más le duele irse. Copy de paywall: <em>"Tu progresión de 1RM, 12 PRs y racha de 47 días — protégelos en la nube"</em>, nunca "desbloquea premium".</p>
+    </div>
+    <div class="card amber">
+      <h4>Sunk Cost · streak + historial</h4>
+      <p>Usuarios con 6+ meses tienen churn ~15× menor. El streak visible y el historial de PRs son costes hundidos psicológicos. Mecánica: hacer el coste hundido <em>visible y cuantificado</em> ("847 kg de progresión total este año").</p>
+    </div>
+    <div class="card blue">
+      <h4>Social Proof · ranked segmentado</h4>
+      <p>El leaderboard del gimnasio (no global) activa proof sin destruir autoeficacia. Clave del doc de psicología: upward comparison solo motiva si la brecha es <em>salvable</em>. Ranked por tier/peso corporal, nunca global crudo.</p>
+    </div>
+    <div class="card green">
+      <h4>Endowment · "tus datos, tu historia"</h4>
+      <p>El usuario valora más lo que percibe como suyo. La narrativa RGPD ("tus datos son tuyos, nunca vendidos") + el export JSON convierten los datos en posesión psicológica → mayor endowment → mayor retención y WTP.</p>
+    </div>
+  </div>
+
+  <h3>Hook Model por feature clave (Eyal: trigger → action → reward variable → investment)</h3>
+
+  <h4>Workout Logger</h4>
+  <div class="hook">
+    <div class="step"><div class="k">Trigger</div><div class="t">Push "Tu Push A de hoy" a la hora habitual (Fogg: diseña para el valle)</div></div>
+    <div class="step"><div class="k">Action</div><div class="t">Registrar set en 2 taps, rutina pre-cargada (Ability máxima)</div></div>
+    <div class="step"><div class="k">Reward variable</div><div class="t">¿PR? ¿Tiny-win post-set? La incertidumbre del récord = dopamina</div></div>
+    <div class="step"><div class="k">Investment</div><div class="t">Cada set guardado = historial que duele perder (loss aversion)</div></div>
+  </div>
+
+  <h4>AI Insights</h4>
+  <div class="hook">
+    <div class="step"><div class="k">Trigger</div><div class="t">"Tu informe semanal está listo" (domingo, ritual)</div></div>
+    <div class="step"><div class="k">Action</div><div class="t">Abrir y leer la narrativa de 1 párrafo</div></div>
+    <div class="step"><div class="k">Reward variable</div><div class="t">¿Qué patrón no obvio detectó esta semana? Cada informe es distinto</div></div>
+    <div class="step"><div class="k">Investment</div><div class="t">Más datos logueados = insights más precisos la próxima vez</div></div>
+  </div>
+
+  <h4>Ranked / Gym Server</h4>
+  <div class="hook">
+    <div class="step"><div class="k">Trigger</div><div class="t">"X de tu gimnasio te superó en sentadilla esta semana"</div></div>
+    <div class="step"><div class="k">Action</div><div class="t">Entrenar para recuperar puesto (goal-gradient si está cerca)</div></div>
+    <div class="step"><div class="k">Reward variable</div><div class="t">Subir de tier, badge nuevo, posición en el leaderboard del box</div></div>
+    <div class="step"><div class="k">Investment</div><div class="t">Tu reputación dentro de tu gimnasio físico — coste social real</div></div>
+  </div>
+
+  <div class="callout">
+    <div class="lbl">Comportamientos a formar en las primeras 48h — o se pierde al usuario</div>
+    <div class="big">D0 retención de salud/fitness: mediana 20-27%. <em>Si en 48h el usuario no ha (1) registrado 1 entreno real, (2) visto su primer "tiny-win"/PR, y (3) recibido 1 dato que no sabía sobre sí mismo, no vuelve.</em> El onboarding beta debe forzar exactamente esos tres eventos — no tours de features.</div>
+  </div>
+  <p>Concretamente, en orden de prioridad para el onboarding de la beta:</p>
+  <ol>
+    <li><strong>Onboarding de identidad, no de objetivo.</strong> "¿Quién quieres ser en 6 meses?" en vez de "¿cuál es tu meta?" — ancla la identidad atlética desde el minuto 1 (Clear).</li>
+    <li><strong>Endowed progress.</strong> Regalar 3 días de streak / XP inicial: completar la "tarjeta" arranca más rápido (34% en el estudio Nunes &amp; Drèze).</li>
+    <li><strong>Primer entreno guiado con tiny-win garantizado.</strong> El primer set logueado debe disparar feedback emocional positivo inmediato.</li>
+    <li><strong>Primer AI Insight en &lt;48h aunque sea con datos mínimos.</strong> "Ya detectamos algo: tu volumen de empuje es 30% mayor que el de tirón" — el momento "esta app me entiende".</li>
+  </ol>
+</section>
+
+<!-- ════════════ C · UX ════════════ -->
+<section id="c">
+  <h2><span class="n">C</span>UX / UI — fricción crítica</h2>
+  <div class="sect-title">Dónde se cae el usuario entre registro y primer entreno real</div>
+
+  <h3>El embudo de mayor drop: registro → primera sesión de entreno completada</h3>
+  <p>El momento de la verdad no es el registro — es la <strong>primera sesión real de entreno guardada</strong>. Cada paso entre ambos es un punto de fuga (Fogg: -20% de usuarios por click extra):</p>
+  <table>
+    <thead><tr><th>Paso</th><th>Riesgo de drop</th><th>Quick win</th></tr></thead>
+    <tbody>
+      <tr><td>Registro → dashboard vacío</td><td class="mono">Alto</td><td>First-run banner ✅ ya existe. Reforzar con CTA único: "Registra tu primer entreno"</td></tr>
+      <tr><td>Dashboard → elegir/crear rutina</td><td class="mono">Crítico</td><td>Quick-start checklist ✅ (SW v80). Asegurar que paso 1 = entreno, no config</td></tr>
+      <tr><td>Rutina → registrar primer set</td><td class="mono">Crítico</td><td>Rutina demo pre-cargada (1 tap para empezar), no obligar a generar IA primero</td></tr>
+      <tr><td>Primer set → cerrar app sin guardar</td><td class="mono">Medio</td><td>Tiny-win + Post-Workout Coach al primer set, no al final</td></tr>
+    </tbody>
+  </table>
+
+  <h3>Mobile-first iOS standalone — qué frustra o rompe</h3>
+  <div class="card amber">
+    <ul>
+      <li><strong>Add-to-Home-Screen no es obvio en iOS Safari.</strong> No hay prompt nativo. La beta necesita una instrucción visual explícita (el roadmap lo marca como bloqueante #3, aún sin verificar E2E).</li>
+      <li><strong>Pérdida de sesión al reabrir en standalone.</strong> Si el JWT no persiste tras cerrar la PWA, se rompe el job "protege mi historia". Es el test crítico del Día 3 del roadmap.</li>
+      <li><strong>Safe-area / notch:</strong> ya cubierto en Fase 1 ✅.</li>
+      <li><strong>Teclado numérico:</strong> los inputs de peso/reps deben abrir teclado numérico (<code>inputmode="decimal"</code>), no QWERTY — fricción silenciosa en cada set.</li>
+      <li><strong>Offline:</strong> banner premium ✅ (Fase 4). Verificar que un entreno logueado offline no se pierde al reconectar — es el peor fallo posible para la confianza.</li>
+    </ul>
+  </div>
+
+  <h3>Empty states y micro-momentos de deleite que aún faltan</h3>
+  <p>Mucho ya está hecho (empty states de Rutinas/Entreno, gamification hint, avatar iniciales — MVP Beta Polish ✅). Lo que falta y es alto impacto / bajo esfuerzo:</p>
+  <ul>
+    <li><strong>Tiny-win post-set</strong> con micro-animación + haptic (la API <code>window.haptic</code> ya existe). "¡Nuevo máximo personal!" en el momento, no en el resumen.</li>
+    <li><strong>Weekly recap</strong> ("Esta semana: 2.340 kg totales, +18% vs. la anterior") — Goal-Gradient + Progress visible.</li>
+    <li><strong>Comparación "vs. tú la semana pasada"</strong> siempre visible en dashboard — la comparación social <em>sana</em> por defecto.</li>
+    <li><strong>Framing de streak como identidad</strong>: "Llevas 23 días siendo consistente", no "racha: 23".</li>
+  </ul>
+
+  <div class="card green">
+    <h4>Quick wins implementables esta semana (antes de la beta)</h4>
+    <ol>
+      <li>Onboarding de identidad (1 pregunta) en el primer login.</li>
+      <li>Endowed progress: 3 días de streak regalados al registrarse.</li>
+      <li>Tiny-win haptic + toast al primer PR de cada sesión.</li>
+      <li><code>inputmode="decimal"</code> en todos los inputs de peso/reps.</li>
+      <li>Instrucción visual "Añadir a pantalla de inicio" para iOS en primer arranque.</li>
+      <li>Verificar persistencia de sesión + entreno offline (test, no feature).</li>
+    </ol>
+  </div>
+</section>
+
+<!-- ════════════ D · MONETIZACIÓN ════════════ -->
+<section id="d">
+  <h2><span class="n">D</span>Monetización post-beta</h2>
+  <div class="sect-title">El paywall correcto, en el momento correcto, con el copy correcto</div>
+
+  <p>Reconciliación de los dos docs en tensión: Monetización pide Pro a 7,99 €; Benchmarking advierte "NO pongas la IA tras paywall — es lo que mata a los competidores". La síntesis: <strong>el coaching de IA en sí debe sentirse generoso en Free; lo que se monetiza es la <em>continuidad, la profundidad longitudinal y la protección del historial</em></strong> — exactamente donde la psicología (loss aversion) maximiza WTP sin generar la reacción anti-paywall.</p>
+
+  <h3>Qué mover a Pro — ordenado por valor percibido × WTP, no por coste</h3>
+  <table>
+    <thead><tr><th>Feature</th><th>Tier</th><th>Razón psicológica / WTP</th></tr></thead>
+    <tbody>
+      <tr><td>Workout log, PRs, 1RM, rutinas (≤3)</td><td><span class="pill free">Free</span></td><td>Hábito diario = hook. Nunca tocar.</td></tr>
+      <tr><td>AI Coach (5 msg/día), 1 AI Insight/mes</td><td><span class="pill free">Free</span></td><td>"La magia" se prueba gratis; el límite es el trigger de conversión</td></tr>
+      <tr><td>Gamificación, gym server (unirse), comunidad</td><td><span class="pill free">Free</span></td><td>Efectos de red — paywall aquí sería letal</td></tr>
+      <tr><td><strong>Cloud sync + protección de historial</strong></td><td><span class="pill pro">Pro</span></td><td>Loss aversion puro — el WTP #1 según psicología</td></tr>
+      <tr><td><strong>AI Insights ilimitado + Workout Wrapped anual</strong></td><td><span class="pill pro">Pro</span></td><td>El diferenciador (nadie en UE lo tiene) + identidad longitudinal</td></tr>
+      <tr><td>AI Coach ilimitado + memoria persistente</td><td><span class="pill pro">Pro</span></td><td>Mayor coste marginal, mayor valor; se paga solo</td></tr>
+      <tr><td>Streak freeze · "no pierdas tu racha"</td><td><span class="pill pro">Pro</span></td><td>Loss aversion como feature ancla de bajo coste</td></tr>
+      <tr><td>Ranked nacional/global, rutinas ilimitadas, export CSV</td><td><span class="pill pro">Pro</span></td><td>Usuarios avanzados, alta WTP, coste marginal mínimo</td></tr>
+      <tr><td>Gym Server con marca propia (panel operador)</td><td><span class="pill b2b">B2B2C</span></td><td>49-99 €/mes/gimnasio — el moat asimétrico</td></tr>
+    </tbody>
+  </table>
+
+  <h3>Pricing psicológico</h3>
+  <div class="grid3">
+    <div class="card gold">
+      <h4>Anchoring</h4>
+      <p>La landing ya muestra 3 tiers (Starter/Pro/Elite). El tier <strong>Elite (24 €)</strong> ancla hacia arriba: hace que Pro (9 €) parezca razonable. Mantener Elite visible aunque casi nadie lo compre — es el ancla, no el producto.</p>
+    </div>
+    <div class="card gold">
+      <h4>Charm pricing</h4>
+      <p>9,99 € &gt; 10 €, 59,99 € &gt; 60 €. Anual con descuento agresivo (37%) promocionado fuerte tras la prueba — Headspace/Calm validan el ratio 3-5× mensual.</p>
+    </div>
+    <div class="card gold">
+      <h4>Frame de referencia correcto</h4>
+      <p>No comparar con apps (5 €) sino con <em>el gimnasio</em> (40-80 €/mes): "Pro mejora tu gym por el 20% de lo que cuesta ir". Ese es el argumento de venta del doc de psicología.</p>
+    </div>
+  </div>
+
+  <h3>El momento óptimo del paywall — qué evento de "habit formed" debe precederlo</h3>
+  <div class="callout">
+    <div class="lbl">Regla de oro</div>
+    <div class="big">Nunca mostrar el paywall antes del evento <em>"habit formed"</em>. Definición operativa para HealthStack: <em>≥3 entrenos reales registrados en ≥2 semanas distintas + ≥1 PR detectado</em>. Antes de eso, todo paywall destruye el funnel (riesgo #4 de Monetización). Después, el usuario ya tiene historial que perder → loss aversion trabaja a favor.</p></div>
+  </div>
+  <p>Secuencia recomendada: <strong>beta (jun) = 100% gratis</strong> para formar hábito y medir; <strong>introducir Pro solo cuando una cohorte cruce el umbral "habit formed"</strong> (probable Q3); el paywall se dispara contextualmente (al chocar con el límite de AI Coach, al ver el Wrapped anual bloqueado), nunca con un muro frío al arrancar.</p>
+
+  <h3>Pantalla de upsell que convierte</h3>
+  <div class="card pro" style="border-left:3px solid var(--gold)">
+    <p style="font-size:13px;color:var(--muted);margin-bottom:8px;font-family:var(--mono)">EJEMPLO DE COPY — disparado al alcanzar el límite de AI Coach</p>
+    <p style="font-size:17px;color:#fff;font-weight:600;margin-bottom:6px">Tu progresión de 1RM, 14 PRs y tu racha de 47 días.</p>
+    <p style="color:var(--muted)">No los pierdas. Pro los protege en la nube, desbloquea tu coach de IA sin límite y tu informe anual de atleta. <strong style="color:var(--gold)">9,99 €/mes · o 59,99 €/año (ahorra 37%)</strong></p>
+    <p style="font-size:12px;color:var(--dim);margin-top:10px">[Activar Pro]  ·  [Seguir gratis] — sin patrón oscuro, salida siempre visible</p>
+  </div>
+  <p class="muted" style="font-size:13px">Por qué convierte: lidera con lo que se pierde (no con lo que se gana), cuantifica el coste hundido, frame anual con charm pricing, y la salida limpia refuerza la marca "cero patrones oscuros" (contra-posicionamiento vs. Noom/Oura/Strava).</p>
+
+  <h3>LTV — métricas a trackear desde la beta</h3>
+  <div class="kpi-row">
+    <div class="kpi"><div class="v">D1 / D7 / D30</div><div class="l">Retención por cohorte (objetivo cuartil superior: 35/15/8%)</div></div>
+    <div class="kpi"><div class="v blue">TTFV</div><div class="l">Time-to-first-value: registro → 1er entreno guardado</div></div>
+    <div class="kpi"><div class="v amber">% habit-formed</div><div class="l">Usuarios que cruzan el umbral 3 entrenos/2 sem</div></div>
+    <div class="kpi"><div class="v green">Historial/usuario</div><div class="l">Proxy de loss aversion → predictor de conversión</div></div>
+  </div>
+  <p>Con estas cuatro, el LTV se proyecta como: <code>LTV ≈ ARPU mensual × meses_retención_media × margen</code>. La beta no monetiza, pero <strong>debe instrumentar TTFV y % habit-formed desde el día 1</strong> — son los predictores de toda la proyección de Monetización. El telemetry module (público, ya en producción) es el sitio para emitir estos eventos.</p>
+</section>
+
+<!-- ════════════ E · INGENIERÍA ════════════ -->
+<section id="e">
+  <h2><span class="n">E</span>Ingeniería como ventaja competitiva</h2>
+  <div class="sect-title">Lo que es imposible para apps del mismo rango de precio</div>
+
+  <div class="grid2">
+    <div class="card green">
+      <h4>Imposibles para un competidor freemium genérico</h4>
+      <ul>
+        <li><strong>Cifrado AES-256-GCM + pseudonimización AEPD</strong> a nivel de registro de salud. Un competidor ad-financiado no puede ofrecerlo — su modelo de negocio <em>es</em> monetizar esos datos.</li>
+        <li><strong>IA cross-vertical RGPD-safe</strong>: el prompt nunca incluye PII (hash SHA-256, solo métricas). Sintetiza nutrición + entreno + comunidad en una narrativa. Whoop/Oura son monovertical.</li>
+        <li><strong>Post-Workout Coach + Injury-Aware routines</strong>: dos módulos que ningún competidor de gama media tiene, ya en producción.</li>
+        <li><strong>Gym server = grafo social por gimnasio físico</strong>: requiere relación B2B + arquitectura, no una API. Estructuralmente fuera del alcance de Apple/Google.</li>
+      </ul>
+    </div>
+    <div class="card amber">
+      <h4>Deuda técnica a resolver antes de cobrar</h4>
+      <ul>
+        <li><strong>Ranked real</strong>: des-hardcodear season, conectar scopes. Bloquea la palanca de retención validada (Strava).</li>
+        <li><strong>gym_servers</strong>: response_models, endpoint descubrir/abandonar, progreso de retos. Bloquea todo el B2B2C.</li>
+        <li><strong>Integrations</strong>: 0 tests → riesgo de promesa incumplida (la landing dice "Activo").</li>
+        <li><strong>Rotación MASTER_KEY</strong>: documentar re-cifrado antes de tener datos de pago que proteger legalmente.</li>
+        <li><strong>Infra</strong>: Named Tunnel + CORS cerrado + Stripe. No se puede cobrar sobre un Quick Tunnel con CORS abierto.</li>
+      </ul>
+    </div>
+  </div>
+
+  <h3>Roadmap Q3 2026 — ordenado por ROI en retención y monetización</h3>
+  <div class="step-card"><div class="num">1</div><div><div class="t">Ranked real + leaderboards por gimnasio</div><div class="d">ROI máximo en retención (precedente Strava 18%→32% D90), esfuerzo bajo. Es la acción #1 de dos informes. Desbloquea el hook social.</div></div></div>
+  <div class="step-card"><div class="num">2</div><div><div class="t">Cloud sync + Workout Wrapped + Streak freeze</div><div class="d">Las tres features ancla de monetización por loss aversion. Habilitan el primer paywall con WTP máximo.</div></div></div>
+  <div class="step-card"><div class="num">3</div><div><div class="t">gym_servers a producto estrella + 10 gimnasios ancla</div><div class="d">El moat irreplicable + canal B2B2C de CAC casi nulo. Esfuerzo alto pero defensibilidad máxima.</div></div></div>
+  <div class="step-card"><div class="num">4</div><div><div class="t">Ingesta pasiva de sueño (Apple Health / Health Connect)</div><div class="d">Cierra la mayor brecha del heatmap (3/5→4/5). 2ª prioridad del consumidor. Solo lectura + score simple.</div></div></div>
+  <div class="step-card"><div class="num">5</div><div><div class="t">Stripe + gating de features + geo-pricing live</div><div class="d">Infra de cobro. El geo-pricing endpoint ya existe — solo conectarlo al paywall.</div></div></div>
+</section>
+
+<!-- ════════════ F · GTM ════════════ -->
+<section id="f">
+  <h2><span class="n">F</span>Go-to-Market · beta → GA</h2>
+  <div class="sect-title">Posicionamiento, canal #1, contenido</div>
+
+  <div class="callout">
+    <div class="lbl">Posicionamiento único — la frase que nadie más puede decir</div>
+    <div class="big">"La única app de entrenamiento donde <em>los datos de tu cuerpo están cifrados por defecto</em> y <em>tus ganancias de fuerza alimentan un coach de IA que de verdad te entiende</em> — construida en Europa, tuya, nunca vendida."</div>
+  </div>
+  <p>Contra cada incumbente: vs. <strong>Hevy</strong> (solo registra, sin IA ni cifrado ni nutrición), vs. <strong>MyFitnessPal</strong> (ad-financiado, cicatriz de brecha, sin fuerza), vs. apps de pago como <strong>Whoop/Oura</strong> (hardware caro, monovertical, sin gym social). HealthStack es el único stack integrado, cifrado y con coste de entrada cero.</p>
+
+  <h3>Canal #1 para los primeros 100 usuarios de pago — táctico</h3>
+  <div class="card gold">
+    <p><strong>Gimnasios ancla en Madrid/Barcelona (B2B2C), no Reddit.</strong> Razón: para España, en pre-beta, el "migra desde Hevy" del doc ICP tiene volumen demasiado bajo y CAC de contenido alto. El canal de mayor ROI es el módulo gym_servers usado como caballo de Troya:</p>
+    <ol>
+      <li>Firmar 3-5 gimnasios independientes de gama media como <strong>socios de diseño</strong> (servidor gratis + Pro gratis para sus 50 primeros socios).</li>
+      <li>Cada gimnasio aporta 200-800 miembros activos con <strong>CAC ≈ 0</strong> y retención D30 esperada &gt;40% (vs. 12% baseline) por el efecto comunidad local.</li>
+      <li>De esa base activa salen los primeros 100 de pago vía conversión natural (habit-formed → Pro), y los gimnasios mismos son el primer ingreso B2B.</li>
+    </ol>
+    <p class="muted" style="font-size:13px">El canal Reddit/YouTube + "migra desde Hevy" se reserva para GA, cuando el producto tenga la URL estable, ranked funcional y los testimonios reales de los gimnasios ancla como prueba social.</p>
+  </div>
+
+  <h3>Contenido semana 1 de beta para generar engagement</h3>
+  <ul>
+    <li><strong>"AI Insight de la semana"</strong> (anonimizado, con permiso): "El press de X se estancó cuando durmió &lt;7h tres semanas — aquí el gráfico". Demuestra el diferenciador mejor que cualquier lista de features. Formato corto para el grupo de beta + futuro TikTok/IG.</li>
+    <li><strong>Reto de gimnasio fundador</strong>: leaderboard cerrado del box ancla durante la semana 1 — activa pertenencia + social proof segmentado.</li>
+    <li><strong>"Tu primer Athlete Receipt"</strong>: pieza de identidad compartible que el betatester quiere mostrar (loop de adquisición orgánico).</li>
+    <li><strong>Canal de feedback abierto</strong>: el feedbackWidget ya enruta a WhatsApp con contexto auto-adjunto ✅ — usarlo como ritual diario de la beta.</li>
+  </ul>
+</section>
+
+<!-- ════════════ G · NSM + OKRs ════════════ -->
+<section id="g">
+  <h2><span class="n">G</span>North Star Metric + OKRs beta</h2>
+  <div class="sect-title">Una métrica que importa, cuatro semanas que la prueban</div>
+
+  <div class="callout">
+    <div class="lbl">North Star Metric propuesta</div>
+    <div class="big">Entrenos reales registrados por usuario activo semanal (<em>WAU · entrenos/semana</em>).</div>
+  </div>
+  <p><strong>Justificación.</strong> No DAU (vanity, no captura valor), no ingresos (cero en beta), no instalaciones (no predicen retención). "Entrenos registrados por WAU" captura el <em>core action</em> que: (1) forma el hábito, (2) genera el historial que crea loss aversion, (3) alimenta los AI Insights, (4) es el insumo del ranked. Si esta métrica sube, todo lo demás —retención, WTP, moat de datos— sube detrás. Es la única que liga el comportamiento del usuario con el valor del negocio en una sola cifra.</p>
+
+  <h3>OKRs — 4 semanas de beta</h3>
+  <div class="okr">
+    <div class="o">O1 · La beta prueba que el hábito se forma</div>
+    <div class="kr"><span>KR1 — Betatesters que instalan la PWA (iOS + Android)</span><span class="v">≥ 5</span></div>
+    <div class="kr"><span>KR2 — Entrenos reales registrados (total)</span><span class="v">≥ 25</span></div>
+    <div class="kr"><span>KR3 — Usuarios que cruzan "habit-formed" (3 entrenos / 2 sem)</span><span class="v">≥ 3</span></div>
+    <div class="kr"><span>Criterio de fracaso</span><span class="v" style="color:var(--red)">&lt; 10 entrenos o 0 habit-formed</span></div>
+  </div>
+  <div class="okr">
+    <div class="o">O2 · El producto no rompe la confianza en el momento clave</div>
+    <div class="kr"><span>KR1 — Login funciona en iOS Safari standalone</span><span class="v">✅ sí/no</span></div>
+    <div class="kr"><span>KR2 — Sesión + entreno persisten tras cerrar/reabrir</span><span class="v">✅ sí/no</span></div>
+    <div class="kr"><span>KR3 — Crashes JS críticos reportados</span><span class="v">0</span></div>
+    <div class="kr"><span>Criterio de fracaso</span><span class="v" style="color:var(--red)">cualquier pérdida de datos de entreno</span></div>
+  </div>
+  <div class="okr">
+    <div class="o">O3 · La cuña diferencial resuena (IA + privacidad)</div>
+    <div class="kr"><span>KR1 — Usuarios que reciben ≥1 AI Insight en &lt;48h</span><span class="v">≥ 80%</span></div>
+    <div class="kr"><span>KR2 — Feedback espontáneo sobre "la app me entiende" o privacidad</span><span class="v">≥ 2 menciones</span></div>
+    <div class="kr"><span>KR3 — TTFV mediana (registro → 1er entreno)</span><span class="v">&lt; 10 min</span></div>
+    <div class="kr"><span>Criterio de éxito mayor</span><span class="v" style="color:var(--green)">1 betatester pide pagar sin que se lo ofrezcas</span></div>
+  </div>
+</section>
+
+<footer>
+  <p><strong style="color:var(--text)">Síntesis Estratégica Maestra — HealthStack Pro</strong> · Elaborado 2026-05-29 · Uso interno.</p>
+  <p>Integra y reconcilia: HealthStack_Monetization_Strategy_ES, HealthStack_Strategic_Roadmap_ES, HealthStack_Competitive_Benchmarking_ES, HealthStack_ICP_Demand_Validation_ES, HealthStack_Market_Analysis_ES, psychology-target-insights, con el estado real del producto en <code>CLAUDE.md</code> (SW v80, pre-beta). Las cifras heredadas de los informes fuente son estimaciones de operador; los criterios de OKR son medibles desde el módulo telemetry. No constituye asesoramiento de inversión.</p>
+</footer>
+
+</div>
+</body>
+</html>

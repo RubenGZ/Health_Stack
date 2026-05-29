@@ -34,7 +34,7 @@ TIERS_COMPETITIVE = [
     "calentando", "amateur", "semipro", "bestia",
     "titan", "fenomeno", "invicto", "apex",
 ]
-MAX_LP_PER_WEEK = 60   # anti-spam: máx LP por cola en 7 días
+MAX_LP_PER_WEEK = 60   # anti-spam: máx LP por cola en 7 días  # TODO: implement weekly LP cap (currently unused — lp_week never checked)
 TOP_TIER_NORMAL = "leyenda"
 TOP_TIER_COMPETITIVE = "apex"
 
@@ -56,8 +56,8 @@ class RankedProfile(Base):
     peak_tier      = Column(String(20), nullable=False)
     peak_division  = Column(Integer, nullable=True)
     prev_season_tier = Column(String(20), nullable=True)
-    lp_week        = Column(Integer, nullable=False, default=0)
-    lp_week_reset  = Column(DateTime(timezone=True), nullable=True)
+    lp_week        = Column(Integer, nullable=False, default=0)       # TODO: enforce MAX_LP_PER_WEEK cap in apply_lp_delta
+    lp_week_reset  = Column(DateTime(timezone=True), nullable=True)  # TODO: reset lp_week each Monday via scheduler
     competitive_unlocked = Column(Boolean, default=False, nullable=False)
     updated_at = Column(DateTime(timezone=True), server_default=func.now(), onupdate=func.now())
 

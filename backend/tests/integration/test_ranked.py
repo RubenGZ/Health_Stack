@@ -35,6 +35,52 @@ async def test_ranked_requires_auth(client: AsyncClient):
 
 
 @pytest.mark.asyncio
+async def test_profile_season_fallback_when_no_seasons(client: AsyncClient, auth_headers: dict, db_session):
+    """
+    GET /profile — sin filas en ranked_seasons, get_active_season() hace fallback a 1.
+    El perfil resultante debe tener season=1.
+    """
+    from app.modules.ranked.repository import get_active_season
+
+    season_fallback = await get_active_season(db_session)
+    assert season_fallback == 1
+
+    resp = await client.get(f"{BASE}/profile", headers=auth_headers)
+    assert resp.status_code == 200
+    data = resp.json()
+    assert data["normal"]["season"] == 1
+
+
+@pytest.mark.asyncio
+async def test_leaderboard_season_in_response_is_dynamic(client: AsyncClient, auth_headers: dict, db_session):
+    """
+    GET /leaderboard debe devolver la season activa en la respuesta,
+    no season=1 hardcodeado.
+    """
+    from app.modules.ranked.models import RankedSeason
+    import datetime
+
+    # Insertar temporada activa
+    active = RankedSeason(
+        season=7,
+        start_date=datetime.date(2026, 1, 1),
+        end_date=datetime.date(2026, 12, 31),
+        closed=False,
+    )
+    db_session.add(active)
+    await db_session.flush()
+
+    resp = await client.get(f"{BASE}/leaderboard?queue=normal&scope=global", headers=auth_headers)
+    assert resp.status_code == 200
+    data = resp.json()
+    assert data["season"] == 7, f"Expected season=7, got {data['season']}"
+
+    # Limpiar
+    await db_session.delete(active)
+    await db_session.flush()
+
+
+@pytest.mark.asyncio
 async def test_gym_leaderboard_returns_display_name_not_uuid(
     client: AsyncClient, auth_headers: dict
 ):

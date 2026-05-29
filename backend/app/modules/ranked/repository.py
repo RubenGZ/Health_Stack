@@ -8,8 +8,37 @@ from sqlalchemy import case, desc, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.modules.gym_servers.models import GymMembership
-from app.modules.ranked.models import TIERS_COMPETITIVE, TIERS_NORMAL, RankedEvent, RankedProfile
+from app.modules.ranked.models import TIERS_COMPETITIVE, TIERS_NORMAL, RankedEvent, RankedProfile, RankedSeason
 from app.modules.identity.models import User
+
+
+async def get_active_season(db: AsyncSession) -> int:
+    """
+    Devuelve el número de la temporada activa (closed=False), o la más reciente
+    si no hay ninguna marcada como activa. Fallback a season_id=1 si la tabla
+    está vacía.
+    """
+    # Intentar obtener la temporada abierta (no cerrada)
+    result = await db.execute(
+        select(RankedSeason)
+        .where(RankedSeason.closed == False)  # noqa: E712
+        .order_by(desc(RankedSeason.season))
+        .limit(1)
+    )
+    season_row = result.scalar_one_or_none()
+    if season_row:
+        return season_row.season
+
+    # Si todas están cerradas, devolver la más reciente
+    result = await db.execute(
+        select(RankedSeason).order_by(desc(RankedSeason.season)).limit(1)
+    )
+    season_row = result.scalar_one_or_none()
+    if season_row:
+        return season_row.season
+
+    # Fallback: sin filas en la tabla, usar season 1
+    return 1
 
 
 async def get_profile(db: AsyncSession, user_id: uuid.UUID, queue: str) -> RankedProfile | None:
@@ -67,8 +96,7 @@ async def get_global_leaderboard(
 ) -> list[dict]:
     """
     Top usuarios global por tier (desc) y LP (desc).
-    Fallback para scopes city/national/global cuando no hay datos filtrados.
-    Devuelve los usuarios con perfil ranked existente ordenados por posición.
+    Sin filtro geográfico — incluye todos los usuarios con perfil ranked.
     """
     tier_order = _tier_order_expr(queue)
     result = await db.execute(
@@ -86,6 +114,32 @@ async def get_global_leaderboard(
         }
         for r in rows
     ]
+
+
+async def get_national_leaderboard(
+    db: AsyncSession, queue: str, country_code: str | None = None, limit: int = 50
+) -> list[dict]:
+    """
+    Top usuarios por país.
+    TODO: User model no tiene campo country_code — necesitaría migración para
+    filtrar por país real. Por ahora fallback a leaderboard global.
+    """
+    # TODO: implement national filter once User.country_code column is added
+    # e.g.: .where(User.country_code == country_code) if country_code else no-op
+    return await get_global_leaderboard(db, queue, limit)
+
+
+async def get_city_leaderboard(
+    db: AsyncSession, queue: str, city: str | None = None, limit: int = 50
+) -> list[dict]:
+    """
+    Top usuarios por ciudad.
+    TODO: User model no tiene campo city — necesitaría migración para filtrar
+    por ciudad real. Por ahora fallback a leaderboard global.
+    """
+    # TODO: implement city filter once User.city column is added
+    # e.g.: .where(User.city == city) if city else fallback to national/global
+    return await get_global_leaderboard(db, queue, limit)
 
 
 async def get_recent_events(

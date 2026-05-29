@@ -32,7 +32,7 @@ async def get_ranked_profile(
     current_user: CurrentUser,
 ):
     user_id = uuid.UUID(current_user["user_id"])
-    season = 1  # TODO: obtener de RankedSeason activa
+    season = await repo.get_active_season(db)
 
     normal_p = await svc.get_or_create_profile(db, user_id, "normal", season)
     comp_p   = await svc.get_or_create_profile(db, user_id, "competitive", season)
@@ -94,9 +94,43 @@ async def get_leaderboard(
             if p.user_id == user_id:
                 my_rank = i
 
-    elif scope in ("city", "national", "global"):
-        # Fallback: leaderboard global de usuarios con perfil ranked.
-        # Cuando existan tablas de ciudad/nación se filtrará aquí.
+    elif scope == "national":
+        rows = await repo.get_national_leaderboard(db, queue)
+        total = len(rows)
+        for i, row in enumerate(rows, 1):
+            p = row["profile"]
+            u = row["user"]
+            display = u.display_name or "Atleta"
+            entries.append(LeaderboardEntry(
+                rank=i,
+                username=display,
+                tier=p.tier,
+                division=p.division,
+                lp=p.lp,
+                badge=None,
+            ))
+            if p.user_id == user_id:
+                my_rank = i
+
+    elif scope == "city":
+        rows = await repo.get_city_leaderboard(db, queue)
+        total = len(rows)
+        for i, row in enumerate(rows, 1):
+            p = row["profile"]
+            u = row["user"]
+            display = u.display_name or "Atleta"
+            entries.append(LeaderboardEntry(
+                rank=i,
+                username=display,
+                tier=p.tier,
+                division=p.division,
+                lp=p.lp,
+                badge=None,
+            ))
+            if p.user_id == user_id:
+                my_rank = i
+
+    elif scope == "global":
         rows = await repo.get_global_leaderboard(db, queue)
         total = len(rows)
         for i, row in enumerate(rows, 1):
@@ -114,8 +148,9 @@ async def get_leaderboard(
             if p.user_id == user_id:
                 my_rank = i
 
+    active_season = await repo.get_active_season(db)
     return LeaderboardResponse(
-        scope=scope, gym_id=gym_id, season=1,
+        scope=scope, gym_id=gym_id, season=active_season,
         entries=entries[:50], my_rank=my_rank, total=total,
     )
 

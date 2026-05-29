@@ -15,6 +15,7 @@ from app.modules.ranked.models import (
     RankedEvent,
     RankedProfile,
 )
+from app.modules.ranked import repository as _repo
 
 # ── Helpers de tier ───────────────────────────────────────────────────────────
 
@@ -155,7 +156,7 @@ async def process_workout_session(
     db: AsyncSession,
     user_id: uuid.UUID,
     session_data: dict,
-    season: int = 1,
+    season: int | None = None,
 ) -> dict:
     """
     session_data = {
@@ -167,6 +168,8 @@ async def process_workout_session(
     }
     Devuelve { normal: {...}, competitive: {...} }
     """
+    if season is None:
+        season = await _repo.get_active_season(db)
     normal_profile = await get_or_create_profile(db, user_id, "normal", season)
     comp_profile   = await get_or_create_profile(db, user_id, "competitive", season)
 

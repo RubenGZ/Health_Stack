@@ -347,13 +347,13 @@ async def attack_aes_nonce_reuse(db: AsyncSession) -> AttackResult:
         )
         dupe_nonces_links = result.fetchall()
 
-        # También verificar health_records.notes_encrypted
+        # También verificar health_records.notes_encrypted (schema: health, no public)
         result2 = await db.execute(
             text("""
                 SELECT
                     split_part(notes_encrypted, ':', 1) AS nonce,
                     COUNT(*) AS cnt
-                FROM public.health_records
+                FROM health.health_records
                 WHERE notes_encrypted IS NOT NULL AND notes_encrypted != ''
                 GROUP BY nonce
                 HAVING COUNT(*) > 1
@@ -391,6 +391,11 @@ async def attack_aes_nonce_reuse(db: AsyncSession) -> AttackResult:
 
     except Exception as e:
         duration_ms = int((time.monotonic() - t0) * 1000)
+        # Rollback para evitar que la transacción abortada contamine ataques posteriores
+        try:
+            await db.rollback()
+        except Exception:
+            pass
         return AttackResult(
             id=attack_id, name=name, category=category, severity=severity,
             status=AttackStatus.SKIPPED,
@@ -635,6 +640,7 @@ async def attack_admin_endpoint_escalation(base_url: str) -> AttackResult:
         user_token = create_access_token(
             user_id="00000000-0000-0000-0000-000000000001",
             email="attacker@evil.com",
+            role="user",
         )
 
         async with httpx.AsyncClient(base_url=base_url, timeout=5.0) as client:
@@ -1128,13 +1134,20 @@ async def attack_pseudonymization_check(db: AsyncSession) -> AttackResult:
     )
 
     try:
-        # Verificar columnas de health_records
+        # Rollback preventivo: si un ataque anterior abortó la transacción,
+        # esta sesión SQLAlchemy puede estar en estado inválido.
+        try:
+            await db.rollback()
+        except Exception:
+            pass
+
+        # Verificar columnas de health_records (schema: health, no public)
         result = await db.execute(
             text("""
                 SELECT column_name
                 FROM information_schema.columns
                 WHERE table_name = 'health_records'
-                  AND table_schema = 'public'
+                  AND table_schema = 'health'
                 ORDER BY ordinal_position
             """)
         )

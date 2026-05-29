@@ -214,7 +214,7 @@ export function renderSummary(result) {
       </div>
 
       <button class="wl-ai-coach-btn" id="btn-get-ai-coaching">
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2a10 10 0 1 0 10 10"/><path d="M12 6v6l4 2"/><circle cx="19" cy="5" r="3" fill="currentColor" stroke="none"/></svg>
+        <svg aria-hidden="true" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2a10 10 0 1 0 10 10"/><path d="M12 6v6l4 2"/><circle cx="19" cy="5" r="3" fill="currentColor" stroke="none"/></svg>
         ${_coachBtnLabel}
       </button>
 
@@ -250,8 +250,7 @@ export function renderSummary(result) {
 
   // Auto-fire coaching on first workout (aha-moment sin fricción)
   try {
-    const _history = JSON.parse(localStorage.getItem('hs_workout_sessions_local') || '[]');
-    if (_history.length <= 1) {
+    if (_sessions.length <= 1) {
       setTimeout(() => {
         if (window.PostWorkoutCoach && !document.getElementById('pw-coach-container')) {
           window.PostWorkoutCoach.requestCoaching();

@@ -979,7 +979,7 @@ const RoutineGenerator = (function () {
                 <button class="btn btn--ghost btn--sm history-load-btn" data-idx="${i}">Cargar</button>
                 <button class="btn btn--sm history-del-btn" data-idx="${i}"
                         style="background:rgba(239,68,68,.1);color:#ef4444;border:1px solid rgba(239,68,68,.3)"
-                        title="Eliminar rutina">×</button>
+                        aria-label="Eliminar rutina" title="Eliminar rutina">×</button>
               </div>
             </div>`).join('')}
         </div>`;
@@ -1410,7 +1410,7 @@ const RoutineGenerator = (function () {
       if (!res.ok) throw new Error('HTTP ' + res.status);
       return await res.json();
     } catch (err) {
-      console.warn('[RoutineGenerator] AI generate error, falling back to local:', err);
+      console.warn('[RoutineGenerator] AI generate error, falling back to local:', err.message);
       return null;
     }
   }

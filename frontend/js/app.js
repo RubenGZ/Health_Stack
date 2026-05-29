@@ -434,39 +434,46 @@
     });
   }
 
+  let _loadingProfileStats = false;
   async function _loadProfileStats() {
-    const statsEl = document.getElementById('config-account-stats');
-    if (!statsEl) return;
-
-    // Days since joining
-    let daysPart = '';
+    if (_loadingProfileStats) return;
+    _loadingProfileStats = true;
     try {
-      const raw  = localStorage.getItem('hs_user');
-      const user = raw ? JSON.parse(raw) : null;
-      if (user?.created_at) {
-        const days = Math.floor((Date.now() - new Date(user.created_at).getTime()) / 86400000);
-        daysPart = days <= 0 ? 'Miembro hoy' : `Miembro hace ${days} día${days === 1 ? '' : 's'}`;
-      }
-    } catch { /* ignore */ }
+      const statsEl = document.getElementById('config-account-stats');
+      if (!statsEl) return;
 
-    // Total workouts — lightweight call: per_page=1 just to get total
-    let workoutPart = '';
-    try {
-      const token = localStorage.getItem('hs_access_token');
-      if (token) {
-        const resp = await fetch('/api/v1/workout/sessions?per_page=1&page=1', {
-          headers: { Authorization: 'Bearer ' + token },
-        });
-        if (resp.ok) {
-          const data = await resp.json();
-          const n = data.total || 0;
-          workoutPart = `${n} entreno${n === 1 ? '' : 's'}`;
+      // Days since joining
+      let daysPart = '';
+      try {
+        const raw  = localStorage.getItem('hs_user');
+        const user = raw ? JSON.parse(raw) : null;
+        if (user?.created_at) {
+          const days = Math.floor((Date.now() - new Date(user.created_at).getTime()) / 86400000);
+          daysPart = days <= 0 ? 'Miembro hoy' : `Miembro hace ${days} día${days === 1 ? '' : 's'}`;
         }
-      }
-    } catch { /* ignore — non-critical */ }
+      } catch { /* ignore */ }
 
-    const parts = [daysPart, workoutPart].filter(Boolean);
-    statsEl.textContent = parts.join(' · ');
+      // Total workouts — lightweight call: per_page=1 just to get total
+      let workoutPart = '';
+      try {
+        const token = localStorage.getItem('hs_access_token');
+        if (token) {
+          const resp = await fetch('/api/v1/workout/sessions?per_page=1&page=1', {
+            headers: { Authorization: 'Bearer ' + token },
+          });
+          if (resp.ok) {
+            const data = await resp.json();
+            const n = data.total || 0;
+            workoutPart = `${n} entreno${n === 1 ? '' : 's'}`;
+          }
+        }
+      } catch { /* ignore — non-critical */ }
+
+      const parts = [daysPart, workoutPart].filter(Boolean);
+      statsEl.textContent = parts.join(' · ');
+    } finally {
+      _loadingProfileStats = false;
+    }
   }
 
   // Actualizar al navegar a config o al hacer login

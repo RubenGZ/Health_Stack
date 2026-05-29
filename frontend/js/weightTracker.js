@@ -525,7 +525,6 @@ const WeightTracker = (function () {
     // Botones de abrir modal
     document.getElementById('btn-open-weight-form')  ?.addEventListener('click', () => openModal());
     document.getElementById('btn-add-first-weight')  ?.addEventListener('click', () => openModal());
-    document.getElementById('btn-add-first-weight')  ?.addEventListener('click', () => openModal());
 
     // Cerrar modal
     document.getElementById('modal-close')  ?.addEventListener('click', closeModal);

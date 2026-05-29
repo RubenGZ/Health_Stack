@@ -62,7 +62,7 @@ export function renderIdle() {
             <span class="wl-hist-name">${routineLabel}</span>
             <span class="wl-hist-date">${dateStr}</span>
             <span class="wl-hist-dur">${dur}</span>
-            ${detailRows ? `<svg class="wl-hist-chevron" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg>` : ''}
+            ${detailRows ? `<svg class="wl-hist-chevron" aria-hidden="true" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg>` : ''}
           </div>
           ${detailRows ? `<div class="wl-hist-detail">${detailRows}</div>` : ''}
         </div>`;
@@ -360,12 +360,12 @@ export function renderCustomRoutineBuilder() {
 
     // Actualizar sets/reps
     S.root.querySelectorAll('.wl-custom-sets-inp').forEach(inp => {
-      inp.addEventListener('change', () => {
+      inp.addEventListener('input', () => {
         sessions[parseInt(inp.dataset.si)].exercises[parseInt(inp.dataset.ei)].sets = parseInt(inp.value) || 3;
       });
     });
     S.root.querySelectorAll('.wl-custom-reps-inp').forEach(inp => {
-      inp.addEventListener('change', () => {
+      inp.addEventListener('input', () => {
         sessions[parseInt(inp.dataset.si)].exercises[parseInt(inp.dataset.ei)].reps = parseInt(inp.value) || 8;
       });
     });

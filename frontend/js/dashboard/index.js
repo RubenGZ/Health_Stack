@@ -618,7 +618,10 @@ window.Dashboard = (function () {
   }
 
   // ── API pública ───────────────────────────────────────────
+  let _initialized = false;
   function init() {
+    if (_initialized) return;
+    _initialized = true;
     initDashboard();
     initUserChip();
     updateWelcomeCard();

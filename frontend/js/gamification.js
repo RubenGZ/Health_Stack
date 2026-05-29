@@ -73,14 +73,14 @@ const Gamification = (function () {
   let weekChallenges = []; // desafíos activos esta semana
 
   // ── Persistencia ──────────────────────────────────────────
-  function saveState()  { localStorage.setItem(LS_KEY,   JSON.stringify(state)); }
+  function saveState()  { try { localStorage.setItem(LS_KEY,   JSON.stringify(state)); } catch (_) {} }
   function loadState()  {
     try {
       const s = JSON.parse(localStorage.getItem(LS_KEY) || 'null');
       if (s) state = { ...state, ...s };
     } catch { /* ignorar */ }
   }
-  function saveChall()  { localStorage.setItem(LS_CHALL, JSON.stringify(weekChallenges)); }
+  function saveChall()  { try { localStorage.setItem(LS_CHALL, JSON.stringify(weekChallenges)); } catch (_) {} }
   function loadChall()  {
     try {
       const c = JSON.parse(localStorage.getItem(LS_CHALL) || 'null');
@@ -327,7 +327,10 @@ const Gamification = (function () {
   }
 
   // ── Sincronizar con eventos de otros módulos ───────────────
+  let _listenersAttached = false;
   function listenEvents() {
+    if (_listenersAttached) return;
+    _listenersAttached = true;
     // Cuando se añade un peso
     window.addEventListener('hs:weight-updated', () => {
       addXP('weight');

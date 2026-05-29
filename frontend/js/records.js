@@ -101,7 +101,7 @@ var Records = (function () {
         html += '<td>' + e.weight + ' kg</td>';
         html += '<td>' + e.reps + '</td>';
         html += '<td class="rm-1rm-val">' + e.rm + ' kg' + (isPR ? ' PR' : '') + '</td>';
-        html += '<td><button class="rm-delete-btn" data-exercise="' + escAttr(name) + '" data-id="' + escAttr(e.id) + '" title="✕">✕</button></td>';
+        html += '<td><button class="rm-delete-btn" data-exercise="' + escAttr(name) + '" data-id="' + escAttr(e.id) + '" aria-label="Eliminar entrada" title="Eliminar">✕</button></td>';
         html += '</tr>';
       });
 

@@ -226,7 +226,7 @@ function showModal(title, html) {
   overlay.innerHTML = `<div class="rk-modal">
     <div class="rk-modal-header">
       <span>${title}</span>
-      <button class="rk-modal-close" onclick="document.getElementById('rk-modal-overlay').remove()">✕</button>
+      <button class="rk-modal-close" aria-label="Cerrar" onclick="document.getElementById('rk-modal-overlay').remove()">✕</button>
     </div>
     <div class="rk-modal-body">${html}</div>
   </div>`;

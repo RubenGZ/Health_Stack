@@ -135,6 +135,22 @@ class UserPublicResponse(BaseModel):
     model_config = {"from_attributes": True}  # Permite crear desde ORM models
 
 
+class UpdateMeRequest(BaseModel):
+    """Body para PATCH /auth/me."""
+
+    display_name: str | None = Field(
+        default=None,
+        min_length=1,
+        max_length=60,
+        description="Nombre visible del usuario. None = no cambiar.",
+    )
+
+    @field_validator("display_name", mode="before")
+    @classmethod
+    def strip_name(cls, v: str | None) -> str | None:
+        return v.strip() if isinstance(v, str) else v
+
+
 class RegisterResponse(BaseModel):
     """Respuesta del endpoint POST /auth/register."""
 

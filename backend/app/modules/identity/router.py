@@ -55,6 +55,7 @@ from app.modules.identity.schemas import (
     RegisterResponse,
     ResetPasswordRequest,
     ResetPasswordResponse,
+    UpdateMeRequest,
     UserPublicResponse,
 )
 from app.modules.identity.service import IdentityService
@@ -153,6 +154,37 @@ async def me(
     if user is None:
         # Caso extremo: el token es válido pero el usuario fue eliminado
         raise UserNotFoundError("El usuario asociado al token no existe.")
+    return UserPublicResponse.model_validate(user)
+
+
+# ── PATCH /me ────────────────────────────────────────────────────────────────
+
+@router.patch(
+    "/me",
+    response_model=UserPublicResponse,
+    summary="Actualizar perfil propio",
+    description="Actualiza el display_name del usuario autenticado.",
+)
+async def update_me(
+    body: UpdateMeRequest,
+    db: DBSession,
+    current_user: CurrentUser,
+) -> UserPublicResponse:
+    """Actualiza el display_name del usuario autenticado."""
+    if body.display_name is None:
+        # Nothing to update — return current user as-is
+        user = await UserRepository.get_by_id(db, current_user["user_id"])
+        if user is None:
+            raise HTTPException(status_code=404, detail="Usuario no encontrado")
+        return UserPublicResponse.model_validate(user)
+
+    user = await UserRepository.update_display_name(
+        db=db,
+        user_id=current_user["user_id"],
+        display_name=body.display_name,
+    )
+    if user is None:
+        raise HTTPException(status_code=404, detail="Usuario no encontrado")
     return UserPublicResponse.model_validate(user)
 
 

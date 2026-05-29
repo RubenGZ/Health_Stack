@@ -172,3 +172,47 @@ class TestLogout:
         """Token completamente inválido en logout → 204 (no revelar info)."""
         resp = await client.post(_LOGOUT_URL, json={"refresh_token": "basura.total.aqui"})
         assert resp.status_code == 204
+
+
+@pytest.mark.asyncio
+class TestUpdateMe:
+    """Verifica PATCH /auth/me — actualización de display_name."""
+
+    async def test_update_display_name(self, client, registered_user, auth_headers):
+        """PATCH /me updates display_name and returns updated user."""
+        resp = await client.patch(
+            "/api/v1/auth/me",
+            json={"display_name": "Test Beta User"},
+            headers=auth_headers,
+        )
+        assert resp.status_code == 200
+        data = resp.json()
+        assert data["display_name"] == "Test Beta User"
+
+    async def test_update_display_name_too_long(self, client, registered_user, auth_headers):
+        """PATCH /me rejects display_name > 60 chars."""
+        resp = await client.patch(
+            "/api/v1/auth/me",
+            json={"display_name": "A" * 61},
+            headers=auth_headers,
+        )
+        assert resp.status_code == 422
+
+    async def test_update_display_name_no_token(self, client):
+        """PATCH /me sin token → 401."""
+        resp = await client.patch(
+            "/api/v1/auth/me",
+            json={"display_name": "Hacker"},
+        )
+        assert resp.status_code == 401
+
+    async def test_update_display_name_none_returns_current(self, client, registered_user, auth_headers):
+        """PATCH /me con display_name=None devuelve el perfil actual sin modificarlo."""
+        resp = await client.patch(
+            "/api/v1/auth/me",
+            json={"display_name": None},
+            headers=auth_headers,
+        )
+        assert resp.status_code == 200
+        data = resp.json()
+        assert "email" in data

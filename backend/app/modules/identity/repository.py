@@ -99,6 +99,21 @@ class UserRepository:
             await db.flush()
 
     @staticmethod
+    async def update_display_name(
+        db: AsyncSession,
+        user_id: str | uuid.UUID,
+        display_name: str,
+    ) -> "User | None":
+        """Update display_name for a user. Returns updated user or None if not found."""
+        user = await UserRepository.get_by_id(db, user_id)
+        if user is None:
+            return None
+        user.display_name = display_name
+        await db.flush()
+        await db.refresh(user)
+        return user
+
+    @staticmethod
     async def get_all(
         db: AsyncSession,
         *,

@@ -352,10 +352,20 @@
     try {
       const raw  = localStorage.getItem('hs_user');
       const user = raw ? JSON.parse(raw) : null;
-      const nameEl  = document.getElementById('config-account-name');
-      const emailEl = document.getElementById('config-account-email');
+      const nameEl   = document.getElementById('config-account-name');
+      const emailEl  = document.getElementById('config-account-email');
+      const avatarEl = document.getElementById('config-account-avatar');
       if (nameEl)  nameEl.textContent  = user?.display_name || user?.username || 'Usuario';
       if (emailEl) emailEl.textContent = user?.email || '—';
+      if (avatarEl) {
+        const initial = (
+          user?.display_name?.[0] ||
+          user?.username?.[0] ||
+          user?.email?.[0] ||
+          'U'
+        ).toUpperCase();
+        avatarEl.textContent = initial;
+      }
     } catch { /* ignore */ }
   }
 

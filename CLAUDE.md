@@ -16,7 +16,7 @@ Skill dedicado para mejoras visuales del frontend. Cargado en `.claude/skills/he
 **Token de diseño clave**: dark premium, gold `#c4a561` como ÚNICO acento, Inter font, base 4px spacing.
 
 **Estado del sistema de diseño**:
-- CSS v7 en `frontend/css/main.css` — SW **v74** — última actualización 2026-05-29
+- CSS v7 en `frontend/css/main.css` — SW **v79** — última actualización 2026-05-29
 - **Fase 1** ✅ completada: brand consistency (161 refs cyan→gold), skeleton system, stat upgrades, card polish, safe-area iOS
 - **Fase 2** ✅ completada: toast.js (showToast/showConfirm), chartDefaults.js, 10 módulos migrados de alert/confirm nativos, empty states, skeleton loaders JS, form input error/success states (setFieldState global)
 - **Fase 3** ✅ completada: stat-change pill coloreado, XP bar gold shimmer animado, level badge glow pulsante, achievement badge hover, wl-ex-group-chip por grupo muscular, PR badge shimmer, exercise cards con chip de color y badge "última vez"
@@ -26,6 +26,7 @@ Skill dedicado para mejoras visuales del frontend. Cargado en `.claude/skills/he
 - **Fase 6** ✅ completada (2026-05-23): Phase 6 workout submodules QA pasado. Theme picker en Perfil (3 temas: Forge/Midnight/Aurora). SW v58.
 - **Fase 7** ✅ completada (2026-05-23): Sección Entreno mejorada — dedup robusto de rutinas IA, `routineName` guardado en historial, historial compacto con filas expandibles (nombre·día·duración, click=detalles). SW v59.
 - **Fase 8** ✅ completada (2026-05-29): Módulo A — InjuryManager en routineGenerator.js (lesiones crónicas, rutinas IA injury-aware). Módulo B — postWorkoutCoach.js + nextSessionPreloader.js (análisis post-entreno con IA, TTL 48h). SW v74.
+- **MVP Beta Polish** ✅ completada (2026-05-29): feedbackWidget cargado + badge "beta", JS error ring buffer → localStorage + WhatsApp attachment, manifest icons/screenshots, dashboard first-run banner, Rutinas empty state, PATCH /api/v1/auth/me endpoint, display_name editable en Perfil, stats row (días + entrenos), toast bienvenida beta, avatar iniciales en Config, gamification hint para nuevos usuarios. SW v79.
 
 ---
 
@@ -220,7 +221,7 @@ asyncio_default_test_loop_scope = session   ← sin esto asyncpg explota
 | Sentry | ✅ Cableado | Filtro PII activo (RGPD Art. 28) |
 | Alembic migraciones | ✅ **6 migraciones** | HEAD: `c9d0e1f2a3b4` (injury_coach_tables) |
 | Redis en Pi | ✅ **Healthy desde 2026-05-29** | `REDIS_PASSWORD` fijada en `.env.pi` |
-| Service Worker | ✅ `healthstack-v74` | v74: Módulo B post-workout coach (2026-05-29) |
+| Service Worker | ✅ `healthstack-v79` | v79: MVP beta polish completo (2026-05-29) |
 | Cloudflare Tunnel | ✅ Quick Tunnel activo | URL aleatoria — necesita Named Tunnel para beta |
 
 **Contenedores Pi activos (2026-05-29):**
@@ -308,12 +309,10 @@ En `landing/src/components/demo.tsx` → `PLAN_OK[0]` = todas `true`.
 4. **AdSense IDs** — rellenar `frontend/.env.adsense` con IDs reales antes de launch público
 
 ### 🟡 Trabajo de código (ordenado por impacto para beta)
-5. **Onboarding first-run** — usuario nuevo ve app vacía; necesita pantalla de bienvenida + CTA "Registra tu primer entreno"
-6. **Feedback button** — botón en la app para que betatesters reporten bugs (mailto o form)
-7. **Tests integrations**: 0 tests para OAuth2/sync/CSV
-8. **Ranked — temporadas reales**: `season = 1` hardcodeado
-9. **Rotación de MASTER_KEY** — documentar procedimiento de re-cifrado
-10. **gym_servers**: sin endpoint para descubrir gyms públicos
+5. **Tests integrations**: 0 tests para OAuth2/sync/CSV
+6. **Ranked — temporadas reales**: `season = 1` hardcodeado
+7. **Rotación de MASTER_KEY** — documentar procedimiento de re-cifrado
+8. **gym_servers**: sin endpoint para descubrir gyms públicos
 
 ### ✅ Ya hecho (actualizado 2026-05-29)
 - Módulo A: Injury-Aware Routine Generator ✅ (2026-05-29)
@@ -328,6 +327,20 @@ En `landing/src/components/demo.tsx` → `PLAN_OK[0]` = todas `true`.
 - CI/CD, Prometheus, ruff+mypy, Redis rate limiter ✅
 - RGPD completo: ai_insights + post_workout_coach ✅
 - Frontend Fases 1-8 ✅ SW v74
+- **MVP Beta Polish** ✅ SW v79 (2026-05-29):
+  - feedbackWidget.js cargado + badge "beta"
+  - JS error ring buffer `hs_js_errors` → WhatsApp bug reports auto-attach
+  - `window.onerror` + `onunhandledrejection` → `/api/v1/telemetry` via localStorage
+  - PWA manifest: icons con purpose correcto + screenshots stub
+  - Dashboard first-run banner (detect 0 weights + 0 TDEE → CTA)
+  - Empty state Rutinas (`hs:routine-generated` → self-remove)
+  - **PATCH `/api/v1/auth/me`** — editar display_name (schema + repo + router + 4 tests)
+  - `API.updateMe()` en api.js
+  - Perfil: display_name editable inline (pencil btn + form)
+  - Perfil: stats row (días en app, total entrenos desde API)
+  - Toast bienvenida "¡Bienvenido a HealthStack Pro Beta! 🎉" en registro
+  - Avatar iniciales en Config Cuenta (`#config-account-avatar`)
+  - Gamification hint card para usuarios con XP=0 (`.gami-hint-card`)
 
 ### 🗒️ Smoke test (ejecutar en Pi)
 ```bash
@@ -360,10 +373,10 @@ python3 scripts/smoke_test.py https://TU-URL.trycloudflare.com
 
 ### Día 2 — Martes 3 Jun · Onboarding y first-run UX
 
-- [ ] **Pantalla de bienvenida first-run**: si `workout_sessions` = 0 y `health_records` = 0, mostrar modal de bienvenida con 3 pasos ("Registra tu peso", "Crea tu primera rutina", "Completa un entreno") — desaparece tras completar el paso 1
-- [ ] **Empty state Dashboard mejorado**: en lugar de stats a 0, mostrar CTA "Empieza tu primer entreno →"
-- [ ] **Empty state Entreno**: si no hay historial, mostrar card explicativa de cómo usar el logger
-- [ ] **Perfil: campo avatar/alias visible** en la sección de perfil para que betatesters personalicen su cuenta
+- [x] **Pantalla de bienvenida first-run**: Dashboard first-run banner + gamification hint ✅
+- [x] **Empty state Dashboard mejorado**: first-run banner con CTA ✅
+- [x] **Empty state Entreno / Rutinas**: empty states con `window.createEmptyState()` ✅
+- [x] **Perfil: campo avatar/alias visible**: display_name editable + avatar iniciales ✅
 
 ### Día 3 — Miércoles 4 Jun · QA end-to-end
 
@@ -375,10 +388,10 @@ python3 scripts/smoke_test.py https://TU-URL.trycloudflare.com
 
 ### Día 4 — Jueves 5 Jun · Feedback loop y pulido
 
-- [ ] **Botón "Reportar bug"** en el menú de Perfil: abre mailto con asunto prefijado + info del dispositivo (userAgent, resolución) — sin backend necesario
-- [ ] **Logging de errores JS**: añadir handler `window.onerror` → envía a `/api/v1/telemetry` (endpoint ya existe) para capturar crashes de betatesters
-- [ ] **Mensaje de bienvenida** en la primera sesión tras registro: toast premium "¡Bienvenido a HealthStack Pro Beta! 🎉"
-- [ ] **Revisar PWA manifest**: asegurarse de que `name`, `short_name`, `icons` y `theme_color` son correctos para la pantalla de home
+- [x] **Botón "Reportar bug"** en el menú de Perfil: feedbackWidget.js cargado, abre WhatsApp con contexto auto-adjunto ✅
+- [x] **Logging de errores JS**: `window.onerror` + ring buffer localStorage → feedbackWidget auto-attach ✅
+- [x] **Mensaje de bienvenida** en la primera sesión tras registro: toast "¡Bienvenido a HealthStack Pro Beta! 🎉" ✅
+- [x] **Revisar PWA manifest**: icons purpose separado (any/maskable), screenshots stub añadido ✅
 
 ### Día 5 — Viernes 6 Jun · Launch beta
 

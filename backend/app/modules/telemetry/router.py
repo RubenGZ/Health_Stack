@@ -6,6 +6,10 @@ from typing import Annotated
 from fastapi import APIRouter, Body, Depends, Request
 from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
 
+def _get_limiter():
+    from app.main import limiter
+    return limiter
+
 from app.core.security.jwt_handler import decode_token
 from app.modules.telemetry.schemas import EventCreate, PageViewCreate, PageViewResponse
 from app.modules.telemetry.service import TelemetryService
@@ -48,11 +52,14 @@ async def record_page_view(
 
 
 @router.post("/event", response_model=PageViewResponse, summary="Registrar evento de producto")
+@_get_limiter().limit("30/minute")  # Anti-flood — endpoint público
 async def record_event(
+    request: Request,
     body: Annotated[EventCreate, Body()],
     credentials: HTTPAuthorizationCredentials | None = Depends(_bearer),
 ) -> PageViewResponse:
     # Fire-and-forget: solo loguear. No DB para simplificar.
+    # body.data ya está sanitizado por EventCreate.sanitize_and_limit_data()
     user_hint = "anon"
     if credentials:
         try:
@@ -61,5 +68,6 @@ async def record_event(
                 user_hint = payload.get("sub", "auth")[:8]
         except Exception:
             pass
-    logger.info("TELEMETRY_EVENT event=%s user=%s", body.event, user_hint)
+    logger.info("TELEMETRY_EVENT event=%s user=%s data_keys=%s",
+                body.event, user_hint, list(body.data.keys()))
     return PageViewResponse()

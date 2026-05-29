@@ -95,9 +95,11 @@ class Settings(BaseSettings):
     feedback_whatsapp_number: str = ""
 
     # ── Admin inicial ─────────────────────────────────────────
-    # Usadas por scripts/create_admin.py — cambia en .env antes de ejecutar.
-    admin_email: str = "admin@healthstack.app"
-    admin_initial_password: str = "HS_Admin_2026!"
+    # Usadas por scripts/create_admin.py ÚNICAMENTE.
+    # SEGURIDAD: sin defaults — el script falla si no están en .env.
+    # Nunca hardcodear credenciales de admin en código fuente.
+    admin_email: str = ""
+    admin_initial_password: str = ""
 
     # ── VALIDADORES ───────────────────────────────────────────
 

@@ -160,7 +160,11 @@ def _build_prompt(
 
     exercises_block = "\n".join(exercise_lines) if exercise_lines else "  (sin detalle de ejercicios)"
     history_block = _build_recent_history_block(recent_sessions)
-    notes_block = f"\nNotas del usuario: {user_notes}" if user_notes else ""
+    # RGPD Art. 9 — notas de sesión EXCLUIDAS del prompt.
+    # Las notas son texto libre del usuario y pueden contener PII (nombres de
+    # personas, diagnósticos médicos, etc.). Nunca salen hacia providers externos.
+    # El análisis de volumen, series y ejercicios es suficiente para el coach.
+    notes_block = ""
 
     return f"""Analiza este entrenamiento y devuelve SOLO JSON válido con el esquema exacto indicado.
 

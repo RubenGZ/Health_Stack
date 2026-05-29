@@ -22,7 +22,9 @@ import logging
 import os
 
 from cryptography.exceptions import InvalidTag
+from cryptography.hazmat.primitives import hashes
 from cryptography.hazmat.primitives.ciphers.aead import AESGCM
+from cryptography.hazmat.primitives.kdf.hkdf import HKDF
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core.security.cryptoservice import CryptoService
@@ -48,18 +50,45 @@ _GCM_NONCE_SIZE: int = 12
 _GCM_TAG_SIZE: int = 16
 
 
-def _get_notes_aesgcm() -> AESGCM:
+def _derive_notes_key() -> bytes:
     """
-    Devuelve una instancia AESGCM usando la MASTER_KEY del entorno.
-    Reutiliza la misma clave que CryptoService (un solo secreto en entorno).
+    Deriva una subclave AES-256 dedicada para cifrar notas de salud.
+
+    SEGURIDAD — Por qué HKDF y no la MASTER_KEY directamente:
+    La HEALTH_LINK_MASTER_KEY también se usa en CryptoService para cifrar
+    health_uuid_enc (pseudonimización AEPD). Usar la misma clave para dos
+    propósitos diferentes (key reuse) es una mala práctica criptográfica:
+    si un atacante controla el plaintext de un contexto (las notas son texto
+    libre del usuario), puede obtener información útil para atacar el otro.
+
+    HKDF (RFC 5869) deriva subclaves independientes y seguras a partir del
+    mismo material de clave. Cada contexto tiene su propia subclave sin
+    necesitar un secreto adicional en .env.
+
+    Compatibilidad: los datos cifrados con la clave anterior (antes de este
+    cambio) NO son descifrables con esta subclave. Si existen notas cifradas
+    en producción, ejecutar el script de re-cifrado antes del deploy.
     """
     raw_key = os.environ.get("HEALTH_LINK_MASTER_KEY", "")
     if not raw_key:
         raise MasterKeyNotConfiguredError(
             "HEALTH_LINK_MASTER_KEY no configurada."
         )
-    key_bytes = bytes.fromhex(raw_key)
-    return AESGCM(key_bytes)
+    master_bytes = bytes.fromhex(raw_key)
+    return HKDF(
+        algorithm=hashes.SHA256(),
+        length=32,
+        salt=None,
+        info=b"healthstack.health_notes.v1",  # Contexto único — no colisiona con data_links
+    ).derive(master_bytes)
+
+
+def _get_notes_aesgcm() -> AESGCM:
+    """
+    Devuelve AESGCM con la subclave derivada para notas.
+    La subclave es distinta a la que usa CryptoService — sin key reuse.
+    """
+    return AESGCM(_derive_notes_key())
 
 
 def _encrypt_notes(plaintext: str) -> str:

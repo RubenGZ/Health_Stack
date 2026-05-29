@@ -25,7 +25,6 @@ from fastapi.responses import JSONResponse
 from slowapi import Limiter, _rate_limit_exceeded_handler
 from slowapi.errors import RateLimitExceeded
 from slowapi.middleware import SlowAPIMiddleware
-from slowapi.util import get_remote_address
 from sqlalchemy import text
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -60,8 +59,33 @@ _rate_limit_storage = (
     if _redis_url and "localhost" not in _redis_url and "127.0.0.1" not in _redis_url
     else None
 )
+
+
+def _get_real_client_ip(request: Request) -> str:
+    """
+    Extrae la IP real del cliente a través de la cadena Cloudflare → nginx → FastAPI.
+
+    Sin esto, get_remote_address() devuelve la IP de nginx (siempre la misma
+    en Docker), lo que hace que el rate limiter sea global en vez de por IP.
+
+    Orden de prioridad:
+      1. CF-Connecting-IP  — IP real según Cloudflare Tunnel (más confiable)
+      2. X-Real-IP         — Establecido por nginx desde CF-Connecting-IP
+      3. X-Forwarded-For   — Primer elemento (puede ser spoofed sin Cloudflare)
+      4. request.client    — Fallback (IP de nginx en Docker)
+    """
+    for header in ("cf-connecting-ip", "x-real-ip"):
+        val = request.headers.get(header, "").strip()
+        if val:
+            return val
+    xff = request.headers.get("x-forwarded-for", "")
+    if xff:
+        return xff.split(",")[0].strip()
+    return request.client.host if request.client else "unknown"
+
+
 limiter = Limiter(
-    key_func=get_remote_address,
+    key_func=_get_real_client_ip,
     default_limits=["200/minute"],
     storage_uri=_rate_limit_storage,
 )
@@ -237,6 +261,21 @@ async def add_security_headers(request: Request, call_next) -> Response:
     response.headers["X-XSS-Protection"] = "1; mode=block"
     response.headers["Referrer-Policy"] = "strict-origin-when-cross-origin"
     response.headers["Permissions-Policy"] = "camera=(), microphone=(), geolocation=()"
+    # CSP — previene XSS y exfiltración de datos a dominios no autorizados
+    # 'unsafe-inline' requerido para Spline (3D canvas) y estilos inline del frontend.
+    # Revisar y endurecer cuando se migre a un CSP con nonce en producción.
+    response.headers["Content-Security-Policy"] = (
+        "default-src 'self'; "
+        "script-src 'self' 'unsafe-inline' https://prod.spline.design https://unpkg.com; "
+        "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; "
+        "font-src 'self' https://fonts.gstatic.com; "
+        "img-src 'self' data: https: blob:; "
+        "connect-src 'self' https://*.groq.com https://*.googleapis.com "
+        "https://*.sentry.io https://*.cloudflare.com; "
+        "frame-src 'none'; "
+        "object-src 'none'; "
+        "base-uri 'self'"
+    )
     # HSTS solo en producción (HTTPS obligatorio)
     if settings.app_env != "development":
         response.headers["Strict-Transport-Security"] = "max-age=63072000; includeSubDomains; preload"

@@ -620,7 +620,10 @@ async def forgot_password(
         raw_token = await PasswordResetRepository.create_token(db, user.id)
         await db.commit()
         settings = get_settings()
-        reset_url = f"{settings.app_frontend_url}?reset_token={raw_token}"
+        # SEGURIDAD: token en el fragmento URL (#) — nunca en query param.
+        # Los fragmentos no se envían al servidor, no aparecen en logs de nginx,
+        # Cloudflare ni en la cabecera Referer al navegar a otro sitio. OWASP A01.
+        reset_url = f"{settings.app_frontend_url}#reset_token={raw_token}"
         await send_password_reset_email(user.email, reset_url)
 
     return ForgotPasswordResponse(

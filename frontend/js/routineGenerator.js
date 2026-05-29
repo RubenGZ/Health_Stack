@@ -1034,6 +1034,52 @@ const RoutineGenerator = (function () {
     renderStep();
   }
 
+  // ── Empty State para nuevos usuarios ──────────────────────────────────────
+  function renderRoutineEmptyState() {
+    const EMPTY_ID = 'hs-routine-empty';
+    if (document.getElementById(EMPTY_ID)) return;
+
+    const saved   = (() => { try { return JSON.parse(localStorage.getItem(LS_KEY) || 'null'); } catch { return null; } })();
+    const history = (() => { try { return JSON.parse(localStorage.getItem(LS_HISTORY) || '[]'); } catch { return []; } })();
+
+    // Only show if user has never generated a routine
+    if (saved?.routine || history.length > 0) return;
+
+    if (typeof window.createEmptyState !== 'function') return;
+
+    const container = document.getElementById('routine-result') ||
+                      document.querySelector('.routine-generator-wrap') ||
+                      document.querySelector('[id^="section-rutinas"]');
+    if (!container) return;
+
+    const el = window.createEmptyState({
+      icon: '📋',
+      title: 'Aún no tienes rutina',
+      message: 'Configura tus preferencias arriba y genera tu primera rutina personalizada con IA.',
+      ctaText: 'Generar mi rutina →',
+      ctaAction: () => {
+        el.remove();
+        const btn = document.getElementById('btn-generate') || document.querySelector('[data-action="generate"]');
+        if (btn) btn.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      },
+    });
+    el.id = EMPTY_ID;
+    // Insert before the container (or prepend to parent if container is result area)
+    const resultEl = document.getElementById('routine-result');
+    if (resultEl && resultEl.parentNode) {
+      resultEl.parentNode.insertBefore(el, resultEl);
+    } else {
+      container.prepend(el);
+    }
+
+    // Self-remove when a routine is generated
+    function _onRoutineGenerated() {
+      document.getElementById(EMPTY_ID)?.remove();
+      window.removeEventListener('hs:routine-generated', _onRoutineGenerated);
+    }
+    window.addEventListener('hs:routine-generated', _onRoutineGenerated);
+  }
+
   // ── Init ──────────────────────────────────────────────────────────────────
   // Usamos onclick para que sea idempotente — múltiples llamadas a init() no duplican listeners
   function init() {
@@ -1085,6 +1131,7 @@ const RoutineGenerator = (function () {
     } catch { /* ignorar */ }
 
     renderHistory();
+    renderRoutineEmptyState();
   }
 
   // ── Compartir rutina ──────────────────────────────────────────────────────

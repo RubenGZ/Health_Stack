@@ -7428,3 +7428,65 @@ button[class*="wl-"]:not([class*="inp"]):active {
 
 
 
+
+/* ── First-run banner ─────────────────────────────────────────── */
+.first-run-banner {
+  display: flex;
+  align-items: flex-start;
+  gap: 16px;
+  padding: 20px;
+  background: linear-gradient(135deg, rgba(196,165,97,0.08) 0%, rgba(196,165,97,0.03) 100%);
+  border: 1px solid rgba(196,165,97,0.25);
+  border-radius: var(--hs-r-lg);
+  margin-bottom: 20px;
+  animation: sectionReveal 0.4s ease both;
+}
+.first-run-banner.frb-exit {
+  animation: none;
+  opacity: 0;
+  transform: translateY(-8px);
+  transition: opacity 0.3s ease, transform 0.3s ease;
+}
+.frb-icon { font-size: 32px; flex-shrink: 0; margin-top: 2px; }
+.frb-body { flex: 1; }
+.frb-title {
+  font-size: 1rem;
+  font-weight: 700;
+  color: var(--hs-text);
+  margin: 0 0 4px;
+  letter-spacing: -0.02em;
+}
+.frb-sub {
+  font-size: 0.85rem;
+  color: var(--hs-text-2);
+  margin: 0 0 16px;
+}
+.frb-actions { display: flex; gap: 10px; flex-wrap: wrap; }
+.frb-btn {
+  padding: 9px 16px;
+  border-radius: var(--hs-r-md);
+  font-size: 0.85rem;
+  font-weight: 600;
+  cursor: pointer;
+  border: none;
+  font-family: inherit;
+  transition: all 150ms ease;
+  -webkit-tap-highlight-color: transparent;
+}
+.frb-btn:active { transform: scale(0.97); }
+.frb-btn--primary {
+  background: var(--hs-accent);
+  color: #07070f;
+  box-shadow: 0 2px 12px rgba(196,165,97,0.2);
+}
+.frb-btn--primary:hover { background: #d4b97a; }
+.frb-btn--ghost {
+  background: transparent;
+  color: var(--hs-text-2);
+  border: 1px solid rgba(255,255,255,0.12);
+}
+.frb-btn--ghost:hover {
+  background: var(--hs-accent-dim);
+  color: var(--hs-text);
+  border-color: rgba(196,165,97,0.3);
+}

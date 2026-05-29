@@ -435,6 +435,66 @@ window.Dashboard = (function () {
     window.addEventListener('hs:tdee-calculated', () => updateDashboardStats());
   }
 
+  // ── First-run banner — shown when user has 0 data ─────────────
+  function renderFirstRunBanner() {
+    const BANNER_ID = 'hs-first-run-banner';
+    if (document.getElementById(BANNER_ID)) return; // already shown
+
+    const entries  = typeof WeightTracker !== 'undefined' ? WeightTracker.getAll() : [];
+    const hasTDEE  = !!localStorage.getItem('hs_last_tdee');
+    const hasToken = !!localStorage.getItem('hs_access_token');
+
+    // Only show for authenticated users with zero data
+    if (!hasToken || entries.length > 0 || hasTDEE) return;
+
+    const banner = document.createElement('div');
+    banner.id        = BANNER_ID;
+    banner.className = 'first-run-banner';
+    banner.innerHTML = [
+      '<div class="frb-icon">🏋️</div>',
+      '<div class="frb-body">',
+        '<p class="frb-title">¡Bienvenido a HealthStack Pro!</p>',
+        '<p class="frb-sub">Registra tu primer dato para ver tu progreso aquí.</p>',
+        '<div class="frb-actions">',
+          '<button class="frb-btn frb-btn--primary" data-frb-nav="peso">',
+            'Registrar peso →',
+          '</button>',
+          '<button class="frb-btn frb-btn--ghost" data-frb-nav="entreno">',
+            'Crear rutina →',
+          '</button>',
+        '</div>',
+      '</div>',
+    ].join('');
+
+    // Inject before the first stat card in the dashboard section
+    const dashSection = document.getElementById('dashboard') || document.querySelector('[data-section-content="dashboard"]');
+    const firstCard   = dashSection && dashSection.querySelector('.stat-card, .card, .dashboard-stats');
+    if (firstCard) {
+      firstCard.parentNode.insertBefore(banner, firstCard);
+    } else if (dashSection) {
+      dashSection.prepend(banner);
+    } else {
+      return; // dashboard section not in DOM yet — skip
+    }
+
+    // Navigation on CTA click
+    banner.addEventListener('click', function (e) {
+      const nav = e.target.closest('[data-frb-nav]');
+      if (!nav) return;
+      const target = nav.dataset.frbNav;
+      const navItem = document.querySelector('[data-section="' + target + '"]');
+      if (navItem) navItem.click();
+    });
+
+    // Self-remove when first weight entry is added
+    function _removeBanner() {
+      const el = document.getElementById(BANNER_ID);
+      if (el) { el.classList.add('frb-exit'); setTimeout(function () { el.remove(); }, 400); }
+      window.removeEventListener('hs:weight-updated', _removeBanner);
+    }
+    window.addEventListener('hs:weight-updated', _removeBanner);
+  }
+
   // ── API pública ───────────────────────────────────────────
   function init() {
     initDashboard();
@@ -443,6 +503,7 @@ window.Dashboard = (function () {
     updateDashboardStats();
     renderProgressInsight();
     _listenWeightUpdates();
+    renderFirstRunBanner();
   }
 
   function refresh() {

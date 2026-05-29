@@ -221,7 +221,7 @@ asyncio_default_test_loop_scope = session   ← sin esto asyncpg explota
 | Sentry | ✅ Cableado | Filtro PII activo (RGPD Art. 28) |
 | Alembic migraciones | ✅ **6 migraciones** | HEAD: `c9d0e1f2a3b4` (injury_coach_tables) |
 | Redis en Pi | ✅ **Healthy desde 2026-05-29** | `REDIS_PASSWORD` fijada en `.env.pi` |
-| Service Worker | ✅ `healthstack-v79` | v79: MVP beta polish completo (2026-05-29) |
+| Service Worker | ✅ `healthstack-v80` | v80: MVP beta polish + quickstart + workout empty state (2026-05-29) |
 | Cloudflare Tunnel | ✅ Quick Tunnel activo | URL aleatoria — necesita Named Tunnel para beta |
 
 **Contenedores Pi activos (2026-05-29):**
@@ -327,7 +327,7 @@ En `landing/src/components/demo.tsx` → `PLAN_OK[0]` = todas `true`.
 - CI/CD, Prometheus, ruff+mypy, Redis rate limiter ✅
 - RGPD completo: ai_insights + post_workout_coach ✅
 - Frontend Fases 1-8 ✅ SW v74
-- **MVP Beta Polish** ✅ SW v79 (2026-05-29):
+- **MVP Beta Polish** ✅ SW v80 (2026-05-29):
   - feedbackWidget.js cargado + badge "beta"
   - JS error ring buffer `hs_js_errors` → WhatsApp bug reports auto-attach
   - `window.onerror` + `onunhandledrejection` → `/api/v1/telemetry` via localStorage
@@ -341,6 +341,8 @@ En `landing/src/components/demo.tsx` → `PLAN_OK[0]` = todas `true`.
   - Toast bienvenida "¡Bienvenido a HealthStack Pro Beta! 🎉" en registro
   - Avatar iniciales en Config Cuenta (`#config-account-avatar`)
   - Gamification hint card para usuarios con XP=0 (`.gami-hint-card`)
+  - Workout logger: empty history hint (`.wl-history-empty`)
+  - Dashboard: quick-start checklist 3 pasos (`#hs-quickstart`, `hs_workout_sessions_local` key)
 
 ### 🗒️ Smoke test (ejecutar en Pi)
 ```bash

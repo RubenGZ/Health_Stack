@@ -227,7 +227,7 @@
       if (data) {
         closeModal();
         updateUserChip();
-        showToast('¡Cuenta creada! Bienvenido a HealthStack Pro.', 'success');
+        showToast('¡Bienvenido a HealthStack Pro Beta! 🎉', 'success');
       } else {
         showError(errEl, 'No se pudo crear la cuenta.');
       }

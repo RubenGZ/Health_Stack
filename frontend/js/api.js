@@ -242,6 +242,10 @@ const API = (function () {
 
   async function me() { return request('/auth/me'); }
 
+  async function updateMe(data) {
+    return request('/auth/me', { method: 'PATCH', body: JSON.stringify(data) });
+  }
+
   // ─────────────────────────────────────────────────────────
   // HEALTH (peso y biométricas)
   // Fallback: WeightTracker localStorage cuando backend offline
@@ -534,6 +538,7 @@ const API = (function () {
     login,
     logout,
     me,
+    updateMe,
 
     // Módulos
     health,

@@ -350,13 +350,70 @@
   // ── Cuenta — info de usuario + logout ────────────────────
   function _updateAccountInfo() {
     try {
-      const raw = localStorage.getItem('hs_user');
+      const raw  = localStorage.getItem('hs_user');
       const user = raw ? JSON.parse(raw) : null;
       const nameEl  = document.getElementById('config-account-name');
       const emailEl = document.getElementById('config-account-email');
       if (nameEl)  nameEl.textContent  = user?.display_name || user?.username || 'Usuario';
       if (emailEl) emailEl.textContent = user?.email || '—';
     } catch { /* ignore */ }
+  }
+
+  function _initNameEditor() {
+    const editBtn    = document.getElementById('config-name-edit-btn');
+    const editForm   = document.getElementById('config-name-edit-form');
+    const nameInput  = document.getElementById('config-name-input');
+    const saveBtn    = document.getElementById('config-name-save-btn');
+    const cancelBtn  = document.getElementById('config-name-cancel-btn');
+    const nameEl     = document.getElementById('config-account-name');
+    if (!editBtn || !editForm || !nameInput || !saveBtn || !cancelBtn) return;
+
+    editBtn.addEventListener('click', () => {
+      nameInput.value = nameEl?.textContent?.trim() || '';
+      editForm.style.display = 'block';
+      editBtn.style.display  = 'none';
+      nameInput.focus();
+      nameInput.select();
+    });
+
+    cancelBtn.addEventListener('click', () => {
+      editForm.style.display = 'none';
+      editBtn.style.display  = '';
+    });
+
+    saveBtn.addEventListener('click', async () => {
+      const newName = nameInput.value.trim();
+      if (!newName) return;
+      saveBtn.disabled = true;
+      saveBtn.textContent = '…';
+      try {
+        const updated = await API.updateMe({ display_name: newName });
+        if (updated?.id) {
+          // Persist updated user in localStorage
+          const raw  = localStorage.getItem('hs_user');
+          const user = raw ? JSON.parse(raw) : {};
+          user.display_name = updated.display_name;
+          localStorage.setItem('hs_user', JSON.stringify(user));
+          _updateAccountInfo();
+          // Also refresh dashboard name chip
+          if (typeof window.Dashboard?.refresh === 'function') window.Dashboard.refresh();
+          window.dispatchEvent(new CustomEvent('hs:user-updated', { detail: user }));
+          if (typeof window.showToast === 'function') window.showToast('Nombre actualizado ✓', 'success');
+        }
+        editForm.style.display = 'none';
+        editBtn.style.display  = '';
+      } catch {
+        if (typeof window.showToast === 'function') window.showToast('Error al guardar. Inténtalo de nuevo.', 'error');
+      } finally {
+        saveBtn.disabled = false;
+        saveBtn.textContent = 'Guardar';
+      }
+    });
+
+    nameInput.addEventListener('keydown', e => {
+      if (e.key === 'Enter') saveBtn.click();
+      if (e.key === 'Escape') cancelBtn.click();
+    });
   }
 
   function _syncLangPickerUI() {
@@ -555,6 +612,7 @@
     _initGettingStarted();
     _initBetaModeUI();
     _updateAccountInfo();
+    _initNameEditor();
     _syncLangPickerUI();
 
     console.log('%c HealthStack Pro v2.0 ', 'background:#c4a561;color:white;padding:4px 8px;border-radius:4px;font-weight:bold');

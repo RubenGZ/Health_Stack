@@ -20,6 +20,7 @@ from __future__ import annotations
 
 import json
 import sys
+import time
 import urllib.request
 import urllib.error
 import uuid
@@ -331,15 +332,24 @@ def simulate_user(user: dict, idx: int, ingredient_ids: list[int]) -> dict:
     }
 
     # 1. REGISTRO
+    # 409 = ya existe (idempotente), 429 = rate limit (el usuario puede ya existir)
+    # En ambos casos intentamos login igualmente.
     st, body = http("POST", "/api/v1/auth/register", {
         "display_name": user["display_name"],
         "email": user["email"],
         "password": user["password"],
         "consent_gdpr": True,
     })
-    if ok("POST /auth/register", st, body, acceptable=[200, 201, 409]):
+    if st in (200, 201, 409):
         results["register"] = True
+        icon = "✅" if st in (200, 201) else "ℹ️ "
+        print(f"  {icon} POST /auth/register → {st}")
+    elif st == 429:
+        # Rate limited — usuario puede ya existir de una ejecución anterior
+        print(f"  ⚠️  POST /auth/register → 429 (rate limit) — intentando login con datos existentes")
+        results["register"] = True  # Asumimos que ya se registró antes
     else:
+        ok("POST /auth/register", st, body)
         return results
 
     # 2. LOGIN
@@ -468,9 +478,11 @@ def main() -> None:
         print("  🚫 Ejecuta primero: docker exec healthstack_backend python -m scripts.seed_nutrition")
         sys.exit(1)
 
-    # Simular cada usuario
+    # Simular cada usuario (pequeña pausa entre usuarios para no saturar rate limits)
     all_results = []
     for idx, user in enumerate(USERS):
+        if idx > 0:
+            time.sleep(2)
         result = simulate_user(user, idx, ingredient_ids)
         all_results.append(result)
 

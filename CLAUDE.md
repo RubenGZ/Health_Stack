@@ -221,7 +221,7 @@ asyncio_default_test_loop_scope = session   ← sin esto asyncpg explota
 | Sentry | ✅ Cableado | Filtro PII activo (RGPD Art. 28) |
 | Alembic migraciones | ✅ **6 migraciones** | HEAD: `c9d0e1f2a3b4` (injury_coach_tables) |
 | Redis en Pi | ✅ **Healthy desde 2026-05-29** | `REDIS_PASSWORD` fijada en `.env.pi` |
-| Service Worker | ✅ `healthstack-v80` | v80: MVP beta polish + quickstart + workout empty state (2026-05-29) |
+| Service Worker | ✅ `healthstack-v81` | v81: TTFV telemetría + auto-fire coach IA + nudge Pro (2026-05-29) |
 | Cloudflare Tunnel | ✅ Quick Tunnel activo | URL aleatoria — necesita Named Tunnel para beta |
 
 **Contenedores Pi activos (2026-05-29):**
@@ -342,6 +342,14 @@ En `landing/src/components/demo.tsx` → `PLAN_OK[0]` = todas `true`.
   - Gamification hint card para usuarios con XP=0 (`.gami-hint-card`)
   - Workout logger: empty history hint (`.wl-history-empty`)
   - Dashboard: quick-start checklist 3 pasos (`#hs-quickstart`, `hs_workout_sessions_local` key)
+- **Estrategia + Producto** ✅ SW v81 (2026-05-29):
+  - `POST /api/v1/telemetry/event` — endpoint genérico fire-and-forget (log-only)
+  - TTFV tracking: `registro_completado` (auth.js) + `primera_sesion_guardada` con delta (summary.js)
+  - Auto-fire coach IA en primer entreno (2.8s delay post-summary)
+  - Telemetría: `pr_detectado`, `habito_formado` (≥3 entrenos 14d + PR)
+  - Nudge Pro único al alcanzar hábito formado (toast sutil, `hs_pro_nudge_shown`)
+  - Landing reescrita con psicología loss-aversion ("Deja de entrenar a ciegas", "Proteger mi progreso")
+  - Nuevo doc `docs/Negocio/HealthStack_Master_Strategy_ES.html` (Opus 4.7)
 
 ### 🗒️ Smoke test (ejecutar en Pi)
 ```bash

@@ -4,7 +4,7 @@
                Network-first para CDN externos
    ============================================================ */
 
-const CACHE_NAME    = 'healthstack-v83';
+const CACHE_NAME    = 'healthstack-v84';
 const CDN_CACHE     = 'healthstack-cdn-v2';
 
 // Assets locales a pre-cachear en install
@@ -112,8 +112,16 @@ self.addEventListener('fetch', event => {
   }
 
   if (url.origin === self.location.origin) {
-    // index.html y raíz → Network-first siempre (cambios de script-tags efectivos de inmediato)
+    // index.html y raíz → Network-first siempre
     if (url.pathname === '/' || url.pathname === '/index.html') {
+      event.respondWith(networkFirst(event.request));
+      return;
+    }
+    // Admin panel: SIEMPRE network-first — es una ruta protegida que
+    // debe recibir siempre los últimos scripts sin importar el cache.
+    // Esto evita que admin.html sirva versiones viejas de admin.js/adminSecurity.js.
+    if (url.pathname === '/admin' || url.pathname === '/admin.html' ||
+        url.pathname.startsWith('/js/admin/')) {
       event.respondWith(networkFirst(event.request));
       return;
     }

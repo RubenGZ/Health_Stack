@@ -1841,10 +1841,11 @@ async def attack_data_retention_ttl(db: AsyncSession) -> AttackResult:
         except Exception:
             pass
 
+        # expires_at es el TTL real del plan; created_at es cuándo se generó
         result = await db.execute(
             text("""
                 SELECT COUNT(*) AS total,
-                       SUM(CASE WHEN generated_at < NOW() - INTERVAL '48 hours' THEN 1 ELSE 0 END) AS expired
+                       SUM(CASE WHEN expires_at < NOW() THEN 1 ELSE 0 END) AS expired
                 FROM public.workout_ai_plans
             """)
         )
@@ -1873,7 +1874,7 @@ async def attack_data_retention_ttl(db: AsyncSession) -> AttackResult:
             return _warning(
                 attack_id, name, category, severity, description,
                 finding=f"⚠️ {expired}/{total} planes IA tienen más de 48h ({expired/total*100:.0f}% expirados sin limpiar). Falta job de limpieza.",
-                recommendation="Añadir scheduled job para DELETE FROM workout_ai_plans WHERE generated_at < NOW() - INTERVAL '48 hours'.",
+                recommendation="Añadir scheduled job: DELETE FROM workout_ai_plans WHERE expires_at < NOW(). O usar pg_cron para limpieza automática.",
                 proof={"total_records": total, "expired_records": expired},
                 duration_ms=duration_ms,
             )

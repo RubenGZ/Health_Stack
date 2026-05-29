@@ -72,9 +72,9 @@ function injectStyles() {
 /* ── Hero header ────────────────────────────────────────── */
 .sl-hero {
   position: relative;
-  background: var(--hs-surface, #0f0f1a);
-  border: 1px solid var(--hs-border, #1e1e30);
-  border-top: 2px solid var(--hs-accent, #c4a561);
+  background: #161b22;
+  border: 1px solid #30363d;
+  border-top: 2px solid #c4a561;
   border-radius: 16px;
   padding: 28px 28px 24px;
   overflow: hidden;
@@ -102,7 +102,7 @@ function injectStyles() {
   font-weight: 700;
   letter-spacing: 0.1em;
   text-transform: uppercase;
-  color: var(--hs-accent, #c4a561);
+  color: #c4a561;
   background: rgba(196,165,97,0.1);
   border: 1px solid rgba(196,165,97,0.2);
   padding: 4px 10px;
@@ -130,7 +130,7 @@ function injectStyles() {
   align-items: center;
   gap: 8px;
   padding: 12px 22px;
-  background: var(--hs-accent, #c4a561);
+  background: #c4a561;
   color: #07070f;
   border: none;
   border-radius: 12px;
@@ -195,8 +195,8 @@ function injectStyles() {
 
 /* ── Progress bar ───────────────────────────────────────── */
 .sl-progress {
-  background: var(--hs-surface, #0f0f1a);
-  border: 1px solid var(--hs-border, #1e1e30);
+  background: #161b22;
+  border: 1px solid #30363d;
   border-radius: 12px;
   padding: 16px 20px;
 }
@@ -209,7 +209,7 @@ function injectStyles() {
 }
 .sl-progress-fill {
   height: 100%;
-  background: linear-gradient(90deg, var(--hs-accent,#c4a561) 0%, #d4b97a 100%);
+  background: linear-gradient(90deg, #c4a561 0%, #d4b97a 100%);
   border-radius: 999px;
   transition: width 500ms cubic-bezier(0.4,0,0.2,1);
   box-shadow: 0 0 8px rgba(196,165,97,0.5);
@@ -228,7 +228,7 @@ function injectStyles() {
 .sl-progress-pct {
   font-size: 0.78rem;
   font-weight: 700;
-  color: var(--hs-accent,#c4a561);
+  color: #c4a561;
   font-feature-settings: "tnum";
 }
 
@@ -238,8 +238,8 @@ function injectStyles() {
   grid-template-columns: auto 1fr auto;
   gap: 24px;
   align-items: center;
-  background: var(--hs-surface, #0f0f1a);
-  border: 1px solid var(--hs-border, #1e1e30);
+  background: #161b22;
+  border: 1px solid #30363d;
   border-radius: 16px;
   padding: 24px 28px;
   animation: sl-fade-in 400ms ease forwards;
@@ -375,7 +375,7 @@ function injectStyles() {
 
 /* ── Attack card ─────────────────────────────────────────── */
 .sl-card {
-  background: var(--hs-surface, #0f0f1a);
+  background: #161b22;
   border: 1px solid rgba(255,255,255,0.06);
   border-radius: 12px;
   overflow: hidden;
@@ -569,7 +569,7 @@ function injectStyles() {
   display: flex;
   align-items: center;
   justify-content: center;
-  color: var(--hs-accent, #c4a561);
+  color: #c4a561;
 }
 .sl-empty-icon svg { width: 28px; height: 28px; }
 .sl-empty-title {
@@ -921,7 +921,11 @@ async function runAudit() {
   }, 650);
 
   try {
-    const token = localStorage.getItem('hs_access_token') || localStorage.getItem('access_token') || '';
+    // _hsAdminToken expuesto por admin.js tras checkAuth() — forma más fiable
+    const token = window._hsAdminToken
+      || localStorage.getItem('hs_access_token')
+      || localStorage.getItem('access_token')
+      || '';
     const resp = await fetch(`${SECURITY_API}/run-audit`, {
       method: 'POST',
       headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' },

@@ -18,6 +18,8 @@
     if (!payload || payload.role !== 'admin') { location.href = '/'; return false; }
     var el = document.getElementById('admin-user-email');
     if (el) el.textContent = payload.email || 'Admin';
+    // Exponer el token a submódulos ES module (import() no comparte el closure de esta IIFE)
+    window._hsAdminToken = token;
     return true;
   }
 

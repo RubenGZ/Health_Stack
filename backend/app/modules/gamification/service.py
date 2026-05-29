@@ -25,7 +25,9 @@ logger = logging.getLogger(__name__)
 
 
 def _xp_for_level(level: int) -> int:
-    """XP total necesaria para alcanzar el nivel `level`."""
+    """XP total necesaria para alcanzar el nivel `level`. Nivel 1 empieza en 0."""
+    if level <= 1:
+        return 0
     return int(100 * (level ** 1.5))
 
 
@@ -84,7 +86,7 @@ class GamificationService:
         return _compute_response(state)
 
     @staticmethod
-    async def add_xp(
+    async def award_action(
         db: AsyncSession,
         user_id: str,
         action: str,

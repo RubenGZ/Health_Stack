@@ -89,7 +89,8 @@ async def create_workout_session(
 
     duration_secs = None
     if session_obj.finished_at and session_obj.started_at:
-        duration_secs = int((session_obj.finished_at - session_obj.started_at).total_seconds())
+        delta = int((session_obj.finished_at - session_obj.started_at).total_seconds())
+        duration_secs = delta if delta >= 0 else None
 
     # Intentar actualizar LP de rankeds (no bloquea si falla)
     try:

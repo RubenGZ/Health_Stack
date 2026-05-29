@@ -52,7 +52,7 @@ async def add_xp(
     db: DBSession,
     current_user: CurrentUser,
 ):
-    return await GamificationService.add_xp(
+    return await GamificationService.award_action(
         db=db,
         user_id=current_user["user_id"],
         action=body.action,

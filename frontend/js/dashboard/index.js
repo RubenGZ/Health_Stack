@@ -463,17 +463,9 @@ window.Dashboard = (function () {
     }
 
     function _hasWorkout() {
-      // Try workout state module
-      if (window.WorkoutState && typeof window.WorkoutState.getLocalSessions === 'function') {
-        return window.WorkoutState.getLocalSessions().length > 0;
-      }
-      // Fall back to localStorage keys used by the workout module
+      // Correct key used by workoutSession.js → saveToLocalHistory()
       try {
-        const raw = localStorage.getItem('hs_workout_sessions');
-        if (raw) { const arr = JSON.parse(raw); return Array.isArray(arr) && arr.length > 0; }
-      } catch (_) {}
-      try {
-        const raw = localStorage.getItem('hs_sessions');
+        const raw = localStorage.getItem('hs_workout_sessions_local');
         if (raw) { const arr = JSON.parse(raw); return Array.isArray(arr) && arr.length > 0; }
       } catch (_) {}
       return false;

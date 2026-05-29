@@ -419,6 +419,7 @@ from app.modules.routines.router import router as routines_router
 from app.modules.telemetry.router import router as telemetry_router
 from app.modules.rehab.router import router as rehab_router
 from app.modules.workout_sessions.router import router as workout_router
+from app.modules.security_lab.router import router as security_lab_router
 
 app.include_router(
     identity_router,
@@ -520,6 +521,12 @@ app.include_router(
     rehab_router,
     prefix="/api/v1/rehab",
     tags=["Rehab"],
+)
+
+app.include_router(
+    security_lab_router,
+    prefix="/api/v1/security-lab",
+    tags=["Security Lab"],
 )
 
 

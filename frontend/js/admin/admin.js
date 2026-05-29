@@ -54,6 +54,13 @@
     if (section === 'system' && typeof AdminSystem !== 'undefined') {
       AdminSystem.load();   // always re-run system check on nav
     }
+    if (section === 'security' && !_sectionLoaded.security) {
+      // Inicializar Security Lab (renderiza la UI en section-security)
+      import('/js/admin/adminSecurity.js').then(function(mod) {
+        mod.initSecurityLab();
+        _sectionLoaded.security = true;
+      }).catch(function(e) { console.error('adminSecurity load error:', e); });
+    }
   }
 
   // ── Logout ───────────────────────────────────────────────────────────────────

@@ -29,9 +29,27 @@ class GymResponse(BaseModel):
     model_config = ConfigDict(from_attributes=True)
 
 
+class GymPublicResponse(BaseModel):
+    """Respuesta pública para listado de gyms — sin invite_code."""
+    id:          int
+    name:        str
+    description: str | None
+    city:        str | None
+    province:    str | None
+    country:     str
+    is_public:   bool
+    is_verified: bool
+    member_count: int
+    model_config = ConfigDict(from_attributes=True)
+
+
 class JoinGymRequest(BaseModel):
     invite_code: str | None = None
     gym_id:      int | None = None
+
+
+class JoinGymResponse(BaseModel):
+    joined: bool
 
 
 class MembershipUpdateRequest(BaseModel):
@@ -41,6 +59,17 @@ class MembershipUpdateRequest(BaseModel):
     contact_info:      str | None  = Field(None, max_length=120)
 
 
+class MembershipUpdateResponse(BaseModel):
+    updated: bool
+
+
+class SparringProfile(BaseModel):
+    display_name: str
+    schedule:     str | None
+    goal:         str | None
+    contact:      str | None
+
+
 class ChallengeCreateRequest(BaseModel):
     title:        str  = Field(..., min_length=3, max_length=100)
     description:  str | None = None
@@ -48,3 +77,18 @@ class ChallengeCreateRequest(BaseModel):
     target_value: int  = Field(..., ge=1)
     starts_at:    datetime
     ends_at:      datetime
+
+
+class ChallengeResponse(BaseModel):
+    id:    int
+    title: str
+
+
+class JoinChallengeResponse(BaseModel):
+    joined: bool
+
+
+class MyGymSummary(BaseModel):
+    id:          int
+    name:        str
+    invite_code: str

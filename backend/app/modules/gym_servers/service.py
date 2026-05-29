@@ -120,6 +120,58 @@ async def create_challenge(
     return challenge
 
 
+async def list_public_gyms(
+    db: AsyncSession, limit: int = 20, offset: int = 0
+) -> list[dict]:
+    """Devuelve gyms públicos con su conteo de miembros."""
+    result = await db.execute(
+        select(GymServer)
+        .where(GymServer.is_public.is_(True))
+        .order_by(GymServer.created_at.desc())
+        .limit(limit)
+        .offset(offset)
+    )
+    gyms = result.scalars().all()
+
+    out = []
+    for gym in gyms:
+        count = (await db.execute(
+            select(func.count()).where(GymMembership.gym_id == gym.id)
+        )).scalar_one()
+        out.append({"gym": gym, "member_count": count})
+    return out
+
+
+async def leave_gym(
+    db: AsyncSession, user_id: uuid.UUID, gym_id: int
+) -> None:
+    """Elimina la membresía del usuario en el gym. Lanza ValueError si no es miembro o es el único owner."""
+    membership = (await db.execute(
+        select(GymMembership).where(
+            GymMembership.user_id == user_id,
+            GymMembership.gym_id == gym_id,
+        )
+    )).scalar_one_or_none()
+
+    if not membership:
+        raise ValueError("No eres miembro de este gym")
+
+    # Evitar dejar el gym sin owners
+    if membership.role == "owner":
+        other_owners = (await db.execute(
+            select(func.count()).where(
+                GymMembership.gym_id == gym_id,
+                GymMembership.role == "owner",
+                GymMembership.user_id != user_id,
+            )
+        )).scalar_one()
+        if other_owners == 0:
+            raise ValueError("Eres el único owner — transfiere el gym antes de abandonarlo")
+
+    await db.delete(membership)
+    await db.commit()
+
+
 async def join_challenge(
     db: AsyncSession, challenge_id: int, gym_id: int, user_id: uuid.UUID
 ) -> GymChallengeParticipant:

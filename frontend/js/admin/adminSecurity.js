@@ -934,6 +934,12 @@ async function runAudit() {
     clearInterval(interval);
 
     if (!resp.ok) {
+      if (resp.status === 401) {
+        throw new Error('Sesión expirada. Recarga la página (F5) y vuelve a intentarlo.');
+      }
+      if (resp.status === 403) {
+        throw new Error('Acceso denegado. Solo administradores pueden ejecutar la auditoría.');
+      }
       const err = await resp.json().catch(() => ({detail: `HTTP ${resp.status}`}));
       throw new Error(err.detail || `Error ${resp.status}`);
     }

@@ -71,6 +71,12 @@ export function renderIdle() {
         <h4 class="wl-hist-title">Historial</h4>
         <div class="wl-history-list">${rows}</div>
       </div>`;
+  } else {
+    histHtml = `
+      <div class="wl-history-empty">
+        <span class="wl-history-empty-icon">🏋️</span>
+        <span class="wl-history-empty-text">Completa tu primer entreno para ver tu historial aquí</span>
+      </div>`;
   }
 
   // ── Rutina IA guardada — dedup robusto ────────────────────────────────────

@@ -7531,3 +7531,17 @@ button[class*="wl-"]:not([class*="inp"]):active {
   letter-spacing: -0.02em;
   flex-shrink: 0;
 }
+
+/* ── Workout history empty state ───────────────────────────────────────────── */
+.wl-history-empty {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 14px 16px;
+  background: var(--hs-surface, #0f0f1a);
+  border-radius: var(--hs-r-md, 12px);
+  color: var(--hs-text-2, rgba(255,255,255,0.45));
+  font-size: 0.825rem;
+  margin-bottom: 16px;
+}
+.wl-history-empty-icon { font-size: 1.2rem; flex-shrink: 0; }

@@ -772,35 +772,57 @@ async def attack_mass_assignment(base_url: str, admin_token: str) -> AttackResul
     )
 
     try:
-        malicious_payload = {
-            "display_name": "test_attacker",
-            "role": "admin",           # Campo no en el schema
-            "is_admin": True,          # Campo no en el schema
-            "is_active": False,        # Campo no en el schema
-            "email": "hacker@evil.com"  # No debería poder cambiar el email
-        }
-
         async with httpx.AsyncClient(base_url=base_url, timeout=5.0) as client:
+            # 1. Leer estado ANTES del ataque (para comparar post-ataque)
+            before_resp = await client.get(
+                "/api/v1/auth/me",
+                headers={"Authorization": f"Bearer {admin_token}"},
+            )
+            before = before_resp.json() if before_resp.status_code == 200 else {}
+            original_email = before.get("email", "")
+            original_role = before.get("role", "")
+
+            # 2. Intentar mass assignment con campos fuera del schema
+            malicious_payload = {
+                "display_name": "test_attacker_security_check",
+                "role": "superadmin",        # Campo no en el schema (valor diferente al original)
+                "is_admin": True,            # Campo no en el schema
+                "is_active": False,          # Campo no en el schema
+                "email": "hacker@evil.com",  # No debería poder cambiar el email
+            }
+
             resp = await client.patch(
                 "/api/v1/auth/me",
                 json=malicious_payload,
                 headers={"Authorization": f"Bearer {admin_token}"},
             )
 
+        # 3. Restaurar display_name original para no contaminar datos
+        async with httpx.AsyncClient(base_url=base_url, timeout=2.0) as client:
+            await client.patch(
+                "/api/v1/auth/me",
+                json={"display_name": before.get("display_name", "Admin")},
+                headers={"Authorization": f"Bearer {admin_token}"},
+            )
+
         duration_ms = int((time.monotonic() - t0) * 1000)
 
-        # Revisar respuesta — si 200 OK, ver si el rol cambió
+        # Revisar respuesta — VULNERABLE solo si los campos maliciosos CAMBIARON valores
         if resp.status_code == 200:
             body = resp.json()
-            role_changed = body.get("role") == "admin" or body.get("is_admin") == True
+            # role_changed: solo si cambió a "superadmin" (nuestro valor de ataque, no el original)
+            role_changed = body.get("role") == "superadmin"
+            # is_admin: campo no debería existir en el schema
+            is_admin_injected = body.get("is_admin") == True
+            # email: cambió al del atacante
             email_changed = body.get("email") == "hacker@evil.com"
 
-            if role_changed or email_changed:
+            if role_changed or is_admin_injected or email_changed:
                 return _vulnerable(
                     attack_id, name, category, severity, description,
-                    finding=f"🚨 Mass assignment exitoso: role_changed={role_changed}, email_changed={email_changed}",
+                    finding=f"🚨 Mass assignment exitoso: role_changed={role_changed}, is_admin_injected={is_admin_injected}, email_changed={email_changed}",
                     recommendation="Usar Pydantic con model_config extra='ignore' o extra='forbid'. Nunca pasar **request.dict() directamente al ORM.",
-                    proof={"role_changed": role_changed, "email_changed": email_changed},
+                    proof={"role_changed": role_changed, "is_admin_injected": is_admin_injected, "email_changed": email_changed},
                     duration_ms=duration_ms,
                 )
             else:

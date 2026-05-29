@@ -32,7 +32,7 @@ BASE_URL = (sys.argv[1] if len(sys.argv) > 1 else "http://localhost").rstrip("/"
 USERS = [
     {
         "display_name": "QA_Carlos_Mendez",
-        "email": "qa_carlos@healthstack.test",
+        "email": "qa_carlos@qa-healthstack.com",
         "password": "QATest1234!",
         "weight_kg": 84.0,
         "height_cm": 178.0,
@@ -40,7 +40,7 @@ USERS = [
     },
     {
         "display_name": "QA_Maria_Lopez",
-        "email": "qa_maria@healthstack.test",
+        "email": "qa_maria@qa-healthstack.com",
         "password": "QATest1234!",
         "weight_kg": 62.0,
         "height_cm": 165.0,
@@ -48,7 +48,7 @@ USERS = [
     },
     {
         "display_name": "QA_Andres_Torres",
-        "email": "qa_andres@healthstack.test",
+        "email": "qa_andres@qa-healthstack.com",
         "password": "QATest1234!",
         "weight_kg": 95.0,
         "height_cm": 182.0,
@@ -56,7 +56,7 @@ USERS = [
     },
     {
         "display_name": "QA_Sofia_Ruiz",
-        "email": "qa_sofia@healthstack.test",
+        "email": "qa_sofia@qa-healthstack.com",
         "password": "QATest1234!",
         "weight_kg": 57.0,
         "height_cm": 160.0,

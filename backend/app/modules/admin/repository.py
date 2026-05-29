@@ -203,32 +203,38 @@ class AdminRepository:
           error → fallo de query (tabla no encontrada, etc.)
         """
         modules = [
-            {"module": "users",               "table": "public.users",                "ts": "created_at",  "label": "Usuarios"},
-            {"module": "workout_sessions",     "table": "public.workout_sessions",     "ts": "started_at",  "label": "Entrenamientos"},
-            {"module": "community_posts",      "table": "public.community_posts",      "ts": "created_at",  "label": "Posts comunidad"},
-            {"module": "saved_routines",       "table": "public.saved_routines",       "ts": "created_at",  "label": "Rutinas guardadas"},
-            {"module": "user_recipes",         "table": "public.user_recipes",         "ts": "created_at",  "label": "Recetas"},
-            {"module": "health_records",       "table": "health.health_records",       "ts": "created_at",  "label": "Registros salud"},
-            {"module": "gamification_events",  "table": "public.gamification_events",  "ts": "created_at",  "label": "Gamificación"},
-            {"module": "ai_insights_cache",    "table": "public.ai_insights_cache",    "ts": "created_at",  "label": "AI Insights"},
-            {"module": "user_chronic_injuries","table": "public.user_chronic_injuries","ts": "created_at",  "label": "Lesiones"},
-            {"module": "workout_ai_plans",     "table": "public.workout_ai_plans",     "ts": "created_at",  "label": "Planes IA"},
-            {"module": "gym_servers",          "table": "public.gym_servers",          "ts": "created_at",  "label": "Gym Servers"},
-            {"module": "ranked_profiles",      "table": "public.ranked_profiles",      "ts": "updated_at",  "label": "Rankings"},
+            {"module": "users",               "table": "public.users",                "ts": "created_at",   "label": "Usuarios"},
+            {"module": "workout_sessions",     "table": "public.workout_sessions",     "ts": "started_at",   "label": "Entrenamientos"},
+            {"module": "community_posts",      "table": "public.community_posts",      "ts": "created_at",   "label": "Posts comunidad"},
+            {"module": "saved_routines",       "table": "public.saved_routines",       "ts": "created_at",   "label": "Rutinas guardadas"},
+            {"module": "user_recipes",         "table": "public.user_recipes",         "ts": "created_at",   "label": "Recetas"},
+            {"module": "health_records",       "table": "health.health_records",       "ts": "created_at",   "label": "Registros salud"},
+            {"module": "gamification_events",  "table": "public.gamification_events",  "ts": "created_at",   "label": "Gamificación"},
+            # ai_insights_cache usa "generated_at" (no "created_at")
+            {"module": "ai_insights_cache",    "table": "public.ai_insights_cache",    "ts": "generated_at", "label": "AI Insights"},
+            {"module": "user_chronic_injuries","table": "public.user_chronic_injuries","ts": "created_at",   "label": "Lesiones"},
+            {"module": "workout_ai_plans",     "table": "public.workout_ai_plans",     "ts": "created_at",   "label": "Planes IA"},
+            # gym_servers.created_at es nullable — MAX() lo maneja correctamente
+            {"module": "gym_servers",          "table": "public.gym_servers",          "ts": "created_at",   "label": "Gym Servers"},
+            # ranked_profiles no tiene created_at; usa updated_at
+            {"module": "ranked_profiles",      "table": "public.ranked_profiles",      "ts": "updated_at",   "label": "Rankings"},
         ]
 
         results = []
         for m in modules:
+            # Cada módulo corre en su propio SAVEPOINT para que un fallo no
+            # envenene la transacción y provoque InFailedSQLTransactionError en cascade.
             try:
-                r = await db.execute(text(f"""
-                    SELECT
-                        COUNT(*)::int AS total,
-                        MAX({m['ts']}) AS last_at,
-                        COUNT(*) FILTER (WHERE {m['ts']} >= NOW() - INTERVAL '24 hours')::int AS active_24h,
-                        COUNT(*) FILTER (WHERE {m['ts']} >= NOW() - INTERVAL '7 days')::int  AS active_7d
-                    FROM {m['table']}
-                """))
-                row = r.mappings().one()
+                async with db.begin_nested():
+                    r = await db.execute(text(f"""
+                        SELECT
+                            COUNT(*)::int AS total,
+                            MAX({m['ts']}) AS last_at,
+                            COUNT(*) FILTER (WHERE {m['ts']} >= NOW() - INTERVAL '24 hours')::int AS active_24h,
+                            COUNT(*) FILTER (WHERE {m['ts']} >= NOW() - INTERVAL '7 days')::int  AS active_7d
+                        FROM {m['table']}
+                    """))
+                    row = r.mappings().one()
                 total     = row["total"] or 0
                 last_at   = row["last_at"]
                 active_24h = row["active_24h"] or 0

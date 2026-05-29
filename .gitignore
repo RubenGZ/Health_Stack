@@ -29,6 +29,10 @@ ENV/
 !.env.pi.example
 !backend/.env.example
 
+# ── Archivo local — código desactivado, guardado para uso futuro ─────────────
+# No se sube al repo ni llega a la Pi. Solo existe en local.
+_archive/
+
 # ── Node / Frontend ───────────────────────────────────────────────────────────
 node_modules/
 dist/

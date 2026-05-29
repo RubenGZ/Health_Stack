@@ -16,7 +16,7 @@ Skill dedicado para mejoras visuales del frontend. Cargado en `.claude/skills/he
 **Token de diseño clave**: dark premium, gold `#c4a561` como ÚNICO acento, Inter font, base 4px spacing.
 
 **Estado del sistema de diseño**:
-- CSS v7 en `frontend/css/main.css` — SW **v79** — última actualización 2026-05-29
+- CSS v7 en `frontend/css/main.css` — SW **v82** — última actualización 2026-05-29
 - **Fase 1** ✅ completada: brand consistency (161 refs cyan→gold), skeleton system, stat upgrades, card polish, safe-area iOS
 - **Fase 2** ✅ completada: toast.js (showToast/showConfirm), chartDefaults.js, 10 módulos migrados de alert/confirm nativos, empty states, skeleton loaders JS, form input error/success states (setFieldState global)
 - **Fase 3** ✅ completada: stat-change pill coloreado, XP bar gold shimmer animado, level badge glow pulsante, achievement badge hover, wl-ex-group-chip por grupo muscular, PR badge shimmer, exercise cards con chip de color y badge "última vez"
@@ -27,6 +27,8 @@ Skill dedicado para mejoras visuales del frontend. Cargado en `.claude/skills/he
 - **Fase 7** ✅ completada (2026-05-23): Sección Entreno mejorada — dedup robusto de rutinas IA, `routineName` guardado en historial, historial compacto con filas expandibles (nombre·día·duración, click=detalles). SW v59.
 - **Fase 8** ✅ completada (2026-05-29): Módulo A — InjuryManager en routineGenerator.js (lesiones crónicas, rutinas IA injury-aware). Módulo B — postWorkoutCoach.js + nextSessionPreloader.js (análisis post-entreno con IA, TTL 48h). SW v74.
 - **MVP Beta Polish** ✅ completada (2026-05-29): feedbackWidget cargado + badge "beta", JS error ring buffer → localStorage + WhatsApp attachment, manifest icons/screenshots, dashboard first-run banner, Rutinas empty state, PATCH /api/v1/auth/me endpoint, display_name editable en Perfil, stats row (días + entrenos), toast bienvenida beta, avatar iniciales en Config, gamification hint para nuevos usuarios. SW v79.
+- **Estrategia + Producto** ✅ completada (2026-05-29): TTFV tracking, auto-fire coach IA, telemetría PR + habito_formado, Pro nudge, landing loss-aversion. SW v81.
+- **MVP Final Polish** ✅ completada (2026-05-29): AI coach CTA adaptativo (primer/repeat workout), tests telemetry/event, smoke test actualizado con nuevos endpoints, ranked season dinámica + scopes diferenciados, gym_servers descubrimiento público + abandonar gym + response_models. SW v82.
 
 ---
 
@@ -86,25 +88,26 @@ Cada módulo en `backend/app/modules/<nombre>/`:
 | geopricing        | `/api/geo-price`                    | Público       | ✅ Production     | —     |
 | workout_sessions  | `/api/v1/workout`                   | JWT           | ✅ Production     | 17†   |
 | post_workout_coach| `/api/v1/workout/post-workout-coach`| JWT + Groq    | ✅ Production     | 10    |
-| ranked            | `/api/v1/ranked`                    | JWT           | ⚠️ WIP           | 3     |
-| gym_servers       | `/api/v1/gym-servers`               | JWT           | ⚠️ WIP           | 4     |
+| ranked            | `/api/v1/ranked`                    | JWT           | ✅ Production     | 5     |
+| gym_servers       | `/api/v1/gym-servers`               | JWT           | ✅ Production     | 7     |
 | integrations      | `/api/v1/integrations`              | JWT           | ⚠️ WIP           | 0     |
 
 †workout_sessions: 7 tests originales + 10 nuevos post-workout-coach = 17 tests.
 
-**Issues conocidos por módulo WIP:**
+**Issues resueltos en módulos WIP (2026-05-29):**
 
-`ranked`:
-- `season = 1` hardcodeado (tabla RankedSeason existe pero nunca se consulta)
-- `scope` city/national/global comparten implementación (todos llaman a `get_global_leaderboard`)
-- `MAX_LP_PER_WEEK = 60` y `lp_week` nunca se aplican (código muerto)
-- ✅ Usernames en leaderboard muestran `display_name` (resuelto 2026-05-18)
+`ranked` → ✅ Production:
+- ✅ Season dinámica — `get_active_season()` en repository, fallback a season más reciente
+- ✅ Scopes diferenciados — `get_national_leaderboard()` / `get_city_leaderboard()` como puntos de extensión (requieren `User.country_code/city` vía migración para activarse)
+- `MAX_LP_PER_WEEK = 60` y `lp_week` documentados con TODO comment
+- ✅ Usernames muestran `display_name` (resuelto 2026-05-18)
 
-`gym_servers`:
-- Sin `response_model` en 5 de 7 endpoints (no aparecen en OpenAPI)
-- `GymChampionBadge` tabla huérfana (sin endpoints)
-- Sin endpoint para descubrir gyms públicos ni para abandonar un gym
-- Progreso de retos no se registra (`GymChallenge.contribution` nunca se actualiza)
+`gym_servers` → ✅ Production:
+- ✅ `response_model` añadido en los 6 endpoints que faltaban
+- ✅ `GET /api/v1/gym-servers` — descubrimiento público (sin auth, paginado, filtra `is_public=True`)
+- ✅ `DELETE /api/v1/gym-servers/{id}/members/me` — abandonar gym (guard owner-safety)
+- `GymChampionBadge` tabla huérfana (pendiente post-beta)
+- `GymChallenge.contribution` pendiente post-beta
 - ✅ Sparring list devuelve `display_name` (resuelto 2026-05-18)
 
 `integrations`:
@@ -140,7 +143,7 @@ Si se rota la MASTER_KEY hay que re-cifrar todos los `health_uuid_enc`. (TODO pe
 
 ## Tests — Estado actual
 
-**172 tests totales** (auditados 2026-05-29).
+**182 tests totales** (auditados 2026-05-29).
 
 ```
 tests/unit/                   21 tests
@@ -159,12 +162,12 @@ tests/integration/
   test_ai_coach.py             9 tests  ✅ completo
   test_ai_insights.py         10 tests  ✅ todos con RecorderAIRouter
   test_chat.py                27 tests  ✅ completo
-  test_telemetry.py            6 tests  ✅ completo
+  test_telemetry.py           11 tests  ✅ completo (incl. /event endpoint)
   test_workout_sessions.py     7 tests  ✅ core cubierto
   test_injury_aware_routine.py 5 tests  ✅ nuevo (2026-05-29)
   test_post_workout_coach.py  10 tests  ✅ nuevo (2026-05-29) — incluye RGPD UUID check
-  test_ranked.py               3 tests  ⚠️ mínimo
-  test_gym_servers.py          4 tests  ⚠️ mínimo
+  test_ranked.py               5 tests  ✅ season dinámica
+  test_gym_servers.py          7 tests  ✅ discover + leave gym
   test_notifications.py        —        ❌ módulo no implementado — IGNORAR
   test_integrations.py         —        ❌ cero tests para OAuth2/sync/CSV
 ```
@@ -221,7 +224,7 @@ asyncio_default_test_loop_scope = session   ← sin esto asyncpg explota
 | Sentry | ✅ Cableado | Filtro PII activo (RGPD Art. 28) |
 | Alembic migraciones | ✅ **6 migraciones** | HEAD: `c9d0e1f2a3b4` (injury_coach_tables) |
 | Redis en Pi | ✅ **Healthy desde 2026-05-29** | `REDIS_PASSWORD` fijada en `.env.pi` |
-| Service Worker | ✅ `healthstack-v81` | v81: TTFV telemetría + auto-fire coach IA + nudge Pro (2026-05-29) |
+| Service Worker | ✅ `healthstack-v82` | v82: AI coach CTA adaptativo (2026-05-29) |
 | Cloudflare Tunnel | ✅ Quick Tunnel activo | URL aleatoria — necesita Named Tunnel para beta |
 
 **Contenedores Pi activos (2026-05-29):**
@@ -307,11 +310,12 @@ En `landing/src/components/demo.tsx` → `PLAN_OK[0]` = todas `true`.
 3. **Subir GitHub Secrets** — ejecutar `scripts\upload-secrets-to-github.ps1` tras `gh auth login`
 4. ~~**AdSense**~~ — eliminado para beta (SPONSOR.active=false, scripts archivados)
 
-### 🟡 Trabajo de código (ordenado por impacto para beta)
+### 🟡 Trabajo de código (post-beta, no bloquea MVP)
 5. **Tests integrations**: 0 tests para OAuth2/sync/CSV
-6. **Ranked — temporadas reales**: `season = 1` hardcodeado
-7. **Rotación de MASTER_KEY** — documentar procedimiento de re-cifrado
-8. **gym_servers**: sin endpoint para descubrir gyms públicos
+6. **Rotación de MASTER_KEY** — documentar procedimiento de re-cifrado
+7. **gym_servers GymChampionBadge** — tabla huérfana, sin endpoints
+8. **gym_servers GymChallenge.contribution** — progreso de retos no se registra
+9. **User.country_code/city** — columnas necesarias para scopes ranked city/national reales (requiere migración)
 
 ### ✅ Ya hecho (actualizado 2026-05-29)
 - Módulo A: Injury-Aware Routine Generator ✅ (2026-05-29)
@@ -343,6 +347,7 @@ En `landing/src/components/demo.tsx` → `PLAN_OK[0]` = todas `true`.
   - Workout logger: empty history hint (`.wl-history-empty`)
   - Dashboard: quick-start checklist 3 pasos (`#hs-quickstart`, `hs_workout_sessions_local` key)
 - **Estrategia + Producto** ✅ SW v81 (2026-05-29):
+- **MVP Final Polish** ✅ SW v82 (2026-05-29): AI coach CTA adaptativo, +10 tests (telemetry/event + ranked + gym), smoke test actualizado, ranked season dinámica, gym_servers completo (discover + leave + response_models).
   - `POST /api/v1/telemetry/event` — endpoint genérico fire-and-forget (log-only)
   - TTFV tracking: `registro_completado` (auth.js) + `primera_sesion_guardada` con delta (summary.js)
   - Auto-fire coach IA en primer entreno (2.8s delay post-summary)

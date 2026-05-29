@@ -213,7 +213,7 @@ async def chat_message(
 
     # ── Construir system prompt con instrucción de idioma ─────────────────────
     lang_instruction = _LANG_INSTRUCTIONS.get(body.language, _LANG_INSTRUCTIONS['es'])
-    base_prompt = _BASE_SYSTEM_PROMPT.format(lang_instruction=lang_instruction)
+    base_prompt = _BASE_SYSTEM_PROMPT.replace('{lang_instruction}', lang_instruction)
 
     # ── Resolver contexto de usuario (opcional) ───────────────────────────────
     system_prompt = base_prompt

@@ -384,9 +384,10 @@ def test_workout_sessions() -> None:
         st, body = http("GET", f"/api/v1/workout/sessions/{sid}")
         check(f"GET /workout/sessions/:id", "Workout Sessions", st, body, expected=200)
 
-        # Módulo B — Post-Workout AI Coach (añadido 2026-05-29)
+        # Módulo B — Post-Workout AI Coach (session_id es UUID de idempotencia, no el int PK)
+        coach_uuid = str(uuid.uuid4())
         st, body = http("POST", "/api/v1/workout/post-workout-coach", {
-            "session_id": sid,
+            "session_id": coach_uuid,
         })
         # 200 = coach generado o cacheado; 202 = generando async; 502/503 = IA no disponible
         check("POST /workout/post-workout-coach", "Workout Sessions", st, body,

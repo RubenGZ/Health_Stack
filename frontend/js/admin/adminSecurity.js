@@ -1,7 +1,7 @@
 /**
  * adminSecurity.js — Security Lab (v2)
  * ======================================
- * Black Hat / White Hat — 17 ataques automatizados.
+ * Black Hat / White Hat — 26 ataques automatizados.
  * Diseño: dark premium, gold accent, sin emojis como elementos estructurales.
  */
 
@@ -25,13 +25,14 @@ const SEVERITY_CONFIG = {
 };
 
 const CATEGORIES = [
-  { id: 'jwt',   icon: iconKey(),    label: 'JWT / Auth',       count: 3 },
+  { id: 'jwt',   icon: iconKey(),    label: 'JWT / Auth',       count: 5 },
   { id: 'crypto',icon: iconLock(),   label: 'Cifrado AES',      count: 3 },
-  { id: 'access',icon: iconShield(), label: 'Control Acceso',   count: 2 },
-  { id: 'inject',icon: iconBug(),    label: 'Inyección',        count: 2 },
+  { id: 'access',icon: iconShield(), label: 'Control Acceso',   count: 3 },
+  { id: 'inject',icon: iconBug(),    label: 'Inyección',        count: 4 },
   { id: 'rate',  icon: iconSpeed(),  label: 'Rate Limiting',    count: 2 },
-  { id: 'rgpd',  icon: iconEye(),    label: 'RGPD Art.9',       count: 2 },
-  { id: 'infra', icon: iconServer(), label: 'Infraestructura',  count: 3 },
+  { id: 'rgpd',  icon: iconEye(),    label: 'RGPD Art.9',       count: 3 },
+  { id: 'infra', icon: iconServer(), label: 'Infraestructura',  count: 5 },
+  { id: 'deps',  icon: iconBug(),    label: 'Dependencias',     count: 1 },
 ];
 
 let _running = false;
@@ -634,12 +635,14 @@ function buildHTML() {
     </div>`).join('');
 
   const attackChips = [
-    'JWT Confusion', 'None Algorithm', 'Token Expirado',
+    'JWT Confusion', 'None Algorithm', 'Token Expirado', 'Brute Force', 'Refresh Reuse',
     'AES Nonce Reuse', 'Master Key', 'HKDF Context',
-    'IDOR Records', 'Admin Escalation', 'SQL Injection',
-    'Mass Assignment', 'Rate Limit Bypass', 'User Enumeration',
-    'PII en IA', 'Pseudonimización', 'Security Headers',
-    'CORS Wildcard', 'Reset Token URL',
+    'IDOR Records', 'Admin Escalation', 'IDOR Horizontal',
+    'SQL Injection', 'Mass Assignment', 'XSS Reflejado', 'Large Payload DoS',
+    'Rate Limit Bypass', 'User Enumeration',
+    'PII en IA', 'Pseudonimización', 'Data Retention TTL',
+    'Security Headers', 'CORS Wildcard', 'Reset Token URL', 'Server Version', 'Path Traversal',
+    'CVEs Dependencias',
   ].map(a => `<span class="sl-empty-chip">${a}</span>`).join('');
 
   return `
@@ -651,10 +654,10 @@ function buildHTML() {
       <div>
         <div class="sl-hero-label">
           ${iconShield()}
-          Security Lab · v2.0
+          Security Lab · v3.0
         </div>
         <h3 class="sl-hero-title">Auditoría de seguridad<br>automatizada</h3>
-        <p class="sl-hero-sub">17 ataques · 7 categorías · Black Hat vs White Hat<br>Solo accesible por administradores</p>
+        <p class="sl-hero-sub">26 ataques · 8 categorías · OWASP Top 10 · Black Hat vs White Hat<br>Solo accesible por administradores</p>
       </div>
       <button id="sl-run-btn" class="sl-run-btn" onclick="window.SecurityLab.runAudit()">
         ${iconPlay()}

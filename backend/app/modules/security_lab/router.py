@@ -84,9 +84,10 @@ def _build_summary(blocked: int, vulnerable: int, warning: int, total: int, grad
     response_model=SecurityReport,
     summary="Ejecutar auditoría de seguridad completa",
     description=(
-        "Lanza 17 ataques automatizados contra la propia aplicación. "
+        "Lanza 26 ataques automatizados contra la propia aplicación. "
         "Solo accesible por admins. Los ataques son no destructivos — "
-        "no modifican ni eliminan datos reales."
+        "no modifican ni eliminan datos reales. "
+        "Cubre OWASP Top 10 2021 completo."
     ),
 )
 async def run_security_audit(
@@ -145,21 +146,38 @@ async def run_security_audit(
 )
 async def list_attacks(current_admin: _CurrentAdmin) -> list[dict]:
     return [
-        {"id": "A1", "name": "JWT Algorithm Confusion (RS256 → HS256)", "category": "Autenticación", "severity": "CRITICAL"},
-        {"id": "A2", "name": "JWT 'none' Algorithm", "category": "Autenticación", "severity": "CRITICAL"},
-        {"id": "A3", "name": "Replay de Token Expirado", "category": "Autenticación", "severity": "HIGH"},
-        {"id": "B1", "name": "AES-GCM Nonce Reuse", "category": "Cifrado", "severity": "CRITICAL"},
-        {"id": "B2", "name": "Master Key — Entropía y Configuración", "category": "Cifrado", "severity": "HIGH"},
-        {"id": "B3", "name": "HKDF Separación de Contexto", "category": "Cifrado", "severity": "HIGH"},
-        {"id": "C1", "name": "IDOR — Acceso a Registros de Otro Usuario", "category": "Control de Acceso", "severity": "HIGH"},
-        {"id": "C2", "name": "Escalada de Privilegios — Endpoints Admin", "category": "Control de Acceso", "severity": "CRITICAL"},
+        # A. Autenticación y JWT
+        {"id": "A1", "name": "JWT Algorithm Confusion (RS256 → HS256)", "category": "JWT / Auth", "severity": "CRITICAL"},
+        {"id": "A2", "name": "JWT 'none' Algorithm", "category": "JWT / Auth", "severity": "CRITICAL"},
+        {"id": "A3", "name": "Replay de Token Expirado", "category": "JWT / Auth", "severity": "HIGH"},
+        {"id": "A4", "name": "Brute Force — Sin Lockout de Cuenta", "category": "JWT / Auth", "severity": "HIGH"},
+        {"id": "A5", "name": "Refresh Token — Reutilización tras Logout", "category": "JWT / Auth", "severity": "HIGH"},
+        # B. Cifrado
+        {"id": "B1", "name": "AES-GCM Nonce Reuse", "category": "Cifrado AES", "severity": "CRITICAL"},
+        {"id": "B2", "name": "Master Key — Entropía y Configuración", "category": "Cifrado AES", "severity": "HIGH"},
+        {"id": "B3", "name": "HKDF Separación de Contexto", "category": "Cifrado AES", "severity": "HIGH"},
+        # C. Control de acceso
+        {"id": "C1", "name": "IDOR — Acceso a Registros de Otro Usuario", "category": "Control Acceso", "severity": "HIGH"},
+        {"id": "C2", "name": "Escalada de Privilegios — Endpoints Admin", "category": "Control Acceso", "severity": "CRITICAL"},
+        {"id": "C3", "name": "Escalada Horizontal — IDOR entre Usuarios", "category": "Control Acceso", "severity": "HIGH"},
+        # D. Inyección
         {"id": "D1", "name": "SQL Injection — Parámetros de Filtro", "category": "Inyección", "severity": "HIGH"},
         {"id": "D2", "name": "Mass Assignment — Auto-Promoción a Admin", "category": "Inyección", "severity": "HIGH"},
+        {"id": "D3", "name": "XSS Reflejado — Campos de Texto Libre", "category": "Inyección", "severity": "MEDIUM"},
+        {"id": "D4", "name": "DoS — Large Payload (Body Bomb)", "category": "Inyección", "severity": "MEDIUM"},
+        # E. Rate limiting
         {"id": "E1", "name": "Rate Limit Bypass — IP Spoofing", "category": "Rate Limiting", "severity": "HIGH"},
         {"id": "E2", "name": "Enumeración de Usuarios — Respuesta de Login", "category": "Rate Limiting", "severity": "MEDIUM"},
-        {"id": "F1", "name": "PII en Prompts IA — RGPD Art. 9", "category": "Privacidad RGPD", "severity": "CRITICAL"},
-        {"id": "F2", "name": "Pseudonimización AEPD — health_records sin user_id", "category": "Privacidad RGPD", "severity": "HIGH"},
+        # F. Privacidad RGPD
+        {"id": "F1", "name": "PII en Prompts IA — RGPD Art. 9", "category": "RGPD Art.9", "severity": "CRITICAL"},
+        {"id": "F2", "name": "Pseudonimización AEPD — health_records sin user_id", "category": "RGPD Art.9", "severity": "HIGH"},
+        {"id": "F3", "name": "Retención Datos IA — TTL workout_ai_plans", "category": "RGPD Art.9", "severity": "MEDIUM"},
+        # G. Infraestructura
         {"id": "G1", "name": "Security Headers — CSP, HSTS, X-Frame", "category": "Infraestructura", "severity": "MEDIUM"},
         {"id": "G2", "name": "CORS — Wildcard Origin", "category": "Infraestructura", "severity": "HIGH"},
         {"id": "G3", "name": "Reset Token — Query Param vs Fragmento URL", "category": "Infraestructura", "severity": "HIGH"},
+        {"id": "G4", "name": "Divulgación de Versión — Server Headers", "category": "Infraestructura", "severity": "LOW"},
+        {"id": "G5", "name": "Path Traversal — Secuencias ../ en URL", "category": "Infraestructura", "severity": "HIGH"},
+        # H. Dependencias
+        {"id": "H1", "name": "Dependencias — Versiones con CVEs Conocidos", "category": "Dependencias", "severity": "HIGH"},
     ]

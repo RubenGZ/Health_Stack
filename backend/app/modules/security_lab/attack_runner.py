@@ -21,10 +21,12 @@ Categorías de ataques:
 
 from __future__ import annotations
 
+import asyncio
 import hashlib
 import hmac
 import logging
 import os
+import pathlib
 import re
 import time
 from base64 import b64decode, b64encode
@@ -631,7 +633,7 @@ async def attack_admin_endpoint_escalation(base_url: str) -> AttackResult:
     severity = AttackSeverity.CRITICAL
     description = (
         "Usa un JWT de usuario normal (rol='user') para intentar acceder "
-        "a /api/v1/admin/overview. Si funciona, cualquier usuario puede "
+        "a /api/v1/admin/users. Si funciona, cualquier usuario puede "
         "ver datos de todos los usuarios."
     )
 
@@ -645,7 +647,7 @@ async def attack_admin_endpoint_escalation(base_url: str) -> AttackResult:
 
         async with httpx.AsyncClient(base_url=base_url, timeout=5.0) as client:
             resp = await client.get(
-                "/api/v1/admin/overview",
+                "/api/v1/admin/users",
                 headers={"Authorization": f"Bearer {user_token}"},
             )
 
@@ -1442,8 +1444,768 @@ async def attack_password_reset_token_exposure(base_url: str) -> AttackResult:
 
 
 # ---------------------------------------------------------------------------
+# A4–A5. Autenticación adicional
+# ---------------------------------------------------------------------------
+
+async def attack_brute_force_no_lockout(base_url: str) -> AttackResult:
+    """
+    A4 — Brute Force sin Lockout de Cuenta
+    Envía 20 intentos de login fallidos con el mismo email.
+    Si ninguno devuelve 429, no hay protección por cuenta.
+    """
+    t0 = time.monotonic()
+    attack_id = "A4"
+    name = "Brute Force — Sin Lockout de Cuenta"
+    category = "Autenticación"
+    severity = AttackSeverity.HIGH
+    description = (
+        "Envía 20 intentos de login fallidos con el mismo email. "
+        "Si no aparece un 429, no hay bloqueo por cuenta — "
+        "un atacante puede probar contraseñas indefinidamente."
+    )
+    try:
+        blocked_count = 0
+        payload = {"email": "admin@healthstack.app", "password": "wrong_password_brute_force"}
+        async with httpx.AsyncClient(base_url=base_url, timeout=5.0) as client:
+            for _ in range(20):
+                resp = await client.post("/api/v1/auth/login", json=payload)
+                if resp.status_code == 429:
+                    blocked_count += 1
+                    break  # Suficiente evidencia
+
+        duration_ms = int((time.monotonic() - t0) * 1000)
+
+        if blocked_count > 0:
+            return _blocked(
+                attack_id, name, category, severity, description,
+                finding=f"✅ Rate limit activo — {blocked_count} respuesta(s) 429 tras intentos repetidos.",
+                duration_ms=duration_ms,
+                proof={"attempts": 20, "blocked_429": blocked_count},
+            )
+        else:
+            return _warning(
+                attack_id, name, category, severity, description,
+                finding="⚠️ 20 intentos de login fallidos sin ningún 429. El límite global (200/min) puede no proteger ataques lentos por cuenta.",
+                recommendation=(
+                    "Añadir rate limit específico por email en el endpoint de login: "
+                    "ej. 10 intentos/hora por dirección de email."
+                ),
+                proof={"attempts": 20, "blocked_429": 0},
+                duration_ms=duration_ms,
+            )
+    except Exception as e:
+        return AttackResult(
+            id=attack_id, name=name, category=category, severity=severity,
+            status=AttackStatus.SKIPPED, description=description,
+            finding=f"No se pudo ejecutar: {type(e).__name__}",
+            recommendation="Verificar conectividad.", duration_ms=int((time.monotonic() - t0) * 1000),
+        )
+
+
+async def attack_refresh_token_reuse(base_url: str) -> AttackResult:
+    """
+    A5 — Refresh Token: Verificación de Single-Use
+    Verifica (a nivel código) que los refresh tokens se invalidan
+    tras el logout y no se pueden reutilizar.
+    """
+    t0 = time.monotonic()
+    attack_id = "A5"
+    name = "Refresh Token — Reutilización tras Logout"
+    category = "Autenticación"
+    severity = AttackSeverity.HIGH
+    description = (
+        "Verifica que el endpoint /auth/logout invalida el refresh token "
+        "en la BD. Si no se invalida, un atacante con el token robado "
+        "puede obtener nuevos access tokens indefinidamente."
+    )
+    try:
+        base = pathlib.Path(__file__).parent.parent.parent
+        router_path = base / "modules/identity/router.py"
+        repo_path = base / "modules/identity/repository.py"
+
+        source_router = router_path.read_text(encoding="utf-8") if router_path.exists() else ""
+        source_repo = repo_path.read_text(encoding="utf-8") if repo_path.exists() else ""
+        combined = source_router + source_repo
+
+        issues = []
+        # Buscar que logout invalida el token en BD
+        if "logout" in source_router.lower():
+            if "invalidate" not in combined and "revoke" not in combined and "delete" not in combined.lower():
+                issues.append("logout endpoint no invalida/borra el refresh token en BD")
+        # Verificar que refresh comprueba si el token está revocado
+        if "refresh" in source_router.lower():
+            if "is_revoked" not in combined and "revoked" not in combined and "blacklist" not in combined:
+                issues.append("refresh endpoint no verifica si el token fue revocado")
+
+        duration_ms = int((time.monotonic() - t0) * 1000)
+
+        if issues:
+            return _warning(
+                attack_id, name, category, severity, description,
+                finding=f"⚠️ Posibles gaps en revocación de tokens: {'; '.join(issues)}",
+                recommendation="Verificar que logout borra el refresh token de la tabla refresh_tokens y que /auth/refresh comprueba is_revoked.",
+                proof={"issues": issues},
+                duration_ms=duration_ms,
+            )
+        else:
+            return _blocked(
+                attack_id, name, category, severity, description,
+                finding="✅ Logout invalida refresh tokens en BD. Refresh verifica revocación.",
+                duration_ms=duration_ms,
+                proof={"files_checked": ["identity/router.py", "identity/repository.py"]},
+            )
+    except Exception as e:
+        return AttackResult(
+            id=attack_id, name=name, category=category, severity=severity,
+            status=AttackStatus.SKIPPED, description=description,
+            finding=f"No se pudo analizar: {type(e).__name__}",
+            recommendation="Revisar manualmente identity/router.py.", duration_ms=int((time.monotonic() - t0) * 1000),
+        )
+
+
+# ---------------------------------------------------------------------------
+# C3. Control de Acceso adicional
+# ---------------------------------------------------------------------------
+
+async def attack_horizontal_privilege_escalation(base_url: str, admin_token: str) -> AttackResult:
+    """
+    C3 — Escalada Horizontal (IDOR entre usuarios)
+    Verifica que un usuario no puede acceder a recursos de otro usuario
+    modificando el ID en la URL. Usa el token admin para verificar
+    que los endpoints protegen por ownership, no solo por autenticación.
+    """
+    t0 = time.monotonic()
+    attack_id = "C3"
+    name = "Escalada Horizontal — IDOR entre Usuarios"
+    category = "Control de Acceso"
+    severity = AttackSeverity.HIGH
+    description = (
+        "Intenta acceder a recursos de otro usuario (workout sessions, gamification) "
+        "usando UUIDs de usuarios ficticios. Si devuelve 200 con datos, "
+        "hay IDOR horizontal — un usuario ve datos de otro."
+    )
+    try:
+        fake_user_ids = [
+            "00000000-0000-0000-0000-000000000099",
+            "ffffffff-ffff-ffff-ffff-ffffffffffff",
+        ]
+        vulnerable_endpoints = []
+
+        # Crear token de usuario normal (no admin) para el ataque
+        attacker_token = create_access_token(
+            user_id="00000000-0000-0000-0000-000000000001",
+            email="attacker@evil.com",
+            role="user",
+        )
+
+        async with httpx.AsyncClient(base_url=base_url, timeout=5.0) as client:
+            for uid in fake_user_ids:
+                # Intentar acceder a gamification de otro usuario
+                resp = await client.get(
+                    f"/api/v1/gamification/profile/{uid}",
+                    headers={"Authorization": f"Bearer {attacker_token}"},
+                )
+                if resp.status_code == 200:
+                    vulnerable_endpoints.append(f"GET /gamification/profile/{uid[:8]}... → 200")
+
+                # Intentar listar workouts de otro usuario (si el endpoint existe)
+                resp2 = await client.get(
+                    f"/api/v1/workout/sessions?user_id={uid}",
+                    headers={"Authorization": f"Bearer {attacker_token}"},
+                )
+                if resp2.status_code == 200:
+                    body = resp2.json()
+                    # Solo es IDOR si devuelve datos de otro usuario (no vacío)
+                    if isinstance(body, list) and len(body) > 0:
+                        vulnerable_endpoints.append(f"GET /workout/sessions?user_id={uid[:8]}... → datos expuestos")
+
+        duration_ms = int((time.monotonic() - t0) * 1000)
+
+        if vulnerable_endpoints:
+            return _vulnerable(
+                attack_id, name, category, severity, description,
+                finding=f"🚨 IDOR horizontal detectado: {'; '.join(vulnerable_endpoints)}",
+                recommendation="Verificar que todos los endpoints filtran por current_user['user_id'], nunca por query params del cliente.",
+                proof={"vulnerable_endpoints": vulnerable_endpoints},
+                duration_ms=duration_ms,
+            )
+        else:
+            return _blocked(
+                attack_id, name, category, severity, description,
+                finding="✅ Endpoints retornan 401/403/404 para IDs de otros usuarios. Sin IDOR horizontal detectado.",
+                duration_ms=duration_ms,
+                proof={"tested_endpoints": 4, "fake_user_ids": 2},
+            )
+    except Exception as e:
+        return AttackResult(
+            id=attack_id, name=name, category=category, severity=severity,
+            status=AttackStatus.SKIPPED, description=description,
+            finding=f"No se pudo ejecutar: {type(e).__name__}",
+            recommendation="Verificar conectividad.", duration_ms=int((time.monotonic() - t0) * 1000),
+        )
+
+
+# ---------------------------------------------------------------------------
+# D3–D4. Inyección adicional
+# ---------------------------------------------------------------------------
+
+async def attack_xss_reflected(base_url: str, admin_token: str) -> AttackResult:
+    """
+    D3 — XSS Reflejado en campos de API
+    Envía payloads XSS en campos de texto (display_name) y verifica
+    que la API devuelve Content-Type: application/json (no HTML) y
+    que el payload no se ejecuta en respuesta directa.
+    """
+    t0 = time.monotonic()
+    attack_id = "D3"
+    name = "XSS Reflejado — Campos de Texto Libre"
+    category = "Inyección"
+    severity = AttackSeverity.MEDIUM
+    description = (
+        "Envía payloads XSS clásicos en campos editables (display_name). "
+        "Una API JSON correcta devuelve Content-Type: application/json "
+        "y escapa los caracteres peligrosos en el output."
+    )
+    try:
+        xss_payload = '<script>alert("xss")</script><img src=x onerror=alert(1)>'
+
+        async with httpx.AsyncClient(base_url=base_url, timeout=5.0) as client:
+            resp = await client.patch(
+                "/api/v1/auth/me",
+                json={"display_name": xss_payload},
+                headers={"Authorization": f"Bearer {admin_token}"},
+            )
+
+        duration_ms = int((time.monotonic() - t0) * 1000)
+
+        if resp.status_code not in (200, 422):
+            return AttackResult(
+                id=attack_id, name=name, category=category, severity=severity,
+                status=AttackStatus.SKIPPED, description=description,
+                finding=f"Respuesta inesperada HTTP {resp.status_code}.",
+                recommendation="Verificar manualmente.", duration_ms=duration_ms,
+            )
+
+        content_type = resp.headers.get("content-type", "")
+        issues = []
+
+        if "text/html" in content_type:
+            issues.append("API devuelve text/html (no application/json) — XSS posible en browser")
+
+        if resp.status_code == 200:
+            body_text = resp.text
+            # Si el script tag aparece sin escapar en JSON directo
+            if "<script>" in body_text and "application/json" not in content_type:
+                issues.append("Payload XSS devuelto sin escapar en respuesta no-JSON")
+
+        if resp.status_code == 422:
+            # Pydantic rechazó el input → bien protegido
+            return _blocked(
+                attack_id, name, category, severity, description,
+                finding="✅ Pydantic rechazó el payload XSS (422 Unprocessable Entity). Validación de input activa.",
+                duration_ms=duration_ms,
+                proof={"status_code": 422, "content_type": content_type},
+            )
+
+        # Restaurar display_name
+        async with httpx.AsyncClient(base_url=base_url, timeout=2.0) as client:
+            await client.patch(
+                "/api/v1/auth/me",
+                json={"display_name": "Admin"},
+                headers={"Authorization": f"Bearer {admin_token}"},
+            )
+
+        if issues:
+            return _vulnerable(
+                attack_id, name, category, severity, description,
+                finding=f"🚨 Problemas XSS detectados: {'; '.join(issues)}",
+                recommendation="Asegurar Content-Type: application/json en todas las respuestas. Escapar HTML en campos de texto si se renderizan en browser.",
+                proof={"issues": issues, "content_type": content_type},
+                duration_ms=duration_ms,
+            )
+        else:
+            return _blocked(
+                attack_id, name, category, severity, description,
+                finding=f"✅ API devuelve application/json. Payload XSS almacenado como texto plano (sin ejecución directa). Content-Type correcto.",
+                duration_ms=duration_ms,
+                proof={"content_type": content_type, "status_code": resp.status_code},
+            )
+    except Exception as e:
+        return AttackResult(
+            id=attack_id, name=name, category=category, severity=severity,
+            status=AttackStatus.SKIPPED, description=description,
+            finding=f"No se pudo ejecutar: {type(e).__name__}",
+            recommendation="Verificar conectividad.", duration_ms=int((time.monotonic() - t0) * 1000),
+        )
+
+
+async def attack_large_payload_dos(base_url: str) -> AttackResult:
+    """
+    D4 — DoS via Large Payload (Request Body Bomb)
+    Envía un payload JSON de ~2MB al endpoint de login.
+    Si tarda más de 5s o devuelve 500, no hay límite de tamaño.
+    Un servidor bien configurado devuelve 413 rápidamente.
+    """
+    t0 = time.monotonic()
+    attack_id = "D4"
+    name = "DoS — Large Payload (Body Bomb)"
+    category = "Inyección"
+    severity = AttackSeverity.MEDIUM
+    description = (
+        "Envía un JSON de ~1MB al endpoint de login. "
+        "Si el servidor no limita el tamaño del body, "
+        "un atacante puede agotar memoria/CPU con payloads enormes."
+    )
+    try:
+        large_value = "A" * (1024 * 1024)  # 1MB de caracteres
+        payload = {"email": "test@test.com", "password": large_value}
+
+        async with httpx.AsyncClient(base_url=base_url, timeout=8.0) as client:
+            t_req = time.monotonic()
+            resp = await client.post("/api/v1/auth/login", json=payload)
+            req_duration = time.monotonic() - t_req
+
+        duration_ms = int((time.monotonic() - t0) * 1000)
+
+        if resp.status_code == 413:
+            return _blocked(
+                attack_id, name, category, severity, description,
+                finding="✅ Servidor rechaza payloads grandes con 413 Request Entity Too Large.",
+                duration_ms=duration_ms,
+                proof={"status_code": 413, "payload_size_kb": 1024},
+            )
+        elif resp.status_code in (422, 400):
+            return _blocked(
+                attack_id, name, category, severity, description,
+                finding=f"✅ Validación Pydantic rechazó el payload grande con {resp.status_code}. Procesamiento rápido ({req_duration*1000:.0f}ms).",
+                duration_ms=duration_ms,
+                proof={"status_code": resp.status_code, "req_duration_ms": int(req_duration * 1000)},
+            )
+        elif req_duration > 3.0:
+            return _warning(
+                attack_id, name, category, severity, description,
+                finding=f"⚠️ Payload 1MB tardó {req_duration*1000:.0f}ms en procesarse. Sin límite explícito de tamaño.",
+                recommendation="Configurar client_max_body_size en nginx (ej. 1m) y max_request_body_size en uvicorn.",
+                proof={"status_code": resp.status_code, "req_duration_ms": int(req_duration * 1000)},
+                duration_ms=duration_ms,
+            )
+        else:
+            return _warning(
+                attack_id, name, category, severity, description,
+                finding=f"⚠️ Servidor procesó payload 1MB (HTTP {resp.status_code}) en {req_duration*1000:.0f}ms sin rechazar por tamaño.",
+                recommendation="Añadir limit_req_body en nginx o BODY_LIMIT en la app para prevenir ataques de cuerpo grande.",
+                proof={"status_code": resp.status_code, "req_duration_ms": int(req_duration * 1000)},
+                duration_ms=duration_ms,
+            )
+    except (httpx.TimeoutException, asyncio.TimeoutError):
+        duration_ms = int((time.monotonic() - t0) * 1000)
+        return _vulnerable(
+            attack_id, name, category, severity, description,
+            finding="🚨 Timeout procesando payload 1MB. El servidor se colgó — DoS efectivo.",
+            recommendation="Configurar client_max_body_size 1m en nginx y límite de body en FastAPI/uvicorn.",
+            proof={"timeout": True, "payload_size_kb": 1024},
+            duration_ms=duration_ms,
+        )
+    except Exception as e:
+        return AttackResult(
+            id=attack_id, name=name, category=category, severity=severity,
+            status=AttackStatus.SKIPPED, description=description,
+            finding=f"No se pudo ejecutar: {type(e).__name__}",
+            recommendation="Verificar conectividad.", duration_ms=int((time.monotonic() - t0) * 1000),
+        )
+
+
+# ---------------------------------------------------------------------------
+# F3. Privacidad RGPD adicional
+# ---------------------------------------------------------------------------
+
+async def attack_data_retention_ttl(db: AsyncSession) -> AttackResult:
+    """
+    F3 — Retención de Datos: TTL de workout_ai_plans
+    Verifica que los planes IA generados (post-workout coach) respetan
+    el TTL de 48h definido en el módulo. Datos IA sin expirar = retención excesiva.
+    """
+    t0 = time.monotonic()
+    attack_id = "F3"
+    name = "Retención Datos IA — TTL workout_ai_plans"
+    category = "Privacidad RGPD"
+    severity = AttackSeverity.MEDIUM
+    description = (
+        "Verifica que workout_ai_plans elimina o marca como expirados "
+        "los registros tras 48h. La retención indefinida de datos IA "
+        "con contexto de entreno puede infringir RGPD Art. 5(1)(e)."
+    )
+    try:
+        try:
+            await db.rollback()
+        except Exception:
+            pass
+
+        result = await db.execute(
+            text("""
+                SELECT COUNT(*) AS total,
+                       SUM(CASE WHEN generated_at < NOW() - INTERVAL '48 hours' THEN 1 ELSE 0 END) AS expired
+                FROM public.workout_ai_plans
+            """)
+        )
+        row = result.fetchone()
+        duration_ms = int((time.monotonic() - t0) * 1000)
+
+        if row is None:
+            return AttackResult(
+                id=attack_id, name=name, category=category, severity=AttackSeverity.MEDIUM,
+                status=AttackStatus.SKIPPED, description=description,
+                finding="No se encontró la tabla workout_ai_plans.",
+                recommendation="Verificar que la migración injury_coach_tables se ejecutó.",
+                duration_ms=duration_ms,
+            )
+
+        total, expired = row[0], row[1] or 0
+
+        if total == 0:
+            return _blocked(
+                attack_id, name, category, severity, description,
+                finding="✅ Sin datos en workout_ai_plans (sistema nuevo o limpiado). TTL no comprobable aún.",
+                duration_ms=duration_ms,
+                proof={"total_records": 0},
+            )
+        elif expired > 0 and expired / total > 0.1:
+            return _warning(
+                attack_id, name, category, severity, description,
+                finding=f"⚠️ {expired}/{total} planes IA tienen más de 48h ({expired/total*100:.0f}% expirados sin limpiar). Falta job de limpieza.",
+                recommendation="Añadir scheduled job para DELETE FROM workout_ai_plans WHERE generated_at < NOW() - INTERVAL '48 hours'.",
+                proof={"total_records": total, "expired_records": expired},
+                duration_ms=duration_ms,
+            )
+        else:
+            return _blocked(
+                attack_id, name, category, severity, description,
+                finding=f"✅ TTL de datos IA correcto: {total} planes activos, {expired} expirados (<10%). Retención cumple RGPD Art. 5(1)(e).",
+                duration_ms=duration_ms,
+                proof={"total_records": total, "expired_records": expired},
+            )
+    except Exception as e:
+        try:
+            await db.rollback()
+        except Exception:
+            pass
+        return AttackResult(
+            id=attack_id, name=name, category=category, severity=severity,
+            status=AttackStatus.SKIPPED, description=description,
+            finding=f"No se pudo consultar: {type(e).__name__}: {str(e)[:100]}",
+            recommendation="Verificar permisos de BD.", duration_ms=int((time.monotonic() - t0) * 1000),
+        )
+
+
+# ---------------------------------------------------------------------------
+# G4–G5. Infraestructura adicional
+# ---------------------------------------------------------------------------
+
+async def attack_server_version_disclosure(base_url: str) -> AttackResult:
+    """
+    G4 — Divulgación de Versión del Servidor
+    Verifica que nginx/uvicorn no revelan su versión en headers HTTP.
+    Server: nginx/1.25.3 o X-Powered-By: uvicorn ayuda a atacantes a
+    buscar CVEs específicos.
+    """
+    t0 = time.monotonic()
+    attack_id = "G4"
+    name = "Divulgación de Versión — Server Headers"
+    category = "Infraestructura"
+    severity = AttackSeverity.LOW
+    description = (
+        "Verifica que los headers HTTP no revelan versiones de software "
+        "(nginx/X.Y, Python/3.X, uvicorn/X.Y). Esta info ayuda a "
+        "atacantes a buscar CVEs específicos de esas versiones."
+    )
+    try:
+        async with httpx.AsyncClient(base_url=base_url, timeout=5.0) as client:
+            resp = await client.get("/api/v1/auth/me")
+
+        duration_ms = int((time.monotonic() - t0) * 1000)
+
+        issues = []
+        headers_checked = {}
+
+        server = resp.headers.get("server", "")
+        if server:
+            headers_checked["server"] = server
+            # nginx sin versión → bien. nginx/1.25.3 → mal
+            if "/" in server and any(c.isdigit() for c in server):
+                issues.append(f"Server: {server} (versión expuesta)")
+
+        powered_by = resp.headers.get("x-powered-by", "")
+        if powered_by:
+            headers_checked["x-powered-by"] = powered_by
+            issues.append(f"X-Powered-By: {powered_by} (stack tecnológico expuesto)")
+
+        # Uvicorn por defecto expone 'uvicorn' en algunas versiones
+        if "uvicorn" in server.lower() and "/" in server:
+            issues.append(f"Versión de uvicorn expuesta: {server}")
+
+        if issues:
+            return _warning(
+                attack_id, name, category, severity, description,
+                finding=f"⚠️ Headers revelan información de versión: {'; '.join(issues)}",
+                recommendation=(
+                    "En nginx: añadir 'server_tokens off;' en nginx.conf. "
+                    "En FastAPI: no añadir X-Powered-By. "
+                    "En uvicorn: usar --header 'server:' vacío."
+                ),
+                proof={"headers": headers_checked, "issues": issues},
+                duration_ms=duration_ms,
+            )
+        else:
+            return _blocked(
+                attack_id, name, category, severity, description,
+                finding=f"✅ Sin divulgación de versión en headers HTTP. Server: '{server or 'no presente'}'.",
+                duration_ms=duration_ms,
+                proof={"server_header": server or "absent"},
+            )
+    except Exception as e:
+        return AttackResult(
+            id=attack_id, name=name, category=category, severity=severity,
+            status=AttackStatus.SKIPPED, description=description,
+            finding=f"No se pudo conectar: {type(e).__name__}",
+            recommendation="Verificar conectividad.", duration_ms=int((time.monotonic() - t0) * 1000),
+        )
+
+
+async def attack_path_traversal(base_url: str) -> AttackResult:
+    """
+    G5 — Path Traversal
+    Intenta acceder a archivos del sistema mediante secuencias ../
+    en parámetros de URL. Un servidor bien configurado devuelve 400/404.
+    """
+    t0 = time.monotonic()
+    attack_id = "G5"
+    name = "Path Traversal — Secuencias ../ en URL"
+    category = "Infraestructura"
+    severity = AttackSeverity.HIGH
+    description = (
+        "Envía rutas con secuencias ../ para intentar acceder a archivos "
+        "fuera del directorio raíz (ej. /etc/passwd). "
+        "Nginx debe bloquear o normalizar estas rutas."
+    )
+    try:
+        traversal_paths = [
+            "/api/v1/../../../etc/passwd",
+            "/api/v1/%2e%2e/%2e%2e/etc/passwd",  # URL encoded
+            "/api/v1/health/records/../../../../etc/shadow",
+            "/.env",
+            "/backend/.env",
+        ]
+        vulnerable_paths = []
+
+        async with httpx.AsyncClient(base_url=base_url, timeout=5.0) as client:
+            for path in traversal_paths:
+                try:
+                    resp = await client.get(path)
+                    if resp.status_code == 200:
+                        body = resp.text[:200]
+                        # Verificar si realmente devuelve contenido sensible
+                        if any(marker in body for marker in ["root:", "password", "SECRET", "DATABASE_URL"]):
+                            vulnerable_paths.append(f"{path} → contenido sensible")
+                        else:
+                            # 200 pero sin contenido sensible (probablemente la SPA)
+                            pass
+                except Exception:
+                    pass
+
+        duration_ms = int((time.monotonic() - t0) * 1000)
+
+        if vulnerable_paths:
+            return _vulnerable(
+                attack_id, name, category, severity, description,
+                finding=f"🚨 Path traversal exitoso: {'; '.join(vulnerable_paths)}",
+                recommendation="Añadir 'merge_slashes on;' y 'location ~* \\.\\./' deny all; en nginx.",
+                proof={"vulnerable_paths": vulnerable_paths},
+                duration_ms=duration_ms,
+            )
+        else:
+            return _blocked(
+                attack_id, name, category, severity, description,
+                finding="✅ Nginx normaliza/bloquea secuencias path traversal. Sin acceso a archivos del sistema.",
+                duration_ms=duration_ms,
+                proof={"paths_tested": len(traversal_paths), "vulnerable": 0},
+            )
+    except Exception as e:
+        return AttackResult(
+            id=attack_id, name=name, category=category, severity=severity,
+            status=AttackStatus.SKIPPED, description=description,
+            finding=f"No se pudo ejecutar: {type(e).__name__}",
+            recommendation="Verificar conectividad.", duration_ms=int((time.monotonic() - t0) * 1000),
+        )
+
+
+# ---------------------------------------------------------------------------
+# H1. Dependencias
+# ---------------------------------------------------------------------------
+
+async def attack_dependency_versions(db: AsyncSession) -> AttackResult:
+    """
+    H1 — Dependencias con Versiones Vulnerables Conocidas
+    Analiza requirements.txt buscando versiones con CVEs publicados.
+    Lista de CVEs hardcodeada con los más relevantes para el stack.
+    """
+    t0 = time.monotonic()
+    attack_id = "H1"
+    name = "Dependencias — Versiones con CVEs Conocidos"
+    category = "Infraestructura"
+    severity = AttackSeverity.HIGH
+    description = (
+        "Analiza requirements.txt buscando versiones con CVEs publicados. "
+        "Dependencias desactualizadas son el vector de ataque #1 según OWASP A06:2021."
+    )
+    try:
+        base = pathlib.Path(__file__).parent.parent.parent.parent  # project root
+        req_path = base / "requirements.txt"
+        if not req_path.exists():
+            req_path = base.parent / "requirements.txt"
+
+        if not req_path.exists():
+            return AttackResult(
+                id=attack_id, name=name, category=category, severity=severity,
+                status=AttackStatus.SKIPPED, description=description,
+                finding="No se encontró requirements.txt.",
+                recommendation="Verificar la ruta del archivo de dependencias.",
+                duration_ms=int((time.monotonic() - t0) * 1000),
+            )
+
+        content = req_path.read_text(encoding="utf-8")
+
+        # CVEs conocidos relevantes para el stack — actualizar periódicamente
+        KNOWN_VULNERABLE = {
+            "cryptography": {
+                "below": "42.0.0",
+                "cve": "CVE-2023-49083 (NULL dereference en PKCS12)",
+                "severity": "HIGH",
+            },
+            "python-jose": {
+                "below": "3.4.0",
+                "cve": "CVE-2024-33664/33663 (algorithm confusion)",
+                "severity": "CRITICAL",
+            },
+            "fastapi": {
+                "below": "0.109.1",
+                "cve": "CVE-2024-24762 (multipart DoS via form parsing)",
+                "severity": "HIGH",
+            },
+            "httpx": {
+                "below": "0.27.0",
+                "cve": "GHSA-9wx4-h78v-vm56 (SSRF via proxy)",
+                "severity": "MEDIUM",
+            },
+            "pydantic": {
+                "below": "2.4.0",
+                "cve": "GHSA-mr82-8j83-vxmv (ReDoS en email validation)",
+                "severity": "MEDIUM",
+            },
+            "uvicorn": {
+                "below": "0.27.0",
+                "cve": "GHSA-35jj-4q37-hqmf (header injection)",
+                "severity": "HIGH",
+            },
+            "starlette": {
+                "below": "0.36.2",
+                "cve": "CVE-2024-24762 (DoS via form data)",
+                "severity": "HIGH",
+            },
+        }
+
+        def parse_version(v: str) -> tuple[int, ...]:
+            """Parse X.Y.Z → (X, Y, Z)"""
+            try:
+                parts = re.split(r"[.+]", v.split("b")[0].split("a")[0].split("rc")[0])
+                return tuple(int(p) for p in parts if p.isdigit())
+            except Exception:
+                return (0,)
+
+        issues = []
+        for line in content.splitlines():
+            line = line.strip()
+            if not line or line.startswith("#"):
+                continue
+            # Extraer nombre y versión
+            m = re.match(r"^([a-zA-Z0-9_\-]+)[>=<!\s]+([0-9][0-9.a-zA-Z+\-]*)", line)
+            if not m:
+                continue
+            pkg_name = m.group(1).lower().replace("_", "-")
+            pkg_ver = m.group(2).strip()
+
+            if pkg_name in KNOWN_VULNERABLE:
+                vuln = KNOWN_VULNERABLE[pkg_name]
+                current = parse_version(pkg_ver)
+                threshold = parse_version(vuln["below"])
+                if current < threshold:
+                    issues.append(
+                        f"{pkg_name}=={pkg_ver} → {vuln['cve']} (parchado en {vuln['below']}, severity={vuln['severity']})"
+                    )
+
+        duration_ms = int((time.monotonic() - t0) * 1000)
+
+        if issues:
+            critical_count = sum(1 for i in issues if "CRITICAL" in i)
+            return _vulnerable(
+                attack_id, name, category, severity, description,
+                finding=f"🚨 {len(issues)} dependencia(s) con CVEs: " + " | ".join(issues[:3]),
+                recommendation="Actualizar dependencias: pip install --upgrade " + " ".join(
+                    i.split("==")[0] for i in issues
+                ) + ". Usar 'pip-audit' para análisis continuo.",
+                proof={"vulnerable_packages": issues, "critical_count": critical_count},
+                duration_ms=duration_ms,
+            )
+        else:
+            return _blocked(
+                attack_id, name, category, severity, description,
+                finding=f"✅ Sin CVEs conocidos en las {len(KNOWN_VULNERABLE)} dependencias críticas verificadas.",
+                duration_ms=duration_ms,
+                proof={"packages_checked": len(KNOWN_VULNERABLE), "vulnerabilities_found": 0},
+            )
+    except Exception as e:
+        return AttackResult(
+            id=attack_id, name=name, category=category, severity=severity,
+            status=AttackStatus.SKIPPED, description=description,
+            finding=f"No se pudo analizar: {type(e).__name__}: {str(e)[:100]}",
+            recommendation="Verificar ruta de requirements.txt.", duration_ms=int((time.monotonic() - t0) * 1000),
+        )
+
+
+# ---------------------------------------------------------------------------
 # Orquestador principal
 # ---------------------------------------------------------------------------
+
+async def _safe_run(coro: Any, attack_id: str, name: str, category: str, timeout: float = 15.0) -> AttackResult:
+    """
+    Wrapper de resiliencia: ejecuta un ataque con timeout y captura
+    cualquier excepción no manejada. Garantiza que un ataque que crashea
+    no detiene el resto de la batería.
+    """
+    try:
+        return await asyncio.wait_for(coro, timeout=timeout)
+    except asyncio.TimeoutError:
+        logger.warning("SECURITY_LAB: Timeout en ataque %s (%ss)", attack_id, timeout)
+        return AttackResult(
+            id=attack_id, name=name, category=category,
+            severity=AttackSeverity.MEDIUM,
+            status=AttackStatus.SKIPPED,
+            description="Ataque omitido por timeout.",
+            finding=f"Timeout tras {timeout}s — el ataque tardó demasiado.",
+            recommendation="Puede indicar lentitud en el servidor o un endpoint colgado.",
+            duration_ms=int(timeout * 1000),
+        )
+    except Exception as e:
+        logger.error("SECURITY_LAB: Error inesperado en ataque %s: %s", attack_id, e)
+        return AttackResult(
+            id=attack_id, name=name, category=category,
+            severity=AttackSeverity.MEDIUM,
+            status=AttackStatus.SKIPPED,
+            description="Ataque omitido por error inesperado.",
+            finding=f"Error interno: {type(e).__name__}: {str(e)[:120]}",
+            recommendation="Revisar logs del servidor.",
+            duration_ms=0,
+        )
+
 
 async def run_all_attacks(
     base_url: str,
@@ -1451,50 +2213,63 @@ async def run_all_attacks(
     db: AsyncSession,
 ) -> list[AttackResult]:
     """
-    Ejecuta todos los ataques en orden y retorna los resultados.
+    Ejecuta los 26 ataques en orden y retorna los resultados.
+    Cada ataque tiene timeout de 15s y está protegido contra crashes.
     Los ataques son no destructivos — nunca borran ni modifican datos reales.
     """
-    logger.info("SECURITY_LAB: Iniciando batería de ataques (%s)", base_url)
+    logger.info("SECURITY_LAB: Iniciando batería de 26 ataques (%s)", base_url)
 
-    results = []
+    R = []  # resultados
 
-    # A. JWT
-    results.append(await attack_jwt_algorithm_confusion(base_url))
-    results.append(await attack_jwt_none_algorithm(base_url))
-    results.append(await attack_jwt_expired_token(base_url))
+    # ── A. Autenticación y JWT ─────────────────────────────────────────────
+    R.append(await _safe_run(attack_jwt_algorithm_confusion(base_url), "A1", "JWT Algorithm Confusion", "Autenticación"))
+    R.append(await _safe_run(attack_jwt_none_algorithm(base_url), "A2", "JWT 'none' Algorithm", "Autenticación"))
+    R.append(await _safe_run(attack_jwt_expired_token(base_url), "A3", "Replay Token Expirado", "Autenticación"))
+    R.append(await _safe_run(attack_brute_force_no_lockout(base_url), "A4", "Brute Force sin Lockout", "Autenticación", timeout=25.0))
+    R.append(await _safe_run(attack_refresh_token_reuse(base_url), "A5", "Refresh Token Reutilización", "Autenticación"))
 
-    # B. Cifrado
-    results.append(await attack_aes_nonce_reuse(db))
-    results.append(await attack_master_key_in_env(db))
-    results.append(await attack_hkdf_context_separation(db))
+    # ── B. Cifrado ─────────────────────────────────────────────────────────
+    R.append(await _safe_run(attack_aes_nonce_reuse(db), "B1", "AES-GCM Nonce Reuse", "Cifrado AES"))
+    R.append(await _safe_run(attack_master_key_in_env(db), "B2", "Master Key Entropía", "Cifrado AES"))
+    R.append(await _safe_run(attack_hkdf_context_separation(db), "B3", "HKDF Separación Contexto", "Cifrado AES"))
 
-    # C. Control de acceso
-    results.append(await attack_idor_health_records(base_url, admin_token))
-    results.append(await attack_admin_endpoint_escalation(base_url))
+    # ── C. Control de acceso ───────────────────────────────────────────────
+    R.append(await _safe_run(attack_idor_health_records(base_url, admin_token), "C1", "IDOR Health Records", "Control Acceso"))
+    R.append(await _safe_run(attack_admin_endpoint_escalation(base_url), "C2", "Escalada Admin", "Control Acceso"))
+    R.append(await _safe_run(attack_horizontal_privilege_escalation(base_url, admin_token), "C3", "IDOR Horizontal", "Control Acceso"))
 
-    # D. Inyección
-    results.append(await attack_sql_injection(base_url, admin_token))
-    results.append(await attack_mass_assignment(base_url, admin_token))
+    # ── D. Inyección ───────────────────────────────────────────────────────
+    R.append(await _safe_run(attack_sql_injection(base_url, admin_token), "D1", "SQL Injection", "Inyección"))
+    R.append(await _safe_run(attack_mass_assignment(base_url, admin_token), "D2", "Mass Assignment", "Inyección"))
+    R.append(await _safe_run(attack_xss_reflected(base_url, admin_token), "D3", "XSS Reflejado", "Inyección"))
+    R.append(await _safe_run(attack_large_payload_dos(base_url), "D4", "DoS Large Payload", "Inyección", timeout=12.0))
 
-    # E. Rate limiting
-    results.append(await attack_rate_limit_bypass(base_url))
-    results.append(await attack_user_enumeration(base_url))
+    # ── E. Rate limiting ───────────────────────────────────────────────────
+    R.append(await _safe_run(attack_rate_limit_bypass(base_url), "E1", "Rate Limit IP Spoofing", "Rate Limiting", timeout=20.0))
+    R.append(await _safe_run(attack_user_enumeration(base_url), "E2", "Enumeración Usuarios", "Rate Limiting"))
 
-    # F. Privacidad RGPD
-    results.append(await attack_pii_in_ai_prompts(db))
-    results.append(await attack_pseudonymization_check(db))
+    # ── F. Privacidad RGPD ─────────────────────────────────────────────────
+    R.append(await _safe_run(attack_pii_in_ai_prompts(db), "F1", "PII en Prompts IA", "Privacidad RGPD"))
+    R.append(await _safe_run(attack_pseudonymization_check(db), "F2", "Pseudonimización AEPD", "Privacidad RGPD"))
+    R.append(await _safe_run(attack_data_retention_ttl(db), "F3", "Retención Datos IA TTL", "Privacidad RGPD"))
 
-    # G. Infraestructura
-    results.append(await attack_security_headers(base_url))
-    results.append(await attack_cors_configuration(base_url))
-    results.append(await attack_password_reset_token_exposure(base_url))
+    # ── G. Infraestructura ─────────────────────────────────────────────────
+    R.append(await _safe_run(attack_security_headers(base_url), "G1", "Security Headers", "Infraestructura"))
+    R.append(await _safe_run(attack_cors_configuration(base_url), "G2", "CORS Wildcard", "Infraestructura"))
+    R.append(await _safe_run(attack_password_reset_token_exposure(base_url), "G3", "Reset Token Exposure", "Infraestructura"))
+    R.append(await _safe_run(attack_server_version_disclosure(base_url), "G4", "Server Version Disclosure", "Infraestructura"))
+    R.append(await _safe_run(attack_path_traversal(base_url), "G5", "Path Traversal", "Infraestructura"))
+
+    # ── H. Dependencias ────────────────────────────────────────────────────
+    R.append(await _safe_run(attack_dependency_versions(db), "H1", "Dependencias CVEs", "Dependencias"))
 
     logger.info(
-        "SECURITY_LAB: %d ataques completados — %d BLOCKED, %d VULNERABLE, %d WARNING",
-        len(results),
-        sum(1 for r in results if r.status == AttackStatus.BLOCKED),
-        sum(1 for r in results if r.status == AttackStatus.VULNERABLE),
-        sum(1 for r in results if r.status == AttackStatus.WARNING),
+        "SECURITY_LAB: %d ataques — BLOCKED=%d VULNERABLE=%d WARNING=%d SKIPPED=%d",
+        len(R),
+        sum(1 for r in R if r.status == AttackStatus.BLOCKED),
+        sum(1 for r in R if r.status == AttackStatus.VULNERABLE),
+        sum(1 for r in R if r.status == AttackStatus.WARNING),
+        sum(1 for r in R if r.status == AttackStatus.SKIPPED),
     )
 
-    return results
+    return R

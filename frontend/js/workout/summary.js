@@ -155,6 +155,13 @@ export function renderSummary(result) {
     return `💪 Entreno completado — ${mins} min${vStr} · ${exerciseCount} ejercicios · ${setCount} sets${prStr}`;
   };
 
+  // ── Adaptive AI coach CTA ───────────────────────────────────
+  const _sessions = JSON.parse(localStorage.getItem('hs_workout_sessions_local') || '[]');
+  const _isFirstWorkout = _sessions.length <= 1;
+  const _coachBtnLabel = _isFirstWorkout
+    ? 'Ver análisis IA de tu entreno'
+    : 'Analizar este entreno con IA';
+
   S.root.innerHTML = `
     <div class="wl-summary">
       <div class="wl-summary-header">
@@ -207,7 +214,7 @@ export function renderSummary(result) {
 
       <button class="wl-ai-coach-btn" id="btn-get-ai-coaching">
         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2a10 10 0 1 0 10 10"/><path d="M12 6v6l4 2"/><circle cx="19" cy="5" r="3" fill="currentColor" stroke="none"/></svg>
-        Obtener feedback del coach IA
+        ${_coachBtnLabel}
       </button>
 
       <div class="wl-summary-actions">

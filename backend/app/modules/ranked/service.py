@@ -43,7 +43,7 @@ async def get_or_create_profile(
         select(RankedProfile).where(
             RankedProfile.user_id == user_id,
             RankedProfile.queue == queue,
-        )
+        ).with_for_update()  # row-level lock — previene race condition en LP concurrente
     )
     profile = result.scalar_one_or_none()
     if profile:

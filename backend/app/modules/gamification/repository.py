@@ -47,7 +47,9 @@ class GamificationRepository:
         """
         uid = uuid.UUID(str(user_id)) if isinstance(user_id, str) else user_id
         result = await db.execute(
-            select(GamificationState).where(GamificationState.user_id == uid)
+            select(GamificationState)
+            .where(GamificationState.user_id == uid)
+            .with_for_update()  # row-level lock — previene race condition en XP concurrente
         )
         state = result.scalar_one_or_none()
         if state is None:

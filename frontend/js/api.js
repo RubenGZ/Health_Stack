@@ -86,9 +86,14 @@ const API = (function () {
   }
 
   function saveAuth(data) {
-    localStorage.setItem(TOKEN_KEY,   data.access_token);
-    localStorage.setItem(REFRESH_KEY, data.refresh_token);
-    localStorage.setItem(USER_KEY,    JSON.stringify(data.user));
+    try {
+      localStorage.setItem(TOKEN_KEY,   data.access_token);
+      localStorage.setItem(REFRESH_KEY, data.refresh_token);
+      localStorage.setItem(USER_KEY,    JSON.stringify(data.user));
+    } catch (e) {
+      // QuotaExceededError — storage lleno (puede ocurrir en iOS en modo incógnito)
+      console.warn('[API] saveAuth: localStorage quota exceeded, auth no persistida', e);
+    }
     _applyPlanFromUser(data.user);
     _scheduleProactiveRefresh(data.access_token); // renovar 60 s antes de que expire
     window.dispatchEvent(new Event('hs:login'));

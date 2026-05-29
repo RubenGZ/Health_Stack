@@ -123,23 +123,20 @@ async def create_challenge(
 async def list_public_gyms(
     db: AsyncSession, limit: int = 20, offset: int = 0
 ) -> list[dict]:
-    """Devuelve gyms públicos con su conteo de miembros."""
+    """Devuelve gyms públicos con su conteo de miembros.
+
+    Un solo JOIN + GROUP BY en vez del bucle N+1 anterior.
+    """
     result = await db.execute(
-        select(GymServer)
+        select(GymServer, func.count(GymMembership.id).label("member_count"))
+        .outerjoin(GymMembership, GymMembership.gym_id == GymServer.id)
         .where(GymServer.is_public.is_(True))
+        .group_by(GymServer.id)
         .order_by(GymServer.created_at.desc())
         .limit(limit)
         .offset(offset)
     )
-    gyms = result.scalars().all()
-
-    out = []
-    for gym in gyms:
-        count = (await db.execute(
-            select(func.count()).where(GymMembership.gym_id == gym.id)
-        )).scalar_one()
-        out.append({"gym": gym, "member_count": count})
-    return out
+    return [{"gym": row.GymServer, "member_count": row.member_count} for row in result.all()]
 
 
 async def leave_gym(

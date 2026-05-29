@@ -10,7 +10,7 @@ from datetime import datetime
 from uuid import UUID
 
 import json
-from typing import Any
+from typing import Any, Literal
 
 from pydantic import BaseModel, ConfigDict, Field, field_validator
 
@@ -79,11 +79,11 @@ class RoutineListResponse(BaseModel):
 class AIRoutineRequest(BaseModel):
     """Parámetros del wizard para generar rutina con IA."""
 
-    goal: str = Field(
+    goal: Literal["strength", "hypertrophy", "fat_loss", "endurance"] = Field(
         ...,
         description="Objetivo: strength | hypertrophy | fat_loss | endurance",
     )
-    level: str = Field(
+    level: Literal["beginner", "intermediate", "advanced"] = Field(
         ...,
         description="Nivel: beginner | intermediate | advanced",
     )
@@ -93,7 +93,7 @@ class AIRoutineRequest(BaseModel):
         le=6,
         description="Días de entrenamiento por semana.",
     )
-    equipment: str = Field(
+    equipment: Literal["full_gym", "home_weights", "bodyweight"] = Field(
         ...,
         description="Equipamiento: full_gym | home_weights | bodyweight",
     )
@@ -131,7 +131,7 @@ class AIRoutineResponse(BaseModel):
 # ── Injury-aware routine schemas ──────────────────────────────────────────────
 
 import uuid as _uuid
-from typing import Literal, Optional
+from typing import Optional
 
 from app.modules.rehab.schemas import BodyArea
 

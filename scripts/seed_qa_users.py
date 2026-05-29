@@ -335,6 +335,7 @@ def simulate_user(user: dict, idx: int, ingredient_ids: list[int]) -> dict:
         "display_name": user["display_name"],
         "email": user["email"],
         "password": user["password"],
+        "consent_gdpr": True,
     })
     if ok("POST /auth/register", st, body, acceptable=[200, 201, 409]):
         results["register"] = True

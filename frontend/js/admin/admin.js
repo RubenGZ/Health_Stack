@@ -58,7 +58,7 @@
     }
     if (section === 'security' && !_sectionLoaded.security) {
       // Inicializar Security Lab (renderiza la UI en section-security)
-      import('/js/admin/adminSecurity.js').then(function(mod) {
+      import('/js/admin/adminSecurity.js?v=2').then(function(mod) {
         mod.initSecurityLab();
         _sectionLoaded.security = true;
       }).catch(function(e) { console.error('adminSecurity load error:', e); });

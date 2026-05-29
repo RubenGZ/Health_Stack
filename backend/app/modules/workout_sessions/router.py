@@ -5,6 +5,7 @@ from __future__ import annotations
 import uuid
 
 from fastapi import APIRouter, Depends, HTTPException, Query, status
+from fastapi.responses import Response
 
 from app.core.security.dependencies import CurrentUser
 from app.modules.workout_sessions import repository as repo
@@ -165,6 +166,7 @@ async def post_workout_coaching(
 @router.post(
     "/post-workout-coach/dismiss",
     status_code=status.HTTP_204_NO_CONTENT,
+    response_class=Response,
     summary="Descartar plan de coaching",
     description="Marca un plan de coaching como usado/descartado.",
 )

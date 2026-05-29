@@ -267,6 +267,13 @@ export function renderSummary(result) {
                    Object.keys(JSON.parse(localStorage.getItem('hs_pr_records') || '{}')).length > 0;
     if (_recentCount === 3 && _hasPR && typeof window._sendTelemetryEvent === 'function') {
       window._sendTelemetryEvent('habito_formado', { sessions_14d: _recentCount });
+      // Awareness nudge Pro — aparece una sola vez, momento de máxima receptividad
+      if (!localStorage.getItem('hs_pro_nudge_shown') && typeof showToast === 'function') {
+        localStorage.setItem('hs_pro_nudge_shown', '1');
+        setTimeout(() => {
+          showToast('🔒 3 entrenos esta semana — cuando quieras proteger tus PRs y racha en la nube, Pro te tiene cubierto.', 'info', 6000);
+        }, 4500);
+      }
     }
   } catch (_) {}
 

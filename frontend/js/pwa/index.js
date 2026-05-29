@@ -113,8 +113,6 @@ window.PWAManager = (function () {
 
     // iOS Safari: sin beforeinstallprompt, mostramos guía manual
     if (_isIosSafari()) _showInstallBanner();
-
-    _renderSponsorBanner();
   }
 
   return { init };

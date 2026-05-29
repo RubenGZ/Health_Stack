@@ -279,10 +279,9 @@ python test_launcher.py status
 
 ## Monetización — Estado (2026-04-25)
 
-### Google AdSense ⚠️ CONFIGURAR ANTES DE PRODUCCIÓN
-IDs reales en `frontend/.env.adsense` (gitignored). Para aplicar:
-- `scripts/apply-adsense.ps1` — parchea index.html con IDs reales
-- `scripts/revert-adsense.ps1` — revierte a placeholders antes de git commit
+### Google AdSense ❌ Eliminado (2026-05-29)
+Ads removidos para beta. `SPONSOR.active = false` en `config.js`. Scripts archivados en `_archive/scripts/`.
+Si se reactivan: restaurar scripts desde `_archive/scripts/`, poner `active: true`, aplicar IDs reales desde `frontend/.env.adsense`.
 
 ### Geo-pricing — `/api/geo-price` ✅
 Módulo en `backend/app/modules/geopricing/router.py`. Endpoint público (sin JWT).
@@ -306,7 +305,7 @@ En `landing/src/components/demo.tsx` → `PLAN_OK[0]` = todas `true`.
 1. **Cloudflare Named Tunnel** — sustituir Quick Tunnel por Named Tunnel con URL estable. Requiere token en `.env.pi` como `CLOUDFLARE_TUNNEL_TOKEN`.
 2. **ALLOWED_ORIGINS** — añadir la URL estable de beta a `ALLOWED_ORIGINS` en `backend/.env` de la Pi. Ahora mismo permite cualquier origen (CORS abierto).
 3. **Subir GitHub Secrets** — ejecutar `scripts\upload-secrets-to-github.ps1` tras `gh auth login`
-4. **AdSense IDs** — rellenar `frontend/.env.adsense` con IDs reales antes de launch público
+4. ~~**AdSense**~~ — eliminado para beta (SPONSOR.active=false, scripts archivados)
 
 ### 🟡 Trabajo de código (ordenado por impacto para beta)
 5. **Tests integrations**: 0 tests para OAuth2/sync/CSV

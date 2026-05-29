@@ -207,7 +207,6 @@ const Supplements = (function () {
     // Render secciones de macro/timing inmediatamente desde config.js (no dependen de la API)
     renderMacroInfo();
     renderTimingInfo();
-    renderSponsorBanner();
 
     // Intentar cargar suplementos desde la API; si falla o tarda, usar config.js como fallback
     var _isProd = location.hostname !== 'localhost' && location.hostname !== '127.0.0.1';

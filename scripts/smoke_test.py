@@ -190,6 +190,10 @@ def test_identity() -> None:
     st, body = http("GET", "/api/v1/auth/me")
     check("GET /auth/me", "Identity", st, body, expected=200)
 
+    # PATCH me — editar display_name (añadido 2026-05-29)
+    st, body = http("PATCH", "/api/v1/auth/me", {"display_name": "SmokeTest"})
+    check("PATCH /auth/me", "Identity", st, body, expected=200)
+
     # Refresh
     if _refresh_token:
         st, body = http("POST", "/api/v1/auth/refresh",
@@ -230,6 +234,10 @@ def test_routines() -> None:
 
     st, body = http("GET", "/api/v1/routines")
     check("GET /routines", "Routines", st, body, expected=200)
+
+    # Módulo A — Injury-Aware Routine Generator (añadido 2026-05-29)
+    st, body = http("GET", "/api/v1/routines/injuries")
+    check("GET /routines/injuries", "Routines", st, body, expected=200)
 
 
 def test_community() -> None:
@@ -342,6 +350,13 @@ def test_telemetry() -> None:
     check("POST /telemetry/page-view", "Telemetry", st, body,
           acceptable=[200, 201])
 
+    # Nuevo endpoint genérico fire-and-forget (añadido 2026-05-29)
+    st, body = http("POST", "/api/v1/telemetry/event", {
+        "event": "smoke_test",
+        "data":  {},
+    }, auth=False)
+    check("POST /telemetry/event", "Telemetry", st, body, expected=200)
+
 
 def test_workout_sessions() -> None:
     print(f"\n{BOLD}[13] Workout Sessions{RESET}")
@@ -368,6 +383,14 @@ def test_workout_sessions() -> None:
         sid = session["session_id"]
         st, body = http("GET", f"/api/v1/workout/sessions/{sid}")
         check(f"GET /workout/sessions/:id", "Workout Sessions", st, body, expected=200)
+
+        # Módulo B — Post-Workout AI Coach (añadido 2026-05-29)
+        st, body = http("POST", "/api/v1/workout/post-workout-coach", {
+            "session_id": sid,
+        })
+        # 200 = coach generado o cacheado; 202 = generando async; 502/503 = IA no disponible
+        check("POST /workout/post-workout-coach", "Workout Sessions", st, body,
+              acceptable=[200, 202, 502, 503])
 
 
 def test_ranked() -> None:

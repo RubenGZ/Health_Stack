@@ -208,8 +208,15 @@ async def chat_message(
     una pill de confirmación antes de guardar.
     """
     # ── Rate limit por IP (más estricto que el global 200/min) ──────────────────
-    client_ip = request.headers.get("X-Forwarded-For", request.client.host if request.client else "unknown")
-    client_ip = client_ip.split(",")[0].strip()  # first IP from proxy chain
+    # Mismo orden de prioridad que _get_real_client_ip() en main.py:
+    # CF-Connecting-IP (Cloudflare, no spoofeable) > X-Real-IP (nginx) > X-Forwarded-For
+    # NO usar X-Forwarded-For directamente — es spoofeable por el cliente.
+    client_ip = (
+        request.headers.get("cf-connecting-ip")
+        or request.headers.get("x-real-ip")
+        or (request.headers.get("x-forwarded-for", "").split(",")[0].strip() or None)
+        or (request.client.host if request.client else "unknown")
+    )
 
     # ── Construir system prompt con instrucción de idioma ─────────────────────
     lang_instruction = _LANG_INSTRUCTIONS.get(body.language, _LANG_INSTRUCTIONS['es'])

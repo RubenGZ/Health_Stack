@@ -1038,12 +1038,27 @@ async def attack_pii_in_ai_prompts(db: AsyncSession) -> AttackResult:
                 if any(kw in line for kw in ["prompt", "f\"", "f'", ".format(", "messages"]):
                     prompt_lines.append((i + 1, line.strip()))
 
+            # Palabras que indican que la línea EXCLUYE el campo (docstrings RGPD, comentarios)
+            _negation_words = [
+                "NUNCA", "NEVER", "NO se envía", "NO contiene", "no contiene",
+                "no incluye", "NO incluye", "excluye", "Excluye", "garantía",
+                "✓ NO", "no_", "_not_", "not_include", "exclui",
+            ]
+
             for line_num, line in prompt_lines:
                 for pii_field, desc in pii_patterns:
                     if pii_field in line and not line.strip().startswith("#"):
-                        # Excluir líneas que tienen el patrón pero es para EXCLUIRLO (e.g., = "")
-                        if f'{pii_field} = ""' not in line and f'{pii_field}=""' not in line:
-                            issues.append(f"{file_rel}:{line_num} — '{pii_field}' ({desc}) en contexto de prompt")
+                        # Excluir líneas que tienen el patrón pero es para EXCLUIRLO
+                        if f'{pii_field} = ""' in line or f'{pii_field}=""' in line:
+                            continue
+                        # Excluir líneas de docstrings/comentarios que afirman la exclusión del campo
+                        if any(neg in line for neg in _negation_words):
+                            continue
+                        # Excluir líneas que son solo asignación de variable local (no construcción de prompt)
+                        stripped = line.strip()
+                        if stripped.startswith(pii_field + " =") or stripped.startswith("# "):
+                            continue
+                        issues.append(f"{file_rel}:{line_num} — '{pii_field}' ({desc}) en contexto de prompt")
 
         if issues:
             return _vulnerable(

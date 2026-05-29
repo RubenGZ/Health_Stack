@@ -29,6 +29,29 @@ services:
       - internal
 
   # ---------------------------------------------------------------------------
+  # Redis — Caché L1 con contraseña y persistencia AOF
+  # ---------------------------------------------------------------------------
+  redis:
+    image: redis:7-alpine
+    container_name: healthstack_redis
+    restart: unless-stopped
+    command: >
+      redis-server
+      --requirepass ${REDIS_PASSWORD}
+      --appendonly yes
+      --maxmemory 128mb
+      --maxmemory-policy allkeys-lru
+    volumes:
+      - redis_data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "-a", "${REDIS_PASSWORD}", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - internal
+
+  # ---------------------------------------------------------------------------
   # FastAPI Backend — compilado localmente en la Pi
   # ---------------------------------------------------------------------------
   backend:
@@ -44,8 +67,12 @@ services:
       DEBUG: "false"
       DATABASE_URL: postgresql+asyncpg://postgres:${POSTGRES_PASSWORD}@postgres:5432/healthstack
       DATABASE_SYNC_URL: postgresql://postgres:${POSTGRES_PASSWORD}@postgres:5432/healthstack
+      REDIS_URL: redis://:${REDIS_PASSWORD}@redis:6379/0
+      APP_FRONTEND_URL: http://nginx
     depends_on:
       postgres:
+        condition: service_healthy
+      redis:
         condition: service_healthy
     command: >
       sh -c "
@@ -105,3 +132,5 @@ networks:
 volumes:
   postgres_data:
     name: healthstack_pi_postgres
+  redis_data:
+    name: healthstack_pi_redis

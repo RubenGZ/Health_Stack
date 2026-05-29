@@ -431,8 +431,138 @@ window.Dashboard = (function () {
       initUserChip();
       updateDashboardStats();
       renderProgressInsight();
+      renderQuickStart();
     });
-    window.addEventListener('hs:tdee-calculated', () => updateDashboardStats());
+    window.addEventListener('hs:tdee-calculated', () => {
+      updateDashboardStats();
+      renderQuickStart();
+    });
+    window.addEventListener('hs:workout-session-changed', () => renderQuickStart());
+  }
+
+  // ── Quick-start checklist ─────────────────────────────────────
+  function renderQuickStart() {
+    const container = document.getElementById('dashboard-quickstart');
+    if (!container) return;
+
+    // Resolve step states — prefer live APIs, fall back to localStorage
+    function _hasWeight() {
+      if (typeof WeightTracker !== 'undefined' && WeightTracker.getAll) {
+        return WeightTracker.getAll().length > 0;
+      }
+      try {
+        const raw = localStorage.getItem('hs_weight_entries');
+        return !!(raw && JSON.parse(raw).length > 0);
+      } catch (_) { return false; }
+    }
+
+    function _hasTDEE() {
+      const raw = localStorage.getItem('hs_last_tdee');
+      if (!raw || raw === 'NaN' || raw === 'undefined') return false;
+      return !!parseFloat(raw);
+    }
+
+    function _hasWorkout() {
+      // Try workout state module
+      if (window.WorkoutState && typeof window.WorkoutState.getLocalSessions === 'function') {
+        return window.WorkoutState.getLocalSessions().length > 0;
+      }
+      // Fall back to localStorage keys used by the workout module
+      try {
+        const raw = localStorage.getItem('hs_workout_sessions');
+        if (raw) { const arr = JSON.parse(raw); return Array.isArray(arr) && arr.length > 0; }
+      } catch (_) {}
+      try {
+        const raw = localStorage.getItem('hs_sessions');
+        if (raw) { const arr = JSON.parse(raw); return Array.isArray(arr) && arr.length > 0; }
+      } catch (_) {}
+      return false;
+    }
+
+    // Merge persisted state with live checks (live check can only upgrade to true)
+    let saved = {};
+    try { saved = JSON.parse(localStorage.getItem('hs_quickstart') || '{}'); } catch (_) {}
+    const state = {
+      weight:  saved.weight  || _hasWeight(),
+      tdee:    saved.tdee    || _hasTDEE(),
+      workout: saved.workout || _hasWorkout(),
+    };
+
+    // Persist any upgrades
+    localStorage.setItem('hs_quickstart', JSON.stringify(state));
+
+    // All done — fade out and remove
+    if (state.weight && state.tdee && state.workout) {
+      const existing = document.getElementById('hs-quickstart');
+      if (existing) {
+        existing.style.transition = 'opacity 300ms ease';
+        existing.style.opacity = '0';
+        setTimeout(function () { existing.remove(); }, 300);
+      }
+      container.style.display = 'none';
+      return;
+    }
+
+    const done = [state.weight, state.tdee, state.workout].filter(Boolean).length;
+
+    const steps = [
+      {
+        key:   'weight',
+        icon:  state.weight ? '✓' : '⚖️',
+        label: 'Registra tu peso',
+        nav:   'peso',
+        done:  state.weight,
+      },
+      {
+        key:   'tdee',
+        icon:  state.tdee ? '✓' : '🧮',
+        label: 'Calcula tu TDEE',
+        nav:   'nutricion',
+        done:  state.tdee,
+      },
+      {
+        key:     'workout',
+        icon:    state.workout ? '✓' : '🏋️',
+        label:   'Completa un entreno',
+        nav:     'entreno',
+        done:    state.workout,
+      },
+    ];
+
+    const stepsHTML = steps.map(function (s) {
+      const cls = s.done ? 'qs-step qs-step--done' : 'qs-step';
+      return [
+        '<div class="' + cls + '" data-step="' + s.key + '">',
+          '<span class="qs-step-icon">' + s.icon + '</span>',
+          '<span class="qs-step-label">' + s.label + '</span>',
+        '</div>',
+      ].join('');
+    }).join('');
+
+    container.innerHTML = [
+      '<div class="qs-card" id="hs-quickstart">',
+        '<div class="qs-header">',
+          '<span class="qs-title">Primeros pasos</span>',
+          '<span class="qs-progress">' + done + '/3</span>',
+        '</div>',
+        '<div class="qs-steps">',
+          stepsHTML,
+        '</div>',
+      '</div>',
+    ].join('');
+
+    // Navigation on step click
+    container.querySelectorAll('.qs-step:not(.qs-step--done)').forEach(function (el) {
+      el.addEventListener('click', function () {
+        const step = el.dataset.step;
+        const navMap = { weight: 'peso', tdee: 'nutricion', workout: 'entreno' };
+        const target = navMap[step];
+        if (target) {
+          const navItem = document.querySelector('[data-section="' + target + '"]');
+          if (navItem) navItem.click();
+        }
+      });
+    });
   }
 
   // ── First-run banner — shown when user has 0 data ─────────────
@@ -504,6 +634,7 @@ window.Dashboard = (function () {
     renderProgressInsight();
     _listenWeightUpdates();
     renderFirstRunBanner();
+    renderQuickStart();
   }
 
   function refresh() {

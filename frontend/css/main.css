@@ -7491,6 +7491,42 @@ button[class*="wl-"]:not([class*="inp"]):active {
   border-color: rgba(196,165,97,0.3);
 }
 
+/* ── Quick-start checklist ───────────────────────────────── */
+.qs-card {
+  background: var(--hs-surface, #0f0f1a);
+  border: 1px solid rgba(196,165,97,0.2);
+  border-radius: var(--hs-r-lg, 16px);
+  padding: 16px;
+  margin-bottom: 20px;
+}
+.qs-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 12px;
+}
+.qs-title { font-size: 0.875rem; font-weight: 600; color: var(--hs-text, #e2e8f0); }
+.qs-progress { font-size: 0.75rem; color: var(--hs-accent, #c4a561); font-weight: 700; }
+.qs-steps { display: flex; flex-direction: column; gap: 8px; }
+.qs-step {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 10px;
+  border-radius: var(--hs-r-sm, 8px);
+  cursor: pointer;
+  transition: background 150ms;
+  font-size: 0.825rem;
+  color: var(--hs-text-2, rgba(255,255,255,0.55));
+}
+.qs-step:hover { background: var(--hs-accent-dim, rgba(196,165,97,0.1)); }
+.qs-step--done {
+  color: var(--hs-text, #e2e8f0);
+  cursor: default;
+}
+.qs-step--done .qs-step-icon { color: var(--hs-accent, #c4a561); }
+.qs-step-icon { font-size: 1rem; width: 20px; text-align: center; flex-shrink: 0; }
+
 /* ── Config: initials avatar ─────────────────────────────── */
 .account-avatar-initials {
   width: 56px; height: 56px;

@@ -44,7 +44,7 @@ class GymPublicResponse(BaseModel):
 
 
 class JoinGymRequest(BaseModel):
-    invite_code: str | None = None
+    invite_code: str | None = Field(None, max_length=12)
     gym_id:      int | None = None
 
 

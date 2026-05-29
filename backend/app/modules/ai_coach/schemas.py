@@ -6,7 +6,7 @@ from pydantic import BaseModel, Field
 
 
 class SessionSet(BaseModel):
-    exercise: str
+    exercise: str = Field(..., max_length=100)
     weight_kg: float
     reps: int
     rpe: int | None = None

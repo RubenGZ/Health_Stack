@@ -118,6 +118,7 @@ async def my_gyms(
     return [MyGymSummary(id=g.id, name=g.name, invite_code=g.invite_code) for g in gyms]
 
 
+# Note: status_code no en decorator — FastAPI 0.111 bug workaround (ver CLAUDE.md)
 @router.delete(
     "/{gym_id}/members/me",
     summary="Abandonar gym",

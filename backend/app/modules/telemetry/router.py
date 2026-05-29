@@ -61,5 +61,5 @@ async def record_event(
                 user_hint = payload.get("sub", "auth")[:8]
         except Exception:
             pass
-    logger.info("TELEMETRY_EVENT event=%s user=%s data=%s", body.event, user_hint, body.data)
+    logger.info("TELEMETRY_EVENT event=%s user=%s", body.event, user_hint)
     return PageViewResponse()

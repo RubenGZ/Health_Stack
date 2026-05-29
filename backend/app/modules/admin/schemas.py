@@ -3,7 +3,7 @@ from __future__ import annotations
 from datetime import datetime
 from uuid import UUID
 
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 
 
 class UserAdminRow(BaseModel):
@@ -19,8 +19,8 @@ class UserAdminRow(BaseModel):
 
 
 class PatchUserRequest(BaseModel):
-    role: str | None = None        # "user" | "admin"
-    plan: str | None = None        # "free" | "pro" | "elite"
+    role: str | None = Field(None, max_length=20)   # "user" | "admin"
+    plan: str | None = Field(None, max_length=10)   # "free" | "pro" | "elite"
     is_active: bool | None = None
 
 

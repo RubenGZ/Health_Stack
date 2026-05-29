@@ -17,7 +17,7 @@ una fila por (user_id, insight_type) — sin crecer sin límite.
 
 from __future__ import annotations
 
-from datetime import datetime
+from datetime import datetime, UTC
 import uuid
 
 from sqlalchemy import DateTime, String, Text, UniqueConstraint
@@ -43,7 +43,7 @@ class AIInsightsCache(Base):
     generated_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True),
         nullable=False,
-        default=datetime.utcnow,
+        default=lambda: datetime.now(UTC),
     )
 
     __table_args__ = (

@@ -165,8 +165,6 @@ async def post_workout_coaching(
 
 @router.post(
     "/post-workout-coach/dismiss",
-    status_code=status.HTTP_204_NO_CONTENT,
-    response_class=Response,
     summary="Descartar plan de coaching",
     description="Marca un plan de coaching como usado/descartado.",
 )
@@ -174,8 +172,8 @@ async def dismiss_post_workout_plan(
     body: DismissPlanRequest,
     current_user: CurrentUser,
     db: DBSession,
-) -> None:
-    """Mark a coaching plan as used/dismissed."""
+) -> Response:
+    """Mark a coaching plan as used/dismissed. Returns 204 No Content."""
     found = await PostWorkoutRepository.mark_used(
         db=db,
         plan_id=body.plan_id,
@@ -183,6 +181,7 @@ async def dismiss_post_workout_plan(
     )
     if not found:
         raise HTTPException(status_code=404, detail="Plan no encontrado")
+    return Response(status_code=204)
 
 
 @router.get(

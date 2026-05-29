@@ -4,7 +4,7 @@ from __future__ import annotations
 
 import uuid
 
-from fastapi import APIRouter, Depends, HTTPException, Query, status
+from fastapi import APIRouter, Depends, HTTPException, Query, Request, status
 from fastapi.responses import Response
 
 from app.core.security.dependencies import CurrentUser
@@ -30,6 +30,11 @@ from app.services.ai_router.router import AIRouter
 from app.session import DBSession
 
 router = APIRouter()
+
+
+def _get_limiter():
+    from app.main import limiter
+    return limiter
 
 
 @router.post(
@@ -147,7 +152,9 @@ async def exercise_history(
     summary="Coaching AI post-entrenamiento",
     description="Genera feedback de coaching IA tras una sesión de entrenamiento.",
 )
+@_get_limiter().limit("10/minute")
 async def post_workout_coaching(
+    request: Request,
     body: PostWorkoutCoachRequest,
     current_user: CurrentUser,
     db: DBSession,

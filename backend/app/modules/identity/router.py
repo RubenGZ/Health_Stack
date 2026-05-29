@@ -527,6 +527,7 @@ class AdminUpdateUserRequest(BaseModel):
 
 @router.get(
     "/admin/users",
+    response_model=list[UserPublicResponse],
     summary="[Admin] Listar todos los usuarios",
     description="Devuelve la lista completa de usuarios. Solo accesible con rol 'admin'.",
 )
@@ -543,6 +544,7 @@ async def admin_list_users(
 
 @router.patch(
     "/admin/users/{user_id}",
+    response_model=UserPublicResponse,
     summary="[Admin] Actualizar rol o estado de un usuario",
     description=(
         "Permite al admin cambiar el rol ('user'/'admin') o activar/suspender "
@@ -596,7 +598,9 @@ async def admin_update_user(
         "está activa. La respuesta es siempre la misma para evitar user enumeration."
     ),
 )
+@_get_limiter().limit("3/hour")
 async def forgot_password(
+    request: Request,
     body: ForgotPasswordRequest,
     db: DBSession,
 ) -> ForgotPasswordResponse:
@@ -635,7 +639,9 @@ async def forgot_password(
         "contraseña y revoca todos los refresh tokens del usuario (cierre de sesiones)."
     ),
 )
+@_get_limiter().limit("5/hour")
 async def reset_password(
+    request: Request,
     body: ResetPasswordRequest,
     db: DBSession,
 ) -> ResetPasswordResponse:

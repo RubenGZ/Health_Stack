@@ -43,8 +43,13 @@ router = APIRouter()
         "Incluye placeholder del enlace de afiliado (se resuelve en frontend/js/config.js)."
     ),
 )
-async def list_supplements(db: DBSession):
-    return await NutritionService.list_supplements(db)
+async def list_supplements(
+    db: DBSession,
+    limit: int = Query(default=100, ge=1, le=500),
+    offset: int = Query(default=0, ge=0),
+):
+    results = await NutritionService.list_supplements(db)
+    return results[offset:offset + limit]
 
 
 # ── Ingredientes ──────────────────────────────────────────────────────────────
@@ -56,8 +61,13 @@ async def list_supplements(db: DBSession):
     summary="Catálogo de ingredientes",
     description="Devuelve todos los ingredientes con sus macros por 100 g.",
 )
-async def list_ingredients(db: DBSession):
-    return await NutritionService.list_ingredients(db)
+async def list_ingredients(
+    db: DBSession,
+    limit: int = Query(default=200, ge=1, le=1000),
+    offset: int = Query(default=0, ge=0),
+):
+    results = await NutritionService.list_ingredients(db)
+    return results[offset:offset + limit]
 
 
 # ── Recetas de usuario ────────────────────────────────────────────────────────

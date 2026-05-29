@@ -107,12 +107,16 @@ async def join_gym(
 async def my_gyms(
     db: DBSession,
     current_user: CurrentUser,
+    limit: int = Query(default=50, ge=1, le=200),
+    offset: int = Query(default=0, ge=0),
 ):
     user_id = uuid.UUID(current_user["user_id"])
     result = await db.execute(
         select(GymServer)
         .join(GymMembership, GymMembership.gym_id == GymServer.id)
         .where(GymMembership.user_id == user_id)
+        .limit(limit)
+        .offset(offset)
     )
     gyms = result.scalars().all()
     return [MyGymSummary(id=g.id, name=g.name, invite_code=g.invite_code) for g in gyms]

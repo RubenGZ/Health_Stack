@@ -14,7 +14,7 @@ Endpoints:
 """
 
 
-from fastapi import APIRouter, Depends, Query, status
+from fastapi import APIRouter, Depends, Query, Request, status
 
 from app.core.security.dependencies import CurrentUser
 from app.modules.routines.schemas import (
@@ -31,6 +31,11 @@ from app.services.ai_router.router import AIRouter
 from app.session import DBSession
 
 router = APIRouter()
+
+
+def _get_limiter():
+    from app.main import limiter
+    return limiter
 
 
 @router.get(
@@ -92,7 +97,9 @@ async def delete_routine(
     response_model=AIRoutineResponse,
     summary="Generar rutina personalizada con IA",
 )
+@_get_limiter().limit("5/minute")
 async def ai_generate_routine(
+    request: Request,
     body: AIRoutineRequest,
     current_user: CurrentUser,
 ):
@@ -148,7 +155,9 @@ async def delete_injury(
     response_model=AIRoutineResponse,
     summary="Generar rutina IA adaptada a lesiones crónicas",
 )
+@_get_limiter().limit("5/minute")
 async def ai_generate_injury_aware(
+    request: Request,
     body: AIRoutineRequest,
     db: DBSession,
     current_user: CurrentUser,

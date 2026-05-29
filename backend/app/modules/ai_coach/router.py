@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Depends, Request
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core.security.dependencies import get_current_user
@@ -14,8 +14,15 @@ from app.session import get_db
 router = APIRouter()
 
 
+def _get_limiter():
+    from app.main import limiter
+    return limiter
+
+
 @router.post("/set-feedback", response_model=CoachResponse)
+@_get_limiter().limit("10/minute")
 async def set_feedback(
+    request: Request,
     body: SetFeedbackRequest,
     current_user: User = Depends(get_current_user),
     db: AsyncSession = Depends(get_db),

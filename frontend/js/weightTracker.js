@@ -402,13 +402,14 @@ const WeightTracker = (function () {
         changeClass = diff > 0 ? 'change-positive' : diff < 0 ? 'change-negative' : 'change-neutral';
       }
 
+      const _escNote = s => String(s ?? '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
       return `
         <tr>
           <td>${fmtDateLong(entry.date)}</td>
           <td><strong>${entry.weight.toFixed(1)} kg</strong></td>
           <td class="${changeClass}">${changeTxt}</td>
           <td style="color:var(--text-muted);max-width:180px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">
-            ${entry.notes || '—'}
+            ${entry.notes ? _escNote(entry.notes) : '—'}
           </td>
           <td>
             <div class="table-actions">

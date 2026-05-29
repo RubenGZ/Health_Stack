@@ -39,20 +39,21 @@ export function renderIdle() {
       const d = new Date(sess.startedAt);
       const dateStr = d.toLocaleDateString('es-ES', { weekday: 'short', day: 'numeric', month: 'short' });
       const dur = _fmtDuration(sess.durationSecs);
+      const _esc = s => String(s ?? '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
       let routineLabel;
       if (sess.routineName) {
         routineLabel = sess.routineId
-          ? `${sess.routineId} · ${sess.routineName}`
-          : sess.routineName;
+          ? `${_esc(sess.routineId)} · ${_esc(sess.routineName)}`
+          : _esc(sess.routineName);
       } else {
-        routineLabel = sess.routineId || 'Sesión libre';
+        routineLabel = _esc(sess.routineId ?? '') || 'Sesión libre';
       }
       const detailRows = (sess.exercises || []).map(ex => {
         const ws = (ex.sets || []).filter(s => !s.isWarmup && s.completedAt);
         if (!ws.length) return '';
         return `<div class="wl-hist-ex">
-          <span class="wl-hist-ex-name">${ex.name}</span>
-          <span class="wl-hist-ex-sets">${ws.map(s => `${s.weightKg}×${s.reps}`).join(' · ')}</span>
+          <span class="wl-hist-ex-name">${_esc(ex.name)}</span>
+          <span class="wl-hist-ex-sets">${ws.map(s => `${parseFloat(s.weightKg)}×${parseInt(s.reps)}`).join(' · ')}</span>
         </div>`;
       }).filter(Boolean).join('');
       return `

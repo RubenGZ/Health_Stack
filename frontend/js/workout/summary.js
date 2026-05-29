@@ -162,6 +162,7 @@ export function renderSummary(result) {
     ? 'Ver análisis IA de tu entreno'
     : 'Analizar este entreno con IA';
 
+  const _escPr = s => String(s ?? '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
   S.root.innerHTML = `
     <div class="wl-summary">
       <div class="wl-summary-header">
@@ -193,7 +194,7 @@ export function renderSummary(result) {
 
       ${prs.length ? `
         <div class="wl-summary-prs">
-          ${prs.map(pr => `<div class="wl-pr-item">🏆 PR — ${pr.exercise_key.replace(/_/g,' ')}: ${pr.value} kg 1RM</div>`).join('')}
+          ${prs.map(pr => `<div class="wl-pr-item">🏆 PR — ${_escPr(pr.exercise_key.replace(/_/g,' '))}: ${parseFloat(pr.value)} kg 1RM</div>`).join('')}
         </div>` : ''}
 
       ${buildMuscleBreakdown()}

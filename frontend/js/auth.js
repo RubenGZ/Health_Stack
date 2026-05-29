@@ -357,9 +357,10 @@
     const menu = document.createElement('div');
     menu.id = 'auth-logout-menu';
     menu.className = 'auth-logout-menu';
+    const _escEmail = s => String(s ?? '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
     menu.innerHTML = `
       <div class="auth-logout-info">
-        <span class="auth-logout-email">${user?.email || 'Usuario'}</span>
+        <span class="auth-logout-email">${_escEmail(user?.email || 'Usuario')}</span>
         ${user?.role === 'admin' ? '<span class="auth-logout-role">Admin</span>' : ''}
       </div>
       <button class="auth-logout-btn" id="do-logout-btn">Cerrar sesión</button>

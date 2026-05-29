@@ -191,7 +191,7 @@ const API = (function () {
       if (Array.isArray(err.detail)) {
         message = err.detail.map(e => e.msg || String(e)).join('. ');
       } else {
-        message = err.detail || `HTTP ${res.status}`;
+        message = err.detail || err.error || `HTTP ${res.status}`;
       }
       throw new Error(message);
     }

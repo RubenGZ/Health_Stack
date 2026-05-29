@@ -193,7 +193,10 @@
         showError(errEl, 'Email o contraseña incorrectos.');
       }
     } catch (err) {
-      showError(errEl, err.message || 'Email o contraseña incorrectos.');
+      const msg = /rate.limit|429|too many/i.test(err.message)
+        ? 'Demasiados intentos de acceso. Espera un momento.'
+        : (err.message || 'Email o contraseña incorrectos.');
+      showError(errEl, msg);
     } finally {
       btn.disabled = false;
       btn.textContent = 'Entrar →';
@@ -237,7 +240,10 @@
         showError(errEl, 'No se pudo crear la cuenta.');
       }
     } catch (err) {
-      showError(errEl, err.message || 'No se pudo crear la cuenta. Prueba otro email.');
+      const msg = /rate.limit|429|too many/i.test(err.message)
+        ? 'Demasiados intentos de registro. Espera un momento e inténtalo de nuevo.'
+        : (err.message || 'No se pudo crear la cuenta. Prueba otro email.');
+      showError(errEl, msg);
     } finally {
       btn.disabled = false;
       btn.textContent = 'Crear cuenta →';

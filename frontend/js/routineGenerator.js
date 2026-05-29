@@ -879,7 +879,7 @@ const RoutineGenerator = (function () {
     }
 
     if (typeof Gamification !== 'undefined') Gamification.addXP('routine');
-    document.dispatchEvent(new CustomEvent('routineGenerated', { detail: { routine } }));
+    document.dispatchEvent(new CustomEvent('hs:routine-generated', { detail: { routine } }));
     localStorage.setItem(LS_KEY, JSON.stringify({ routine, ts: Date.now() }));
 
     // Solo pedir guardar si es una rutina nueva (no cargada desde historial)

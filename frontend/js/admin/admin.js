@@ -2,37 +2,61 @@
 (function() {
   var TOKEN_KEY = 'hs_access_token';
 
+  // ── Shared JWT parser (exported to window so other modules can use it) ──────
   function parseJwt(token) {
     try {
-      return JSON.parse(atob(token.split('.')[1].replace(/-/g,'+').replace(/_/g,'/')));
+      return JSON.parse(atob(token.split('.')[1].replace(/-/g, '+').replace(/_/g, '/')));
     } catch(e) { return null; }
   }
+  window.AdminParseJwt = parseJwt;
 
+  // ── Auth ─────────────────────────────────────────────────────────────────────
   function checkAuth() {
-    var token = localStorage.getItem(TOKEN_KEY);
+    var token   = localStorage.getItem(TOKEN_KEY);
     if (!token) { location.href = '/'; return false; }
     var payload = parseJwt(token);
     if (!payload || payload.role !== 'admin') { location.href = '/'; return false; }
-    // Show user email in topbar
     var el = document.getElementById('admin-user-email');
     if (el) el.textContent = payload.email || 'Admin';
     return true;
   }
 
+  // ── Section load cache (avoid reloading on every nav click) ──────────────────
+  var _sectionLoaded = {};
+
+  // ── Navigation ───────────────────────────────────────────────────────────────
   function navigate(section) {
     document.querySelectorAll('.admin-section').forEach(function(s) { s.style.display = 'none'; });
     document.querySelectorAll('.admin-nav-item').forEach(function(n) { n.classList.remove('active'); });
+
     var sec = document.getElementById('section-' + section);
     if (sec) sec.style.display = 'block';
     var nav = document.querySelector('[data-section="' + section + '"]');
     if (nav) nav.classList.add('active');
-    // Lazy load section
-    if (section === 'overview' && typeof AdminStats !== 'undefined') AdminStats.load();
-    if (section === 'users' && typeof AdminUsers !== 'undefined') AdminUsers.load();
-    if (section === 'tables' && typeof AdminTables !== 'undefined') AdminTables.load();
-    if (section === 'metrics' && typeof AdminMetrics !== 'undefined') AdminMetrics.load();
+
+    // Load section — use cache flags where applicable
+    if (section === 'overview' && typeof AdminStats !== 'undefined') {
+      AdminStats.load();   // AdminStats manages its own _loaded flag
+    }
+    if (section === 'users' && typeof AdminUsers !== 'undefined') {
+      AdminUsers.load();   // always refresh user list on nav
+    }
+    if (section === 'tables' && typeof AdminTables !== 'undefined' && !_sectionLoaded.tables) {
+      AdminTables.load();
+      _sectionLoaded.tables = true;
+    }
+    if (section === 'metrics' && typeof AdminMetrics !== 'undefined') {
+      AdminMetrics.load();  // AdminMetrics manages its own _loaded flag
+    }
+    if (section === 'health' && typeof AdminHealth !== 'undefined') {
+      AdminHealth.load();   // AdminHealth manages its own _loaded flag
+    }
+    if (section === 'system' && typeof AdminSystem !== 'undefined') {
+      AdminSystem.load();   // always re-run system check on nav
+    }
   }
 
+  // ── Logout ───────────────────────────────────────────────────────────────────
   function logout() {
     localStorage.removeItem(TOKEN_KEY);
     localStorage.removeItem('hs_refresh_token');
@@ -40,17 +64,15 @@
     location.href = '/';
   }
 
+  // ── Init ─────────────────────────────────────────────────────────────────────
   document.addEventListener('DOMContentLoaded', function() {
     if (!checkAuth()) return;
     document.getElementById('admin-loading').style.display = 'none';
-    document.getElementById('admin-app').style.display = 'flex';
+    document.getElementById('admin-app').style.display     = 'flex';
 
     document.querySelectorAll('.admin-nav-item').forEach(function(item) {
-      item.addEventListener('click', function() {
-        navigate(this.dataset.section);
-      });
+      item.addEventListener('click', function() { navigate(this.dataset.section); });
     });
-
     document.getElementById('admin-logout-btn').addEventListener('click', logout);
 
     navigate('overview');

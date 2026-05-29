@@ -304,7 +304,6 @@ const FeedbackWidget = (function () {
 
   function _buildWhatsAppUrl(type) {
     const page    = window.location.pathname;
-    const ua      = navigator.userAgent.slice(0, 80);
     const version = typeof CONFIG !== 'undefined' ? (CONFIG.VERSION || '2.0') : '2.0';
 
     const prefix = type === 'bug'
@@ -312,7 +311,18 @@ const FeedbackWidget = (function () {
       : `Hola Rubén, tengo una sugerencia para HealthStack Pro:\n\n`;
     const context = `\n\n---\nPágina: ${page}\nApp: v${version}`;
 
-    const text = encodeURIComponent(prefix + context);
+    // Attach last 3 JS errors if available (populated by window.onerror handler)
+    let errorLog = '';
+    try {
+      const errs = JSON.parse(localStorage.getItem('hs_js_errors') || '[]');
+      if (errs.length && type === 'bug') {
+        errorLog = '\n\nÚltimos errores JS:\n' + errs.slice(-3).map(e =>
+          `[${e.ts}] ${e.msg} (${e.file}:${e.line})`
+        ).join('\n');
+      }
+    } catch (_) {}
+
+    const text = encodeURIComponent(prefix + context + errorLog);
     return `https://wa.me/${_whatsappNumber}?text=${text}`;
   }
 
@@ -507,7 +517,7 @@ const FeedbackWidget = (function () {
     btn.innerHTML = `
       <span class="fw-btn-icon">💬</span>
       <span>${_t('feedback.btn_label')}</span>
-      <span class="fw-alpha-badge">alpha</span>
+      <span class="fw-alpha-badge">beta</span>
     `;
     btn.addEventListener('click', _open);
     document.body.appendChild(btn);

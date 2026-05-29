@@ -493,6 +493,133 @@ body {
   font-family: monospace;
 }
 
+/* ── Section subtitle ─────────────────────────────────────── */
+.section-subtitle {
+  font-size: 0.75rem;
+  font-weight: 400;
+  color: #7d8590;
+  margin-left: 8px;
+}
+
+/* ── DB Health semaphore ──────────────────────────────────── */
+.health-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 12px;
+}
+
+.health-card {
+  border-radius: 10px;
+  padding: 14px 16px;
+  border: 1px solid #30363d;
+  background: rgba(13, 17, 23, 0.6);
+  transition: border-color 0.15s;
+}
+
+.health-card.status-ok    { border-left: 3px solid #3fb950; }
+.health-card.status-warn  { border-left: 3px solid #f59e0b; }
+.health-card.status-empty { border-left: 3px solid #7d8590; }
+.health-card.status-error { border-left: 3px solid #da3633; }
+
+.health-card-header {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-bottom: 8px;
+}
+
+.health-icon  { font-size: 1rem; }
+.health-label { font-size: 0.8rem; font-weight: 600; color: #e6edf3; }
+
+.health-stat {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: #00d4aa;
+  line-height: 1.2;
+  margin-bottom: 6px;
+}
+.health-stat span { font-size: 0.75rem; color: #7d8590; font-weight: 400; }
+
+.health-meta {
+  display: flex;
+  gap: 12px;
+  font-size: 0.75rem;
+  color: #7d8590;
+  margin-bottom: 4px;
+}
+.health-meta strong { color: #e6edf3; }
+
+.health-last {
+  font-size: 0.7rem;
+  color: #7d8590;
+  margin-bottom: 4px;
+}
+
+.health-status-label {
+  font-size: 0.7rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+.status-ok    .health-status-label { color: #3fb950; }
+.status-warn  .health-status-label { color: #f59e0b; }
+.status-empty .health-status-label { color: #7d8590; }
+.status-error .health-status-label { color: #da3633; }
+
+/* Legend dots */
+.health-legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16px;
+  margin-top: 16px;
+  font-size: 0.75rem;
+  color: #7d8590;
+  align-items: center;
+}
+.health-legend span { display: flex; align-items: center; gap: 5px; }
+.status-ok-dot, .status-warn-dot, .status-empty-dot, .status-error-dot {
+  width: 10px; height: 10px; border-radius: 50%; display: inline-block;
+}
+.status-ok-dot    { background: #3fb950; }
+.status-warn-dot  { background: #f59e0b; }
+.status-empty-dot { background: #7d8590; }
+.status-error-dot { background: #da3633; }
+
+/* ── System health cards ───────────────────────────────────── */
+.sys-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+  gap: 12px;
+}
+
+.sys-card {
+  background: rgba(22, 27, 34, 0.8);
+  border: 1px solid #30363d;
+  border-radius: 10px;
+  padding: 16px 18px;
+  backdrop-filter: blur(8px);
+}
+
+.sys-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 6px;
+}
+
+.sys-name    { font-size: 0.9rem; font-weight: 600; color: #e6edf3; flex: 1; }
+.sys-latency { font-size: 0.75rem; color: #7d8590; font-family: monospace; }
+
+.sys-ok    { color: #3fb950; font-size: 1.1rem; }
+.sys-warn  { color: #f59e0b; font-size: 1.1rem; }
+.sys-error { color: #da3633; font-size: 1.1rem; }
+
+.sys-detail {
+  font-size: 0.8rem;
+  color: #7d8590;
+  word-break: break-word;
+}
+
 /* ── Responsive (basic) ───────────────────────────────────── */
 @media (max-width: 900px) {
   .kpi-grid {

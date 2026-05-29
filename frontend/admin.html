@@ -50,6 +50,15 @@
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg> Métricas
           </div>
         </div>
+        <div class="admin-sidebar-section">
+          <div class="admin-sidebar-label">Monitoreo</div>
+          <div class="admin-nav-item" data-section="health">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg> DB Health
+          </div>
+          <div class="admin-nav-item" data-section="system">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="2" width="20" height="8" rx="2"/><rect x="2" y="14" width="20" height="8" rx="2"/><line x1="6" y1="6" x2="6.01" y2="6"/><line x1="6" y1="18" x2="6.01" y2="18"/></svg> Sistema
+          </div>
+        </div>
       </aside>
 
       <!-- Main content -->
@@ -59,7 +68,6 @@
         <section id="section-overview" class="admin-section" style="display:none;">
           <h2 class="section-title">Overview</h2>
 
-          <!-- KPI Grid -->
           <div class="kpi-grid">
             <div class="kpi-card">
               <div class="kpi-value" id="kpi-total">—</div>
@@ -79,7 +87,6 @@
             </div>
           </div>
 
-          <!-- Charts row 1: timeseries + plans donut -->
           <div class="chart-grid">
             <div class="chart-card">
               <h3 class="chart-title">Nuevos usuarios (últimos 30 días)</h3>
@@ -91,7 +98,6 @@
             </div>
           </div>
 
-          <!-- Charts row 2: modules wide -->
           <div class="chart-grid" style="margin-top:16px;">
             <div class="chart-card wide">
               <h3 class="chart-title">Uso por módulo</h3>
@@ -104,26 +110,15 @@
         <section id="section-users" class="admin-section" style="display:none;">
           <h2 class="section-title">Gestión de Usuarios</h2>
 
-          <input
-            type="search"
-            id="users-search"
-            class="search-bar"
-            placeholder="Buscar por email..."
-            autocomplete="off"
-          />
+          <input type="search" id="users-search" class="search-bar"
+            placeholder="Buscar por email..." autocomplete="off" />
 
           <div class="glass-card" style="overflow-x:auto;">
             <table class="admin-table" id="users-table">
               <thead>
                 <tr>
-                  <th>ID</th>
-                  <th>Email</th>
-                  <th>Nombre</th>
-                  <th>Rol</th>
-                  <th>Plan</th>
-                  <th>Activo</th>
-                  <th>Último Login</th>
-                  <th>Acciones</th>
+                  <th>ID</th><th>Email</th><th>Nombre</th><th>Rol</th>
+                  <th>Plan</th><th>Activo</th><th>Último Login</th><th>Acciones</th>
                 </tr>
               </thead>
               <tbody id="users-tbody">
@@ -132,7 +127,6 @@
             </table>
           </div>
 
-          <!-- Pagination -->
           <div class="pagination">
             <button id="users-prev" class="btn btn-ghost" disabled>← Anterior</button>
             <span id="users-page-info" class="pagination-info"></span>
@@ -142,18 +136,15 @@
 
         <!-- ── Section: Tables ────────────────────────────────── -->
         <section id="section-tables" class="admin-section" style="display:none;">
-          <h2 class="section-title">Explorador de Tablas</h2>
+          <h2 class="section-title">Explorador de Tablas <span class="section-subtitle">(27 tablas · datos sensibles enmascarados)</span></h2>
 
           <div class="tables-layout">
-            <!-- Left: table list -->
             <div class="tables-panel">
               <div class="tables-panel-title">Tablas</div>
               <div id="tables-list">
                 <div class="empty-state" style="padding:24px;">Cargando...</div>
               </div>
             </div>
-
-            <!-- Right: table data -->
             <div class="tables-data-panel">
               <h3 class="table-data-title" id="table-data-title">Selecciona una tabla</h3>
               <div id="table-data-container">
@@ -167,7 +158,6 @@
         <section id="section-metrics" class="admin-section" style="display:none;">
           <h2 class="section-title">Métricas Técnicas</h2>
 
-          <!-- KPI row -->
           <div class="metrics-grid">
             <div class="kpi-card">
               <div class="kpi-value" id="metrics-pv-today">—</div>
@@ -183,11 +173,61 @@
             </div>
           </div>
 
-          <!-- Endpoints chart -->
           <div class="chart-grid" style="margin-top:16px;">
             <div class="chart-card wide">
-              <h3 class="chart-title">Endpoints más llamados</h3>
-              <canvas id="chart-endpoints" height="200"></canvas>
+              <h3 class="chart-title">Páginas más visitadas (7d)</h3>
+              <div id="chart-endpoints-wrap">
+                <canvas id="chart-endpoints" height="200"></canvas>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- ── Section: DB Health ─────────────────────────────── -->
+        <section id="section-health" class="admin-section" style="display:none;">
+          <h2 class="section-title">DB Health</h2>
+
+          <!-- Semaphore -->
+          <div class="glass-card" style="padding:20px;margin-bottom:16px;">
+            <h3 class="chart-title" style="margin-bottom:16px;">Estado por módulo</h3>
+            <div id="health-semaphore" class="health-grid">
+              <div class="empty-state">Cargando...</div>
+            </div>
+            <div class="health-legend">
+              <span><span class="status-ok-dot"></span> Activo (actividad en 7d)</span>
+              <span><span class="status-warn-dot"></span> Sin actividad reciente</span>
+              <span><span class="status-empty-dot"></span> Sin datos</span>
+              <span><span class="status-error-dot"></span> Error de tabla</span>
+            </div>
+          </div>
+
+          <!-- Multi-module timeseries -->
+          <div class="chart-card wide">
+            <h3 class="chart-title">Actividad por módulo (últimos 30 días)</h3>
+            <canvas id="chart-multi" height="200"></canvas>
+          </div>
+        </section>
+
+        <!-- ── Section: Sistema ───────────────────────────────── -->
+        <section id="section-system" class="admin-section" style="display:none;">
+          <h2 class="section-title">Sistema</h2>
+
+          <div style="display:flex;align-items:center;gap:16px;margin-bottom:20px;">
+            <button id="system-check-btn" class="btn btn-primary">▶ Verificar ahora</button>
+            <span id="system-last-check" style="font-size:0.85rem;color:#7d8590;"></span>
+          </div>
+
+          <div id="system-services" class="sys-grid">
+            <div class="empty-state">Haz clic en "Verificar ahora" para comprobar el estado</div>
+          </div>
+
+          <div class="glass-card" style="padding:16px;margin-top:20px;">
+            <div style="font-size:0.8rem;color:#7d8590;line-height:1.7;">
+              <strong style="color:#e6edf3;">Servicios monitorizados:</strong><br>
+              • <strong>API</strong> — FastAPI backend (este proceso)<br>
+              • <strong>PostgreSQL</strong> — Base de datos principal (latencia SELECT 1)<br>
+              • <strong>Redis</strong> — Caché L1 (PING)<br>
+              • <strong>Frontend/Nginx</strong> — Servidor web + SPA (HTTP GET al frontend URL)
             </div>
           </div>
         </section>
@@ -232,6 +272,8 @@
   <script src="/js/admin/adminUsers.js"></script>
   <script src="/js/admin/adminTables.js"></script>
   <script src="/js/admin/adminMetrics.js"></script>
+  <script src="/js/admin/adminHealth.js"></script>
+  <script src="/js/admin/adminSystem.js"></script>
   <script src="/js/admin/admin.js"></script>
 
 </body>

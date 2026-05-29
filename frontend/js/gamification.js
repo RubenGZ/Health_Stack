@@ -268,6 +268,30 @@ const Gamification = (function () {
     const earnedEl = document.getElementById('gami-badges-earned');
     if (earnedEl) earnedEl.textContent = `${state.earnedBadges.length} / ${BADGES.length}`;
 
+    // New-user hint card
+    let hint = document.getElementById('gami-new-user-hint');
+    if (state.xp === 0 && state.earnedBadges.length === 0) {
+      if (!hint) {
+        hint = document.createElement('div');
+        hint.id = 'gami-new-user-hint';
+        grid.parentNode.insertBefore(hint, grid);
+      }
+      hint.innerHTML = `
+        <div class="gami-hint-card">
+          <div class="gami-hint-icon">⚡</div>
+          <div class="gami-hint-body">
+            <div class="gami-hint-title">¡Gana tu primer XP!</div>
+            <div class="gami-hint-steps">
+              <span>⚖️ Registra tu peso → +50 XP</span>
+              <span>📋 Genera una rutina → +150 XP</span>
+              <span>🧮 Calcula tu TDEE → +100 XP</span>
+            </div>
+          </div>
+        </div>`;
+    } else if (hint) {
+      hint.remove();
+    }
+
     grid.innerHTML = BADGES.map(b => {
       const earned = state.earnedBadges.includes(b.id);
       return `

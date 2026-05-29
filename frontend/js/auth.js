@@ -228,6 +228,11 @@
         closeModal();
         updateUserChip();
         showToast('¡Bienvenido a HealthStack Pro Beta! 🎉', 'success');
+        // TTFV: marcar timestamp de registro
+        localStorage.setItem('hs_ttfv_ts', String(Date.now()));
+        if (typeof window._sendTelemetryEvent === 'function') {
+          window._sendTelemetryEvent('registro_completado', { method: 'email' });
+        }
       } else {
         showError(errEl, 'No se pudo crear la cuenta.');
       }

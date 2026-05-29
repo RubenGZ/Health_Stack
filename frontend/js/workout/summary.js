@@ -57,6 +57,17 @@ export async function onFinish() {
   if (typeof Plan !== 'undefined' && typeof Plan.incrementSessionCount === 'function') {
     Plan.incrementSessionCount();
   }
+  // TTFV: solo en la primera sesión guardada
+  try {
+    const _sessions = JSON.parse(localStorage.getItem('hs_workout_sessions_local') || '[]');
+    if (_sessions.length <= 1) {  // saveToLocalHistory ya escribió, así que <=1 es la primera
+      const _ts0 = parseInt(localStorage.getItem('hs_ttfv_ts') || '0', 10);
+      const _ttfv = _ts0 > 0 ? Math.round((Date.now() - _ts0) / 1000) : null;
+      if (typeof window._sendTelemetryEvent === 'function') {
+        window._sendTelemetryEvent('primera_sesion_guardada', { ttfv_secs: _ttfv });
+      }
+    }
+  } catch (_) {}
   window.dispatchEvent(new CustomEvent('hs:workout-session-changed'));
   // Store the backend session UUID so PostWorkoutCoach can read it without extra coupling
   if (result?.session_id) sessionStorage.setItem('hs_last_session_id', result.session_id);

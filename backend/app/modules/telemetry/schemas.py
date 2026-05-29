@@ -9,3 +9,7 @@ class PageViewCreate(BaseModel):
 
 class PageViewResponse(BaseModel):
     ok: bool = True
+
+class EventCreate(BaseModel):
+    event: str = Field(..., max_length=80)
+    data: dict = Field(default_factory=dict)

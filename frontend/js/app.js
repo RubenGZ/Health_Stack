@@ -708,6 +708,26 @@
     };
   }());
 
+  // ── Telemetría de producto (fire-and-forget) ──────────────────────────────
+  // Envía eventos de TTFV y onboarding al backend. No bloquea nunca.
+  function _sendTelemetryEvent(event, data) {
+    try {
+      const token = localStorage.getItem('hs_access_token');
+      const headers = { 'Content-Type': 'application/json' };
+      if (token) headers['Authorization'] = 'Bearer ' + token;
+      // sendBeacon cuando sea posible (survives page unload); fallback fetch
+      const body = JSON.stringify({ event, data: data || {} });
+      const url = '/api/v1/telemetry/event';
+      if (navigator.sendBeacon) {
+        const blob = new Blob([body], { type: 'application/json' });
+        navigator.sendBeacon(url, blob);
+      } else {
+        fetch(url, { method: 'POST', headers, body }).catch(() => {});
+      }
+    } catch (_) {}
+  }
+  window._sendTelemetryEvent = _sendTelemetryEvent;
+
   // ── Bootstrap ─────────────────────────────────────────────
   if (document.readyState === 'loading') {
     document.addEventListener('DOMContentLoaded', () => { handleOAuthCallback(); handleLandingBridge(); init(); });

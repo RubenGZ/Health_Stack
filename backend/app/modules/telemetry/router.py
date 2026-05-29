@@ -7,7 +7,7 @@ from fastapi import APIRouter, Body, Depends, Request
 from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
 
 from app.core.security.jwt_handler import decode_token
-from app.modules.telemetry.schemas import PageViewCreate, PageViewResponse
+from app.modules.telemetry.schemas import EventCreate, PageViewCreate, PageViewResponse
 from app.modules.telemetry.service import TelemetryService
 from app.session import DBSession
 from app.shared.exceptions import TokenExpiredError, TokenInvalidError
@@ -44,4 +44,22 @@ async def record_page_view(
     except Exception as e:
         logger.warning(f"Error registrando page view: {e}")
 
+    return PageViewResponse()
+
+
+@router.post("/event", response_model=PageViewResponse, summary="Registrar evento de producto")
+async def record_event(
+    body: Annotated[EventCreate, Body()],
+    credentials: HTTPAuthorizationCredentials | None = Depends(_bearer),
+) -> PageViewResponse:
+    # Fire-and-forget: solo loguear. No DB para simplificar.
+    user_hint = "anon"
+    if credentials:
+        try:
+            payload = decode_token(credentials.credentials)
+            if payload.get("type") == "access":
+                user_hint = payload.get("sub", "auth")[:8]
+        except Exception:
+            pass
+    logger.info("TELEMETRY_EVENT event=%s user=%s data=%s", body.event, user_hint, body.data)
     return PageViewResponse()

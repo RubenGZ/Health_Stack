@@ -12,13 +12,13 @@
     "body": "Tus entrenos, tu nutrición y tu progreso por fin en un solo sitio — y una IA que cruza los datos para decirte por qué te estancas. Cifrado de extremo a extremo. Tuyo, nunca vendido.",
     "cta_primary": "Empieza Ya — Es Gratis",
     "cta_secondary": "Entrar con Google",
-    "stats": ["Miembros activos", "Entrenamientos", "Valoración media"],
+    "stats": ["Ejercicios incluidos", "Datos cifrados", "Gratis para siempre"],
     "tag1_title": "Rutina Lista",
     "tag1_sub": "Push · Pull · Legs",
     "tag2_title": "+2.8 kg músculo",
     "tag2_sub": "Últimas 12 semanas"
   },
-  "band": ["Miembros activos", "Ejercicios en biblioteca", "Ingredientes rastreados", "Sin tarjeta de crédito"],
+  "band": ["Cifrado AES-256", "Ejercicios en biblioteca", "Ingredientes rastreados", "Sin tarjeta de crédito"],
   "expansion": {
     "label": "El entorno lo es todo",
     "title_1": "CONSTRUIDO PARA",
@@ -55,7 +55,7 @@
     "label": "Resultados reales",
     "title_1": "ATLETAS QUE",
     "title_2": "CONFIARON EN EL PROCESO",
-    "subtitle": "Personas reales. Transformaciones reales. Cero excusas.",
+    "subtitle": "Esto es exactamente lo que HealthStack está construido para lograr — únete a la beta y compruébalo tú mismo.",
     "items": [
       { "name": "Carlos M.", "role": "Perdió 18 kg · Madrid", "quote": "Perdí 18 kg en 4 meses usando el generador de rutinas y el tracker de nutrición. Esta app reemplazó tres suscripciones de pago. Un valor brutal." },
       { "name": "Ana R.", "role": "Primera competición de powerlifting · Barcelona", "quote": "Las rutinas transformaron mi entrenamiento por completo. En 12 semanas pasé de principiante a competir en mi primera powerlifting. La comunidad me mantuvo en marcha." },
@@ -102,7 +102,7 @@
   },
   "footer": {
     "links": ["App", "Funciones", "Precios", "Comunidad", "Suplementos", "Blog"],
-    "copyright": "© 2025 HealthStack Pro · Todos los derechos reservados",
+    "copyright": "© 2026 HealthStack Pro · Todos los derechos reservados",
     "tagline": "Construido con ❤️ para atletas que van en serio"
   },
   "calc_tabs": ["TDEE y Macros", "IMC", "Proteína/día", "1RM"],
@@ -241,7 +241,7 @@
     "title_1": "SINCRONIZA CON",
     "title_2": "TODO",
     "subtitle": "HealthStack Pro se conecta con las apps que ya usas. Importa datos, exporta progreso, todo en un solo lugar.",
-    "live": "Activo",
+    "live": "Beta",
     "coming_soon": "Pronto",
     "connect": "Conectar",
     "apple_csv": "Importar CSV",

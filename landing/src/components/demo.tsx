@@ -147,12 +147,12 @@ function PricingCard({ children, className }: { children: ReactNode; className?:
 }
 
 const STAT_VALUES = [
-  { v: '50K', s: '+' },
-  { v: '1M',  s: '+' },
-  { v: '4.9', s: '★' },
+  { v: '300', s: '+'  },   // ejercicios reales en biblioteca
+  { v: '100', s: '%'  },   // datos cifrados (AES-256-GCM)
+  { v: '0',   s: '€'  },   // gratis para siempre
 ]
 
-const BAND_VALUES = ['50K+', '300+', '142', '100%']
+const BAND_VALUES = ['AES-256', '300+', '142', '100%']
 
 /* ── Calculator Hub (TDEE · IMC · Proteína · 1RM) ────────────── */
 
@@ -993,8 +993,8 @@ function AppIntegrations() {
                 style={{ background: `linear-gradient(90deg, transparent, ${app.color}, transparent)` }}
               />
 
-              {/* Live badge */}
-              <span className="absolute top-3 right-3 text-[9px] font-black uppercase tracking-widest px-2 py-0.5 rounded-full bg-green-500/15 text-green-400 border border-green-500/25">
+              {/* Beta badge — OAuth en desarrollo, CSV disponible */}
+              <span className="absolute top-3 right-3 text-[9px] font-black uppercase tracking-widest px-2 py-0.5 rounded-full bg-amber-500/15 text-amber-400 border border-amber-500/25">
                 {t('integrations.live')}
               </span>
 

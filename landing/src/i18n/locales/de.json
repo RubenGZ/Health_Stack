@@ -5,20 +5,20 @@
     "cta": "Kostenlos starten"
   },
   "hero": {
-    "badge": "#1 Freemium Fitness App · Kostenlos starten, jederzeit upgraden",
+    "badge": "Deine Daten verschlüsselt · Niemals verkauft · Für immer kostenlos",
     "line1": "FORME DEINE",
     "line3": "VERSION",
     "typewriter": ["KRAFT", "MUSKELN", "STÄRKE", "AUSDAUER", "KÖRPER"],
     "body": "Trainingsroutinen aus intelligenten Algorithmen, präzise Ernährung und eine Community, die dich weiter bringt. Alles, was du brauchst, um den Körper — und das Leben — aufzubauen, das du willst.",
     "cta_primary": "Jetzt starten — Kostenlos",
     "cta_secondary": "Mit Google anmelden",
-    "stats": ["Aktive Mitglieder", "Trainingseinheiten", "Durchschnittsbewertung"],
+    "stats": ["Übungen inklusive", "Daten verschlüsselt", "Für immer kostenlos"],
     "tag1_title": "Routine bereit",
     "tag1_sub": "Push · Pull · Legs",
     "tag2_title": "+2,8 kg Muskeln",
     "tag2_sub": "Letzte 12 Wochen"
   },
-  "band": ["Aktive Mitglieder", "Übungen in der Bibliothek", "Verfolgte Zutaten", "Keine Kreditkarte nötig"],
+  "band": ["AES-256 Verschlüsselt", "Übungen in der Bibliothek", "Verfolgte Zutaten", "Keine Kreditkarte nötig"],
   "expansion": {
     "label": "Das Umfeld ist alles",
     "title_1": "ENTWICKELT FÜR",
@@ -55,7 +55,7 @@
     "label": "Echte Ergebnisse",
     "title_1": "ATHLETEN DIE DEM",
     "title_2": "PROZESS VERTRAUTEN",
-    "subtitle": "Echte Menschen. Echte Transformationen. Null Ausreden.",
+    "subtitle": "Das ist genau das, was HealthStack liefern soll — tritt der Beta bei und überzeuge dich selbst.",
     "items": [
       { "name": "Carlos M.", "role": "Verlor 18 kg · Madrid", "quote": "Ich habe in 4 Monaten 18 kg verloren mit dem Routine-Generator und dem Ernährungs-Tracker. Diese App ersetzte drei kostenpflichtige Abonnements. Unglaublicher Wert." },
       { "name": "Ana R.", "role": "Erster Powerlifting-Wettkampf · Barcelona", "quote": "Die Routinen haben mein Training komplett verändert. In 12 Wochen bin ich von Anfänger zu meinem ersten Powerlifting-Wettkampf gegangen. Die Community hielt mich am Laufen." },
@@ -102,7 +102,7 @@
   },
   "footer": {
     "links": ["App", "Funktionen", "Preise", "Community", "Supplements", "Blog"],
-    "copyright": "© 2025 HealthStack Pro · Alle Rechte vorbehalten",
+    "copyright": "© 2026 HealthStack Pro · Alle Rechte vorbehalten",
     "tagline": "Mit ❤️ für Athleten gebaut, die es ernst meinen"
   },
   "calc_tabs": ["TDEE & Makros", "BMI", "Protein/Tag", "1WM"],
@@ -238,7 +238,7 @@
     "title_1": "SYNCHRONISIERT MIT",
     "title_2": "ALLEM",
     "subtitle": "HealthStack Pro verbindet sich mit den Apps, die du bereits nutzt. Daten importieren, Fortschritt exportieren — alles an einem Ort.",
-    "live": "Aktiv",
+    "live": "Beta",
     "coming_soon": "Bald",
     "connect": "Verbinden",
     "apple_csv": "CSV importieren",

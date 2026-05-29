@@ -240,6 +240,36 @@ export function renderSummary(result) {
     window.PostWorkoutCoach?.requestCoaching();
   });
 
+  // Auto-fire coaching on first workout (aha-moment sin fricción)
+  try {
+    const _history = JSON.parse(localStorage.getItem('hs_workout_sessions_local') || '[]');
+    if (_history.length <= 1) {
+      setTimeout(() => {
+        if (window.PostWorkoutCoach && !document.getElementById('pw-coach-container')) {
+          window.PostWorkoutCoach.requestCoaching();
+        }
+      }, 2800); // dar tiempo al usuario a ver los stats antes del coach
+    }
+  } catch (_) {}
+
+  // Telemetría: PR detectado
+  if (prs.length > 0 && typeof window._sendTelemetryEvent === 'function') {
+    window._sendTelemetryEvent('pr_detectado', { count: prs.length });
+  }
+
+  // Telemetría: hábito formado (≥3 entrenos en 14 días + ≥1 PR acumulado)
+  try {
+    const _allSessions = JSON.parse(localStorage.getItem('hs_workout_sessions_local') || '[]');
+    const _cutoff = Date.now() - 14 * 24 * 3600 * 1000;
+    const _recentCount = _allSessions.filter(s => new Date(s.startedAt).getTime() > _cutoff).length;
+    const _hasPR = localStorage.getItem('hs_pr_records') &&
+                   JSON.parse(localStorage.getItem('hs_pr_records') || '{}') &&
+                   Object.keys(JSON.parse(localStorage.getItem('hs_pr_records') || '{}')).length > 0;
+    if (_recentCount === 3 && _hasPR && typeof window._sendTelemetryEvent === 'function') {
+      window._sendTelemetryEvent('habito_formado', { sessions_14d: _recentCount });
+    }
+  } catch (_) {}
+
   S.root.querySelector('#wl-done').addEventListener('click', () => {
     S.session   = null;
     S.wlViewer  = null;

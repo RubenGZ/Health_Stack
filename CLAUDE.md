@@ -16,7 +16,7 @@ Skill dedicado para mejoras visuales del frontend. Cargado en `.claude/skills/he
 **Token de diseño clave**: dark premium, gold `#c4a561` como ÚNICO acento, Inter font, base 4px spacing.
 
 **Estado del sistema de diseño**:
-- CSS v7 en `frontend/css/main.css` — SW **v59** — commits de mejoras frontend (2026-05-23)
+- CSS v7 en `frontend/css/main.css` — SW **v74** — última actualización 2026-05-29
 - **Fase 1** ✅ completada: brand consistency (161 refs cyan→gold), skeleton system, stat upgrades, card polish, safe-area iOS
 - **Fase 2** ✅ completada: toast.js (showToast/showConfirm), chartDefaults.js, 10 módulos migrados de alert/confirm nativos, empty states, skeleton loaders JS, form input error/success states (setFieldState global)
 - **Fase 3** ✅ completada: stat-change pill coloreado, XP bar gold shimmer animado, level badge glow pulsante, achievement badge hover, wl-ex-group-chip por grupo muscular, PR badge shimmer, exercise cards con chip de color y badge "última vez"
@@ -25,6 +25,7 @@ Skill dedicado para mejoras visuales del frontend. Cargado en `.claude/skills/he
 - **Fase 5** ✅ completada (2026-05-23): Modularización app.js → `js/dashboard/index.js` (window.Dashboard) + `js/pwa/index.js` (window.PWAManager). XSS fixes en adminUsers.js y planner.js. Chart update in-place. SW v56. Developer portal en `docs/dev/frontend.html`.
 - **Fase 6** ✅ completada (2026-05-23): Phase 6 workout submodules QA pasado. Theme picker en Perfil (3 temas: Forge/Midnight/Aurora). SW v58.
 - **Fase 7** ✅ completada (2026-05-23): Sección Entreno mejorada — dedup robusto de rutinas IA, `routineName` guardado en historial, historial compacto con filas expandibles (nombre·día·duración, click=detalles). SW v59.
+- **Fase 8** ✅ completada (2026-05-29): Módulo A — InjuryManager en routineGenerator.js (lesiones crónicas, rutinas IA injury-aware). Módulo B — postWorkoutCoach.js + nextSessionPreloader.js (análisis post-entreno con IA, TTL 48h). SW v74.
 
 ---
 
@@ -47,7 +48,7 @@ App de salud personal. Backend FastAPI + PostgreSQL. Dos frontends: una SPA en v
 - Auth: JWT RS256 asimétrico (python-jose), Argon2 para passwords
 - Cifrado: AES-256-GCM (cryptography) para notas de salud — cumple RGPD Art. 32
 - Tests: pytest 8.3.1 + pytest-asyncio 1.3.0 (session-scoped event loop)
-- Rate limiting: slowapi + limits (in-memory dev, Redis en prod)
+- Rate limiting: slowapi + limits (in-memory Pi, Redis activo en Pi desde 2026-05-29)
 - Observabilidad: Sentry (wired) + Prometheus (instalado, SIN cablear)
 
 ---
@@ -65,39 +66,36 @@ Cada módulo en `backend/app/modules/<nombre>/`:
 - `models.py` — tablas ORM
 - `schemas.py` — Pydantic in/out
 
-**17 módulos — 10 production-ready, 4 WIP, 3 auxiliares:**
+**19 módulos — 11 production-ready, 4 WIP, 4 auxiliares:**
 
-| Módulo            | Prefijo API              | Auth          | Estado            | Tests |
-|-------------------|--------------------------|---------------|-------------------|-------|
-| identity          | `/api/v1/auth`           | JWT RS256     | ✅ Production     | 17    |
-| health            | `/api/v1/health`         | JWT + AES-256 | ✅ Production     | 9     |
-| nutrition         | `/api/v1/nutrition`      | UUID local    | ✅ Production     | 9     |
-| routines          | `/api/v1/routines`       | JWT           | ✅ Production     | 6     |
-| community         | `/api/v1/community`      | JWT           | ✅ Production     | 6     |
-| gamification      | `/api/v1/gamification`   | JWT           | ✅ Production     | 7     |
-| ai_coach          | `/api/v1/ai-coach`       | JWT + Groq    | ✅ Production     | 9     |
-| ai_insights       | `/api/v1/ai-insights`    | JWT + Groq    | ✅ Production*    | 10    |
-| chat              | `/api/v1/chat`           | Público       | ✅ Production     | 27    |
-| telemetry         | `/api/v1/telemetry`      | Público       | ✅ Production     | 6     |
-| admin             | `/api/v1/admin`          | JWT + admin   | ✅ Production     | 21    |
-| geopricing        | `/api/geo-price`         | Público       | ✅ Production     | —     |
-| workout_sessions  | `/api/v1/workout`        | JWT           | ⚠️ WIP           | 7†    |
-| ranked            | `/api/v1/ranked`         | JWT           | ⚠️ WIP           | 3     |
-| gym_servers       | `/api/v1/gym-servers`    | JWT           | ⚠️ WIP           | 4     |
-| integrations      | `/api/v1/integrations`   | JWT           | ⚠️ WIP           | 0     |
+| Módulo            | Prefijo API                         | Auth          | Estado            | Tests |
+|-------------------|-------------------------------------|---------------|-------------------|-------|
+| identity          | `/api/v1/auth`                      | JWT RS256     | ✅ Production     | 17    |
+| health            | `/api/v1/health`                    | JWT + AES-256 | ✅ Production     | 9     |
+| nutrition         | `/api/v1/nutrition`                 | UUID local    | ✅ Production     | 9     |
+| routines          | `/api/v1/routines`                  | JWT           | ✅ Production     | 6     |
+| routines (injury) | `/api/v1/routines/injuries`         | JWT           | ✅ Production     | 5     |
+| community         | `/api/v1/community`                 | JWT           | ✅ Production     | 6     |
+| gamification      | `/api/v1/gamification`              | JWT           | ✅ Production     | 7     |
+| ai_coach          | `/api/v1/ai-coach`                  | JWT + Groq    | ✅ Production     | 9     |
+| ai_insights       | `/api/v1/ai-insights`               | JWT + Groq    | ✅ Production     | 10    |
+| chat              | `/api/v1/chat`                      | Público       | ✅ Production     | 27    |
+| telemetry         | `/api/v1/telemetry`                 | Público       | ✅ Production     | 6     |
+| admin             | `/api/v1/admin`                     | JWT + admin   | ✅ Production     | 21    |
+| geopricing        | `/api/geo-price`                    | Público       | ✅ Production     | —     |
+| workout_sessions  | `/api/v1/workout`                   | JWT           | ✅ Production     | 17†   |
+| post_workout_coach| `/api/v1/workout/post-workout-coach`| JWT + Groq    | ✅ Production     | 10    |
+| ranked            | `/api/v1/ranked`                    | JWT           | ⚠️ WIP           | 3     |
+| gym_servers       | `/api/v1/gym-servers`               | JWT           | ⚠️ WIP           | 4     |
+| integrations      | `/api/v1/integrations`              | JWT           | ⚠️ WIP           | 0     |
 
-*ai_insights: ✅ todos los mocks httpx migrados a RecorderAIRouter (2026-05-18).
-†workout_sessions: `routine_id` era `Optional[int]` en schema vs `UUID` en ORM — corregido 2026-05-17.
+†workout_sessions: 7 tests originales + 10 nuevos post-workout-coach = 17 tests.
 
 **Issues conocidos por módulo WIP:**
 
-`workout_sessions`:
-- ✅ `streak_days` ahora lee del GamificationRepository (antes hardcodeado a 0)
-- ✅ `get_exercise_history`: Epley ahora calcula por set en Python, no max(weight)×max(reps) SQL independientes (corregido 2026-05-18)
-
 `ranked`:
 - `season = 1` hardcodeado (tabla RankedSeason existe pero nunca se consulta)
-- `scope` city/national/global comparten implementación (todos llaman a `get_global_leaderboard`); cuando existan tablas de city/national se diferenciarán
+- `scope` city/national/global comparten implementación (todos llaman a `get_global_leaderboard`)
 - `MAX_LP_PER_WEEK = 60` y `lp_week` nunca se aplican (código muerto)
 - ✅ Usernames en leaderboard muestran `display_name` (resuelto 2026-05-18)
 
@@ -106,28 +104,26 @@ Cada módulo en `backend/app/modules/<nombre>/`:
 - `GymChampionBadge` tabla huérfana (sin endpoints)
 - Sin endpoint para descubrir gyms públicos ni para abandonar un gym
 - Progreso de retos no se registra (`GymChallenge.contribution` nunca se actualiza)
-- ✅ Sparring list devuelve `display_name` en lugar del UUID del usuario (resuelto 2026-05-18)
+- ✅ Sparring list devuelve `display_name` (resuelto 2026-05-18)
 
 `integrations`:
-- CSRF OAuth2 callback CORREGIDO 2026-05-17 (antes hacía `uuid.UUID(state)` con un HMAC hex → siempre ValueError)
-- File size check en CSV CORREGIDO 2026-05-17 (antes leía el fichero entero antes de validar → OOM)
+- CSRF OAuth2 callback CORREGIDO 2026-05-17
+- File size check en CSV CORREGIDO 2026-05-17
 - Sin tests de ningún tipo
 - Plataformas OAuth requieren client_id/secret en `.env` para funcionar
 
 **IMPORTANTE — Nutrición usa localStorage UUID, no JWT.**
 Las recetas se identifican por `user_local_id` (query param), no por token.
 
-**IMPORTANTE — ai_coach + ai_insights usan `grok_api_key` (Groq, no xAI).**
+**IMPORTANTE — ai_coach + ai_insights + post_workout_coach usan `grok_api_key` (Groq, no xAI).**
 Key `gsk_...` en `backend/.env`. Modelo: `llama-3.3-70b-versatile`.
 Todos los endpoints tienen fallback graceful si la key no está configurada.
 `@limiter.limit()` NO se puede usar con `Depends()` en FastAPI — usar rate limit global.
 
-**RGPD — ai_insights ✅ RESUELTO (2026-05-18):**
-Pipeline de anonimización `_build_anonymous_ai_context()` aplicado a los 3 endpoints
-(biomarker_narrative, injury_risk, weekly_goals). El AIRouter hashea el `user_id` con
-SHA-256 antes de loguearlo y nunca lo envía al proveedor externo. Test de privacidad
-añadido (`test_ai_prompts_never_contain_pii`) que verifica con un Recorder que ningún
-identificador (UUID, email, display_name, health_subject_id) aparece en los prompts.
+**RGPD — ai_insights + post_workout_coach ✅ RESUELTO:**
+- `_build_anonymous_ai_context()` en ai_insights (3 endpoints)
+- post_workout_coach: prompt NUNCA incluye user_id UUID, session_id UUID, email, ni display_name. Solo métricas numéricas y día de la semana.
+- AIRouter hashea `user_id` con SHA-256 antes de loguearlo.
 
 ---
 
@@ -143,8 +139,7 @@ Si se rota la MASTER_KEY hay que re-cifrar todos los `health_uuid_enc`. (TODO pe
 
 ## Tests — Estado actual
 
-**152 tests totales** (auditados 2026-05-17). Última ejecución conocida en Pi: 90 pasando + 27 chat nuevos.
-Test suite completa incluye módulos WIP (ranked, gym, workout) con cobertura básica.
+**172 tests totales** (auditados 2026-05-29).
 
 ```
 tests/unit/                   21 tests
@@ -154,24 +149,24 @@ tests/unit/                   21 tests
   test_workout_service.py      5 tests  (Epley 1RM, PR detection, volumen)
 
 tests/integration/
-  test_auth.py                17 tests  ✅ completo (register, login, refresh rotation, logout)
-  test_admin.py               21 tests  ✅ completo (auth, stats, db explorer, users CRUD)
-  test_health.py               9 tests  ✅ completo (CRUD, isolation, cifrado at rest)
-  test_community.py            6 tests  ✅ completo (list, create, like toggle)
-  test_gamification.py         7 tests  ✅ completo (state, actions, XP, 422 inválido)
-  test_nutrition.py            9 tests  ✅ completo (ingredients, recipes, claim anon)
-  test_ai_coach.py             9 tests  ✅ completo (fallback, mocked router, history)
-  test_ai_insights.py         10 tests  ⚠️ 2 tests con mocks httpx muertos (no interceptan AIRouter)
-  test_chat.py                27 tests  ✅ completo (contratos + 20 escenarios parametrizados)
-  test_telemetry.py            6 tests  ✅ completo (anon, auth, admin, validación)
-  test_workout_sessions.py     7 tests  ✅ core cubierto (create, PR, list, detail, history)
-  test_ranked.py               3 tests  ⚠️ mínimo (profile, events, auth guard)
-  test_gym_servers.py          4 tests  ⚠️ mínimo (create, list, join, auth guard)
-  test_notifications.py        — tests  ❌ módulo notifications no implementado — IGNORAR
-  test_integrations.py         — FALTA  ❌ cero tests para OAuth2, sync, CSV import
+  test_auth.py                17 tests  ✅ completo
+  test_admin.py               21 tests  ✅ completo
+  test_health.py               9 tests  ✅ completo
+  test_community.py            6 tests  ✅ completo
+  test_gamification.py         7 tests  ✅ completo
+  test_nutrition.py            9 tests  ✅ completo
+  test_ai_coach.py             9 tests  ✅ completo
+  test_ai_insights.py         10 tests  ✅ todos con RecorderAIRouter
+  test_chat.py                27 tests  ✅ completo
+  test_telemetry.py            6 tests  ✅ completo
+  test_workout_sessions.py     7 tests  ✅ core cubierto
+  test_injury_aware_routine.py 5 tests  ✅ nuevo (2026-05-29)
+  test_post_workout_coach.py  10 tests  ✅ nuevo (2026-05-29) — incluye RGPD UUID check
+  test_ranked.py               3 tests  ⚠️ mínimo
+  test_gym_servers.py          4 tests  ⚠️ mínimo
+  test_notifications.py        —        ❌ módulo no implementado — IGNORAR
+  test_integrations.py         —        ❌ cero tests para OAuth2/sync/CSV
 ```
-
-**Nota sobre `test_notifications.py`:** referencia un módulo que no existe. Los tests fallan con `OSError`. Ignorar hasta que el módulo se implemente.
 
 **Configuración crítica en `pytest.ini`:**
 ```ini
@@ -180,13 +175,7 @@ asyncio_default_fixture_loop_scope = session
 asyncio_default_test_loop_scope = session   ← sin esto asyncpg explota
 ```
 
-**Patrón de fixtures en `conftest.py`:**
-- `event_loop` — scope session (compartido por fixtures Y tests)
-- `test_engine` — scope session (una BD por suite)
-- `db_session` — scope function (TRUNCATE en SETUP, no teardown)
-- `client` — scope function (override get_db)
-- `seed_ingredients` — scope session (inserta 1 vez)
-- `reset_rate_limiter` — autouse (limpia slowapi entre tests)
+**TRUNCATE_TABLES en conftest.py** incluye: `public.workout_ai_plans`, `public.user_chronic_injuries`.
 
 **BD de test:** `postgresql+asyncpg://postgres:P%40ssw0rd@localhost:5432/healthstack_test`
 
@@ -202,49 +191,63 @@ asyncio_default_test_loop_scope = session   ← sin esto asyncpg explota
 | Rate limit 429 entre tests | slowapi persiste contadores | `limiter._storage.reset()` en fixture autouse |
 | GET /health/records/{id} → 405 | Endpoint no existía | Añadido en router.py + service.py |
 | Gamification acción inválida → 200 | Service ignoraba acciones desconocidas | `Literal[...]` en `ActionRequest.action` |
-| OAuth2 callback → ValueError siempre | `uuid.UUID(state)` con HMAC hex (64 chars, no UUID) | `_verify_state()` real en service.py; router usa `_verify_state` |
-| CSV Apple Health OOM en archivos grandes | `file.read()` completo antes de validar tamaño | `file.read(_MAX_CSV + 1)` — lee máximo lo necesario |
-| `routine_id: Optional[int]` en workout schema | ORM usa UUID, schema usaba int → insert fallaba | Cambiado a `Optional[uuid.UUID]` en schemas.py |
-| Bucle infinito landing → app | `auth-gate.js` no whitelistaba `?action=register` | Whitelist añadida + `?v=2` cache-bust + SW bumped a v15 |
-| RGPD P0: ai_insights enviaba PII a IA externa | `get_weekly_goals` no usaba `_build_anonymous_ai_context` | Refactorizado + test `test_ai_prompts_never_contain_pii` añadido (2026-05-18) |
-| Ranked leaderboard mostraba fragmentos UUID | `get_gym_leaderboard` no hacía JOIN con User; router truncaba `user_id[:8]+"..."` | JOIN con User + usar `display_name or "Atleta"` + regression test (2026-05-18) |
-| Sparring list filtraba UUIDs a otros miembros | `gym_servers/router.py:get_sparrings` devolvía `str(membership.user_id)` | Cambiado a `display_name`, eliminado campo `user_id`; XSS escape en frontend + test (2026-05-18) |
-| 500 en móvil | `nginx.cloudflare.conf` (config real de la Pi via ops docker-compose) tenía `map $is_mobile` + `return 302 /mobile/` apuntando a directorio inexistente; además `mobile-redirect.js` en `index.html` creaba bucle infinito | Eliminados `map`, `if`, `location /mobile/` de los 3 configs nginx; eliminado script tag de `index.html`; `mobile-redirect.js` → no-op; SW bumped a v24 (2026-05-20) |
-| Cambio de idioma requería Ctrl+Shift+R | `applyTranslations()` solo actualiza atributos `[data-i18n]`; texto renderizado por JS no se actualizaba | `setLanguage()` añade `setTimeout(() => location.reload(), 120)` en `i18n.js` (2026-05-20) |
+| OAuth2 callback → ValueError siempre | `uuid.UUID(state)` con HMAC hex | `_verify_state()` real en service.py |
+| CSV Apple Health OOM | `file.read()` completo antes de validar tamaño | `file.read(_MAX_CSV + 1)` |
+| `routine_id: Optional[int]` en workout schema | ORM usa UUID, schema usaba int | Cambiado a `Optional[uuid.UUID]` |
+| Bucle infinito landing → app | `auth-gate.js` no whitelistaba `?action=register` | Whitelist añadida + SW v15 |
+| RGPD P0: ai_insights enviaba PII a IA | `get_weekly_goals` sin anonimización | `_build_anonymous_ai_context()` + test |
+| Ranked leaderboard mostraba UUID | Sin JOIN con User | JOIN + `display_name` + regression test |
+| Sparring list filtraba UUIDs | `get_sparrings` devolvía `user_id` raw | `display_name`; XSS escape frontend |
+| 500 en móvil | nginx `map $is_mobile` + redirect a `/mobile/` inexistente | Eliminado `map`, `if`, `location /mobile/` de 3 configs |
+| Cambio de idioma requería hard reload | `applyTranslations()` no actualiza JS-rendered | `setTimeout(() => location.reload(), 120)` |
+| **502 crash loop en Pi** | Migración 0012 hacía `DROP INDEX` sobre UNIQUE CONSTRAINT | `ALTER TABLE DROP CONSTRAINT IF EXISTS uq_refresh_tokens_jti` (2026-05-29) |
+| **Migration schema mismatch** | `source_session_id INTEGER NOT NULL FK` vs ORM `UUID nullable` | `UUID UNIQUE` nullable en migración 0015 (2026-05-29) |
+| **Redis unhealthy en Pi** | `REDIS_PASSWORD` no definida en `.env.pi` | Variable añadida; Redis ✅ healthy (2026-05-29) |
+| **AssertionError FastAPI 0.111** | `status_code=204` con response class → assert falla | `return Response(status_code=204)` en body, sin status en decorator (2026-05-29) |
 
 ---
 
-## Infraestructura — Estado (2026-05-20)
+## Infraestructura — Estado (2026-05-29)
 
 | Item | Estado | Notas |
 |------|--------|-------|
 | Docker dev (`docker-compose.yml`) | ✅ Funcionando | — |
-| Docker Pi (`docker-compose.pi.yml`) | ✅ Funcionando | Frontend bind-mount (sin rebuild) |
+| Docker Pi (`docker-compose.pi.yml`) | ✅ Funcionando | Pi usa healthstack-pi-server version con Redis |
 | Docker prod (`docker-compose.prod.yml`) | ⚠️ Definido | Sin dominio final configurado |
-| `nginx/nginx.conf` | ✅ Existe | Sirve SPA + proxy al backend |
+| `nginx/nginx.cloudflare.conf` | ✅ Activo en Pi | Sirve SPA + proxy al backend |
 | CI/CD (GitHub Actions) | ✅ `.github/workflows/ci.yml` | tests + security scan + push a GHCR |
 | Prometheus | ✅ Cableado en `main.py` | `/metrics` expuesto |
 | Sentry | ✅ Cableado | Filtro PII activo (RGPD Art. 28) |
-| Alembic migraciones | ✅ 4 migraciones | Última: `ai_insights_cache` (d4e5f6a7b8c0) |
-| Redis (rate limiting prod) | ⚠️ Configurado no activo | En Pi usa in-memory (Redis unhealthy en Pi) |
-| Service Worker | ✅ `healthstack-v24` | v24: fix mobile redirect + i18n reload (2026-05-20) |
+| Alembic migraciones | ✅ **6 migraciones** | HEAD: `c9d0e1f2a3b4` (injury_coach_tables) |
+| Redis en Pi | ✅ **Healthy desde 2026-05-29** | `REDIS_PASSWORD` fijada en `.env.pi` |
+| Service Worker | ✅ `healthstack-v74` | v74: Módulo B post-workout coach (2026-05-29) |
+| Cloudflare Tunnel | ✅ Quick Tunnel activo | URL aleatoria — necesita Named Tunnel para beta |
 
-**Contenedor PostgreSQL:** `healthstack_db`
-**Crear BD test:** `docker exec healthstack_db psql -U postgres -c "CREATE DATABASE healthstack_test;"`
+**Contenedores Pi activos (2026-05-29):**
+- `healthstack_backend` — Up ✅
+- `healthstack_postgres` — Up (healthy) ✅
+- `healthstack_redis` — Up (healthy) ✅
+- `healthstack_nginx` — Up ✅
+- `healthstack_tunnel_quick` — Up ✅
+
+**Crear BD test:** `docker exec healthstack_postgres psql -U postgres -c "CREATE DATABASE healthstack_test;"`
 
 ## ⚠️ INFRAESTRUCTURA — LEER ANTES DE CUALQUIER COMANDO
 
 **El backend corre en una Raspberry Pi**, no en local. NUNCA pedir al usuario que ejecute migraciones, tests o comandos de servidor en su máquina Windows local.
 
-### 🚀 DEPLOY — SIEMPRE USAR ESTE COMANDO (nunca docker compose up suelto)
+### 🚀 DEPLOY — COMANDOS ACTUALES
 
 ```bash
-bash ~/healthstack-pi-server/scripts/update.sh
-```
+# Deploy estándar (git pull + rebuild + up)
+cd ~/health-stack
+git pull
+docker compose -f docker-compose.pi.yml --env-file .env.pi up -d --build backend
 
-**Comandos puntuales en el Pi** (vía SSH o docker exec):
-```bash
-# Migración
+# Solo code change (sin cambios de deps — más rápido, ~9s vs ~500s)
+git pull && docker compose -f docker-compose.pi.yml --env-file .env.pi up -d --build backend
+
+# Migración manual
 docker exec healthstack_backend alembic upgrade head
 
 # Tests
@@ -254,7 +257,7 @@ docker exec healthstack_backend python -m pytest -v --tb=short
 docker exec healthstack_backend python -m scripts.create_admin
 ```
 
-**Máquina local de Ruben (Windows)** = solo para editar código con Claude Code. No tiene PostgreSQL ni venv funcional para el proyecto.
+**Máquina local de Ruben (Windows)** = solo para editar código con Claude Code.
 
 ---
 
@@ -285,7 +288,7 @@ Módulo en `backend/app/modules/geopricing/router.py`. Endpoint público (sin JW
 - Detecta país por IP → devuelve moneda + precios localizados
 - Cache en memoria 10 min, max 5000 IPs
 - Monedas: CHF, GBP, PLN, AUD, EUR (default)
-- La landing (`landing/src/hooks/useGeoPrice.ts`) consume el endpoint y muestra precios dinámicos
+- La landing (`landing/src/hooks/useGeoPrice.ts`) consume el endpoint
 
 ---
 
@@ -293,53 +296,115 @@ Módulo en `backend/app/modules/geopricing/router.py`. Endpoint público (sin JW
 
 **Decisión (2026-04-25):** Todas las funcionalidades actuales son **Free**.
 En `landing/src/components/demo.tsx` → `PLAN_OK[0]` = todas `true`.
-Si se añaden features premium futuras, se agregan como índice 4+ en PLAN_OK.
 
 ---
 
 ## Pendientes prioritarios
 
-### 🔴 Acciones manuales pendientes (Ruben debe hacer esto)
-1. **Subir GitHub Secrets** — ejecutar `scripts\upload-secrets-to-github.ps1` tras `gh auth login`
-2. **AdSense IDs** — rellenar `frontend/.env.adsense` con Publisher ID + Ad Unit IDs reales de Google AdSense, luego `scripts\apply-adsense.ps1` antes de cada deploy
-3. **Rellenar `.env.production.local`** — `DATABASE_URL` con password real + `ALLOWED_ORIGINS` con dominio de prod
-4. **Redis en Pi** — contenedor `healthstack_redis` unhealthy (ver logs para diagnóstico)
+### 🔴 Acciones manuales (Ruben debe hacer esto — bloqueantes para beta)
+1. **Cloudflare Named Tunnel** — sustituir Quick Tunnel por Named Tunnel con URL estable. Requiere token en `.env.pi` como `CLOUDFLARE_TUNNEL_TOKEN`.
+2. **ALLOWED_ORIGINS** — añadir la URL estable de beta a `ALLOWED_ORIGINS` en `backend/.env` de la Pi. Ahora mismo permite cualquier origen (CORS abierto).
+3. **Subir GitHub Secrets** — ejecutar `scripts\upload-secrets-to-github.ps1` tras `gh auth login`
+4. **AdSense IDs** — rellenar `frontend/.env.adsense` con IDs reales antes de launch público
 
-### 🟡 Trabajo de código pendiente (ordenado por impacto)
-5. **Tests integrations**: 0 tests para OAuth2/sync/CSV — módulo completamente sin cobertura
-6. **Ranked — temporadas reales**: `season = 1` hardcodeado, `RankedSeason` inerte
-7. **Rotación de MASTER_KEY** — documentar procedimiento de re-cifrado
-8. **Visor anatómico** — rediseño disruptivo y profesional (brainstorming pendiente)
-9. **Fórmula IMC mejorada** — mejorar cálculo y visualización en la interfaz
-10. **gym_servers**: sin endpoint para descubrir gyms públicos ni para abandonar un gym
+### 🟡 Trabajo de código (ordenado por impacto para beta)
+5. **Onboarding first-run** — usuario nuevo ve app vacía; necesita pantalla de bienvenida + CTA "Registra tu primer entreno"
+6. **Feedback button** — botón en la app para que betatesters reporten bugs (mailto o form)
+7. **Tests integrations**: 0 tests para OAuth2/sync/CSV
+8. **Ranked — temporadas reales**: `season = 1` hardcodeado
+9. **Rotación de MASTER_KEY** — documentar procedimiento de re-cifrado
+10. **gym_servers**: sin endpoint para descubrir gyms públicos
 
-### ✅ Ya hecho (actualizado 2026-05-18)
-- CI/CD: `.github/workflows/ci.yml` con tests + security scan + push a GHCR ✅
-- Prometheus: cableado en `main.py` ✅
-- ruff + mypy: configurados en `pyproject.toml` ✅
-- Redis rate limiter: `storage_uri` condicional por URL ✅
-- CSRF Google OAuth: cookie httpOnly + compare_digest ✅
-- ALLOWED_ORIGINS guard en startup ✅
-- RSA 2048 + MASTER_KEY generadas en `backend/.env.production.local` ✅
-- Chat Bloque E: context injection + auth gate SPA + 27 tests ✅
-- AI Insights cache DB: tabla `ai_insights_cache`, TTL 6h/24h, +1 test caché ✅
-- Auth-gate bridge fix: whitelist `?action=register|login` + SW v15 cache-bust ✅
-- workout_sessions `routine_id` type bug corregido: `int` → `UUID` ✅
-- Integrations OAuth2 CSRF callback corregido: `_verify_state()` real ✅
-- Integrations CSV OOM fix: `file.read(_MAX_CSV + 1)` ✅
-- Smoke test script: `scripts/smoke_test.py` — cubre 17 módulos, sin deps externas ✅
-- RGPD P0 ai_insights: pipeline anonimización en los 3 endpoints + `test_ai_prompts_never_contain_pii` ✅ (2026-05-18)
-- Ranked + Gym sparring: `display_name` en leaderboard y sparring; XSS escape frontend; 2 regression tests ✅ (2026-05-18)
-- workout/repository: Epley 1RM correcto (set-a-set en Python, no max(w)×max(r) SQL) ✅ (2026-05-18)
-- workout streak: `streak_days` conectado a GamificationRepository (antes hardcoded a 0) ✅ (2026-05-18)
-- ai_insights tests: 4 mocks httpx muertos migrados a RecorderAIRouter; imports muertos eliminados ✅ (2026-05-18)
-- workoutHistory.js: parámetro `page_size` → `per_page` corregido ✅ (2026-05-18)
+### ✅ Ya hecho (actualizado 2026-05-29)
+- Módulo A: Injury-Aware Routine Generator ✅ (2026-05-29)
+  - `user_chronic_injuries` tabla + 4 endpoints + InjuryManager frontend
+  - AI routing injury-aware con fallback graceful
+- Módulo B: Post-Workout AI Coach ✅ (2026-05-29)
+  - `workout_ai_plans` tabla + 3 endpoints + postWorkoutCoach.js + nextSessionPreloader.js
+  - Idempotente por session_id, TTL 48h, RGPD-safe
+- Fix migration crash loop (uq_refresh_tokens_jti CONSTRAINT) ✅ (2026-05-29)
+- Fix FastAPI 0.111 AssertionError en endpoint 204 ✅ (2026-05-29)
+- Redis healthy en Pi ✅ (2026-05-29)
+- CI/CD, Prometheus, ruff+mypy, Redis rate limiter ✅
+- RGPD completo: ai_insights + post_workout_coach ✅
+- Frontend Fases 1-8 ✅ SW v74
 
 ### 🗒️ Smoke test (ejecutar en Pi)
 ```bash
 cd ~/health-stack
 python3 scripts/smoke_test.py https://TU-URL.trycloudflare.com
 ```
+
+---
+
+## 🗺️ Roadmap MVP Beta — Semana 2 Jun 2026
+
+**Objetivo**: PWA estable con URL fija, lista para 5-10 betatesters el viernes 6 de junio.
+
+### Día 1 — Lunes 2 Jun · Infraestructura estable
+
+**Bloqueante #1: URL estable**
+- [ ] Registrar Cloudflare Named Tunnel en Zero Trust dashboard
+- [ ] Añadir `CLOUDFLARE_TUNNEL_TOKEN` a `.env.pi` en la Pi
+- [ ] Cambiar perfil Docker de `quick` a `cloudflare` en el deploy
+- [ ] Verificar que la URL no cambia al reiniciar el tunnel
+
+**Bloqueante #2: CORS configurado**
+- [ ] Añadir URL estable a `ALLOWED_ORIGINS` en `backend/.env`
+- [ ] Reiniciar backend y verificar que login funciona desde la URL definitiva
+
+**Bloqueante #3: PWA install verificado**
+- [ ] Probar Add to Home Screen en iOS Safari (debe servir HTTPS — Cloudflare lo da)
+- [ ] Probar install en Android Chrome
+- [ ] Verificar que la app arranca en modo standalone sin barra de navegación
+
+### Día 2 — Martes 3 Jun · Onboarding y first-run UX
+
+- [ ] **Pantalla de bienvenida first-run**: si `workout_sessions` = 0 y `health_records` = 0, mostrar modal de bienvenida con 3 pasos ("Registra tu peso", "Crea tu primera rutina", "Completa un entreno") — desaparece tras completar el paso 1
+- [ ] **Empty state Dashboard mejorado**: en lugar de stats a 0, mostrar CTA "Empieza tu primer entreno →"
+- [ ] **Empty state Entreno**: si no hay historial, mostrar card explicativa de cómo usar el logger
+- [ ] **Perfil: campo avatar/alias visible** en la sección de perfil para que betatesters personalicen su cuenta
+
+### Día 3 — Miércoles 4 Jun · QA end-to-end
+
+- [ ] **Smoke test completo** con la URL definitiva: `python3 scripts/smoke_test.py https://URL-ESTABLE`
+- [ ] **Test iOS Safari**: login, Add to Home Screen, abrir en standalone, registrar un entreno, cerrar app, reabrir (verificar sesión persistente)
+- [ ] **Test Android Chrome**: mismo flujo
+- [ ] **Test red lenta / offline**: desconectar WiFi, verificar que el offline banner aparece y la app no rompe
+- [ ] **Fix de cualquier bug crítico** encontrado en los tests
+
+### Día 4 — Jueves 5 Jun · Feedback loop y pulido
+
+- [ ] **Botón "Reportar bug"** en el menú de Perfil: abre mailto con asunto prefijado + info del dispositivo (userAgent, resolución) — sin backend necesario
+- [ ] **Logging de errores JS**: añadir handler `window.onerror` → envía a `/api/v1/telemetry` (endpoint ya existe) para capturar crashes de betatesters
+- [ ] **Mensaje de bienvenida** en la primera sesión tras registro: toast premium "¡Bienvenido a HealthStack Pro Beta! 🎉"
+- [ ] **Revisar PWA manifest**: asegurarse de que `name`, `short_name`, `icons` y `theme_color` son correctos para la pantalla de home
+
+### Día 5 — Viernes 6 Jun · Launch beta
+
+- [ ] **Smoke test final** desde un dispositivo externo (no la Pi)
+- [ ] **Preparar invite**: email o mensaje con la URL, instrucciones de install (iOS/Android), y enlace al form de feedback
+- [ ] **Invitar 5-10 betatesters** — empezar con gente de confianza que den feedback real
+- [ ] **Monitoreo activo 24h**: `docker logs healthstack_backend -f` + alertas Sentry
+
+### Métricas de éxito beta (fin de semana 1)
+
+| Métrica | Objetivo |
+|---------|----------|
+| Betatesters instalaron la PWA | ≥ 5 |
+| Entrenos registrados | ≥ 10 |
+| Crashes JS reportados | 0 críticos |
+| Login funciona en iOS | ✅ |
+| Sesión persiste tras cerrar app | ✅ |
+
+### Lo que NO es MVP beta (para después)
+
+- Ranked / gym_servers completos
+- Integrations OAuth2 (Garmin, Apple Health)
+- AdSense activo
+- Dominio propio (*.trycloudflare.com es suficiente para beta)
+- Tests de integrations
+- Visor anatómico rediseñado
 
 ---
 
@@ -358,15 +423,26 @@ backend/
         hashing.py                 ← Argon2
     modules/<modulo>/
       router.py / service.py / repository.py / models.py / schemas.py
+    modules/routines/models.py     ← UserChronicInjury (añadido 2026-05-29)
+    modules/workout_sessions/
+      models.py                    ← WorkoutAIPlan (añadido 2026-05-29)
+      post_workout_service.py      ← generate_post_workout_coaching
+      post_workout_repository.py   ← PostWorkoutRepository
   tests/
     conftest.py                    ← Fixtures críticas
     pytest.ini                     ← asyncio_default_test_loop_scope = session
-  alembic/versions/                ← 4 migraciones (última: ai_insights_cache)
+  alembic/versions/                ← 6 migraciones (HEAD: c9d0e1f2a3b4)
   requirements.txt                 ← pytest-asyncio==1.3.0 (no bajar de esta versión)
 scripts/
   smoke_test.py                    ← Smoke test 17 módulos, sin deps, solo stdlib
-frontend/                          ← SPA vanilla JS (puerto 3000)
-landing/                           ← React + Vite + Tailwind (puerto 5174)
+frontend/                          ← SPA vanilla JS
+  js/
+    routineGenerator.js            ← InjuryManager integrado
+    workout/
+      postWorkoutCoach.js          ← Módulo B coach card
+      nextSessionPreloader.js      ← Precarga plan tras workout
+  sw.js                            ← SW v74
+landing/                           ← React + Vite + Tailwind
 ARCHITECTURE.md                    ← Documentación high-level completa
 TESTS.bat                          ← Launcher Windows
 ```

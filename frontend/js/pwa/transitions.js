@@ -175,6 +175,7 @@ export function hidePageLoader() {
 
 // ─── Maintenance / 502 screen ─────────────────────────────────────────────────
 let _maintenanceShown = false;
+let _maintenancePoll  = null;   // referencia al interval para poder cancelarlo externamente
 
 export function showMaintenanceScreen() {
   if (_maintenanceShown) return;
@@ -201,12 +202,13 @@ export function showMaintenanceScreen() {
   document.body.appendChild(overlay);
   requestAnimationFrame(() => requestAnimationFrame(() => overlay.classList.add('hs-transition-overlay--visible')));
 
-  // Polling: usar _nativeFetch para no pasar por el interceptor
-  const _poll = setInterval(async () => {
+  // Polling: _nativeFetch para no pasar por el interceptor y no crear bucle infinito
+  _maintenancePoll = setInterval(async () => {
     try {
       const r = await _nativeFetch('/health', { cache: 'no-store' });
       if (r.ok) {
-        clearInterval(_poll);
+        clearInterval(_maintenancePoll);
+        _maintenancePoll = null;
         overlay.classList.remove('hs-transition-overlay--visible');
         setTimeout(() => { overlay.remove(); _maintenanceShown = false; window.location.reload(); }, 500);
       }
@@ -217,6 +219,8 @@ export function showMaintenanceScreen() {
 export function hideMaintenanceScreen() {
   const el = document.getElementById('hs-maintenance-overlay');
   if (!el) return;
+  // Cancelar el polling activo antes de quitar la pantalla
+  if (_maintenancePoll) { clearInterval(_maintenancePoll); _maintenancePoll = null; }
   _maintenanceShown = false;
   el.classList.remove('hs-transition-overlay--visible');
   setTimeout(() => el.remove(), 400);

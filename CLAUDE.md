@@ -16,7 +16,7 @@ Skill dedicado para mejoras visuales del frontend. Cargado en `.claude/skills/he
 **Token de diseño clave**: dark premium, gold `#c4a561` como ÚNICO acento, Inter font, base 4px spacing.
 
 **Estado del sistema de diseño**:
-- CSS v7 en `frontend/css/main.css` — SW **v82** — última actualización 2026-05-29
+- CSS v7 en `frontend/css/main.css` — SW **v86** — última actualización 2026-05-30
 - **Fase 1** ✅ completada: brand consistency (161 refs cyan→gold), skeleton system, stat upgrades, card polish, safe-area iOS
 - **Fase 2** ✅ completada: toast.js (showToast/showConfirm), chartDefaults.js, 10 módulos migrados de alert/confirm nativos, empty states, skeleton loaders JS, form input error/success states (setFieldState global)
 - **Fase 3** ✅ completada: stat-change pill coloreado, XP bar gold shimmer animado, level badge glow pulsante, achievement badge hover, wl-ex-group-chip por grupo muscular, PR badge shimmer, exercise cards con chip de color y badge "última vez"
@@ -208,10 +208,16 @@ asyncio_default_test_loop_scope = session   ← sin esto asyncpg explota
 | **Migration schema mismatch** | `source_session_id INTEGER NOT NULL FK` vs ORM `UUID nullable` | `UUID UNIQUE` nullable en migración 0015 (2026-05-29) |
 | **Redis unhealthy en Pi** | `REDIS_PASSWORD` no definida en `.env.pi` | Variable añadida; Redis ✅ healthy (2026-05-29) |
 | **AssertionError FastAPI 0.111** | `status_code=204` con response class → assert falla | `return Response(status_code=204)` en body, sin status en decorator (2026-05-29) |
+| **XP=0 en todos los entrenos** | `GamificationService.add_xp` llamado como `award_action` → AttributeError silenciado | Renombrar método a `award_action` en service.py + router.py (2026-05-30) |
+| **level_progress_pct negativo** | `_xp_for_level(1)` devolvía 100 en lugar de 0 | `if level <= 1: return 0` en gamification/service.py (2026-05-30) |
+| **duration_secs negativo** | `started_at` en futuro + `finished_at=now()` → delta negativo | Guard `delta if delta >= 0 else None` en workout_sessions/service.py (2026-05-30) |
+| **429 silencioso en registro/login** | slowapi devuelve `{"error":...}` pero api.js solo leía `err.detail` | Leer `err.error \|\| err.detail` + mensaje user-friendly en auth.js (2026-05-30) |
+| **telemetry /event → 422** | `@_get_limiter().limit()` en endpoint con `Body()` rompe body parsing FastAPI 0.111 | Quitar decorator por-endpoint; usar rate limit global (2026-05-30) |
+| **XSS en aiInsights/aiCoach** | Contenido Groq (narrative, risk_flags, coaching) insertado en innerHTML sin escapar | `_esc()` aplicado a todos los campos AI antes de innerHTML (2026-05-30) |
 
 ---
 
-## Infraestructura — Estado (2026-05-29)
+## Infraestructura — Estado (2026-05-30)
 
 | Item | Estado | Notas |
 |------|--------|-------|

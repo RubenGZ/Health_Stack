@@ -249,13 +249,13 @@ asyncio_default_test_loop_scope = session   ← sin esto asyncpg explota
 ### 🚀 DEPLOY — COMANDOS ACTUALES
 
 ```bash
-# Deploy estándar (git pull + rebuild + up)
+# Deploy estándar — USAR SIEMPRE ESTE
+bash ~/healthstack-pi-server/scripts/update.sh
+
+# Alternativa manual si el script falla
 cd ~/health-stack
 git pull
 docker compose -f docker-compose.pi.yml --env-file .env.pi up -d --build backend
-
-# Solo code change (sin cambios de deps — más rápido, ~9s vs ~500s)
-git pull && docker compose -f docker-compose.pi.yml --env-file .env.pi up -d --build backend
 
 # Migración manual
 docker exec healthstack_backend alembic upgrade head

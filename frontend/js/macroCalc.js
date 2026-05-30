@@ -3,9 +3,9 @@
    Fórmula Mifflin-St Jeor (validada meta-análisis 2025).
    Persiste en localStorage. Gráfico de dona Chart.js.
 
-   v2 — 2026-05-30:
+   v3 — 2026-05-30:
    · Proteína por objetivo (max 2.0 g/kg en déficit, 1.8 en volumen)
-   · Sliders de ajuste fino por el usuario (±proteína, % grasa)
+   · 3 sliders de porcentaje: proteína%, grasa%, hidratos auto
    · Etiquetas % en el gráfico sin necesidad de hacer tap
    ============================================================ */
 
@@ -69,26 +69,46 @@ const MacroCalc = (function () {
     return tdee + (GOAL_DELTA[goal] || 0);
   }
 
+  // ── Base fat pct ───────────────────────────────────────────
+  const BASE_FAT_PCT = 25;
+
   // ── Macros ─────────────────────────────────────────────────
-  // adj: { proteinDelta: number (g), fatPct: number (%) }
+  // adj: { proteinPct?: number, fatPct?: number } — % de kcal totales
+  // Si adj tiene formato legacy (proteinDelta), se ignora → defaults
   function calcMacros(weight, targetKcal, goal, adj = {}) {
-    const basePerKg  = PROTEIN_G_PER_KG[goal] || 1.8;
-    const baseProteinG = Math.round(weight * basePerKg);
+    const basePerKg     = PROTEIN_G_PER_KG[goal] || 1.8;
+    const baseProteinG  = Math.round(weight * basePerKg);
+    // Porcentaje recomendado de proteína según la fórmula g/kg
+    const baseProteinPct = targetKcal > 0
+      ? Math.min(50, Math.max(10, Math.round((baseProteinG * 4 / targetKcal) * 100)))
+      : 30;
+    const baseFatPct = BASE_FAT_PCT;
 
-    // Proteína con ajuste del usuario (±30 g, mínimo 60 g)
-    const proteinG    = Math.max(60, baseProteinG + (adj.proteinDelta || 0));
-    const proteinKcal = proteinG * 4;
+    // Si el adj es legacy (tiene proteinDelta), ignorarlo
+    const hasNewFormat = adj.proteinPct !== undefined || adj.fatPct !== undefined;
+    const safeAdj = hasNewFormat ? adj : {};
 
-    // Grasa: porcentaje ajustable (15–40%, base 25%)
-    const fatPct  = Math.min(40, Math.max(15, adj.fatPct !== undefined ? adj.fatPct : 25));
-    const fatKcal = Math.round(targetKcal * fatPct / 100);
-    const fatG    = Math.round(fatKcal / 9);
+    const proteinPct = safeAdj.proteinPct !== undefined
+      ? Math.min(50, Math.max(10, Math.round(safeAdj.proteinPct)))
+      : baseProteinPct;
+    const fatPct = safeAdj.fatPct !== undefined
+      ? Math.min(50, Math.max(10, Math.round(safeAdj.fatPct)))
+      : baseFatPct;
+    const carbsPct = Math.max(0, 100 - proteinPct - fatPct);
 
-    // Hidratos: calorías restantes
-    const carbsKcal = Math.max(0, targetKcal - proteinKcal - fatKcal);
-    const carbsG    = Math.round(carbsKcal / 4);
+    const proteinKcal = Math.round(targetKcal * proteinPct / 100);
+    const proteinG    = Math.round(proteinKcal / 4);
+    const fatKcal     = Math.round(targetKcal * fatPct / 100);
+    const fatG        = Math.round(fatKcal / 9);
+    const carbsKcal   = Math.max(0, targetKcal - proteinKcal - fatKcal);
+    const carbsG      = Math.round(carbsKcal / 4);
 
-    return { proteinG, proteinKcal, fatG, fatKcal, carbsG, carbsKcal, basePerKg, baseProteinG, fatPct };
+    return {
+      proteinG, proteinKcal, proteinPct,
+      fatG, fatKcal, fatPct,
+      carbsG, carbsKcal, carbsPct,
+      basePerKg, baseProteinG, baseProteinPct, baseFatPct,
+    };
   }
 
   // ── Leer formulario ────────────────────────────────────────
@@ -198,23 +218,21 @@ const MacroCalc = (function () {
 
   // ── Actualizar UI de macros (reutilizable desde sliders) ───
   function _applyMacros(macros, targetKcal) {
-    const totalKcal = macros.proteinKcal + macros.fatKcal + macros.carbsKcal;
-    const pct = n => totalKcal > 0 ? `${Math.round((n / totalKcal) * 100)}%` : '--%';
     const set = (id, val) => { const el = document.getElementById(id); if (el) el.textContent = val; };
 
     set('macro-protein-g',    `${macros.proteinG} g`);
     set('macro-protein-kcal', `${macros.proteinKcal} kcal`);
-    set('macro-protein-pct',  pct(macros.proteinKcal));
+    set('macro-protein-pct',  `${macros.proteinPct}%`);
     set('macro-fat-g',        `${macros.fatG} g`);
     set('macro-fat-kcal',     `${macros.fatKcal} kcal`);
-    set('macro-fat-pct',      pct(macros.fatKcal));
+    set('macro-fat-pct',      `${macros.fatPct}%`);
     set('macro-carbs-g',      `${macros.carbsG} g`);
     set('macro-carbs-kcal',   `${macros.carbsKcal} kcal`);
-    set('macro-carbs-pct',    pct(macros.carbsKcal));
+    set('macro-carbs-pct',    `${macros.carbsPct}%`);
 
-    // Fórmula dinámica bajo "Proteína"
+    // Fórmula dinámica bajo "Proteína": muestra la base g/kg de referencia
     const fEl = document.getElementById('macro-protein-formula');
-    if (fEl) fEl.textContent = `${macros.basePerKg}g × kg (${macros.proteinG > macros.baseProteinG ? '+' : ''}${macros.proteinG - macros.baseProteinG !== 0 ? (macros.proteinG - macros.baseProteinG) + 'g adj' : 'base'})`;
+    if (fEl) fEl.textContent = `rec. ${macros.basePerKg}g/kg · ${macros.baseProteinG}g`;
 
     renderMacroChart(macros.proteinKcal, macros.fatKcal, macros.carbsKcal);
   }
@@ -226,86 +244,109 @@ const MacroCalc = (function () {
     const adj    = _loadAdj();
     const macros = calcMacros(weight, targetKcal, goal, adj);
     _applyMacros(macros, targetKcal);
-    _updateSliderDisplay(weight, goal, adj);
-  }
-
-  function _updateSliderDisplay(weight, goal, adj) {
-    const baseProteinG = Math.round(weight * (PROTEIN_G_PER_KG[goal] || 1.8));
-    const pVal = document.getElementById('adj-protein-val');
-    const fVal = document.getElementById('adj-fat-val');
-    if (pVal) pVal.textContent = `${baseProteinG + (adj.proteinDelta || 0)} g`;
-    if (fVal) fVal.textContent = `${adj.fatPct !== undefined ? adj.fatPct : 25}%`;
   }
 
   // ── Sliders de ajuste ──────────────────────────────────────
   function _renderAdjustSliders(weight, targetKcal, goal) {
     document.getElementById('macro-adj-panel')?.remove();
 
-    const adj          = _loadAdj();
-    const basePerKg    = PROTEIN_G_PER_KG[goal] || 1.8;
-    const baseProteinG = Math.round(weight * basePerKg);
-    const baseFatPct   = 25;
-    const curProteinDelta = adj.proteinDelta || 0;
-    const curFatPct       = adj.fatPct !== undefined ? adj.fatPct : baseFatPct;
+    const adj            = _loadAdj();
+    const basePerKg      = PROTEIN_G_PER_KG[goal] || 1.8;
+    const baseProteinG   = Math.round(weight * basePerKg);
+    const baseProteinPct = targetKcal > 0
+      ? Math.min(50, Math.max(10, Math.round((baseProteinG * 4 / targetKcal) * 100)))
+      : 30;
+    const baseFatPct = BASE_FAT_PCT;
+
+    // Leer adj en nuevo formato (proteinPct/fatPct), ignorar legacy
+    const hasNew     = adj.proteinPct !== undefined || adj.fatPct !== undefined;
+    const curProtPct = hasNew && adj.proteinPct !== undefined ? adj.proteinPct : baseProteinPct;
+    const curFatPct  = hasNew && adj.fatPct     !== undefined ? adj.fatPct     : baseFatPct;
+    const curCarbPct = Math.max(0, 100 - curProtPct - curFatPct);
 
     const panel = document.createElement('div');
     panel.id        = 'macro-adj-panel';
     panel.className = 'macro-adj-panel';
     panel.innerHTML = `
       <div class="macro-adj-header">
-        <span class="macro-adj-title">Ajustar distribución</span>
-        <button class="macro-adj-reset" id="macro-adj-reset">Restablecer</button>
+        <span class="macro-adj-title">Distribución de macros</span>
+        <button class="macro-adj-reset" id="macro-adj-reset">Restablecer óptimos</button>
       </div>
+      <p class="macro-adj-hint">Los valores recomendados son óptimos para tu objetivo. Ajústalos a tu gusto.</p>
       <div class="macro-adj-sliders">
         <div class="macro-adj-row">
           <div class="macro-adj-label">
             <span class="macro-adj-dot" style="background:var(--hs-accent,#c4a561)"></span>
-            Proteína
+            <span>Proteína</span>
+            <span class="macro-adj-rec" id="adj-protein-rec">rec. ${baseProteinPct}%</span>
           </div>
           <div class="macro-adj-ctrl">
             <input type="range" id="adj-protein" class="macro-adj-range"
-                   min="-30" max="30" step="5" value="${curProteinDelta}">
-            <span class="macro-adj-val" id="adj-protein-val">${baseProteinG + curProteinDelta} g</span>
+                   min="10" max="50" step="1" value="${curProtPct}">
+            <span class="macro-adj-val" id="adj-protein-val">${curProtPct}%</span>
           </div>
         </div>
         <div class="macro-adj-row">
           <div class="macro-adj-label">
             <span class="macro-adj-dot" style="background:#f59e0b"></span>
-            Grasa
+            <span>Grasa</span>
+            <span class="macro-adj-rec" id="adj-fat-rec">rec. ${baseFatPct}%</span>
           </div>
           <div class="macro-adj-ctrl">
             <input type="range" id="adj-fat" class="macro-adj-range"
-                   min="15" max="40" step="1" value="${curFatPct}">
+                   min="10" max="50" step="1" value="${curFatPct}">
             <span class="macro-adj-val" id="adj-fat-val">${curFatPct}%</span>
           </div>
         </div>
+        <div class="macro-adj-row macro-adj-row--auto">
+          <div class="macro-adj-label">
+            <span class="macro-adj-dot" style="background:#00d2ff"></span>
+            <span>Hidratos</span>
+            <span class="macro-adj-auto-badge">auto</span>
+          </div>
+          <div class="macro-adj-ctrl">
+            <input type="range" id="adj-carbs" class="macro-adj-range macro-adj-range--auto"
+                   min="0" max="80" step="1" value="${curCarbPct}" disabled>
+            <span class="macro-adj-val" id="adj-carbs-val">${curCarbPct}%</span>
+          </div>
+        </div>
       </div>
-      <p class="macro-adj-hint">Hidratos se ajustan automáticamente al resto de calorías.</p>
     `;
 
-    // Insertar después de la lista de macros
     const macroList = document.querySelector('.macro-list');
     macroList?.insertAdjacentElement('afterend', panel);
 
-    const proteinSlider = document.getElementById('adj-protein');
-    const fatSlider     = document.getElementById('adj-fat');
+    const protSlider  = document.getElementById('adj-protein');
+    const fatSlider   = document.getElementById('adj-fat');
+    const carbsSlider = document.getElementById('adj-carbs');
+    const pVal        = document.getElementById('adj-protein-val');
+    const fVal        = document.getElementById('adj-fat-val');
+    const cVal        = document.getElementById('adj-carbs-val');
 
     const onSlide = () => {
-      const a = {
-        proteinDelta: parseInt(proteinSlider.value),
-        fatPct:       parseInt(fatSlider.value),
-      };
-      _saveAdj(a);
+      const pPct = parseInt(protSlider.value);
+      const fPct = parseInt(fatSlider.value);
+      const cPct = Math.max(0, 100 - pPct - fPct);
+      if (carbsSlider) carbsSlider.value = cPct;
+      if (pVal) pVal.textContent = `${pPct}%`;
+      if (fVal) fVal.textContent = `${fPct}%`;
+      if (cVal) cVal.textContent = `${cPct}%`;
+      _saveAdj({ proteinPct: pPct, fatPct: fPct });
       _refreshFromAdj();
     };
 
-    proteinSlider.addEventListener('input', onSlide);
-    fatSlider.addEventListener('input', onSlide);
+    protSlider.addEventListener('input', onSlide);
+    fatSlider.addEventListener('input',  onSlide);
 
     document.getElementById('macro-adj-reset').addEventListener('click', () => {
       _saveAdj({});
-      proteinSlider.value = 0;
-      fatSlider.value     = baseFatPct;
+      protSlider.value = baseProteinPct;
+      fatSlider.value  = baseFatPct;
+      const cPct = Math.max(0, 100 - baseProteinPct - baseFatPct);
+      if (carbsSlider) carbsSlider.value = cPct;
+      if (pVal) pVal.textContent = `${baseProteinPct}%`;
+      if (fVal) fVal.textContent = `${baseFatPct}%`;
+      if (cVal) cVal.textContent = `${cPct}%`;
       _refreshFromAdj();
     });
   }

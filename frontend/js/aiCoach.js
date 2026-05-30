@@ -18,6 +18,10 @@
     return localStorage.getItem('hs_access_token') || '';
   }
 
+  function _esc(s) {
+    return String(s ?? '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+  }
+
   function createLogForm(exName, plannedReps) {
     const form = document.createElement('div');
     form.className = 'rex-log-form';
@@ -72,7 +76,7 @@
     container.innerHTML = `
       <div class="rex-coach-msg">
         <span class="rex-coach-icon">${iconMap[data.suggestion] || ''}</span>
-        <span class="rex-coach-text">${data.coaching}</span>
+        <span class="rex-coach-text">${_esc(data.coaching)}</span>
       </div>`;
   }
 

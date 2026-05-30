@@ -800,6 +800,113 @@ canvas { display: block; }
 .macro-g    { display: block; font-size: 1.1rem; font-weight: 700; }
 .macro-kcal { display: block; font-size: 0.72rem; color: var(--text-muted); }
 
+/* Macro adjustment sliders */
+.macro-adj-panel {
+  background: var(--glass-bg, rgba(255,255,255,0.04));
+  border: 1px solid var(--glass-border, rgba(255,255,255,0.08));
+  border-radius: var(--radius-md, 12px);
+  padding: 14px 16px 10px;
+  margin-top: 4px;
+}
+.macro-adj-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 12px;
+}
+.macro-adj-title {
+  font-size: 0.78rem;
+  font-weight: 600;
+  color: var(--text-secondary, rgba(255,255,255,0.45));
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+.macro-adj-reset {
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-size: 0.75rem;
+  color: var(--hs-accent, #c4a561);
+  padding: 2px 6px;
+  border-radius: 6px;
+  transition: background 150ms;
+  -webkit-tap-highlight-color: transparent;
+}
+.macro-adj-reset:hover { background: rgba(196,165,97,0.1); }
+.macro-adj-sliders { display: flex; flex-direction: column; gap: 10px; }
+.macro-adj-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+.macro-adj-label {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.82rem;
+  color: var(--text-primary, #e2e8f0);
+  min-width: 72px;
+  flex-shrink: 0;
+}
+.macro-adj-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+.macro-adj-ctrl {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex: 1;
+}
+.macro-adj-range {
+  flex: 1;
+  -webkit-appearance: none;
+  appearance: none;
+  height: 4px;
+  border-radius: 2px;
+  background: rgba(255,255,255,0.12);
+  outline: none;
+  cursor: pointer;
+}
+.macro-adj-range::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background: var(--hs-accent, #c4a561);
+  box-shadow: 0 0 0 3px rgba(196,165,97,0.2);
+  cursor: pointer;
+  transition: box-shadow 150ms;
+}
+.macro-adj-range::-webkit-slider-thumb:active {
+  box-shadow: 0 0 0 5px rgba(196,165,97,0.3);
+}
+.macro-adj-range::-moz-range-thumb {
+  width: 18px;
+  height: 18px;
+  border: none;
+  border-radius: 50%;
+  background: var(--hs-accent, #c4a561);
+  cursor: pointer;
+}
+.macro-adj-val {
+  font-size: 0.8rem;
+  font-weight: 700;
+  color: var(--hs-accent, #c4a561);
+  min-width: 42px;
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+.macro-adj-hint {
+  font-size: 0.7rem;
+  color: var(--text-muted, rgba(255,255,255,0.25));
+  margin: 8px 0 0;
+  line-height: 1.4;
+}
+
 /* Nutrition tip */
 .nutrition-tip {
   display: flex;

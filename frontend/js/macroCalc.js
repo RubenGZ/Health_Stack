@@ -2,25 +2,29 @@
    macroCalc.js — Calculadora TDEE + Macros
    Fórmula Mifflin-St Jeor (validada meta-análisis 2025).
    Persiste en localStorage. Gráfico de dona Chart.js.
+
+   v2 — 2026-05-30:
+   · Proteína por objetivo (max 2.0 g/kg en déficit, 1.8 en volumen)
+   · Sliders de ajuste fino por el usuario (±proteína, % grasa)
+   · Etiquetas % en el gráfico sin necesidad de hacer tap
    ============================================================ */
 
 const MacroCalc = (function () {
   'use strict';
 
   const LS_KEY = 'hs_tdee';
+  const LS_ADJ = 'hs_macro_adj';   // ajustes del usuario sobre los macros base
 
   let macroChartInstance = null;
+  let _lastCalcCtx = null;          // { weight, targetKcal, goal } — para re-render desde sliders
 
   // ── Ajuste calórico por objetivo ───────────────────────────
-  // Límite seguro: ±500 kcal/día ≈ ±0.5 kg/semana
-  // Los valores soft son más agresivos que antes para dar cambios
-  // perceptibles sin salirse del rango saludable.
   const GOAL_DELTA = {
-    deficit_hard: -500,  // máximo seguro — -0.5 kg/sem
-    deficit_soft: -350,  // déficit notable preservando músculo
+    deficit_hard: -500,
+    deficit_soft: -350,
     maintain:        0,
-    surplus_soft:  350,  // superávit perceptible, mínima grasa
-    surplus_hard:  500,  // máximo seguro — +0.5 kg/sem
+    surplus_soft:  350,
+    surplus_hard:  500,
   };
 
   const GOAL_TIPS = {
@@ -31,10 +35,28 @@ const MacroCalc = (function () {
     surplus_hard: 'Superávit de 500 kcal/día — ganancia estimada de ~0.5 kg/semana (límite recomendado). Espera algo más de grasa. Ideal en fases de volumen.',
   };
 
+  // ── Proteína por objetivo (g/kg de peso corporal) ──────────
+  // Déficit: 2.0 g/kg — máximo para preservar músculo (ACSM 2023)
+  // Mantenimiento/volumen: 1.8 g/kg — suficiente para síntesis proteica
+  const PROTEIN_G_PER_KG = {
+    deficit_hard: 2.0,
+    deficit_soft: 2.0,
+    maintain:     1.8,
+    surplus_soft: 1.8,
+    surplus_hard: 1.8,
+  };
+
+  // ── Ajustes del usuario ────────────────────────────────────
+  function _loadAdj() {
+    try { return JSON.parse(localStorage.getItem(LS_ADJ) || 'null') || {}; }
+    catch { return {}; }
+  }
+  function _saveAdj(adj) {
+    try { localStorage.setItem(LS_ADJ, JSON.stringify(adj)); } catch {}
+  }
+
   // ── Cálculo BMR (Mifflin-St Jeor) ─────────────────────────
   function calcBMR(sex, age, weight, height) {
-    // sex: 'male' | 'female'
-    // Fórmula: 10*peso + 6.25*talla - 5*edad + constante
     const base = 10 * weight + 6.25 * height - 5 * age;
     return sex === 'male' ? base + 5 : base - 161;
   }
@@ -48,21 +70,25 @@ const MacroCalc = (function () {
   }
 
   // ── Macros ─────────────────────────────────────────────────
-  function calcMacros(weight, targetKcal) {
-    // Proteína: 2.2 g/kg — dosis óptima según meta-análisis 2023-2025
-    // (Morton et al. 2018; Stokes et al. 2023 reconfirman 1.6–2.2 g/kg)
-    const proteinG    = Math.round(weight * 2.2);
+  // adj: { proteinDelta: number (g), fatPct: number (%) }
+  function calcMacros(weight, targetKcal, goal, adj = {}) {
+    const basePerKg  = PROTEIN_G_PER_KG[goal] || 1.8;
+    const baseProteinG = Math.round(weight * basePerKg);
+
+    // Proteína con ajuste del usuario (±30 g, mínimo 60 g)
+    const proteinG    = Math.max(60, baseProteinG + (adj.proteinDelta || 0));
     const proteinKcal = proteinG * 4;
 
-    // Grasa: 25% de las kcal objetivo (mínimo saludable ~20%)
-    const fatKcal = Math.round(targetKcal * 0.25);
+    // Grasa: porcentaje ajustable (15–40%, base 25%)
+    const fatPct  = Math.min(40, Math.max(15, adj.fatPct !== undefined ? adj.fatPct : 25));
+    const fatKcal = Math.round(targetKcal * fatPct / 100);
     const fatG    = Math.round(fatKcal / 9);
 
     // Hidratos: calorías restantes
     const carbsKcal = Math.max(0, targetKcal - proteinKcal - fatKcal);
     const carbsG    = Math.round(carbsKcal / 4);
 
-    return { proteinG, proteinKcal, fatG, fatKcal, carbsG, carbsKcal };
+    return { proteinG, proteinKcal, fatG, fatKcal, carbsG, carbsKcal, basePerKg, baseProteinG, fatPct };
   }
 
   // ── Leer formulario ────────────────────────────────────────
@@ -85,13 +111,44 @@ const MacroCalc = (function () {
     return null;
   }
 
-  // ── Limpiar estados de campo ───────────────────────────────
   function _clearFieldStates() {
     ['tdee-age', 'tdee-weight', 'tdee-height'].forEach(id => {
       const el = document.getElementById(id);
       if (el && typeof window.setFieldState === 'function') window.setFieldState(el, 'clear');
     });
   }
+
+  // ── Plugin: etiquetas % en el donut ───────────────────────
+  // Dibuja el porcentaje directamente sobre cada segmento del donut,
+  // sin necesidad de hacer tap. No requiere plugins externos.
+  const _donutLabelsPlugin = {
+    id: 'donutLabels',
+    afterDatasetsDraw(chart) {
+      const { ctx } = chart;
+      const meta  = chart.getDatasetMeta(0);
+      const data  = chart.data.datasets[0].data;
+      const total = data.reduce((a, b) => a + b, 0);
+      if (!total) return;
+
+      meta.data.forEach((arc, i) => {
+        const pct = Math.round((data[i] / total) * 100);
+        if (pct < 7) return; // segmentos muy pequeños — omitir etiqueta
+
+        const midAngle = (arc.startAngle + arc.endAngle) / 2;
+        const r        = (arc.outerRadius + arc.innerRadius) / 2;
+        const lx       = arc.x + Math.cos(midAngle) * r;
+        const ly       = arc.y + Math.sin(midAngle) * r;
+
+        ctx.save();
+        ctx.font         = '700 11px Inter, system-ui, sans-serif';
+        ctx.fillStyle    = 'rgba(7,7,15,0.88)';
+        ctx.textAlign    = 'center';
+        ctx.textBaseline = 'middle';
+        ctx.fillText(`${pct}%`, lx, ly);
+        ctx.restore();
+      });
+    },
+  };
 
   // ── Gráfico de dona ────────────────────────────────────────
   function renderMacroChart(proteinKcal, fatKcal, carbsKcal) {
@@ -103,6 +160,7 @@ const MacroCalc = (function () {
     const ctx = canvas.getContext('2d');
     macroChartInstance = new Chart(ctx, {
       type: 'doughnut',
+      plugins: [_donutLabelsPlugin],
       data: {
         labels: ['Proteína', 'Grasa', 'Hidratos'],
         datasets: [{
@@ -116,7 +174,7 @@ const MacroCalc = (function () {
       options: {
         responsive: true,
         maintainAspectRatio: true,
-        cutout: '68%',
+        cutout: '62%',   // ligeramente más ancho para que quepan los %
         plugins: {
           legend: { display: false },
           tooltip: {
@@ -127,8 +185,8 @@ const MacroCalc = (function () {
             bodyColor: '#e2e8f0',
             callbacks: {
               label: item => {
-                const total = item.dataset.data.reduce((a, b) => a + b, 0);
-                const pct   = ((item.parsed / total) * 100).toFixed(0);
+                const tot = item.dataset.data.reduce((a, b) => a + b, 0);
+                const pct = ((item.parsed / tot) * 100).toFixed(0);
                 return ` ${item.label}: ${item.raw} kcal (${pct}%)`;
               },
             },
@@ -138,24 +196,11 @@ const MacroCalc = (function () {
     });
   }
 
-  // ── Mostrar resultados ─────────────────────────────────────
-  function showResults(data) {
-    const { sex, age, weight, height, activity, goal } = data;
-
-    const bmr    = calcBMR(sex, age, weight, height);
-    const tdee   = calcTDEE(bmr, activity);
-    const target = calcTarget(tdee, goal);
-    const macros = calcMacros(weight, target);
-
-    // Tarjetas de calorías
-    const set = (id, val) => { const el = document.getElementById(id); if (el) el.textContent = val; };
-    set('result-bmr',    `${Math.round(bmr)}`);
-    set('result-tdee',   `${tdee}`);
-    set('result-target', `${target}`);
-
-    // Macros + porcentajes
+  // ── Actualizar UI de macros (reutilizable desde sliders) ───
+  function _applyMacros(macros, targetKcal) {
     const totalKcal = macros.proteinKcal + macros.fatKcal + macros.carbsKcal;
-    const pct = (n) => totalKcal > 0 ? `${Math.round((n / totalKcal) * 100)}%` : '--%';
+    const pct = n => totalKcal > 0 ? `${Math.round((n / totalKcal) * 100)}%` : '--%';
+    const set = (id, val) => { const el = document.getElementById(id); if (el) el.textContent = val; };
 
     set('macro-protein-g',    `${macros.proteinG} g`);
     set('macro-protein-kcal', `${macros.proteinKcal} kcal`);
@@ -167,13 +212,134 @@ const MacroCalc = (function () {
     set('macro-carbs-kcal',   `${macros.carbsKcal} kcal`);
     set('macro-carbs-pct',    pct(macros.carbsKcal));
 
+    // Fórmula dinámica bajo "Proteína"
+    const fEl = document.getElementById('macro-protein-formula');
+    if (fEl) fEl.textContent = `${macros.basePerKg}g × kg (${macros.proteinG > macros.baseProteinG ? '+' : ''}${macros.proteinG - macros.baseProteinG !== 0 ? (macros.proteinG - macros.baseProteinG) + 'g adj' : 'base'})`;
+
+    renderMacroChart(macros.proteinKcal, macros.fatKcal, macros.carbsKcal);
+  }
+
+  // ── Recalcular desde ajustes (usado por sliders) ───────────
+  function _refreshFromAdj() {
+    if (!_lastCalcCtx) return;
+    const { weight, targetKcal, goal } = _lastCalcCtx;
+    const adj    = _loadAdj();
+    const macros = calcMacros(weight, targetKcal, goal, adj);
+    _applyMacros(macros, targetKcal);
+    _updateSliderDisplay(weight, goal, adj);
+  }
+
+  function _updateSliderDisplay(weight, goal, adj) {
+    const baseProteinG = Math.round(weight * (PROTEIN_G_PER_KG[goal] || 1.8));
+    const pVal = document.getElementById('adj-protein-val');
+    const fVal = document.getElementById('adj-fat-val');
+    if (pVal) pVal.textContent = `${baseProteinG + (adj.proteinDelta || 0)} g`;
+    if (fVal) fVal.textContent = `${adj.fatPct !== undefined ? adj.fatPct : 25}%`;
+  }
+
+  // ── Sliders de ajuste ──────────────────────────────────────
+  function _renderAdjustSliders(weight, targetKcal, goal) {
+    document.getElementById('macro-adj-panel')?.remove();
+
+    const adj          = _loadAdj();
+    const basePerKg    = PROTEIN_G_PER_KG[goal] || 1.8;
+    const baseProteinG = Math.round(weight * basePerKg);
+    const baseFatPct   = 25;
+    const curProteinDelta = adj.proteinDelta || 0;
+    const curFatPct       = adj.fatPct !== undefined ? adj.fatPct : baseFatPct;
+
+    const panel = document.createElement('div');
+    panel.id        = 'macro-adj-panel';
+    panel.className = 'macro-adj-panel';
+    panel.innerHTML = `
+      <div class="macro-adj-header">
+        <span class="macro-adj-title">Ajustar distribución</span>
+        <button class="macro-adj-reset" id="macro-adj-reset">Restablecer</button>
+      </div>
+      <div class="macro-adj-sliders">
+        <div class="macro-adj-row">
+          <div class="macro-adj-label">
+            <span class="macro-adj-dot" style="background:var(--hs-accent,#c4a561)"></span>
+            Proteína
+          </div>
+          <div class="macro-adj-ctrl">
+            <input type="range" id="adj-protein" class="macro-adj-range"
+                   min="-30" max="30" step="5" value="${curProteinDelta}">
+            <span class="macro-adj-val" id="adj-protein-val">${baseProteinG + curProteinDelta} g</span>
+          </div>
+        </div>
+        <div class="macro-adj-row">
+          <div class="macro-adj-label">
+            <span class="macro-adj-dot" style="background:#f59e0b"></span>
+            Grasa
+          </div>
+          <div class="macro-adj-ctrl">
+            <input type="range" id="adj-fat" class="macro-adj-range"
+                   min="15" max="40" step="1" value="${curFatPct}">
+            <span class="macro-adj-val" id="adj-fat-val">${curFatPct}%</span>
+          </div>
+        </div>
+      </div>
+      <p class="macro-adj-hint">Hidratos se ajustan automáticamente al resto de calorías.</p>
+    `;
+
+    // Insertar después de la lista de macros
+    const macroList = document.querySelector('.macro-list');
+    macroList?.insertAdjacentElement('afterend', panel);
+
+    const proteinSlider = document.getElementById('adj-protein');
+    const fatSlider     = document.getElementById('adj-fat');
+
+    const onSlide = () => {
+      const a = {
+        proteinDelta: parseInt(proteinSlider.value),
+        fatPct:       parseInt(fatSlider.value),
+      };
+      _saveAdj(a);
+      _refreshFromAdj();
+    };
+
+    proteinSlider.addEventListener('input', onSlide);
+    fatSlider.addEventListener('input', onSlide);
+
+    document.getElementById('macro-adj-reset').addEventListener('click', () => {
+      _saveAdj({});
+      proteinSlider.value = 0;
+      fatSlider.value     = baseFatPct;
+      _refreshFromAdj();
+    });
+  }
+
+  // ── Mostrar resultados ─────────────────────────────────────
+  function showResults(data) {
+    const { sex, age, weight, height, activity, goal } = data;
+
+    const bmr    = calcBMR(sex, age, weight, height);
+    const tdee   = calcTDEE(bmr, activity);
+    const target = calcTarget(tdee, goal);
+
+    // Guardar contexto para que los sliders puedan recalcular
+    _lastCalcCtx = { weight, targetKcal: target, goal };
+
+    const adj    = _loadAdj();
+    const macros = calcMacros(weight, target, goal, adj);
+
+    // Tarjetas de calorías
+    const set = (id, val) => { const el = document.getElementById(id); if (el) el.textContent = val; };
+    set('result-bmr',    `${Math.round(bmr)}`);
+    set('result-tdee',   `${tdee}`);
+    set('result-target', `${target}`);
+
     // Tip
     set('tip-text', GOAL_TIPS[goal] || '');
 
-    // Gráfico
-    renderMacroChart(macros.proteinKcal, macros.fatKcal, macros.carbsKcal);
+    // Macros + gráfico
+    _applyMacros(macros, target);
 
-    // Mostrar resultados
+    // Sliders de ajuste
+    _renderAdjustSliders(weight, target, goal);
+
+    // Mostrar sección de resultados
     const resultsEl = document.getElementById('nutrition-results');
     if (resultsEl) {
       resultsEl.style.display = 'block';
@@ -182,7 +348,6 @@ const MacroCalc = (function () {
 
     // Persistir
     localStorage.setItem(LS_KEY, JSON.stringify({ ...data, bmr, tdee, target, macros, ts: Date.now() }));
-    // Valores globales para el dashboard
     if (isFinite(target) && target > 0) localStorage.setItem('hs_last_tdee', String(target));
     if (data.height) localStorage.setItem('hs_height_cm', String(data.height));
 
@@ -193,10 +358,7 @@ const MacroCalc = (function () {
     if (statTdeeL) statTdeeL.textContent = goal === 'maintain' ? 'Mantenimiento' :
                                            goal.startsWith('deficit') ? 'Para perder peso' : 'Para ganar músculo';
 
-    // Trigger actualización de BMI en peso
     WeightTracker.renderAll();
-
-    // Notificar gamificación
     window.dispatchEvent(new CustomEvent('hs:tdee-calculated'));
   }
 
@@ -206,7 +368,6 @@ const MacroCalc = (function () {
       const saved = JSON.parse(localStorage.getItem(LS_KEY) || 'null');
       if (!saved) return;
 
-      // Rellenar formulario
       const radio = document.querySelector(`input[name="sex"][value="${saved.sex}"]`);
       if (radio) radio.checked = true;
 
@@ -217,7 +378,6 @@ const MacroCalc = (function () {
       fld('tdee-activity', saved.activity);
       fld('tdee-goal',     saved.goal);
 
-      // Mostrar resultados guardados
       showResults(saved);
     } catch { /* ignorar datos corruptos */ }
   }
@@ -242,7 +402,6 @@ const MacroCalc = (function () {
         return;
       }
       showResults(data);
-      // Marcar campos válidos brevemente
       if (typeof window.setFieldState === 'function') {
         ['tdee-age','tdee-weight','tdee-height'].forEach(id => {
           const el = document.getElementById(id);
@@ -254,7 +413,6 @@ const MacroCalc = (function () {
       }
     });
 
-    // Cargar datos guardados si existen
     loadSaved();
   }
 

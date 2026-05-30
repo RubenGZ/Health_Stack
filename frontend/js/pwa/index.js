@@ -10,8 +10,6 @@
    Expone: window.PWAManager = { init }
    ============================================================ */
 
-import { showUpdateLoader } from './transitions.js';
-
 window.PWAManager = (function () {
   'use strict';
 
@@ -47,7 +45,13 @@ window.PWAManager = (function () {
       banner.classList.remove('sw-update-banner--visible');
       setTimeout(() => banner.remove(), 200);
       const waiting = registration.waiting;
-      showUpdateLoader(() => {
+      import('/js/pwa/transitions.js').then(({ showUpdateLoader }) => {
+        showUpdateLoader(() => {
+          if (waiting) waiting.postMessage({ type: 'SKIP_WAITING' });
+          else window.location.reload();
+        });
+      }).catch(() => {
+        // Fallback si falla el import
         if (waiting) waiting.postMessage({ type: 'SKIP_WAITING' });
         else window.location.reload();
       });

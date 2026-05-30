@@ -42,15 +42,21 @@ export async function onFinish() {
     if (resp.ok) result = await resp.json();
   } catch {}
 
-  Session.saveToLocalHistory({
-    id:           result?.session_id ?? Date.now(),
-    startedAt:    S.session.startedAt,
-    durationSecs: result?.duration_secs ?? Math.floor((Date.now() - new Date(S.session.startedAt)) / 1000),
-    totalVolumeKg: result?.total_volume_kg ?? null,
-    routineId:    S.session.routineId   ?? null,
-    routineName:  S.session.routineName ?? null,
-    exercises:    S.session.exercises,
-  });
+  try {
+    Session.saveToLocalHistory({
+      id:           result?.session_id ?? Date.now(),
+      startedAt:    S.session.startedAt,
+      durationSecs: result?.duration_secs ?? Math.floor((Date.now() - new Date(S.session.startedAt)) / 1000),
+      totalVolumeKg: result?.total_volume_kg ?? null,
+      routineId:    S.session.routineId   ?? null,
+      routineName:  S.session.routineName ?? null,
+      exercises:    S.session.exercises,
+    });
+  } catch (err) {
+    if (err?.name === 'QuotaExceededError') {
+      document.dispatchEvent(new CustomEvent('hs:storage-full'));
+    }
+  }
   Session.clearDraft();
 
   // Increment consistency counter for unlock milestones
@@ -269,9 +275,9 @@ export function renderSummary(result) {
     const _allSessions = JSON.parse(localStorage.getItem('hs_workout_sessions_local') || '[]');
     const _cutoff = Date.now() - 14 * 24 * 3600 * 1000;
     const _recentCount = _allSessions.filter(s => new Date(s.startedAt).getTime() > _cutoff).length;
-    const _hasPR = localStorage.getItem('hs_pr_records') &&
-                   JSON.parse(localStorage.getItem('hs_pr_records') || '{}') &&
-                   Object.keys(JSON.parse(localStorage.getItem('hs_pr_records') || '{}')).length > 0;
+    const _hasPR = localStorage.getItem('hs_prs') &&
+                   JSON.parse(localStorage.getItem('hs_prs') || '{}') &&
+                   Object.keys(JSON.parse(localStorage.getItem('hs_prs') || '{}')).length > 0;
     if (_recentCount === 3 && _hasPR && typeof window._sendTelemetryEvent === 'function') {
       window._sendTelemetryEvent('habito_formado', { sessions_14d: _recentCount });
       // Awareness nudge Pro — aparece una sola vez, momento de máxima receptividad

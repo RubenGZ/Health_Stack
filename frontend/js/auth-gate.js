@@ -48,6 +48,12 @@
   // 3. Errores de OAuth — dejar pasar para que app.js pueda mostrar el error.
   if (_params.get('auth_error')) return;
 
+  // 4. Reset de contraseña — el enlace del email incluye ?reset_token=...
+  //    auth.js mostrará el modal de nueva contraseña al cargar.
+  //    Sin esta whitelist, usuarios no autenticados serían redirigidos a
+  //    /landing/ ANTES de que auth.js pueda leer el token.
+  if (_params.get('reset_token')) return;
+
   var token = localStorage.getItem(TOKEN_KEY);
 
   if (!token || isExpired(token)) {

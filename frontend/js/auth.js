@@ -457,35 +457,166 @@
     init();
   }
 
-  // ── Reset token en URL ─────────────────────────────────────
-  // Si la URL contiene ?reset_token=... se muestra el diálogo de nueva contraseña.
-  // Se ejecuta en cuanto el script carga (antes del DOMContentLoaded no es necesario
-  // porque solo usa fetch + prompt, no el DOM del modal).
+  // ── Reset de contraseña ────────────────────────────────────
+  // Si la URL contiene ?reset_token=... se inyecta un modal de nueva contraseña.
+  // Reemplaza el window.prompt() anterior — prompt() está bloqueado en iOS PWA
+  // standalone mode, lo que hacía la feature completamente inaccesible.
+
+  function _showResetModal(token) {
+    // Limpiar el token de la URL (no queda en historial ni en Referer)
+    window.history.replaceState({}, '', window.location.pathname);
+
+    // Eliminar modal previo si existiera
+    document.getElementById('reset-pwd-modal')?.remove();
+
+    const overlay = document.createElement('div');
+    overlay.id = 'reset-pwd-modal';
+    overlay.className = 'ob-overlay';
+    overlay.innerHTML = `
+      <div class="ob-modal auth-modal-inner" role="dialog" aria-modal="true" aria-label="Nueva contraseña">
+        <div class="ob-header">
+          <div class="ob-logo">
+            <img src="/icons/logo-icon-white.svg" width="28" height="28" style="display:block" alt="">
+          </div>
+          <span class="ob-brand">HealthStack Pro</span>
+        </div>
+
+        <div style="padding: 8px 24px 0">
+          <h3 style="font-size:1.05rem;font-weight:700;color:var(--hs-text,#e2e8f0);margin:0 0 4px">
+            Nueva contraseña
+          </h3>
+          <p style="font-size:.83rem;color:rgba(255,255,255,.45);margin:0 0 20px">
+            Mín. 8 caracteres · mayúscula · minúscula · número · símbolo
+          </p>
+        </div>
+
+        <div class="ob-fields" style="padding: 0 24px">
+          <div class="ob-field">
+            <label class="form-label" for="reset-pwd-new">Nueva contraseña</label>
+            <div class="input-wrapper" style="position:relative">
+              <input type="password" id="reset-pwd-new" class="form-input"
+                     placeholder="••••••••" autocomplete="new-password"
+                     style="padding-right:44px">
+              <button type="button" id="reset-pwd-toggle"
+                      style="position:absolute;right:12px;top:50%;transform:translateY(-50%);
+                             background:none;border:none;cursor:pointer;color:rgba(255,255,255,.4);padding:4px"
+                      aria-label="Mostrar contraseña">
+                <svg id="reset-eye-icon" width="16" height="16" viewBox="0 0 24 24" fill="none"
+                     stroke="currentColor" stroke-width="2">
+                  <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
+                  <circle cx="12" cy="12" r="3"/>
+                </svg>
+              </button>
+            </div>
+          </div>
+          <div class="ob-field">
+            <label class="form-label" for="reset-pwd-confirm">Confirmar contraseña</label>
+            <div class="input-wrapper">
+              <input type="password" id="reset-pwd-confirm" class="form-input"
+                     placeholder="••••••••" autocomplete="new-password">
+            </div>
+          </div>
+        </div>
+
+        <div id="reset-pwd-error" class="auth-error" style="display:none;margin:8px 24px 0"></div>
+
+        <div class="ob-footer" style="padding-top:12px">
+          <span></span>
+          <button class="btn btn--primary" id="reset-pwd-submit">Actualizar contraseña →</button>
+        </div>
+      </div>
+    `;
+    document.body.appendChild(overlay);
+
+    const newPwdEl    = document.getElementById('reset-pwd-new');
+    const confirmEl   = document.getElementById('reset-pwd-confirm');
+    const errorEl     = document.getElementById('reset-pwd-error');
+    const submitBtn   = document.getElementById('reset-pwd-submit');
+    const toggleBtn   = document.getElementById('reset-pwd-toggle');
+
+    // Mostrar/ocultar contraseña
+    toggleBtn.addEventListener('click', () => {
+      const show = newPwdEl.type === 'password';
+      newPwdEl.type    = show ? 'text' : 'password';
+      confirmEl.type   = show ? 'text' : 'password';
+      toggleBtn.style.color = show ? 'var(--hs-accent,#c4a561)' : 'rgba(255,255,255,.4)';
+    });
+
+    // Enviar con Enter
+    overlay.addEventListener('keydown', e => {
+      if (e.key === 'Enter') submitBtn.click();
+    });
+
+    // Focus automático
+    setTimeout(() => newPwdEl.focus(), 80);
+
+    submitBtn.addEventListener('click', async () => {
+      const pwd     = newPwdEl.value;
+      const confirm = confirmEl.value;
+
+      // Validaciones cliente
+      if (!pwd) {
+        showError(errorEl, 'Introduce una contraseña.');
+        newPwdEl.focus();
+        return;
+      }
+      if (pwd.length < 8) {
+        showError(errorEl, 'Mínimo 8 caracteres.');
+        newPwdEl.focus();
+        return;
+      }
+      if (!/[A-Z]/.test(pwd) || !/[a-z]/.test(pwd) || !/[0-9]/.test(pwd) || !/[^A-Za-z0-9]/.test(pwd)) {
+        showError(errorEl, 'Incluye mayúscula, minúscula, número y símbolo (!@#...).');
+        newPwdEl.focus();
+        return;
+      }
+      if (pwd !== confirm) {
+        showError(errorEl, 'Las contraseñas no coinciden.');
+        confirmEl.focus();
+        return;
+      }
+
+      submitBtn.disabled = true;
+      submitBtn.textContent = 'Actualizando…';
+      clearError(errorEl);
+
+      try {
+        const res  = await fetch('/api/v1/auth/reset-password', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ token, new_password: pwd }),
+        });
+        const data = await res.json();
+
+        if (res.ok) {
+          overlay.remove();
+          showToast(data.message || 'Contraseña actualizada. Ya puedes iniciar sesión.', 'success');
+          // Abrir el modal de login para que el usuario entre inmediatamente
+          setTimeout(() => openModal('login'), 600);
+        } else {
+          showError(errorEl, data.detail || 'El enlace es inválido o ha expirado.');
+          submitBtn.disabled = false;
+          submitBtn.textContent = 'Actualizar contraseña →';
+        }
+      } catch {
+        showError(errorEl, 'Error de red. Comprueba tu conexión e inténtalo de nuevo.');
+        submitBtn.disabled = false;
+        submitBtn.textContent = 'Actualizar contraseña →';
+      }
+    });
+  }
+
+  // Detectar ?reset_token al cargar (esperar DOM para poder inyectar el modal)
   (function checkResetToken() {
     const params = new URLSearchParams(window.location.search);
     const token  = params.get('reset_token');
     if (!token) return;
 
-    // Limpiar el token de la URL inmediatamente (no queda en historial)
-    window.history.replaceState({}, '', window.location.pathname);
-
-    const newPwd = prompt(
-      'Introduce tu nueva contraseña\n(mín. 8 caracteres · mayúscula · minúscula · número · símbolo):'
-    );
-    if (!newPwd) return;
-
-    fetch('/api/v1/auth/reset-password', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ token, new_password: newPwd }),
-    })
-      .then(r => r.json())
-      .then(data => {
-        showToast(data.message || 'Contraseña actualizada. Ya puedes iniciar sesión.', 'success');
-      })
-      .catch(() => {
-        showToast('Error al restablecer la contraseña. El enlace puede haber expirado.', 'error');
-      });
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', () => _showResetModal(token));
+    } else {
+      _showResetModal(token);
+    }
   })();
 
   // Expose for external use (e.g., admin panel, tests)

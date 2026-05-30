@@ -620,10 +620,11 @@ async def forgot_password(
         raw_token = await PasswordResetRepository.create_token(db, user.id)
         await db.commit()
         settings = get_settings()
-        # SEGURIDAD: token en el fragmento URL (#) — nunca en query param.
-        # Los fragmentos no se envían al servidor, no aparecen en logs de nginx,
-        # Cloudflare ni en la cabecera Referer al navegar a otro sitio. OWASP A01.
-        reset_url = f"{settings.app_frontend_url}#reset_token={raw_token}"
+        # Token como query param (?reset_token=...) para que auth-gate.js pueda
+        # whitelistarlo y el SPA lo lea ANTES de cualquier redirect.
+        # El token es one-time + expira en 1h — la ventana de exposición en logs
+        # es mínima y aceptable vs el beneficio de que el flujo funcione en iOS PWA.
+        reset_url = f"{settings.app_frontend_url}?reset_token={raw_token}"
         await send_password_reset_email(user.email, reset_url)
 
     return ForgotPasswordResponse(

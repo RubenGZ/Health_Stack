@@ -235,9 +235,11 @@ const _nativeFetch = window.fetch.bind(window);
     const url = String(args[0] instanceof Request ? args[0].url : args[0]);
     // No interceptar /health ni rutas admin (para que el admin pueda desactivar)
     const isApi    = url.includes('/api/') && !url.includes('/api/v1/admin');
+    // No mostrar pantalla de mantenimiento si el usuario ESTÁ en el panel de admin
+    const isAdminPage = window.location.pathname.startsWith('/admin');
     try {
       const res = await _nativeFetch(...args);
-      if ((res.status === 502 || res.status === 503) && isApi) {
+      if ((res.status === 502 || res.status === 503) && isApi && !isAdminPage) {
         // Leer header para distinguir mantenimiento activo de 502 real
         const isMaintenance = res.headers.get('X-Maintenance') === 'true' || res.status === 503;
         if (isMaintenance) showMaintenanceScreen();
@@ -246,7 +248,7 @@ const _nativeFetch = window.fetch.bind(window);
       }
       return res;
     } catch (err) {
-      if (isApi) showMaintenanceScreen();
+      if (isApi && !isAdminPage) showMaintenanceScreen();
       throw err;
     }
   };

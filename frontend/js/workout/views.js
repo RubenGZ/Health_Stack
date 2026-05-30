@@ -1,12 +1,15 @@
 // frontend/js/workout/views.js
-// Vistas de reposo del workout logger: Idle, RoutinePicker, PreWorkoutAdjust,
-// CustomRoutineBuilder, y carga de sesión desde rutina guardada.
+// Vistas de reposo del workout logger: PreWorkoutAdjust, CustomRoutineBuilder,
+// carga de sesión desde rutina guardada, y búsqueda de ejercicios.
+// renderIdle → idle.js  |  renderRoutinePicker → routine-picker.js
 import { S, REST_DEFAULT } from './state.js';
 import * as Session from '../workoutSession.js';
+import { renderIdle } from './idle.js';
 
-// Callback inyectado por el coordinador para transitar a la vista activa
-let _onRenderActive = null;
-export function registerRenderActive(cb) { _onRenderActive = cb; }
+export { renderIdle } from './idle.js';
+export { renderRoutinePicker } from './routine-picker.js';
+
+export function registerRenderActive(cb) { S.onRenderActive = cb; }
 
 // ─── Búsqueda de ejercicios ────────────────────────────────────────────────────
 export function searchExercises(query) {
@@ -18,268 +21,6 @@ export function searchExercises(query) {
     const name = ex.name.toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '');
     return name.includes(q);
   }).slice(0, 8);
-}
-
-// ─── Helpers ───────────────────────────────────────────────────────────────────
-function _fmtDuration(secs) {
-  if (!secs) return '—';
-  const h = Math.floor(secs / 3600);
-  const m = Math.floor((secs % 3600) / 60);
-  if (h > 0) return `${h}h ${m.toString().padStart(2, '0')}min`;
-  return `${m}min`;
-}
-
-// ─── IDLE ──────────────────────────────────────────────────────────────────────
-export function renderIdle() {
-  // ── Historial compacto ────────────────────────────────────────────────────
-  const history = Session.getLocalSessions();
-  let histHtml = '';
-  if (history.length > 0) {
-    const rows = history.map((sess, idx) => {
-      const d = new Date(sess.startedAt);
-      const dateStr = d.toLocaleDateString('es-ES', { weekday: 'short', day: 'numeric', month: 'short' });
-      const dur = _fmtDuration(sess.durationSecs);
-      const _esc = s => String(s ?? '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
-      let routineLabel;
-      if (sess.routineName) {
-        routineLabel = sess.routineId
-          ? `${_esc(sess.routineId)} · ${_esc(sess.routineName)}`
-          : _esc(sess.routineName);
-      } else {
-        routineLabel = _esc(sess.routineId ?? '') || 'Sesión libre';
-      }
-      const detailRows = (sess.exercises || []).map(ex => {
-        const ws = (ex.sets || []).filter(s => !s.isWarmup && s.completedAt);
-        if (!ws.length) return '';
-        return `<div class="wl-hist-ex">
-          <span class="wl-hist-ex-name">${_esc(ex.name)}</span>
-          <span class="wl-hist-ex-sets">${ws.map(s => `${parseFloat(s.weightKg)}×${parseInt(s.reps)}`).join(' · ')}</span>
-        </div>`;
-      }).filter(Boolean).join('');
-      return `
-        <div class="wl-hist-row" data-hidx="${idx}">
-          <div class="wl-hist-row-main">
-            <span class="wl-hist-name">${routineLabel}</span>
-            <span class="wl-hist-date">${dateStr}</span>
-            <span class="wl-hist-dur">${dur}</span>
-            ${detailRows ? `<svg class="wl-hist-chevron" aria-hidden="true" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg>` : ''}
-          </div>
-          ${detailRows ? `<div class="wl-hist-detail">${detailRows}</div>` : ''}
-        </div>`;
-    }).join('');
-    histHtml = `
-      <div class="wl-history-section">
-        <h4 class="wl-hist-title">Historial</h4>
-        <div class="wl-history-list">${rows}</div>
-      </div>`;
-  } else {
-    histHtml = `
-      <div class="wl-history-empty">
-        <span class="wl-history-empty-icon">🏋️</span>
-        <span class="wl-history-empty-text">Completa tu primer entreno para ver tu historial aquí</span>
-      </div>`;
-  }
-
-  // ── Rutina IA guardada — dedup robusto ────────────────────────────────────
-  let iaRoutines = [];
-  try { iaRoutines = JSON.parse(localStorage.getItem('hs_routine_history') || '[]'); } catch {}
-  try {
-    const activeRaw = JSON.parse(localStorage.getItem('hs_routine') || 'null');
-    if (activeRaw?.routine?.sessions) {
-      const activeExStr = JSON.stringify(
-        (activeRaw.routine.sessions).map(s => (s.exercises || []).map(e => e.name))
-      );
-      const alreadyIn = iaRoutines.some(r => {
-        if (r.ts && activeRaw.ts && r.ts === activeRaw.ts) return true;
-        return JSON.stringify((r.routine?.sessions || []).map(s => (s.exercises || []).map(e => e.name))) === activeExStr;
-      });
-      if (!alreadyIn) {
-        iaRoutines = [
-          { ts: activeRaw.ts || Date.now(), label: 'Última rutina generada', routine: activeRaw.routine },
-          ...iaRoutines,
-        ];
-      }
-    }
-  } catch { /* ignorar */ }
-
-  // Dedup iaRoutines por contenido (por si hs_routine_history tiene entradas repetidas)
-  const _seenContent = new Set();
-  iaRoutines = iaRoutines.filter(r => {
-    const key = JSON.stringify((r.routine?.sessions || []).map(s => (s.exercises || []).map(e => e.name)));
-    if (_seenContent.has(key)) return false;
-    _seenContent.add(key);
-    return true;
-  });
-
-  // Rutina personalizada del usuario
-  let customRoutine = null;
-  try { customRoutine = JSON.parse(localStorage.getItem('hs_custom_routine') || 'null'); } catch {}
-
-  const hasIA     = iaRoutines.length > 0;
-  const hasCustom = customRoutine?.sessions?.length > 0;
-
-  S.root.innerHTML = `
-    <div class="wl-idle">
-      <div class="wl-idle-body">
-        <h3 class="wl-idle-title">¿Cómo quieres entrenar?</h3>
-        <div class="wl-mode-grid">
-          <button class="wl-mode-card" id="wl-mode-free">
-            <svg class="wl-mode-icon" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="16"/><line x1="8" y1="12" x2="16" y2="12"/></svg>
-            <span class="wl-mode-title">Ejercicios libres</span>
-            <span class="wl-mode-sub">Añade ejercicios sobre la marcha</span>
-          </button>
-          <button class="wl-mode-card" id="wl-mode-build">
-            <svg class="wl-mode-icon" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>
-            <span class="wl-mode-title">Rutina IA</span>
-            <span class="wl-mode-sub">${hasIA ? 'Cargar plan generado' : 'Genera tu plan inteligente'}</span>
-          </button>
-          <button class="wl-mode-card${hasCustom ? ' wl-mode-card--accent' : ''}" id="wl-mode-custom">
-            <svg class="wl-mode-icon" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
-            <span class="wl-mode-title">Mi rutina</span>
-            <span class="wl-mode-sub">${hasCustom ? `${customRoutine.sessions.length} días configurados` : 'Crea tu propia rutina'}</span>
-          </button>
-        </div>
-        ${histHtml}
-      </div>
-    </div>`;
-
-  // ── Historial: expand/collapse filas ─────────────────────────────────────
-  S.root.querySelectorAll('.wl-hist-row').forEach(row => {
-    const detail = row.querySelector('.wl-hist-detail');
-    if (!detail) return;
-    const mainRow = row.querySelector('.wl-hist-row-main');
-    mainRow.addEventListener('click', () => {
-      const isOpen = detail.style.display !== 'none';
-      detail.style.display = isOpen ? 'none' : 'block';
-      row.classList.toggle('wl-hist-row--open', !isOpen);
-    });
-  });
-
-  S.root.querySelector('#wl-mode-free').addEventListener('click', () => {
-    S.session = Session.startSession();
-    window.dispatchEvent(new CustomEvent('hs:workout-session-changed'));
-    _onRenderActive?.();
-  });
-
-  S.root.querySelector('#wl-mode-build')?.addEventListener('click', () => {
-    if (hasIA) {
-      renderRoutinePicker(iaRoutines);
-    } else {
-      if (typeof window.navigateTo === 'function') {
-        window.navigateTo('rutinas');
-      } else {
-        const nav = document.querySelector('[data-section="rutinas"]');
-        if (nav) nav.click();
-      }
-    }
-  });
-
-  S.root.querySelector('#wl-mode-custom')?.addEventListener('click', () => {
-    if (hasCustom) {
-      renderRoutinePicker([{ label: 'Mi rutina', routine: customRoutine, ts: customRoutine.ts || 0 }]);
-    } else {
-      renderCustomRoutineBuilder();
-    }
-  });
-}
-
-// ─── Guardar nombre de rutina en localStorage ──────────────────────────────────
-function _saveRoutineLabel(r, newLabel) {
-  r.label = newLabel;
-  r.name  = newLabel;
-  try {
-    const history = JSON.parse(localStorage.getItem('hs_routine_history') || '[]');
-    const i = r.ts ? history.findIndex(h => h.ts === r.ts) : -1;
-    if (i >= 0) {
-      history[i].label = newLabel;
-      localStorage.setItem('hs_routine_history', JSON.stringify(history));
-      return;
-    }
-  } catch {}
-  try {
-    const custom = JSON.parse(localStorage.getItem('hs_custom_routine') || 'null');
-    if (custom) {
-      custom.name = newLabel; custom.label = newLabel;
-      localStorage.setItem('hs_custom_routine', JSON.stringify(custom));
-    }
-  } catch {}
-}
-
-// ─── Selector de rutinas guardadas ─────────────────────────────────────────────
-export function renderRoutinePicker(routines) {
-  S.root.innerHTML = `
-    <div class="wl-routine-picker">
-      <div class="wl-picker-header">
-        <button class="wl-picker-back" id="wl-picker-back">
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="15 18 9 12 15 6"/></svg>
-          Volver
-        </button>
-        <h3 class="wl-picker-title">Elige una rutina</h3>
-      </div>
-      <div class="wl-picker-list">
-        ${routines.map((r, ridx) => {
-          const activeDays = (r.routine?.sessions || []).filter(s => s.exercises && s.exercises.length > 0);
-          return `
-          <div class="wl-picker-item">
-            <div class="wl-picker-name-wrap" data-ridx="${ridx}">
-              <span class="wl-picker-name">${r.label || r.name || 'Rutina sin nombre'}</span>
-              <button class="wl-picker-name-edit" title="Renombrar">
-                <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
-              </button>
-            </div>
-            <div class="wl-picker-meta">${activeDays.length} día${activeDays.length !== 1 ? 's' : ''} de entrenamiento${r.ts ? ' · ' + new Date(r.ts).toLocaleDateString('es-ES', { day: 'numeric', month: 'short' }) : ''}</div>
-            <div class="wl-picker-days">
-              ${activeDays.map((s, sidx) => `
-                <button class="wl-picker-day" data-ridx="${ridx}" data-sidx="${sidx}">
-                  <span class="wpd-day">${s.day}</span>
-                  <span class="wpd-name">${s.name}</span>
-                  <span class="wpd-count">${s.exercises.length} ejercicios</span>
-                </button>`).join('')}
-            </div>
-          </div>`;
-        }).join('')}
-      </div>
-    </div>`;
-
-  S.root.querySelector('#wl-picker-back').addEventListener('click', renderIdle);
-
-  // Edición inline del nombre de rutina (delegación en la lista)
-  S.root.querySelector('.wl-picker-list').addEventListener('click', e => {
-    const editBtn = e.target.closest('.wl-picker-name-edit');
-    if (!editBtn) return;
-    e.stopPropagation();
-    const wrap = editBtn.closest('.wl-picker-name-wrap');
-    const ridx = parseInt(wrap.dataset.ridx);
-    const r = routines[ridx];
-    const currentName = r.label || r.name || 'Rutina sin nombre';
-    const _esc = s => String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
-
-    wrap.innerHTML = `<input class="wl-picker-name-inp" value="${_esc(currentName)}" maxlength="60" style="font-size:16px">`;
-    const inp = wrap.querySelector('.wl-picker-name-inp');
-    inp.focus(); inp.select();
-
-    function _commit() {
-      const newName = inp.value.trim() || currentName;
-      _saveRoutineLabel(r, newName);
-      wrap.innerHTML = `
-        <span class="wl-picker-name">${_esc(newName)}</span>
-        <button class="wl-picker-name-edit" title="Renombrar">
-          <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
-        </button>`;
-    }
-    inp.addEventListener('blur', _commit);
-    inp.addEventListener('keydown', ev => { if (ev.key === 'Enter') inp.blur(); if (ev.key === 'Escape') { inp.value = currentName; inp.blur(); } });
-  });
-
-  S.root.querySelectorAll('.wl-picker-day').forEach(btn => {
-    btn.addEventListener('click', () => {
-      const ridx = parseInt(btn.dataset.ridx);
-      const sidx = parseInt(btn.dataset.sidx);
-      const activeDays = (routines[ridx]?.routine?.sessions || []).filter(s => s.exercises && s.exercises.length > 0);
-      const daySession = activeDays[sidx];
-      if (daySession) renderPreWorkoutAdjust(daySession);
-    });
-  });
 }
 
 // ─── Pantalla de ajuste de pesos pre-entreno ──────────────────────────────────
@@ -337,8 +78,6 @@ export function renderPreWorkoutAdjust(daySession) {
     });
   });
 
-  // Select-all al tocar — el placeholder desaparece, se escribe directo
-  // + sanitización xx.xx en tiempo real
   S.root.querySelectorAll('.wl-pre-weight-inp').forEach(inp => {
     inp.addEventListener('focus', () => inp.select());
     inp.addEventListener('pointerdown', () => {
@@ -412,7 +151,6 @@ export function renderCustomRoutineBuilder() {
       _render();
     });
 
-    // Borrar sesión
     S.root.querySelectorAll('.wl-custom-del-session').forEach(btn => {
       btn.addEventListener('click', () => {
         const si = parseInt(btn.dataset.si);
@@ -422,7 +160,6 @@ export function renderCustomRoutineBuilder() {
       });
     });
 
-    // Actualizar nombre de día/sesión
     S.root.querySelectorAll('.wl-custom-day-inp').forEach(inp => {
       inp.addEventListener('input', () => { sessions[parseInt(inp.dataset.si)].day = inp.value; });
     });
@@ -430,7 +167,6 @@ export function renderCustomRoutineBuilder() {
       inp.addEventListener('input', () => { sessions[parseInt(inp.dataset.si)].name = inp.value; });
     });
 
-    // Actualizar sets/reps
     S.root.querySelectorAll('.wl-custom-sets-inp').forEach(inp => {
       inp.addEventListener('input', () => {
         sessions[parseInt(inp.dataset.si)].exercises[parseInt(inp.dataset.ei)].sets = parseInt(inp.value) || 3;
@@ -442,7 +178,6 @@ export function renderCustomRoutineBuilder() {
       });
     });
 
-    // Borrar ejercicio
     S.root.querySelectorAll('.wl-custom-del-ex').forEach(btn => {
       btn.addEventListener('click', () => {
         const si = parseInt(btn.dataset.si), ei = parseInt(btn.dataset.ei);
@@ -451,7 +186,6 @@ export function renderCustomRoutineBuilder() {
       });
     });
 
-    // Búsqueda de ejercicios por sesión
     S.root.querySelectorAll('.wl-custom-ex-search').forEach(inp => {
       const si = parseInt(inp.dataset.si);
       const resultsEl = S.root.querySelector(`.wl-custom-ex-results[data-si="${si}"]`);
@@ -475,7 +209,6 @@ export function renderCustomRoutineBuilder() {
       });
     });
 
-    // Guardar rutina personalizada
     S.root.querySelector('#wl-custom-save').addEventListener('click', () => {
       const routine = { sessions, ts: Date.now() };
       localStorage.setItem('hs_custom_routine', JSON.stringify(routine));
@@ -499,8 +232,6 @@ function _parseRestSecs(restStr) {
 }
 
 // ─── Cargar día de rutina como draft y arrancar sesión ─────────────────────────
-// Mejor que Hevy: pre-rellena peso de sesiones anteriores + genera calentamiento
-// automático escalado al peso de trabajo.
 export function loadRoutineSession(daySession) {
   function _toKey(name) {
     return name.toLowerCase().normalize('NFD')
@@ -513,25 +244,20 @@ export function loadRoutineSession(daySession) {
     const key      = _toKey(ex.name);
     const restSecs = _parseRestSecs(ex.rest);
 
-    // Peso pre-ajustado desde pantalla pre-entreno (tiene prioridad), luego historial, luego 0
     const suggested  = Session.getSuggestedWeight(key);
     const workingKg  = (ex._adjustedKg !== undefined ? ex._adjustedKg : null) ?? suggested ?? 0;
 
     const setsArr = [];
 
-    // Auto-calentamiento escalado al peso de trabajo
     if (workingKg >= 30) {
-      // Ejercicio pesado (≥ 30 kg): 2 sets de calentamiento
       const w1 = Math.max(2.5, Math.round((workingKg * 0.50) / 2.5) * 2.5);
       const w2 = Math.max(2.5, Math.round((workingKg * 0.75) / 2.5) * 2.5);
       setsArr.push({ setNumber: 0, weightKg: w1, reps: 8,  rpe: null, isWarmup: true,  completedAt: null });
       setsArr.push({ setNumber: 0, weightKg: w2, reps: 5,  rpe: null, isWarmup: true,  completedAt: null });
     } else if (workingKg >= 15) {
-      // Ejercicio medio (15-29 kg): 1 set de calentamiento al 60 %
       const w1 = Math.max(2.5, Math.round((workingKg * 0.60) / 2.5) * 2.5);
       setsArr.push({ setNumber: 0, weightKg: w1, reps: 10, rpe: null, isWarmup: true,  completedAt: null });
     }
-    // < 15 kg o sin historial → sin calentamiento automático
 
     for (let s = 0; s < numSets; s++) {
       setsArr.push({ setNumber: s + 1, weightKg: workingKg, reps: targetR, rpe: null, isWarmup: false, completedAt: null });
@@ -561,9 +287,8 @@ export function loadRoutineSession(daySession) {
   Session.saveDraft(draft);
   S.session = draft;
   window.dispatchEvent(new CustomEvent('hs:workout-session-changed'));
-  _onRenderActive?.();
+  S.onRenderActive?.();
 
-  // Toast informativo si hay historial (peso pre-rellenado)
   const hasHistory = exercises.some(ex => ex.sets.some(s => !s.isWarmup && s.weightKg > 0));
   if (hasHistory) {
     const warmupCount = exercises.reduce((n, ex) => n + ex.sets.filter(s => s.isWarmup).length, 0);

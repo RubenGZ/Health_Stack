@@ -7,6 +7,7 @@ export const REST_DEFAULT = 90; // segundos de descanso por defecto
 export const S = {
   root:            null,   // contenedor DOM inyectado por init()
   session:         null,   // draft de sesión activa (objeto en memoria)
+  onRenderActive:  null,   // callback inyectado por el coordinador para transitar a vista activa
   timerInterval:   null,
   restInterval:    null,
   restRemaining:   0,

@@ -2,12 +2,12 @@
 // Vistas de reposo del workout logger: PreWorkoutAdjust, CustomRoutineBuilder,
 // carga de sesión desde rutina guardada, y búsqueda de ejercicios.
 // renderIdle → idle.js  |  renderRoutinePicker → routine-picker.js
-import { S, REST_DEFAULT } from './state.js';
-import * as Session from '../workoutSession.js';
+import { S } from './state.js';
 export { renderIdle } from './idle.js';
 export { renderRoutinePicker } from './routine-picker.js';
 export { renderCustomRoutineBuilder } from './custom-builder.js';
 export { renderPreWorkoutAdjust } from './pre-workout.js';
+export { loadRoutineSession } from './session-loader.js';
 
 export function registerRenderActive(cb) { S.onRenderActive = cb; }
 
@@ -23,96 +23,3 @@ export function searchExercises(query) {
   }).slice(0, 8);
 }
 
-// ─── Parsear string de descanso → segundos ─────────────────────────────────────
-function _parseRestSecs(restStr) {
-  if (!restStr) return REST_DEFAULT;
-  const ms = restStr.match(/(\d+)\s*s(?:eg|ecs?)?/i);
-  if (ms) return parseInt(ms[1], 10);
-  const mm = restStr.match(/(\d+)\s*min/i);
-  if (mm) return parseInt(mm[1], 10) * 60;
-  const mn = restStr.match(/(\d+)/);
-  if (mn) return parseInt(mn[1], 10);
-  return REST_DEFAULT;
-}
-
-// ─── Cargar día de rutina como draft y arrancar sesión ─────────────────────────
-export function loadRoutineSession(daySession) {
-  function _toKey(name) {
-    return name.toLowerCase().normalize('NFD')
-      .replace(/[̀-ͯ]/g, '').replace(/\s+/g, '_');
-  }
-
-  const exercises = daySession.exercises.map((ex, i) => {
-    const numSets  = parseInt(ex.sets) || 3;
-    const targetR  = parseInt(ex.reps) || 8;
-    const key      = _toKey(ex.name);
-    const restSecs = _parseRestSecs(ex.rest);
-
-    const suggested  = Session.getSuggestedWeight(key);
-    const workingKg  = (ex._adjustedKg !== undefined ? ex._adjustedKg : null) ?? suggested ?? 0;
-
-    const setsArr = [];
-
-    if (workingKg >= 30) {
-      const w1 = Math.max(2.5, Math.round((workingKg * 0.50) / 2.5) * 2.5);
-      const w2 = Math.max(2.5, Math.round((workingKg * 0.75) / 2.5) * 2.5);
-      setsArr.push({ setNumber: 0, weightKg: w1, reps: 8,  rpe: null, isWarmup: true,  completedAt: null });
-      setsArr.push({ setNumber: 0, weightKg: w2, reps: 5,  rpe: null, isWarmup: true,  completedAt: null });
-    } else if (workingKg >= 15) {
-      const w1 = Math.max(2.5, Math.round((workingKg * 0.60) / 2.5) * 2.5);
-      setsArr.push({ setNumber: 0, weightKg: w1, reps: 10, rpe: null, isWarmup: true,  completedAt: null });
-    }
-
-    for (let s = 0; s < numSets; s++) {
-      setsArr.push({ setNumber: s + 1, weightKg: workingKg, reps: targetR, rpe: null, isWarmup: false, completedAt: null });
-    }
-
-    const dbRef = (typeof Exercises !== 'undefined' && Exercises.getDB)
-      ? Exercises.getDB().find(e => e.name.toLowerCase() === ex.name.toLowerCase())
-      : null;
-
-    return {
-      key,
-      name:       ex.name,
-      group:      dbRef?.group || ex.group || '',
-      orderIndex: i,
-      sets:       setsArr,
-      restSecs,
-      note:       ex.rest ? 'Descanso: ' + ex.rest : '',
-    };
-  });
-
-  const draft = {
-    routineId:   daySession.day  || null,
-    routineName: daySession.name || null,
-    startedAt:   new Date().toISOString(),
-    exercises,
-  };
-  Session.saveDraft(draft);
-  S.session = draft;
-  window.dispatchEvent(new CustomEvent('hs:workout-session-changed'));
-  S.onRenderActive?.();
-
-  const hasHistory = exercises.some(ex => ex.sets.some(s => !s.isWarmup && s.weightKg > 0));
-  if (hasHistory) {
-    const warmupCount = exercises.reduce((n, ex) => n + ex.sets.filter(s => s.isWarmup).length, 0);
-    const msg = warmupCount > 0
-      ? `Peso de tu última sesión + ${warmupCount} set${warmupCount > 1 ? 's' : ''} de calentamiento generados`
-      : 'Peso pre-rellenado desde tu última sesión';
-    _showRoutineToast(msg);
-  }
-}
-
-function _showRoutineToast(msg) {
-  const existing = document.getElementById('wl-routine-toast');
-  if (existing) existing.remove();
-  const t = document.createElement('div');
-  t.id = 'wl-routine-toast';
-  t.style.cssText = 'position:fixed;top:72px;left:50%;transform:translateX(-50%);' +
-    'background:#1e1b4b;border:1px solid #4f46e5;color:#c7d2fe;padding:8px 16px;' +
-    'border-radius:8px;font-size:.8rem;z-index:9990;box-shadow:0 4px 16px rgba(0,0,0,.4);' +
-    'pointer-events:none;white-space:nowrap;';
-  t.textContent = '⚡ ' + msg;
-  document.body.appendChild(t);
-  setTimeout(() => t.remove(), 3500);
-}

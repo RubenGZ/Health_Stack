@@ -3,6 +3,7 @@ import { S } from './state.js';
 import * as Session from '../workoutSession.js';
 import { renderIdle } from './idle.js';
 import { getExerciseMeta, getWeightLabel, getWeightStep } from './exercise-meta.js';
+import { loadRoutineSession } from './session-loader.js';
 
 export function renderPreWorkoutAdjust(daySession) {
   const exList = (daySession.exercises || []).filter(ex => ex.name);
@@ -83,7 +84,6 @@ export function renderPreWorkoutAdjust(daySession) {
       const kg  = inp ? (parseFloat(inp.value) || 0) : 0;
       return { ...ex, _adjustedKg: kg };
     }) };
-    // Dynamic import to avoid circular dep (loadRoutineSession still in views.js)
-    import('./views.js').then(m => m.loadRoutineSession(adjusted));
+    loadRoutineSession(adjusted);
   });
 }

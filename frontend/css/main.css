@@ -1962,10 +1962,19 @@ select.form-input option { background: var(--bg-surface); color: var(--text-prim
 
 /* Bottom sheet del planner */
 .planner-bs {
-  max-height: 88vh;
-  overflow: hidden;
+  max-height: 88vh !important; /* override base .bottom-sheet */
+  overflow: hidden !important;
   display: flex;
   flex-direction: column;
+}
+/* Handle genérico para bottom sheets v2 */
+.bs-handle {
+  width: 36px;
+  height: 4px;
+  background: var(--glass-border);
+  border-radius: 2px;
+  margin: 12px auto 0;
+  flex-shrink: 0;
 }
 .bs-inner {
   padding: 0 16px 24px;

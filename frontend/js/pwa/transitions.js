@@ -1,11 +1,18 @@
 // frontend/js/pwa/transitions.js
-// Pantallas de transición: actualizaciones SW, cargas largas, etc.
+// Pantallas de transición: actualizaciones SW, mantenimiento, cargas largas, etc.
 
 const FRASES_UPDATE = [
   'Actualizando HealthStack… espera un momento',
   'Cargando mejoras… ya casi',
   'Instalando nueva versión… aguanta',
   'Preparando la siguiente sesión… ya viene',
+];
+
+const FRASES_MAINTENANCE = [
+  'Servidor en mantenimiento… volvemos enseguida',
+  'Recargando el servidor… un momento',
+  'Aplicando actualizaciones en el servidor…',
+  'El servidor está calentando… como tú antes de entrenar',
 ];
 
 const _CAT_SVG = `
@@ -165,3 +172,72 @@ export function hidePageLoader() {
   el.classList.remove('hs-page-loader--visible');
   setTimeout(() => el.remove(), 300);
 }
+
+// ─── Maintenance / 502 screen ─────────────────────────────────────────────────
+let _maintenanceShown = false;
+
+export function showMaintenanceScreen() {
+  if (_maintenanceShown) return;
+  if (document.getElementById('hs-maintenance-overlay')) return;
+  _maintenanceShown = true;
+
+  const frase = FRASES_MAINTENANCE[Math.floor(Math.random() * FRASES_MAINTENANCE.length)];
+
+  const overlay = document.createElement('div');
+  overlay.id = 'hs-maintenance-overlay';
+  overlay.className = 'hs-transition-overlay';
+  overlay.innerHTML = `
+    <div class="hs-transition-card">
+      <div class="hs-transition-cat-wrap">
+        ${_CAT_SVG}
+      </div>
+      <p class="hs-transition-msg">${frase}</p>
+      <div class="hs-maintenance-dots">
+        <span></span><span></span><span></span>
+      </div>
+      <p class="hs-transition-hint">Reintentando automáticamente…</p>
+    </div>`;
+
+  document.body.appendChild(overlay);
+  requestAnimationFrame(() => requestAnimationFrame(() => overlay.classList.add('hs-transition-overlay--visible')));
+
+  // Polling: intentar /api/v1/health cada 4s hasta que responda
+  const _poll = setInterval(async () => {
+    try {
+      const r = await fetch('/api/v1/health', { cache: 'no-store' });
+      if (r.ok) {
+        clearInterval(_poll);
+        overlay.classList.remove('hs-transition-overlay--visible');
+        setTimeout(() => { overlay.remove(); _maintenanceShown = false; window.location.reload(); }, 500);
+      }
+    } catch {}
+  }, 4000);
+}
+
+export function hideMaintenanceScreen() {
+  const el = document.getElementById('hs-maintenance-overlay');
+  if (!el) return;
+  _maintenanceShown = false;
+  el.classList.remove('hs-transition-overlay--visible');
+  setTimeout(() => el.remove(), 400);
+}
+
+// Detectar 502/503 globalmente en fetch
+(function _installMaintenanceDetector() {
+  const _origFetch = window.fetch;
+  window.fetch = async function (...args) {
+    try {
+      const res = await _origFetch(...args);
+      if ((res.status === 502 || res.status === 503) && String(args[0]).includes('/api/')) {
+        showMaintenanceScreen();
+      } else if (res.ok && _maintenanceShown) {
+        hideMaintenanceScreen();
+      }
+      return res;
+    } catch (err) {
+      // Sin red y la URL es de la API → mostrar mantenimiento
+      if (String(args[0]).includes('/api/')) showMaintenanceScreen();
+      throw err;
+    }
+  };
+})();

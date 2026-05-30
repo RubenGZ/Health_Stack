@@ -229,6 +229,9 @@ const WeightTracker = (function () {
     const { labels, data } = buildChartData(filtered);
 
     if (chartInstance) { chartInstance.destroy(); chartInstance = null; }
+    // Destruir cualquier instancia huérfana en el registro interno de Chart.js
+    const _orphan = typeof Chart !== 'undefined' && Chart.getChart?.(canvas);
+    if (_orphan) _orphan.destroy();
 
     const ctx = canvas.getContext('2d');
     chartInstance = new Chart(ctx, {
@@ -319,6 +322,8 @@ const WeightTracker = (function () {
 
     const { labels, data } = buildChartData(last56);
     if (miniChartInstance) { miniChartInstance.destroy(); miniChartInstance = null; }
+    const _orphanMini = typeof Chart !== 'undefined' && Chart.getChart?.(canvas);
+    if (_orphanMini) _orphanMini.destroy();
 
     const ctx = canvas.getContext('2d');
     miniChartInstance = new Chart(ctx, {

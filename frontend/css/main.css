@@ -8369,3 +8369,19 @@ button[class*="wl-"]:not([class*="inp"]):active {
 .hs-page-loader-msg {
   color: rgba(255,255,255,0.6); font-size: 0.875rem; margin: 0;
 }
+
+/* ── Maintenance dots ────────────────────────────────────── */
+.hs-maintenance-dots {
+  display: flex; gap: 8px; align-items: center; justify-content: center;
+}
+.hs-maintenance-dots span {
+  width: 8px; height: 8px; border-radius: 50%;
+  background: #c4a561; opacity: 0.3;
+  animation: hs-dot-pulse 1.2s ease-in-out infinite;
+}
+.hs-maintenance-dots span:nth-child(2) { animation-delay: 0.2s; }
+.hs-maintenance-dots span:nth-child(3) { animation-delay: 0.4s; }
+@keyframes hs-dot-pulse {
+  0%, 100% { opacity: 0.3; transform: scale(0.8); }
+  50%       { opacity: 1;   transform: scale(1.2); }
+}

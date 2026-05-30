@@ -23,6 +23,10 @@
     return localStorage.getItem('hs_access_token') || '';
   }
 
+  function _esc(s) {
+    return String(s ?? '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+  }
+
   function isLoggedIn() {
     return Boolean(getToken());
   }
@@ -92,10 +96,10 @@
             ${t('ai_insights.current_status')}
             ${trendIcon(narrative.trend)}
           </div>
-          <p class="ai-narrative">${narrative.narrative}</p>
+          <p class="ai-narrative">${_esc(narrative.narrative)}</p>
           ${narrative.highlights?.length ? `
             <div class="ai-highlights-scroll">
-              ${narrative.highlights.map(h => `<span class="ai-highlight-pill">${h}</span>`).join('')}
+              ${narrative.highlights.map(h => `<span class="ai-highlight-pill">${_esc(h)}</span>`).join('')}
             </div>` : ''}
         </div>`;
     }
@@ -108,14 +112,14 @@
             ${t('ai_insights.injury_risk')}
             ${riskBadge(risk.overall_risk)}
           </div>
-          <p class="ai-narrative">${risk.summary}</p>
+          <p class="ai-narrative">${_esc(risk.summary)}</p>
           ${risk.risk_flags?.length ? `
             <div class="ai-risk-flags">
               ${risk.risk_flags.map(f => `
                 <div class="ai-risk-flag">
-                  <span class="ai-risk-group">${f.muscle_group}</span>
+                  <span class="ai-risk-group">${_esc(f.muscle_group)}</span>
                   ${riskBadge(f.risk_level)}
-                  <span class="ai-risk-detail">${f.recommendation}</span>
+                  <span class="ai-risk-detail">${_esc(f.recommendation)}</span>
                 </div>`).join('')}
             </div>` : ''}
         </div>`;
@@ -133,12 +137,12 @@
               <div class="ai-goal-item">
                 ${categoryDot(g.category)}
                 <div class="ai-goal-content">
-                  <strong>${g.goal}</strong>
-                  <span class="ai-goal-reason">${g.reasoning}</span>
+                  <strong>${_esc(g.goal)}</strong>
+                  <span class="ai-goal-reason">${_esc(g.reasoning)}</span>
                 </div>
               </div>`).join('')}
           </div>
-          ${goals.week_summary ? `<p class="ai-week-summary">${goals.week_summary}</p>` : ''}
+          ${goals.week_summary ? `<p class="ai-week-summary">${_esc(goals.week_summary)}</p>` : ''}
         </div>`;
     }
 

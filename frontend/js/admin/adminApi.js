@@ -17,7 +17,8 @@ var AdminAPI = (function() {
     if (body) opts.body = JSON.stringify(body);
     return fetch(BASE + path, opts).then(function(r) {
       if (r.status === 401 || r.status === 403) { location.href = '/'; return Promise.reject(new Error('Unauthorized')); }
-      if (!r.ok) return r.json().then(function(e) { throw new Error(e.detail || r.status); });
+      if (r.status === 502 || r.status === 503) throw new Error('Servidor no disponible (502) — verifica que el backend está corriendo');
+      if (!r.ok) return r.json().catch(function() { throw new Error('HTTP ' + r.status); }).then(function(e) { throw new Error(e.detail || r.status); });
       return r.json();
     });
   }

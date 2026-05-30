@@ -341,7 +341,7 @@ function renderSets(ex) {
       <input type="text" inputmode="decimal" pattern="[0-9]*\.?[0-9]*"
         class="wl-input-num wl-weight"
         value="${s.weightKg > 0 ? s.weightKg : ''}"
-        placeholder="${Session.getSuggestedWeight(ex.key) ?? '0'}"
+        placeholder=""
         data-field="weightKg" data-idx="${idx}" data-key="${ex.key}"
         ${isDone ? 'readonly' : ''} />
 
@@ -367,12 +367,24 @@ function renderSets(ex) {
     container.appendChild(row);
   });
 
+  // Sanitizar peso a formato xx.xx máximo
+  function _sanitizeWeight(v) {
+    v = v.replace(/[^0-9.]/g, '');
+    const dot = v.indexOf('.');
+    if (dot !== -1) v = v.slice(0, dot + 1) + v.slice(dot + 1).replace(/\./g, '').slice(0, 2);
+    return v;
+  }
+
   // Bind inputs
   container.querySelectorAll('[data-field]').forEach(inp => {
     const event = inp.type === 'checkbox' ? 'change' : 'input';
     inp.addEventListener(event, e => {
       Inactivity.resetInactivity();
       const { key, idx, field } = e.target.dataset;
+      if (field === 'weightKg') {
+        const clean = _sanitizeWeight(e.target.value);
+        if (e.target.value !== clean) { e.target.value = clean; }
+      }
       const val = field === 'weightKg' ? (parseFloat(e.target.value) || 0)
                                        : (parseInt(e.target.value) || 0);
       Session.updateSet(S.session, key, +idx, { [field]: val });

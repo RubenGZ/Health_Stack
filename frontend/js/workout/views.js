@@ -310,7 +310,7 @@ export function renderPreWorkoutAdjust(daySession) {
               <button class="wl-pre-stepper" data-idx="${i}" data-dir="-">−</button>
               <input type="text" inputmode="decimal" pattern="[0-9]*\.?[0-9]*"
                 class="wl-pre-weight-inp" id="wl-pre-weight-${i}"
-                value="${planned > 0 ? planned : ''}" placeholder="0"
+                value="${planned > 0 ? planned : ''}" placeholder=""
                 style="font-size:16px">
               <span class="wl-pre-unit">kg</span>
               <button class="wl-pre-stepper" data-idx="${i}" data-dir="+">+</button>
@@ -338,10 +338,17 @@ export function renderPreWorkoutAdjust(daySession) {
   });
 
   // Select-all al tocar — el placeholder desaparece, se escribe directo
+  // + sanitización xx.xx en tiempo real
   S.root.querySelectorAll('.wl-pre-weight-inp').forEach(inp => {
     inp.addEventListener('focus', () => inp.select());
     inp.addEventListener('pointerdown', () => {
       if (document.activeElement === inp) setTimeout(() => inp.select(), 0);
+    });
+    inp.addEventListener('input', () => {
+      let v = inp.value.replace(/[^0-9.]/g, '');
+      const dot = v.indexOf('.');
+      if (dot !== -1) v = v.slice(0, dot + 1) + v.slice(dot + 1).replace(/\./g, '').slice(0, 2);
+      if (inp.value !== v) inp.value = v;
     });
   });
 

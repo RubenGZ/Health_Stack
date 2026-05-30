@@ -82,13 +82,13 @@ const RoutineGenerator = (function () {
       coaching_why: 'Los grupos prioritarios se colocan primero en cada sesión, cuando tu energía es máxima.',
       type: 'multicheck',
       options: [
-        { value: 'none',      icon: '⚖️', label: 'Sin preferencia' },
-        { value: 'chest',     icon: '💪', label: 'Pecho' },
-        { value: 'back',      icon: '🦾', label: 'Espalda' },
-        { value: 'shoulders', icon: '🏗️', label: 'Hombros' },
-        { value: 'legs',      icon: '🦵', label: 'Piernas' },
-        { value: 'posterior', icon: '🔥', label: 'Cadena post.' },
-        { value: 'arms',      icon: '💫', label: 'Brazos' },
+        { value: 'none',      label: 'Sin preferencia' },
+        { value: 'chest',     label: 'Pecho' },
+        { value: 'back',      label: 'Espalda' },
+        { value: 'shoulders', label: 'Hombros' },
+        { value: 'legs',      label: 'Piernas' },
+        { value: 'posterior', label: 'Cadena post.' },
+        { value: 'arms',      label: 'Brazos' },
       ],
     },
     {
@@ -108,13 +108,13 @@ const RoutineGenerator = (function () {
       coaching_why: 'Adaptamos los ejercicios para que entrenes fuerte sin arriesgar las zonas sensibles.',
       type: 'multicheck',
       options: [
-        { value: 'none',       icon: '✅', label: 'Ninguna' },
-        { value: 'shoulder',   icon: '🫱', label: 'Hombro' },
-        { value: 'knee',       icon: '🦿', label: 'Rodilla' },
-        { value: 'lower_back', icon: '🔩', label: 'Lumbar' },
-        { value: 'wrist',      icon: '🤲', label: 'Muñeca' },
-        { value: 'elbow',      icon: '💪', label: 'Codo' },
-        { value: 'hip',        icon: '🦴', label: 'Cadera' },
+        { value: 'none',       label: 'Ninguna' },
+        { value: 'shoulder',   label: 'Hombro' },
+        { value: 'knee',       label: 'Rodilla' },
+        { value: 'lower_back', label: 'Lumbar' },
+        { value: 'wrist',      label: 'Muñeca' },
+        { value: 'elbow',      label: 'Codo' },
+        { value: 'hip',        label: 'Cadera' },
       ],
     },
   ];
@@ -731,7 +731,6 @@ const RoutineGenerator = (function () {
         step.options.map(o => `
           <label class="quiz-option${selected.includes(o.value) ? ' selected' : ''}" data-val="${o.value}">
             <input type="checkbox" name="q_${step.id}" value="${o.value}"${selected.includes(o.value) ? ' checked' : ''} style="display:none">
-            ${o.icon ? `<span class="quiz-opt-icon">${o.icon}</span>` : ''}
             <span class="quiz-opt-label">${o.label}</span>
           </label>`).join('') + `</div>`;
     }

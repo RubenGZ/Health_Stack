@@ -4,7 +4,7 @@
                Network-first para CDN externos
    ============================================================ */
 
-const CACHE_NAME    = 'healthstack-v93';
+const CACHE_NAME    = 'healthstack-v94';
 const CDN_CACHE     = 'healthstack-cdn-v2';
 
 // Assets locales a pre-cachear en install
@@ -57,6 +57,10 @@ const STATIC_ASSETS = [
   '/js/workout/inactivity.js',
   '/js/workout/views.js',
   '/js/workout/summary.js',
+  '/js/workoutLogger.js',
+  '/js/workoutSession.js',
+  '/js/workoutHistory.js',
+  '/js/workoutInit.js',
   '/js/oneRepMax.js',
   '/js/workoutPR.js',
   '/manifest.json',

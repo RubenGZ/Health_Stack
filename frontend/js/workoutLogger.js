@@ -17,6 +17,9 @@ Inactivity.registerOnFinish(Summary.onFinish);
 Summary.registerRenderIdle(Views.renderIdle);
 Timer.registerResetInactivity(Inactivity.resetInactivity);
 
+// ─── Escape helper (XSS prevention) ───────────────────────────────────────────
+const _esc = s => String(s ?? '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+
 // ─── PR toast queue ────────────────────────────────────────────────────────────
 function _enqueuePRToast(exerciseName, type, delta, oneRM) {
   S.prToastQueue.push({ exerciseName, type, delta, oneRM });
@@ -32,8 +35,8 @@ function _flushPRToast() {
   t.className = 'wl-pr-toast';
   t.innerHTML = `<span class="wl-pr-toast-dot"></span>
     <div class="wl-pr-toast-body">
-      <span class="wl-pr-toast-title">Nuevo Récord — ${exerciseName}</span>
-      <span class="wl-pr-toast-sub">${label}</span>
+      <span class="wl-pr-toast-title">Nuevo Récord — ${_esc(exerciseName)}</span>
+      <span class="wl-pr-toast-sub">${_esc(label)}</span>
     </div>`;
   document.body.appendChild(t);
   setTimeout(() => {
@@ -129,9 +132,9 @@ function initExerciseSearch() {
       results.innerHTML = '<p class="wl-no-results">Sin resultados — usa "Añadir personalizado"</p>';
     } else {
       results.innerHTML = hits.map(ex => `
-        <button class="wl-ex-result-item" data-name="${ex.name}" data-group="${ex.group || ''}">
-          <span class="wl-res-name">${ex.name}</span>
-          <span class="wl-res-group">${ex.group || ''}</span>
+        <button class="wl-ex-result-item" data-name="${_esc(ex.name)}" data-group="${_esc(ex.group || '')}">
+          <span class="wl-res-name">${_esc(ex.name)}</span>
+          <span class="wl-res-group">${_esc(ex.group || '')}</span>
         </button>`).join('');
     }
     results.querySelectorAll('.wl-ex-result-item').forEach(btn => {
@@ -246,7 +249,7 @@ function renderExercises() {
       <div class="wl-ex-card-header">
         <div class="wl-ex-info">
           <div class="wl-ex-name-row" style="display:flex;align-items:center;gap:6px;flex-wrap:wrap">
-            <button class="wl-ex-name-btn" data-key="${ex.key}">${ex.name}</button>
+            <button class="wl-ex-name-btn" data-key="${_esc(ex.key)}">${_esc(ex.name)}</button>
             ${groupChip}
           </div>
           <div class="wl-ex-meta-row">${setsRepsBadge}${restLabel}${progChip}</div>

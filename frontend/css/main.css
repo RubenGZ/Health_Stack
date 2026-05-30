@@ -4615,7 +4615,7 @@ select.form-input option { background: var(--bg-surface); color: var(--text-prim
   border-radius: 8px; transition: background 0.15s;
 }
 .wl-set-row:hover { background: rgba(255,255,255,0.025); }
-.wl-set-row.wl-set-warmup { border-left: 2px solid rgba(245,158,11,0.50); padding-left: 6px; }
+.wl-set-row.wl-set-warmup { border-left: 2px solid rgba(196,165,97,0.30); padding-left: 6px; }
 .wl-set-row.wl-set-done { background: rgba(34,197,94,0.05); }
 .wl-set-row.wl-set-done .wl-input-num {
   background: rgba(34,197,94,0.08);
@@ -4625,8 +4625,19 @@ select.form-input option { background: var(--bg-surface); color: var(--text-prim
 .wl-set-num {
   font-size: 12px; font-weight: 700;
   color: rgba(255,255,255,0.40); text-align: center;
+  display: flex; align-items: center; justify-content: center;
 }
-/* Warmup icon toggle */
+/* Warmup badge — minimalista, reemplaza el emoji 🔥 */
+.wl-warmup-badge {
+  display: inline-flex; align-items: center; justify-content: center;
+  width: 18px; height: 18px; border-radius: 50%;
+  background: rgba(196,165,97,0.10);
+  border: 1px solid rgba(196,165,97,0.22);
+  color: var(--hs-accent, #c4a561);
+  font-size: 0.58rem; font-weight: 800; letter-spacing: 0.02em;
+  line-height: 1; flex-shrink: 0;
+}
+/* Warmup icon toggle (legacy, mantener por si acaso) */
 .wl-warmup-chk {
   display: flex; align-items: center; justify-content: center;
   width: 24px; height: 24px; cursor: pointer;
@@ -5142,7 +5153,28 @@ select.form-input option { background: var(--bg-surface); color: var(--text-prim
   background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.07);
   border-radius: 14px; padding: 14px;
 }
-.wl-picker-name { font-size: 15px; font-weight: 700; margin-bottom: 4px; }
+/* Nombre de rutina — editable inline */
+.wl-picker-name-wrap {
+  display: flex; align-items: center; gap: 5px; margin-bottom: 4px;
+}
+.wl-picker-name { font-size: 15px; font-weight: 700; }
+.wl-picker-name-edit {
+  display: inline-flex; align-items: center; justify-content: center;
+  width: 22px; height: 22px; border-radius: 6px;
+  background: transparent; border: none;
+  color: rgba(255,255,255,0.25); cursor: pointer; padding: 0;
+  transition: color 140ms, background 140ms; flex-shrink: 0;
+  -webkit-tap-highlight-color: transparent;
+}
+.wl-picker-name-edit:hover { color: var(--hs-accent, #c4a561); background: rgba(196,165,97,0.1); }
+.wl-picker-name-inp {
+  flex: 1; min-width: 0;
+  background: rgba(196,165,97,0.07);
+  border: 1.5px solid rgba(196,165,97,0.35);
+  border-radius: 6px; color: #e2e8f0;
+  font-size: 15px; font-weight: 700; font-family: inherit;
+  padding: 3px 8px; outline: none;
+}
 .wl-picker-meta { font-size: 12px; color: rgba(255,255,255,0.40); margin-bottom: 12px; }
 .wl-picker-days { display: flex; flex-direction: column; gap: 8px; }
 .wl-picker-day {

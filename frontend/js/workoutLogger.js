@@ -334,22 +334,22 @@ function renderSets(ex) {
     ].filter(Boolean).join(' ');
 
     row.innerHTML = `
-      <span class="wl-set-num">${s.isWarmup ? '🔥' : s.setNumber}${isPRSet ? '<span class="wl-pr-badge">PR</span>' : ''}</span>
+      <span class="wl-set-num">${s.isWarmup ? '<span class="wl-warmup-badge">W</span>' : s.setNumber}${isPRSet ? '<span class="wl-pr-badge">PR</span>' : ''}</span>
 
       <span class="wl-set-prev">${prevStr ?? '—'}</span>
 
-      <input type="number" class="wl-input-num wl-weight"
-        value="${s.weightKg || ''}"
+      <input type="text" inputmode="decimal" pattern="[0-9]*\.?[0-9]*"
+        class="wl-input-num wl-weight"
+        value="${s.weightKg > 0 ? s.weightKg : ''}"
         placeholder="${Session.getSuggestedWeight(ex.key) ?? '0'}"
-        min="0" step="0.5"
         data-field="weightKg" data-idx="${idx}" data-key="${ex.key}"
         ${isDone ? 'readonly' : ''} />
 
       <span class="wl-x">×</span>
 
-      <input type="number" class="wl-input-num wl-reps"
-        value="${s.reps || ''}" placeholder="0"
-        min="0"
+      <input type="text" inputmode="numeric" pattern="[0-9]*"
+        class="wl-input-num wl-reps"
+        value="${s.reps > 0 ? s.reps : ''}" placeholder="0"
         data-field="reps" data-idx="${idx}" data-key="${ex.key}"
         ${isDone ? 'readonly' : ''} />
 
@@ -376,6 +376,15 @@ function renderSets(ex) {
       const val = field === 'weightKg' ? (parseFloat(e.target.value) || 0)
                                        : (parseInt(e.target.value) || 0);
       Session.updateSet(S.session, key, +idx, { [field]: val });
+    });
+  });
+
+  // Select-all on focus — el 0 desaparece al tocar, el usuario escribe directamente
+  container.querySelectorAll('.wl-input-num:not([readonly])').forEach(inp => {
+    inp.addEventListener('focus', () => { inp.select(); });
+    // iOS: pointerdown llega antes que focus — si ya tenía foco, re-seleccionar
+    inp.addEventListener('pointerdown', () => {
+      if (document.activeElement === inp) setTimeout(() => inp.select(), 0);
     });
   });
 

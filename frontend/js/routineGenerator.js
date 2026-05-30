@@ -527,7 +527,7 @@ const RoutineGenerator = (function () {
                   <span class="rex-meta">
                     <span class="rex-scheme">${ex.sets} × ${ex.reps}</span>
                     <span class="rex-rest">${ex.rest}</span>
-                    ${ex.sfr === 'high' ? '<span class="rex-sfr" title="Alto SFR — máxima relación estímulo/fatiga sistémica">SFR</span>' : ''}
+                    ${ex.sfr === 'high' ? '<span class="rex-sfr rex-sfr--high" title="Máximo estímulo con poca fatiga sistémica">Exigente</span>' : ex.sfr === 'low' ? '<span class="rex-sfr rex-sfr--low" title="Ejercicio de bajo coste de recuperación">Eficiente</span>' : ''}
                   </span>
                 </div>`).join('')
             }

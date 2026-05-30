@@ -131,6 +131,7 @@ class UserPublicResponse(BaseModel):
     consent_date: datetime | None
     last_login_at: datetime | None = None
     created_at: datetime
+    onboarding_completed: bool = False  # True cuando el usuario completó el wizard de onboarding
 
     model_config = {"from_attributes": True}  # Permite crear desde ORM models
 

@@ -54,13 +54,13 @@ const RoutineGenerator = (function () {
     {
       id: 'duration',
       title: '¿Cuánto tiempo tienes disponible por sesión?',
-      coaching_why: 'Ajustamos el número de ejercicios al tiempo que tienes disponible.',
+      coaching_why: 'Cada minuto cuenta — diseñamos la sesión para que no sobre ni falte nada.',
       type: 'options',
       options: [
-        { value: 30, label: '30 min', desc: '4 ejercicios compuestos. Circuito o superseries obligatorias.' },
-        { value: 45, label: '45 min', desc: '5 ejercicios. El mínimo recomendado para hipertrofia efectiva.' },
-        { value: 60, label: '60 min', desc: '6-7 ejercicios. El estándar de oro para la mayoría de personas.' },
-        { value: 90, label: '90 min', desc: '8-9 ejercicios. Para alto volumen de entrenamiento avanzado.' },
+        { value: 30, label: '30 min', desc: 'Sesión exprés. 4 compuestos en superserie — sin descansos largos. Ideal si el tiempo escasea.' },
+        { value: 45, label: '45 min', desc: '5 ejercicios con descanso real. El mínimo para ver progreso sólido en hipertrofia.' },
+        { value: 60, label: '60 min', desc: '6-7 ejercicios. El punto óptimo entre volumen, intensidad y recuperación real.' },
+        { value: 90, label: '90 min', desc: '8-9 ejercicios. Alto volumen de entrenamiento para atletas que priorizan el gym.' },
       ],
     },
     {
@@ -79,16 +79,16 @@ const RoutineGenerator = (function () {
     {
       id: 'priority',
       title: '¿Tienes algún grupo muscular prioritario o punto débil?',
-      coaching_why: 'Los grupos prioritarios se colocan primero en cada sesión, cuando tienes más energía.',
+      coaching_why: 'Los grupos prioritarios se colocan primero en cada sesión, cuando tu energía es máxima.',
       type: 'multicheck',
       options: [
-        { value: 'none',      label: 'Sin preferencia — desarrollo equilibrado' },
-        { value: 'chest',     label: 'Pecho' },
-        { value: 'back',      label: 'Espalda (ancho y grosor)' },
-        { value: 'shoulders', label: 'Hombros (especialmente lateral y posterior)' },
-        { value: 'legs',      label: 'Piernas (cuádriceps + glúteos)' },
-        { value: 'posterior', label: 'Cadena posterior (isquios + glúteos)' },
-        { value: 'arms',      label: 'Brazos (bíceps + tríceps)' },
+        { value: 'none',      icon: '⚖️', label: 'Sin preferencia' },
+        { value: 'chest',     icon: '💪', label: 'Pecho' },
+        { value: 'back',      icon: '🦾', label: 'Espalda' },
+        { value: 'shoulders', icon: '🏗️', label: 'Hombros' },
+        { value: 'legs',      icon: '🦵', label: 'Piernas' },
+        { value: 'posterior', icon: '🔥', label: 'Cadena post.' },
+        { value: 'arms',      icon: '💫', label: 'Brazos' },
       ],
     },
     {
@@ -105,16 +105,16 @@ const RoutineGenerator = (function () {
     {
       id: 'injuries',
       title: '¿Tienes alguna lesión o limitación articular?',
-      coaching_why: 'Filtramos ejercicios que puedan agravar las zonas sensibles.',
+      coaching_why: 'Adaptamos los ejercicios para que entrenes fuerte sin arriesgar las zonas sensibles.',
       type: 'multicheck',
       options: [
-        { value: 'none',       label: 'Ninguna' },
-        { value: 'shoulder',   label: 'Hombro' },
-        { value: 'knee',       label: 'Rodilla' },
-        { value: 'lower_back', label: 'Lumbar' },
-        { value: 'wrist',      label: 'Muñeca' },
-        { value: 'elbow',      label: 'Codo' },
-        { value: 'hip',        label: 'Cadera' },
+        { value: 'none',       icon: '✅', label: 'Ninguna' },
+        { value: 'shoulder',   icon: '🫱', label: 'Hombro' },
+        { value: 'knee',       icon: '🦿', label: 'Rodilla' },
+        { value: 'lower_back', icon: '🔩', label: 'Lumbar' },
+        { value: 'wrist',      icon: '🤲', label: 'Muñeca' },
+        { value: 'elbow',      icon: '💪', label: 'Codo' },
+        { value: 'hip',        icon: '🦴', label: 'Cadera' },
       ],
     },
   ];
@@ -731,6 +731,7 @@ const RoutineGenerator = (function () {
         step.options.map(o => `
           <label class="quiz-option${selected.includes(o.value) ? ' selected' : ''}" data-val="${o.value}">
             <input type="checkbox" name="q_${step.id}" value="${o.value}"${selected.includes(o.value) ? ' checked' : ''} style="display:none">
+            ${o.icon ? `<span class="quiz-opt-icon">${o.icon}</span>` : ''}
             <span class="quiz-opt-label">${o.label}</span>
           </label>`).join('') + `</div>`;
     }

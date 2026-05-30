@@ -735,13 +735,33 @@
   }
   window._sendTelemetryEvent = _sendTelemetryEvent;
 
+  // ── Mostrar registro automáticamente si el usuario no está autenticado ───────
+  // Sin token y sin callback OAuth → abrir modal en pestaña "register" desde el inicio.
+  // Esto evita que el dashboard quede visible durante el flash antes del modal.
+  function _openAuthIfNeeded() {
+    const hasToken    = Boolean(localStorage.getItem('hs_access_token'));
+    const isOAuthCb   = window.location.hash.includes('access_token');
+    const isLandingCb = new URLSearchParams(window.location.search).has('action');
+    if (!hasToken && !isOAuthCb && !isLandingCb) {
+      const _try = () => {
+        if (typeof Auth !== 'undefined' && typeof Auth.open === 'function') {
+          Auth.open('register');
+        } else {
+          setTimeout(_try, 80);
+        }
+      };
+      setTimeout(_try, 120);
+    }
+  }
+
   // ── Bootstrap ─────────────────────────────────────────────
   if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', () => { handleOAuthCallback(); handleLandingBridge(); init(); });
+    document.addEventListener('DOMContentLoaded', () => { handleOAuthCallback(); handleLandingBridge(); init(); _openAuthIfNeeded(); });
   } else {
     handleOAuthCallback();
     handleLandingBridge();
     init();
+    _openAuthIfNeeded();
   }
 
   // Admin nav: carga inicial + cambios de sesión

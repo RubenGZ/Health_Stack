@@ -61,7 +61,7 @@ const Exercises = (function () {
       desc: 'Banco a 30-45°. Enfatiza la porción clavicular (superior) del pectoral mayor.',
       video_url: 'https://www.youtube.com/watch?v=DbFgADa2PL8',
       affiliate: { icon: '', name: 'Banco ajustable multiposición', desc: 'Regulable de -15° a 90°, soporta 300kg', url: 'https://www.amazon.es/s?k=banco+musculacion+ajustable&tag=healthstackpro-21' } },
-    { id: 3, name: 'Aperturas con mancuernas', group: 'pecho', level: 'Principiante', equipment: 'Mancuernas',
+    { id: 3, name: 'Aperturas mancuernas plano', group: 'pecho', level: 'Principiante', equipment: 'Mancuernas',
       equipmentType: 'dumbbell', compound: false, barWeight: 0, defaultKg: 12, sfr: 'high', primary: false,
       muscles: ['pecho_mayor', 'deltoides_ant'],
       desc: 'Abre los brazos en arco hasta sentir estiramiento del pecho, sube sin bloquear codos.',
@@ -249,7 +249,7 @@ const Exercises = (function () {
     { id: 50, name: 'Press banca declinado (barra)', group: 'pecho', level: 'Intermedio', equipment: 'Barra',
       equipmentType: 'barbell', compound: true, barWeight: 20, defaultKg: 65, sfr: 'medium', primary: false,
       muscles: ['pecho_mayor', 'triceps'], desc: 'Banco declinado 15-30°. Mayor énfasis porción esternal inferior del pectoral.', video_url: '' },
-    { id: 51, name: 'Press inclinado mancuernas', group: 'pecho', level: 'Intermedio', equipment: 'Mancuernas',
+    { id: 51, name: 'Press mancuernas inclinado', group: 'pecho', level: 'Intermedio', equipment: 'Mancuernas',
       equipmentType: 'dumbbell', compound: true, barWeight: 0, defaultKg: 22, sfr: 'high', primary: true,
       muscles: ['pecho_mayor_sup', 'deltoides_ant', 'triceps'], desc: 'Mayor rango de movimiento que con barra. Excelente para porción superior del pecho.', video_url: '' },
     { id: 52, name: 'Press mancuernas plano', group: 'pecho', level: 'Principiante', equipment: 'Mancuernas',
@@ -290,7 +290,7 @@ const Exercises = (function () {
     { id: 63, name: 'Pulldown agarre neutro', group: 'espalda', level: 'Principiante', equipment: 'Polea',
       equipmentType: 'cable', compound: true, barWeight: 0, defaultKg: 50, sfr: 'high', primary: false,
       muscles: ['dorsal', 'biceps'], desc: 'Jalón con agarre neutro (manos enfrentadas). Activación equilibrada del dorsal.', video_url: '' },
-    { id: 64, name: 'Remo en polea baja (agarre neutro)', group: 'espalda', level: 'Principiante', equipment: 'Polea',
+    { id: 64, name: 'Remo en polea baja (neutro)', group: 'espalda', level: 'Principiante', equipment: 'Polea',
       equipmentType: 'cable', compound: true, barWeight: 0, defaultKg: 45, sfr: 'high', primary: true,
       muscles: ['dorsal', 'romboides', 'biceps'], desc: 'Sentado ante polea baja, tira hacia el abdomen. Excelente para espalda media.', video_url: '' },
     { id: 65, name: 'Remo en máquina (Hammer)', group: 'espalda', level: 'Principiante', equipment: 'Máquina',
@@ -322,7 +322,7 @@ const Exercises = (function () {
     { id: 73, name: 'Elevaciones laterales (cable)', group: 'hombros', level: 'Principiante', equipment: 'Polea',
       equipmentType: 'cable', compound: false, barWeight: 0, defaultKg: 8, sfr: 'high', primary: true,
       muscles: ['deltoides_med'], desc: 'Elevaciones laterales con polea baja. Tensión constante vs mancuernas. Superior para hipertrofia.', video_url: '' },
-    { id: 74, name: 'Rear delt fly máquina', group: 'hombros', level: 'Principiante', equipment: 'Máquina',
+    { id: 74, name: 'Rear delt fly (máquina)', group: 'hombros', level: 'Principiante', equipment: 'Máquina',
       equipmentType: 'machine', compound: false, barWeight: 0, defaultKg: 30, sfr: 'high', primary: false,
       muscles: ['deltoides_post', 'romboides'], desc: 'Máquina pec-deck al revés. Aislamiento del deltoides posterior. Esencial para equilibrio del hombro.', video_url: '' },
 
@@ -435,6 +435,49 @@ const Exercises = (function () {
     { id: 145, name: 'Farmer walk (mancuernas)', group: 'core', level: 'Principiante', equipment: 'Mancuernas',
       equipmentType: 'dumbbell', compound: false, barWeight: 0, defaultKg: 24, sfr: 'medium', primary: false,
       muscles: ['core', 'trapecio', 'antebrazos'], desc: 'Caminar con mancuernas pesadas. Grip, core y trapecios. Funcional y brutalmente efectivo.', video_url: '' },
+
+    // PECHO — añadidos para alinear con routineGenerator
+    { id: 200, name: 'Aperturas mancuernas inclinado', group: 'pecho', level: 'Principiante', equipment: 'Mancuernas',
+      equipmentType: 'dumbbell', compound: false, barWeight: 0, defaultKg: 10, sfr: 'high', primary: false,
+      muscles: ['pecho_mayor_sup', 'deltoides_ant'], desc: 'Aperturas en banco inclinado. Mayor énfasis en la porción clavicular del pectoral.', video_url: '' },
+    { id: 201, name: 'Pull-over con mancuerna', group: 'pecho', level: 'Intermedio', equipment: 'Mancuernas',
+      equipmentType: 'dumbbell', compound: false, barWeight: 0, defaultKg: 18, sfr: 'medium', primary: false,
+      muscles: ['pecho_mayor', 'dorsal', 'triceps'], desc: 'Acostado transversal en banco, mancuerna sobre la cabeza en arco. Trabaja pecho y dorsal.', video_url: '' },
+
+    // ESPALDA — añadidos para alinear con routineGenerator
+    { id: 202, name: 'Good morning (barra)', group: 'espalda', level: 'Avanzado', equipment: 'Barra',
+      equipmentType: 'barbell', compound: true, barWeight: 20, defaultKg: 40, sfr: 'medium', primary: false,
+      muscles: ['erector_espinal', 'isquiotibiales', 'gluteos'], desc: 'Barra en espalda, bisagra de cadera manteniendo espalda plana. Fortalece cadena posterior.', video_url: '' },
+    { id: 203, name: 'Remo mancuernas a 2 brazos', group: 'espalda', level: 'Principiante', equipment: 'Mancuernas',
+      equipmentType: 'dumbbell', compound: true, barWeight: 0, defaultKg: 18, sfr: 'high', primary: true,
+      muscles: ['dorsal', 'romboides', 'biceps'], desc: 'Remo a 2 brazos con mancuernas. Ideal sin barra. Activa dorsal y espalda media.', video_url: '' },
+
+    // TRICEPS — añadidos para alinear con routineGenerator
+    { id: 204, name: 'Fondos tríceps (banco)', group: 'triceps', level: 'Principiante', equipment: 'Peso corporal',
+      equipmentType: 'bodyweight', compound: false, barWeight: 0, defaultKg: 0, sfr: 'medium', primary: false,
+      muscles: ['triceps', 'deltoides_ant'], desc: 'Manos en banco detrás, flexiona y extiende codos. Aislamiento de tríceps accesible.', video_url: '' },
+    { id: 205, name: 'Kickback con mancuerna', group: 'triceps', level: 'Principiante', equipment: 'Mancuernas',
+      equipmentType: 'dumbbell', compound: false, barWeight: 0, defaultKg: 8, sfr: 'medium', primary: false,
+      muscles: ['triceps'], desc: 'Tronco inclinado, extiende el codo hacia atrás con la mancuerna. Aislamiento de tríceps.', video_url: '' },
+    { id: 206, name: 'Extensión mancuerna por encima', group: 'triceps', level: 'Principiante', equipment: 'Mancuernas',
+      equipmentType: 'dumbbell', compound: false, barWeight: 0, defaultKg: 14, sfr: 'medium', primary: false,
+      muscles: ['triceps'], desc: 'Mancuerna sobre la cabeza, flexiona y extiende codo. Estiramiento máximo de cabeza larga.', video_url: '' },
+
+    // BICEPS — añadidos para alinear con routineGenerator
+    { id: 207, name: 'Curl mancuernas sentado (supino)', group: 'biceps', level: 'Principiante', equipment: 'Mancuernas',
+      equipmentType: 'dumbbell', compound: false, barWeight: 0, defaultKg: 12, sfr: 'high', primary: true,
+      muscles: ['biceps', 'braquial'], desc: 'Curl sentado con supinación completa. Mayor aislamiento que de pie al eliminar el balanceo.', video_url: '' },
+
+    // PIERNAS — añadidos para alinear con routineGenerator
+    { id: 208, name: 'Leg press 1 pierna', group: 'piernas', level: 'Intermedio', equipment: 'Máquina',
+      equipmentType: 'machine', compound: true, barWeight: 0, defaultKg: 60, sfr: 'high', primary: false,
+      muscles: ['cuadriceps', 'gluteos'], desc: 'Prensa de piernas unilateral. Corrige desequilibrios musculares entre piernas.', video_url: '' },
+    { id: 209, name: 'Zancada andando (mancuernas)', group: 'piernas', level: 'Intermedio', equipment: 'Mancuernas',
+      equipmentType: 'dumbbell', compound: true, barWeight: 0, defaultKg: 14, sfr: 'medium', primary: false,
+      muscles: ['cuadriceps', 'gluteos', 'isquiotibiales'], desc: 'Zancadas en movimiento. Más demandante que estáticas. Trabajo cardiovascular añadido.', video_url: '' },
+    { id: 210, name: 'Sentadilla sumo (mancuerna)', group: 'piernas', level: 'Principiante', equipment: 'Mancuernas',
+      equipmentType: 'dumbbell', compound: true, barWeight: 0, defaultKg: 28, sfr: 'medium', primary: false,
+      muscles: ['cuadriceps', 'gluteos', 'aductores'], desc: 'Stance amplio, mancuerna entre piernas. Mayor énfasis en aductores y glúteos.', video_url: '' },
   ];
 
   // ── SVG anatómico minimalista ──────────────────────────────

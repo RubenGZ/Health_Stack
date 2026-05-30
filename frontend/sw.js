@@ -87,8 +87,11 @@ self.addEventListener('install', event => {
             .catch(() => { /* asset no disponible — ignorar */ })
         )
       )
-    )
-    // No .finally(skipWaiting) — el SW espera permiso explícito del usuario
+    ).then(() => self.skipWaiting())
+    // skipWaiting en install: el nuevo SW toma control inmediatamente
+    // sin esperar a que el usuario cierre todas las pestañas.
+    // Esto evita que el SW viejo sirva JS obsoleto con HTML nuevo,
+    // lo que causaría que secciones redeseñadas aparecieran vacías.
   );
 });
 

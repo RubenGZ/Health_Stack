@@ -615,6 +615,26 @@ const MealPlanner = (function () {
 
   // ── Init ─────────────────────────────────────────────────
   function init() {
+    // Guard de compatibilidad: si los elementos del DOM no existen es porque
+    // el Service Worker está sirviendo el HTML antiguo (mismatch de versión).
+    // Mostramos un aviso y recargamos para forzar el HTML nuevo.
+    if (!document.getElementById('planner-week-strip')) {
+      const legacy = document.getElementById('planner-grid');
+      if (legacy) {
+        legacy.innerHTML = '<div style="padding:24px;text-align:center;color:var(--text-muted)">' +
+          '🔄 Actualizando planner… <br><button onclick="location.reload(true)" ' +
+          'style="margin-top:12px;padding:8px 18px;background:var(--hs-accent);color:#fff;' +
+          'border:none;border-radius:8px;cursor:pointer;font-size:.9rem">Recargar ahora</button></div>';
+      }
+      // Forzar activación del nuevo Service Worker si está esperando
+      if ('serviceWorker' in navigator) {
+        navigator.serviceWorker.getRegistration().then(reg => {
+          if (reg && reg.waiting) reg.waiting.postMessage({ type: 'SKIP_WAITING' });
+        });
+      }
+      return;
+    }
+
     _load();
     _createSheetDOM();
     _renderStrip();

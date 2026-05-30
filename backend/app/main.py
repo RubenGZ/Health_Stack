@@ -254,6 +254,24 @@ else:
 # ── Security Headers Middleware ───────────────────────────────────────────────
 # OWASP A05: Security Misconfiguration — headers defensivos en toda respuesta
 @app.middleware("http")
+async def maintenance_gate(request: Request, call_next) -> Response:
+    """Bloquea todas las rutas /api/* con 503 cuando el modo mantenimiento está activo,
+    excepto /api/v1/admin/* (para que el admin pueda desactivarlo) y /health."""
+    from app.modules.admin.router import is_maintenance_active
+    if is_maintenance_active():
+        path = request.url.path
+        is_admin_route  = path.startswith("/api/v1/admin")
+        is_health_route = path == "/health"
+        if not is_admin_route and not is_health_route:
+            return JSONResponse(
+                status_code=503,
+                content={"detail": "maintenance", "message": "Servidor en mantenimiento. Vuelve en unos minutos."},
+                headers={"X-Maintenance": "true"},
+            )
+    return await call_next(request)
+
+
+@app.middleware("http")
 async def add_security_headers(request: Request, call_next) -> Response:
     response = await call_next(request)
     response.headers["X-Content-Type-Options"] = "nosniff"

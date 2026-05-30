@@ -54,12 +54,67 @@ var AdminSystem = (function() {
     });
   }
 
+  // ── Maintenance mode toggle ───────────────────────────────────────────────
+  function _updateMaintenanceBadge(active) {
+    var badge = document.getElementById('maintenance-status-badge');
+    var btn   = document.getElementById('maintenance-toggle-btn');
+    if (!badge || !btn) return;
+    if (active) {
+      badge.textContent = 'ACTIVO';
+      badge.style.background = 'rgba(239,68,68,0.15)';
+      badge.style.color       = '#f87171';
+      badge.style.borderColor = 'rgba(239,68,68,0.3)';
+      btn.textContent = 'Desactivar';
+      btn.style.background = '#ef4444';
+    } else {
+      badge.textContent = 'DESACTIVADO';
+      badge.style.background = 'rgba(34,197,94,0.15)';
+      badge.style.color       = '#4ade80';
+      badge.style.borderColor = 'rgba(34,197,94,0.3)';
+      btn.textContent = 'Activar';
+      btn.style.background = '';
+    }
+  }
+
+  function _loadMaintenanceStatus() {
+    AdminAPI.getMaintenance().then(function(data) {
+      _updateMaintenanceBadge(data.active);
+    }).catch(function() {});
+  }
+
+  function _toggleMaintenance() {
+    var btn = document.getElementById('maintenance-toggle-btn');
+    var badge = document.getElementById('maintenance-status-badge');
+    var isActive = badge && badge.textContent === 'ACTIVO';
+    if (btn) btn.disabled = true;
+
+    AdminAPI.setMaintenance(!isActive).then(function(data) {
+      _updateMaintenanceBadge(data.active);
+      var msg = data.active
+        ? '🐱 Modo mantenimiento ACTIVADO — usuarios verán el gatito'
+        : '✅ Modo mantenimiento desactivado';
+      if (typeof showToast === 'function') showToast(msg, data.active ? 'warning' : 'success');
+    }).catch(function(e) {
+      if (typeof showToast === 'function') showToast('Error: ' + e.message, 'error');
+    }).finally(function() {
+      if (btn) btn.disabled = false;
+    });
+  }
+
   function load() {
     var btn = document.getElementById('system-check-btn');
     if (btn) {
       btn.removeEventListener('click', runCheck);
       btn.addEventListener('click', runCheck);
     }
+
+    var toggleBtn = document.getElementById('maintenance-toggle-btn');
+    if (toggleBtn) {
+      toggleBtn.removeEventListener('click', _toggleMaintenance);
+      toggleBtn.addEventListener('click', _toggleMaintenance);
+    }
+
+    _loadMaintenanceStatus();
     // Auto-run first check when section is opened
     runCheck();
   }

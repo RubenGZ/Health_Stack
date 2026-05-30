@@ -201,17 +201,17 @@ export function showMaintenanceScreen() {
   document.body.appendChild(overlay);
   requestAnimationFrame(() => requestAnimationFrame(() => overlay.classList.add('hs-transition-overlay--visible')));
 
-  // Polling: intentar /api/v1/health cada 4s hasta que responda
+  // Polling: usar _nativeFetch para no pasar por el interceptor
   const _poll = setInterval(async () => {
     try {
-      const r = await fetch('/api/v1/health', { cache: 'no-store' });
+      const r = await _nativeFetch('/health', { cache: 'no-store' });
       if (r.ok) {
         clearInterval(_poll);
         overlay.classList.remove('hs-transition-overlay--visible');
         setTimeout(() => { overlay.remove(); _maintenanceShown = false; window.location.reload(); }, 500);
       }
     } catch {}
-  }, 4000);
+  }, 5000);
 }
 
 export function hideMaintenanceScreen() {
@@ -222,21 +222,27 @@ export function hideMaintenanceScreen() {
   setTimeout(() => el.remove(), 400);
 }
 
-// Detectar 502/503 globalmente en fetch
+// ─── Fetch interceptor global ─────────────────────────────────────────────────
+// Guardamos la referencia ANTES de sobrescribir para usarla en el polling
+const _nativeFetch = window.fetch.bind(window);
+
 (function _installMaintenanceDetector() {
-  const _origFetch = window.fetch;
   window.fetch = async function (...args) {
+    const url = String(args[0] instanceof Request ? args[0].url : args[0]);
+    // No interceptar /health ni rutas admin (para que el admin pueda desactivar)
+    const isApi    = url.includes('/api/') && !url.includes('/api/v1/admin');
     try {
-      const res = await _origFetch(...args);
-      if ((res.status === 502 || res.status === 503) && String(args[0]).includes('/api/')) {
-        showMaintenanceScreen();
+      const res = await _nativeFetch(...args);
+      if ((res.status === 502 || res.status === 503) && isApi) {
+        // Leer header para distinguir mantenimiento activo de 502 real
+        const isMaintenance = res.headers.get('X-Maintenance') === 'true' || res.status === 503;
+        if (isMaintenance) showMaintenanceScreen();
       } else if (res.ok && _maintenanceShown) {
         hideMaintenanceScreen();
       }
       return res;
     } catch (err) {
-      // Sin red y la URL es de la API → mostrar mantenimiento
-      if (String(args[0]).includes('/api/')) showMaintenanceScreen();
+      if (isApi) showMaintenanceScreen();
       throw err;
     }
   };

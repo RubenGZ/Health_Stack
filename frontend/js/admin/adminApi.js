@@ -41,5 +41,8 @@ var AdminAPI = (function() {
     // Users
     getUsers:           function(offset, limit) { return req('/users?offset=' + (offset || 0) + '&limit=' + (limit || 20)); },
     patchUser:          function(id, body)      { return req('/users/' + id, 'PATCH', body); },
+    // Maintenance
+    getMaintenance:     function()       { return req('/maintenance'); },
+    setMaintenance:     function(active) { return req('/maintenance', 'POST', { active: active }); },
   };
 })();

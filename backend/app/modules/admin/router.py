@@ -3,6 +3,8 @@ from __future__ import annotations
 import logging
 
 from fastapi import APIRouter, Depends, Query
+from fastapi.responses import JSONResponse
+from pydantic import BaseModel
 
 from app.core.security.dependencies import require_role
 from app.modules.admin.schemas import (
@@ -23,6 +25,31 @@ from app.session import DBSession
 
 logger = logging.getLogger(__name__)
 router = APIRouter()
+
+# ── Maintenance mode (in-memory flag) ─────────────────────────────────────────
+_maintenance_active: bool = False
+
+
+class MaintenanceToggle(BaseModel):
+    active: bool
+
+
+@router.get("/maintenance", summary="[Admin] Estado del modo mantenimiento")
+async def get_maintenance(_: None = Depends(require_role("admin"))):
+    return {"active": _maintenance_active}
+
+
+@router.post("/maintenance", summary="[Admin] Activar/desactivar modo mantenimiento")
+async def set_maintenance(body: MaintenanceToggle, _: None = Depends(require_role("admin"))):
+    global _maintenance_active
+    _maintenance_active = body.active
+    logger.info("Maintenance mode set to %s", _maintenance_active)
+    return {"active": _maintenance_active}
+
+
+# Función exportable para que el middleware de main.py la consulte
+def is_maintenance_active() -> bool:
+    return _maintenance_active
 
 
 # ── Overview ──────────────────────────────────────────────────────────────────

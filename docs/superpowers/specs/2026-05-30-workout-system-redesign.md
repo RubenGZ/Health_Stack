@@ -1,32 +1,37 @@
-# Workout System Redesign — Spec v1.0
-**Fecha:** 2026-05-30  
-**Estado:** Aprobado por el usuario  
+# Workout System Redesign — Spec v2.0
+**Fecha:** 2026-05-30
+**Estado:** Aprobado por el usuario (v2 post-auditoría)
 **Enfoque:** Opción B — Refactor modular completo
 
 ---
 
-## Problema
+## Cambios v1 → v2
 
-El sistema de entrenamiento actual tiene cinco problemas principales:
-
-1. **SFR incomprensible** — Badge técnico que el usuario no entiende. "SFR" = Stimulus-to-Fatigue Ratio (RP methodology), jerga de coach que no pertenece a la UI de usuario final.
-2. **Peso sin contexto de equipamiento** — La pantalla pre-entreno muestra "kg" sin indicar si es peso por mancuerna, peso total con barra, o pila de polea.
-3. **Sets incompletos al iniciar** — Exercises sin historial (workingKg = 0) generan sets de trabajo con peso 0 y sin warmup, incluso en compuestos. La inconsistencia rompe la confianza del usuario.
-4. **Mega-archivos difíciles de mantener** — `views.js` (589 líneas) mezcla 5 responsabilidades. `workoutLogger.js` (563 líneas) mezcla render, lógica de sets, anatomy y PR.
-5. **Sin adaptación al estado del día** — No se pregunta al usuario cómo está, no se adapta el volumen/intensidad a su recuperación real.
+- ~~Exercise rename~~ **eliminado** — los nombres de ejercicio son inmutables, solo modificables por devs
+- `exercises.js` como única fuente de verdad (elimina doble pool en `routineGenerator.js`)
+- `displayName` separado de `key` eliminado (innecesario sin rename)
+- Skip button en readiness check
+- muscleMap.js entries para todos los ejercicios nuevos
+- readinessAdj solo aplica a ejercicios con historial real
+- Readiness data llega al post-workout coach
+- Fallback para ejercicios custom sin metadata
+- Definición exacta de "completó todos los reps"
+- Pool de ejercicios ampliado de ~80 a ~160
 
 ---
 
-## Solución — Opción B: Refactor modular completo
+## Problemas que resuelve
 
-### Principio de diseño
-Cada módulo tiene **una sola responsabilidad**. Si falla el warmup → miras `warmup.js`. Si falla la carga → miras `session-loader.js`. Sin efectos secundarios cruzados.
+1. **SFR incomprensible** — Jerga técnica que el usuario final no entiende
+2. **Peso sin contexto de equipamiento** — Sin indicar si es kg/mancuerna, total con barra o pila de polea
+3. **Sets incompletos al iniciar** — Ejercicios sin historial generan sets vacíos sin warmup, incluso compuestos
+4. **Mega-archivos difíciles de mantener** — `views.js` 589 líneas, `workoutLogger.js` 563 líneas con múltiples responsabilidades
+5. **Sin adaptación al estado del día** — No hay ajuste de volumen/intensidad basado en recuperación real
+6. **Dos fuentes de verdad** — `routineGenerator.js` tiene su propio pool `EX` desincronizado de `exercises.js`
 
 ---
 
 ## Arquitectura de módulos
-
-### Estructura de ficheros resultante
 
 ```
 frontend/js/workout/
@@ -34,317 +39,571 @@ frontend/js/workout/
   ├── timer.js               (sin cambios)
   ├── inactivity.js          (sin cambios)
   ├── summary.js             (sin cambios)
-  ├── exercise-meta.js       ← NUEVO: compound/equipment lookup + defaultKg
-  ├── warmup.js              ← NUEVO: generateWarmupSets() — función pura
-  ├── readiness-check.js     ← NUEVO: pre-session survey + score + adaptive suggestion
-  ├── session-loader.js      ← EXTRAÍDO de views.js (loadRoutineSession + _parseRestSecs)
+  ├── exercise-meta.js       ← NUEVO: compound/equipment/defaultKg + fallback custom
+  ├── warmup.js              ← NUEVO: generateWarmupSets() función pura testeable
+  ├── readiness-check.js     ← NUEVO: survey pre-sesión + score + sugerencia adaptativa
+  ├── session-loader.js      ← EXTRAÍDO de views.js (loadRoutineSession + parseRestSecs)
   ├── pre-workout.js         ← EXTRAÍDO de views.js (renderPreWorkoutAdjust)
-  ├── routine-picker.js      ← EXTRAÍDO de views.js (renderRoutinePicker + _saveRoutineLabel)
+  ├── routine-picker.js      ← EXTRAÍDO de views.js (renderRoutinePicker)
   ├── custom-builder.js      ← EXTRAÍDO de views.js (renderCustomRoutineBuilder)
   ├── idle.js                ← EXTRAÍDO de views.js (renderIdle)
-  └── views.js               (orquestador: re-exporta + registra callbacks — ~30 líneas)
+  └── views.js               (orquestador ~30 líneas: re-exporta + registra callbacks)
 
 frontend/js/
-  ├── workoutLogger.js       (coordinador reducido ~200 líneas — solo renderActive + wire-up)
-  ├── workoutSets.js         ← EXTRAÍDO de workoutLogger.js (renderSets + inputs + PR logic)
-  ├── exercises.js           (ampliar DB: +compound, +equipment, +defaultKg, +40 ejercicios)
+  ├── workoutLogger.js       (coordinador ~200 líneas — renderActive + wire-up)
+  ├── workoutSets.js         ← EXTRAÍDO de workoutLogger.js (renderSets + sets logic)
+  ├── exercises.js           (única fuente de verdad: ~160 ejercicios con metadatos completos)
   ├── workoutSession.js      (sin cambios)
   ├── workoutPR.js           (sin cambios)
   ├── oneRepMax.js           (sin cambios)
   ├── workoutHistory.js      (sin cambios)
   └── workoutInit.js         (sin cambios)
+
+frontend/js/anatomyLens/
+  └── muscleMap.js           (añadir entradas para los ~80 ejercicios nuevos)
 ```
 
-**Invariante:** ningún módulo importa de su hermano hacia arriba. El flujo de dependencias es siempre descendente: `workoutLogger → workoutSets → workout/*`.
+**Invariante:** flujo de dependencias siempre descendente.
+`workoutLogger → workoutSets → workout/*`
+`routineGenerator → exercises.js` (elimina `EX` interno)
 
 ---
 
-## Módulo 1: exercise-meta.js
+## Módulo 1: exercises.js — Única fuente de verdad
 
-Provee metadatos enriquecidos por nombre de ejercicio. Fuente de verdad para compound/equipment.
+### Estructura de cada ejercicio
+
+```js
+{
+  name:      'Press banca plano (barra)',  // inmutable — solo devs
+  group:     'chest',                      // grupo muscular principal
+  equipment: 'barbell',                    // 'barbell'|'dumbbell'|'cable'|'machine'|'bodyweight'
+  compound:  true,                         // true = calentamiento automático
+  barWeight: 20,                           // kg de la barra (0 si no aplica)
+  defaultKg: 60,                           // sugerencia primera vez
+  sfr:       'medium',                     // 'high'|'medium'|'low' (usado por routineGenerator)
+  primary:   true,                         // ejercicio estrella del grupo (routineGenerator)
+}
+```
+
+`routineGenerator.js` importa desde `exercises.js` y filtra por `group` + `equipment` + `sfr` + `primary`, eliminando el objeto `EX` hardcodeado.
+
+### Pool completo (~160 ejercicios)
+
+#### PECHO
+| Nombre | equipment | compound | barWeight | defaultKg | sfr | primary |
+|--------|-----------|----------|-----------|-----------|-----|---------|
+| Press banca plano (barra) | barbell | true | 20 | 60 | medium | true |
+| Press banca inclinado (barra) | barbell | true | 20 | 50 | medium | true |
+| Press banca declinado (barra) | barbell | true | 20 | 65 | medium | false |
+| Press inclinado mancuernas | dumbbell | true | 0 | 22 | high | true |
+| Press mancuernas plano | dumbbell | true | 0 | 24 | high | true |
+| Press mancuernas declinado | dumbbell | true | 0 | 24 | high | false |
+| Press en máquina (pecho) | machine | true | 0 | 60 | high | true |
+| Press cable inclinado | cable | true | 0 | 20 | high | true |
+| Cruce poleas bajo a alto | cable | false | 0 | 15 | high | false |
+| Cruce poleas alto a bajo | cable | false | 0 | 15 | high | false |
+| Pec-Deck (máquina) | machine | false | 0 | 40 | high | false |
+| Aperturas mancuernas plano | dumbbell | false | 0 | 12 | high | false |
+| Aperturas mancuernas inclinado | dumbbell | false | 0 | 10 | high | false |
+| Fondos en paralelas (pecho) | bodyweight | true | 0 | 0 | medium | false |
+| Fondos lastrados (pecho) | bodyweight | true | 0 | 10 | medium | false |
+| Pull-over con mancuerna | dumbbell | false | 0 | 18 | medium | false |
+| Neck press (barra) | barbell | true | 20 | 50 | medium | false |
+| Press Smith Machine inclinado | machine | true | 0 | 60 | medium | false |
+| Flexiones | bodyweight | true | 0 | 0 | medium | true |
+| Flexiones inclinadas (pies alto) | bodyweight | true | 0 | 0 | medium | false |
+| Archer push-up | bodyweight | true | 0 | 0 | medium | false |
+
+#### ESPALDA
+| Nombre | equipment | compound | barWeight | defaultKg | sfr | primary |
+|--------|-----------|----------|-----------|-----------|-----|---------|
+| Remo con barra (pronación) | barbell | true | 20 | 60 | medium | true |
+| Remo Pendlay | barbell | true | 20 | 60 | medium | false |
+| Remo T-bar | barbell | true | 20 | 40 | medium | true |
+| Peso muerto (barra) | barbell | true | 20 | 100 | low | true |
+| Dominadas (agarre prono) | bodyweight | true | 0 | 0 | medium | true |
+| Dominadas lastradas | bodyweight | true | 0 | 10 | medium | false |
+| Chin-up (agarre supino) | bodyweight | true | 0 | 0 | medium | true |
+| Jalón al pecho (agarre prono) | cable | true | 0 | 50 | high | true |
+| Pulldown agarre neutro | cable | true | 0 | 50 | high | false |
+| Remo en polea baja (agarre neutro) | cable | true | 0 | 45 | high | true |
+| Remo cable estrecho (neutro) | cable | true | 0 | 40 | high | false |
+| Remo mancuerna (1 brazo) | dumbbell | true | 0 | 30 | high | true |
+| Remo Kroc | dumbbell | true | 0 | 40 | medium | false |
+| Meadows Row | barbell | true | 20 | 40 | high | false |
+| Remo en máquina (Hammer) | machine | true | 0 | 60 | high | true |
+| Pull-over en máquina | machine | false | 0 | 40 | medium | false |
+| Face pull en polea | cable | false | 0 | 15 | high | false |
+| Facepull cuerda alta | cable | false | 0 | 15 | high | false |
+| Straight arm pulldown | cable | false | 0 | 20 | high | false |
+| Hiperextensión (espalda baja) | bodyweight | false | 0 | 0 | medium | false |
+| Remo invertido (bajo barra) | bodyweight | true | 0 | 0 | high | false |
+| Good morning (barra) | barbell | true | 20 | 40 | medium | false |
+
+#### HOMBROS
+| Nombre | equipment | compound | barWeight | defaultKg | sfr | primary |
+|--------|-----------|----------|-----------|-----------|-----|---------|
+| Press militar (barra) | barbell | true | 20 | 50 | medium | true |
+| Press Arnold (mancuernas) | dumbbell | true | 0 | 16 | high | true |
+| Press mancuernas sentado | dumbbell | true | 0 | 18 | high | true |
+| Press en máquina (hombros) | machine | true | 0 | 50 | high | true |
+| Push press (barra) | barbell | true | 20 | 55 | medium | false |
+| Upright row (barra) | barbell | false | 20 | 40 | medium | false |
+| Elevaciones laterales (mancuerna) | dumbbell | false | 0 | 8 | medium | true |
+| Elevaciones laterales (cable) | cable | false | 0 | 8 | high | true |
+| Elevaciones laterales cable cruzado | cable | false | 0 | 6 | high | false |
+| Elevaciones frontales (mancuerna) | dumbbell | false | 0 | 8 | medium | false |
+| Pájaro posterior (mancuernas) | dumbbell | false | 0 | 8 | medium | false |
+| Rear delt fly máquina | machine | false | 0 | 30 | high | false |
+| Face pull en polea | cable | false | 0 | 15 | high | false |
+| Pike push-up | bodyweight | true | 0 | 0 | medium | true |
+| Handstand push-up | bodyweight | true | 0 | 0 | medium | false |
+
+#### TRÍCEPS
+| Nombre | equipment | compound | barWeight | defaultKg | sfr | primary |
+|--------|-----------|----------|-----------|-----------|-----|---------|
+| Press banca agarre cerrado | barbell | true | 20 | 50 | medium | true |
+| Extensión en polea (barra o cuerda) | cable | false | 0 | 20 | high | true |
+| Extensión en polea (cuerda) | cable | false | 0 | 18 | high | true |
+| Extensión por encima en polea | cable | false | 0 | 15 | high | false |
+| Overhead extension cable cuerda | cable | false | 0 | 15 | high | false |
+| Press francés (barra EZ) | barbell | false | 10 | 30 | high | false |
+| Skull crusher mancuernas | dumbbell | false | 0 | 12 | high | false |
+| Tate press | dumbbell | false | 0 | 14 | high | false |
+| Extensión mancuerna por encima | dumbbell | false | 0 | 14 | medium | false |
+| Press francés con mancuernas | dumbbell | false | 0 | 12 | high | true |
+| Fondos tríceps (banco) | bodyweight | false | 0 | 0 | medium | false |
+| Fondos en paralelas (tríceps) | bodyweight | true | 0 | 0 | medium | true |
+| Diamond push-up | bodyweight | false | 0 | 0 | medium | false |
+| Kickback con mancuerna | dumbbell | false | 0 | 8 | medium | false |
+
+#### BÍCEPS
+| Nombre | equipment | compound | barWeight | defaultKg | sfr | primary |
+|--------|-----------|----------|-----------|-----------|-----|---------|
+| Curl barra recta / EZ | barbell | false | 10 | 30 | medium | true |
+| Curl mancuernas alterno | dumbbell | false | 0 | 12 | high | true |
+| Curl mancuernas sentado (supino) | dumbbell | false | 0 | 12 | high | true |
+| Curl inclinado (banco) | dumbbell | false | 0 | 10 | high | false |
+| Curl araña (spider curl) | dumbbell | false | 0 | 10 | high | false |
+| Curl concentrado | dumbbell | false | 0 | 10 | high | false |
+| Curl predicador (máquina) | machine | false | 0 | 30 | high | true |
+| Curl predicador EZ | barbell | false | 10 | 25 | high | false |
+| Curl predicador con mancuerna | dumbbell | false | 0 | 10 | high | false |
+| Curl polea baja (cable) | cable | false | 0 | 15 | high | true |
+| Curl martillo (mancuernas) | dumbbell | false | 0 | 12 | medium | false |
+| Curl invertido (barra) | barbell | false | 10 | 20 | medium | false |
+| Curl invertido (cable) | cable | false | 0 | 12 | medium | false |
+| Zottman curl | dumbbell | false | 0 | 10 | medium | false |
+| Drag curl | barbell | false | 10 | 25 | high | false |
+| Chin-up (dominadas supinas) | bodyweight | true | 0 | 0 | medium | true |
+
+#### CUÁDRICEPS
+| Nombre | equipment | compound | barWeight | defaultKg | sfr | primary |
+|--------|-----------|----------|-----------|-----------|-----|---------|
+| Sentadilla trasera (barra) | barbell | true | 20 | 80 | low | true |
+| Sentadilla frontal (barra) | barbell | true | 20 | 60 | medium | true |
+| Sentadilla goblet (mancuerna) | dumbbell | true | 0 | 24 | medium | true |
+| Sentadilla sumo (mancuerna) | dumbbell | true | 0 | 28 | medium | false |
+| Box squat (barra) | barbell | true | 20 | 70 | medium | false |
+| Safety bar squat | barbell | true | 25 | 70 | medium | false |
+| Hack squat (máquina) | machine | true | 0 | 80 | high | true |
+| Prensa de piernas | machine | true | 0 | 100 | high | true |
+| Prensa de piernas pie estrecho | machine | true | 0 | 90 | high | false |
+| Leg press 1 pierna | machine | true | 0 | 60 | high | false |
+| Extensión de cuádriceps | machine | false | 0 | 40 | high | false |
+| Zancada búlgara (mancuernas) | dumbbell | true | 0 | 16 | high | true |
+| Zancada búlgara (barra) | barbell | true | 20 | 40 | high | false |
+| Zancada andando (mancuernas) | dumbbell | true | 0 | 14 | medium | false |
+| Zancada andando (barra) | barbell | true | 20 | 40 | medium | false |
+| Reverse lunge (mancuernas) | dumbbell | true | 0 | 14 | medium | false |
+| Step-up con mancuernas | dumbbell | true | 0 | 14 | medium | false |
+| Step-up con barra | barbell | true | 20 | 40 | medium | false |
+| Sissy squat | bodyweight | false | 0 | 0 | high | false |
+| Pistol squat (1 pierna) | bodyweight | true | 0 | 0 | medium | false |
+| Sentadilla (peso corporal) | bodyweight | true | 0 | 0 | low | true |
+
+#### ISQUIOTIBIALES
+| Nombre | equipment | compound | barWeight | defaultKg | sfr | primary |
+|--------|-----------|----------|-----------|-----------|-----|---------|
+| Peso muerto rumano (barra) | barbell | true | 20 | 70 | medium | true |
+| Peso muerto rumano (mancuernas) | dumbbell | true | 0 | 24 | medium | true |
+| Peso muerto 1 pierna (mancuerna) | dumbbell | true | 0 | 18 | high | false |
+| Curl femoral tumbado | machine | false | 0 | 30 | high | true |
+| Curl femoral sentado | machine | false | 0 | 30 | high | true |
+| Leg curl en polea baja | cable | false | 0 | 20 | high | false |
+| Nordic curl | bodyweight | false | 0 | 0 | high | true |
+| Good morning (barra) | barbell | true | 20 | 40 | medium | false |
+
+#### GLÚTEOS
+| Nombre | equipment | compound | barWeight | defaultKg | sfr | primary |
+|--------|-----------|----------|-----------|-----------|-----|---------|
+| Hip thrust (barra) | barbell | true | 20 | 80 | high | true |
+| Hip thrust (mancuerna) | dumbbell | true | 0 | 30 | high | true |
+| Hip thrust en máquina | machine | true | 0 | 80 | high | false |
+| Hip thrust Smith Machine | machine | true | 0 | 70 | high | false |
+| Sentadilla profunda (barra) | barbell | true | 20 | 70 | medium | true |
+| Patada trasera en polea | cable | false | 0 | 10 | high | false |
+| Cable kickback | cable | false | 0 | 10 | high | false |
+| Abducción de cadera (máquina) | machine | false | 0 | 30 | high | false |
+| Cable pull-through | cable | true | 0 | 20 | high | false |
+| Hiperextensión 45° (glúteos) | bodyweight | false | 0 | 0 | medium | false |
+| Hiperextensión 45° lastrada | bodyweight | false | 0 | 10 | medium | false |
+| Sumo deadlift (barra) | barbell | true | 20 | 90 | medium | false |
+| Sumo deadlift (mancuerna) | dumbbell | true | 0 | 30 | medium | false |
+| Zancada búlgara (mancuernas) | dumbbell | true | 0 | 16 | high | false |
+| Prensa a 45° (pies altos) | machine | true | 0 | 90 | high | false |
+| Hip thrust peso corporal | bodyweight | true | 0 | 0 | medium | true |
+| Puente de glúteos unilateral | bodyweight | false | 0 | 0 | medium | false |
+
+#### GEMELOS
+| Nombre | equipment | compound | barWeight | defaultKg | sfr | primary |
+|--------|-----------|----------|-----------|-----------|-----|---------|
+| Elevación de talones de pie (máquina) | machine | false | 0 | 60 | high | true |
+| Elevación de talones sentado (máquina) | machine | false | 0 | 40 | high | true |
+| Elevación de talones con barra | barbell | false | 20 | 60 | medium | false |
+| Elevación de talones (mancuerna) | dumbbell | false | 0 | 20 | medium | false |
+| Elevación de talones Smith Machine | machine | false | 0 | 60 | medium | false |
+| Donkey calf raise | machine | false | 0 | 80 | high | false |
+| Elevación de talones peso corporal | bodyweight | false | 0 | 0 | medium | false |
+
+#### CORE
+| Nombre | equipment | compound | barWeight | defaultKg | sfr | primary |
+|--------|-----------|----------|-----------|-----------|-----|---------|
+| Plancha frontal (60-90 s) | bodyweight | false | 0 | 0 | medium | true |
+| Plancha lateral (30-45 s) | bodyweight | false | 0 | 0 | medium | false |
+| Plancha lastrada | bodyweight | false | 0 | 10 | medium | false |
+| Rueda abdominal (ab wheel) | bodyweight | false | 0 | 0 | high | false |
+| Ab wheel de pie | bodyweight | false | 0 | 0 | high | false |
+| Crunch en polea (cable) | cable | false | 0 | 20 | high | true |
+| Crunch en máquina | machine | false | 0 | 40 | high | true |
+| Crunch polea alta | cable | false | 0 | 15 | high | false |
+| Hanging leg raise | bodyweight | false | 0 | 0 | high | false |
+| Toes to bar | bodyweight | false | 0 | 0 | high | false |
+| Pallof press (cable) | cable | false | 0 | 10 | high | false |
+| Cable woodchop (alto a bajo) | cable | false | 0 | 12 | high | false |
+| L-sit (paralelas) | bodyweight | false | 0 | 0 | high | false |
+| Dragon flag | bodyweight | false | 0 | 0 | high | false |
+| Dead bug | bodyweight | false | 0 | 0 | medium | false |
+| Russian twist (lastre) | dumbbell | false | 0 | 6 | medium | false |
+| Hollow body hold | bodyweight | false | 0 | 0 | high | false |
+| Mountain climbers | bodyweight | false | 0 | 0 | medium | false |
+| Copenhagen plank | bodyweight | false | 0 | 0 | medium | false |
+| Farmer walk (mancuernas) | dumbbell | false | 0 | 24 | medium | false |
+| Suitcase carry | dumbbell | false | 0 | 20 | medium | false |
+
+---
+
+## Módulo 2: exercise-meta.js
+
+Proveedor de metadatos — única dependencia de `exercises.js`.
 
 ### Interface
 ```js
-// Devuelve { compound, equipment, barWeight, defaultKg } para un ejercicio dado
 export function getExerciseMeta(exerciseName)
+// Busca por nombre exacto (case-insensitive, normalized)
+// Fallback si no encuentra: { compound: false, equipment: 'dumbbell', barWeight: 0, defaultKg: 20 }
 
-// Devuelve el tipo de unidad legible para mostrar en UI
 export function getWeightLabel(equipment)
-// 'barbell'    → 'kg total (barra 20 kg incl.)'
+// 'barbell'    → 'kg total (barra incl.)'
 // 'dumbbell'   → 'kg / mancuerna'
 // 'cable'      → 'kg en pila'
 // 'machine'    → 'kg'
 // 'bodyweight' → 'kg lastre (opc.)'
 
-// Devuelve el step del stepper en pre-entreno
 export function getWeightStep(equipment)
-// barbell/cable → 2.5 | dumbbell/bodyweight → 1 | machine → 5
+// barbell | cable → 2.5 | dumbbell | bodyweight → 1 | machine → 5
 ```
 
-### Tabla de clasificación (muestra — completa en exercises.js)
-
-| Ejercicio | compound | equipment | barWeight | defaultKg |
-|-----------|----------|-----------|-----------|-----------|
-| Press banca plano (barra) | true | barbell | 20 | 60 |
-| Press inclinado mancuernas | true | dumbbell | 0 | 20 |
-| Sentadilla trasera (barra) | true | barbell | 20 | 80 |
-| Extensión en polea (cuerda) | false | cable | 0 | 15 |
-| Curl barra recta / EZ | false | barbell | 10 | 30 |
-| Face pull en polea | false | cable | 0 | 15 |
-| Remo con barra (pronación) | true | barbell | 20 | 60 |
-| Jalón al pecho (agarre prono) | true | cable | 0 | 50 |
-| Hip thrust (barra) | true | barbell | 20 | 80 |
-| Peso muerto rumano (barra) | true | barbell | 20 | 70 |
-
-**Nota sobre barra de curl (EZ/recta):** `compound: false`, `barWeight: 10` (barra EZ estándar).
+**Fallback para ejercicios custom** (no en DB):
+```js
+{ compound: false, equipment: 'dumbbell', barWeight: 0, defaultKg: 20, sfr: 'medium', primary: false }
+```
 
 ---
 
-## Módulo 2: warmup.js
+## Módulo 3: warmup.js
 
-Función pura — sin side effects, fácil de testear.
+Función pura — sin side effects, completamente testeable.
 
 ### Interface
 ```js
 export function generateWarmupSets(workingKg, equipment, compound)
-// → Array<{ weightKg, reps, isWarmup: true }>
+// → Array<{ weightKg, reps, isWarmup: true, setNumber: 0 }>
 ```
 
 ### Lógica
 ```
-compound: false → []   (isolation: curl, extensión, lateral raise, etc.)
-workingKg === 0 → []   (sin peso confirmado → sets vacíos, usuario rellena en vivo)
+compound === false → []     (curl, extensión, laterales, etc. → sin warmup)
+workingKg === 0   → []     (sin peso → sets de trabajo vacíos, usuario rellena en vivo)
 
-compound: true, workingKg >= 60 → 3 sets:
-  [40% × 10 reps, 65% × 6 reps, 85% × 3 reps]
+compound + workingKg >= 60 → 3 sets:
+  [ 40% × 10 reps,  65% × 6 reps,  85% × 3 reps ]
 
-compound: true, workingKg 30–59 → 2 sets:
-  [50% × 8 reps, 75% × 5 reps]
+compound + workingKg 30–59 → 2 sets:
+  [ 50% × 8 reps,  75% × 5 reps ]
 
-compound: true, workingKg 1–29 → 1 set:
-  [60% × 10 reps]
+compound + workingKg 1–29 → 1 set:
+  [ 60% × 10 reps ]
 ```
 
-Todos los pesos se redondean a múltiplos de 2.5 kg. Para barras, el mínimo es `barWeight` (20 kg). Para mancuernas/cables, mínimo 2.5 kg.
-
-**Progresión inteligente de peso sugerido:**
-Si el usuario completó TODOS los sets y reps en la última sesión → `suggestedKg = lastKg + step` donde `step = 2.5` (barra/cable) o `1` (mancuerna).
-Si completó parcialmente → `suggestedKg = lastKg` (mantener).
-Si no completó el 60% de los sets → `suggestedKg = lastKg - step` (reducir, badge warning).
+Redondeo a múltiplos de 2.5 kg.
+Mínimo = `barWeight` para barras (20 kg olímpica, 10 kg EZ), 2.5 kg para el resto.
 
 ---
 
-## Módulo 3: readiness-check.js
+## Módulo 4: readiness-check.js
 
-Pantalla rápida pre-sesión (20 segundos). Se muestra después del selector de día, antes de la pantalla de ajuste de pesos.
+Pantalla pre-sesión de ~20 segundos. Aparece entre selector de día y pantalla de ajuste de pesos.
 
-### Preguntas (4 taps máximo)
+### UX
 
 ```
-1. Horas de sueño anoche:   [<6h] [6-7h] [7-8h] [8h+]
-2. ¿Has comido antes de entrenar?   [Nada] [Hace +3h] [Hace 1-2h] [<1h]
-3. ¿Pre-entreno hoy?   [No] [Sí]
-4. ¿Cómo te sientes?   [💀 Mal] [😐 Normal] [💪 Bien] [🔥 Top]
+┌─────────────────────────────────────┐
+│  Antes de empezar — 4 preguntas     │
+│                                     │
+│  ¿Cuánto dormiste anoche?           │
+│  [<6h]  [6-7h]  [7-8h]  [8h+]     │
+│                                     │
+│  ¿Has comido antes?                 │
+│  [Nada] [+3h] [1-2h] [<1h]        │
+│                                     │
+│  ¿Pre-entreno hoy?                  │
+│  [No]  [Sí]                         │
+│                                     │
+│  ¿Cómo te sientes?                  │
+│  [💀 Mal] [😐 Normal] [💪 Bien] [🔥 Top] │
+│                                     │
+│  [Continuar →]      [Saltar]        │
+└─────────────────────────────────────┘
 ```
 
-**Auto-relleno desde nutrición:** Si `localStorage.hs_tdee` tiene datos de hoy y el módulo de planner tiene entradas → la pregunta 2 se pre-selecciona automáticamente.
+**Botón "Saltar"** (pequeño, texto, sin estilo primario): omite el check, establece score = 65 (neutro), no hay sugerencia adaptativa.
+
+**Auto-relleno:** si hay datos de comida de hoy en el planner local (`hs_tdee` timestamp reciente), pregunta 2 se pre-selecciona.
 
 ### Score (0–100)
 ```
 Base: 50
-Sueño: 8h+ = +20 | 7-8h = +12 | 6-7h = +0 | <6h = -20
-Comida: 1-2h = +15 | <1h = +5 | >3h = +0 | nada = -15
-Pre-entreno: sí = +10
-Feeling: top = +25 | bien = +15 | normal = 0 | mal = -25
+Sueño  : 8h+  = +20 | 7-8h = +12 | 6-7h = 0  | <6h   = -20
+Comida : 1-2h = +15 | <1h  = +5  | +3h  = 0  | nada  = -15
+PreWO  : sí   = +10
+Feeling: top  = +25 | bien = +15 | normal = 0 | mal  = -25
+Rango: clamp(0, 100)
 ```
 
 ### Sugerencias adaptativas
+| Score | Mensaje | Botón |
+|-------|---------|-------|
+| ≥ 80 | "🔥 Hoy estás al 100% — dale fuerte" | — |
+| 60–79 | "💪 Día normal — sigue el plan" | — |
+| 40–59 | "⚡ Energía justa — te sugiero −1 set en cada ejercicio" | Aplicar |
+| < 40 | "😴 Día flojo — te sugiero −20% volumen y −5% peso" | Aplicar |
 
-| Score | Mensaje | Acción disponible |
-|-------|---------|-------------------|
-| ≥ 80 | "🔥 Hoy estás al 100% — dale fuerte" | Ninguna |
-| 60–79 | "💪 Día normal — sigue el plan" | Ninguna |
-| 40–59 | "⚡ Energía justa — te sugiero -1 set por ejercicio" | Botón "Aplicar" |
-| < 40 | "😴 Día flojo — te sugiero -20% volumen y -5% peso" | Botón "Aplicar" |
+### readinessAdj
+```js
+// Score 40-59:
+{ volumePct: null, setsDelta: -1, weightPct: null }
 
-Si el usuario pulsa "Aplicar" → `session-loader.js` recibe `readinessAdj: { volumePct: 0.8, weightPct: 0.95 }` y ajusta `numSets` (mínimo 2) y `workingKg`.
+// Score < 40:
+{ volumePct: 0.80, setsDelta: null, weightPct: 0.95 }
+```
 
-El objeto de readiness se guarda en la sesión draft para correlación post-entreno: `{ sleep, food, preworkout, feeling, score, ts }`.
+**Restricción importante:** `readinessAdj.weightPct` solo se aplica a ejercicios con historial real (`hasPreviousSession: true`). No se reduce el `defaultKg` de primera vez.
+
+### Persistencia
+```js
+// Guardado en el draft de sesión
+session.readiness = { sleep, food, preworkout, feeling, score, skipped, ts }
+```
+
+Y enviado al post-workout coach en el payload:
+```js
+// POST /api/v1/workout/post-workout-coach
+{
+  ...existingPayload,
+  readiness_score: number,     // 0-100, RGPD-safe (sin PII)
+  sleep_hours_bucket: string,  // '<6'|'6-7'|'7-8'|'8+'
+  pre_workout: boolean,
+}
+```
 
 ### Interface
 ```js
 export function renderReadinessCheck(onComplete)
-// onComplete({ score, adj, raw }) → continúa al pre-workout
+// onComplete({ score, adj, raw, skipped })
 
 export function calcReadinessScore({ sleep, food, preworkout, feeling })
 // → number 0–100
 
 export function getReadinessAdj(score)
-// → { volumePct, weightPct, message, canApply }
+// → { setsDelta, volumePct, weightPct, message, canApply }
 ```
 
 ---
 
-## Módulo 4: session-loader.js
+## Módulo 5: session-loader.js
 
-Extraído de `views.js`. Contiene la lógica de carga de rutina → draft de sesión.
+Lógica de carga de rutina → draft. Extraído de `views.js`.
 
-### Interface
-```js
-export function loadRoutineSession(daySession, readinessAdj = null)
-// Genera el draft, guarda en localStorage, dispara hs:workout-session-changed
+### Lógica de peso sugerido (nueva)
 
-export function getSuggestedWeight(exerciseKey, equipment)
-// Historial → progressive overload → defaultKg fallback
+```
+1. Buscar última sesión completada con ese exerciseKey
+   → completada = algún set tiene completedAt != null
 
-function _parseRestSecs(restStr) // interno
+2a. Si existe Y TODOS los sets de trabajo tienen:
+    (completedAt != null) AND (reps >= targetReps)
+    → suggestedKg = lastKg + step  [progressive overload]
+    → badge: "↑ +2.5 kg (progresión)"
+
+2b. Si existe Y algún set completado pero no todos o reps < targetReps:
+    → suggestedKg = lastKg  [mantener]
+    → badge: ninguno
+
+2c. Si existe Y menos del 60% de sets completados:
+    → suggestedKg = max(barWeight, lastKg - step)  [reducir]
+    → badge: "↓ −2.5 kg"
+
+3. Si no existe historial:
+    → suggestedKg = meta.defaultKg  [primera vez]
+    → hint: "Primera vez — ajusta tu peso estimado"
+
+4. _adjustedKg del pre-workout screen hace override de todo lo anterior
 ```
 
-### Lógica de peso (nueva)
-```
-1. Buscar en hs_workout_sessions_local el último completado
-2. Si existe Y completó todos los reps → lastKg + step (progressive overload)
-3. Si existe Y completó parcialmente → lastKg
-4. Si no existe → meta.defaultKg (del exercise-meta.js)
-5. El pre-workout screen puede override todo esto (_adjustedKg)
-```
+`step = 2.5` para barbell/cable, `step = 1` para dumbbell/bodyweight/machine.
 
 ### Aplicación de readinessAdj
+
 ```js
+// setsDelta solo se aplica si el adj viene aceptado por el usuario
+if (readinessAdj?.setsDelta) {
+  numSets = Math.max(2, numSets + readinessAdj.setsDelta);
+}
 if (readinessAdj?.volumePct) {
   numSets = Math.max(2, Math.round(numSets * readinessAdj.volumePct));
 }
-if (readinessAdj?.weightPct) {
+// weightPct SOLO para ejercicios con historial real
+if (readinessAdj?.weightPct && hasPreviousSession) {
   workingKg = round2_5(workingKg * readinessAdj.weightPct);
 }
 ```
 
 ---
 
-## Módulo 5: pre-workout.js
+## Módulo 6: pre-workout.js
 
-Extraído de `views.js`. Pantalla de ajuste de pesos pre-entreno.
+Extraído de `views.js`. Cambios respecto al actual:
 
-### Cambios respecto al actual
-- Label de unidad junto al input: `(kg total · barra 20kg incl.)` o `(kg/mancuerna)` según `getWeightLabel(equipment)`
-- Step del stepper adaptado por `getWeightStep(equipment)`
-- Si `workingKg > 0` y viene de progressive overload → badge `↑ +2.5 kg` junto al valor
-- Si `workingKg = defaultKg` (primera vez) → placeholder hint `"Primera vez — ajusta tu peso estimado"`
-- Campo vacío NO bloquea el inicio — el usuario puede dejarlo a 0
+- Label de unidad: `getWeightLabel(equipment)` → `"kg / mancuerna"`, `"kg total (barra incl.)"`, etc.
+- Step del stepper: `getWeightStep(equipment)` → 1, 2.5 o 5 según tipo
+- Badge de progresión junto al valor si viene de overload: `↑ +2.5 kg`
+- Hint "Primera vez — ajusta tu peso estimado" si viene de `defaultKg`
+- Campo vacío permitido (no bloquea el inicio)
 
 ---
 
-## Módulo 6: workoutSets.js
+## Módulo 7: workoutSets.js
 
-Extraído de `workoutLogger.js`. Todo lo relativo a renderizado y lógica de sets individuales.
+Extraído de `workoutLogger.js`. Responsabilidad única: renderizar y gestionar sets individuales.
 
-### Responsabilidades
-- `renderSets(ex)` — genera el HTML de la lista de sets de un ejercicio
-- `_getPrevSet(exerciseKey, setIndex)` — lookup en historial por posición
+- `renderSets(ex)` — HTML de lista de sets
+- `_getPrevSet(exerciseKey, setIndex)` — lookup historial
 - `_getProgressionHint(ex)` — badge ↑/↓/= vs sesión anterior
-- Handlers de input (weightKg, reps), complete-set, delete-set
-
-### Lo que queda en workoutLogger.js
-- `renderActive()` — shell de la sesión (header, layout, columnas)
-- `renderExercises()` — itera ejercicios y delega a workoutSets
-- `addExerciseToSession()`, `initExerciseSearch()`, `initAnatomy()`
-- Wire-up de módulos (callbacks circulares)
-- PR toast queue
+- Handlers: input weight/reps, complete-set, delete-set, PR detection
 
 ---
 
-## SFR → Etiqueta comprensible (routineGenerator.js)
+## SFR → Etiqueta comprensible
 
-El badge "SFR" en la vista de rutinas se reemplaza:
+En `routineGenerator.js` (vista de rutinas):
 
 | sfr | Badge actual | Nuevo badge | Tooltip |
 |-----|-------------|-------------|---------|
-| `high` | `SFR` | `★ Eficiente` | "Máximo estímulo con mínima fatiga sistémica — el ejercicio más inteligente del grupo" |
-| `medium` | *(nada)* | *(nada)* | — |
-| `low` | *(nada)* | `⚠ Exigente` | "Alta fatiga del sistema nervioso central — ponlo siempre al principio de la sesión" |
+| `high` | `SFR` | `★ Eficiente` | "Máximo estímulo muscular con mínima fatiga — el ejercicio más inteligente del grupo" |
+| `medium` | — | — | — |
+| `low` | — | `⚠ Exigente` | "Muy exigente para el sistema nervioso — ponlo siempre al inicio de la sesión" |
 
-Además, el nombre de cada ejercicio en la vista de rutina es **editable inline** (mismo patrón que `renderRoutinePicker` ya usa para renombrar la rutina completa: click en nombre → input → blur/Enter = guardar).
+**Los nombres de ejercicio son inmutables.** Solo modificables por devs en `exercises.js`. No hay rename de usuario.
 
 ---
 
-## exercises.js — Expansión de la DB
+## muscleMap.js — Entradas para nuevos ejercicios
 
-La DB pasa de ~80 a ~120 ejercicios. Cada entrada añade:
+Cada ejercicio nuevo que tenga grupo muscular definido necesita una entrada en `anatomyLens/muscleMap.js`:
+
 ```js
-{ name, group, equipment, compound, barWeight, defaultKg }
+'peso_muerto_barra':            { primary: ['back_lower', 'glutes', 'hamstrings'], secondary: ['back_upper', 'quads'] },
+'sentadilla_frontal_barra':     { primary: ['quads'], secondary: ['glutes', 'core'] },
+'remo_t-bar':                   { primary: ['back_upper', 'lats'], secondary: ['biceps', 'rear_delt'] },
+'hip_thrust_smith_machine':     { primary: ['glutes'], secondary: ['hamstrings'] },
+// ... (una entrada por ejercicio nuevo)
 ```
-
-### Nuevos ejercicios por grupo (+40)
-
-**Pecho:** Press en Smith Machine (inclinado), Crossover cable neutro, Fondos en paralelas (lastre), Neck press (barra)
-
-**Espalda:** T-Bar Row, Remo cable estrecho (agarre neutro), Meadows Row, Dominadas lastradas, Remo Kroc, Facepull cuerda alta
-
-**Hombros:** Upright row (barra), Elevaciones laterales cable cruzado, Rear delt fly máquina, Press Arnold con barra, Push press
-
-**Piernas:** Leg press pie estrecho, RDL mancuernas, Sissy squat, Zancada andando con barra, Sentadilla hack barra, Box squat
-
-**Glúteos:** Cable kickback, Hiperextensión 45°, Sumo deadlift (barra), Good morning
-
-**Bíceps:** Curl inclinado (banco), Curl invertido (barra), Zottman curl, Curl araña (spider curl), Curl predicador EZ
-
-**Tríceps:** Overhead extension cable cuerda, Tate press, Skull crusher mancuernas, Board press
-
-**Core:** Crunch polea alta, L-sit (paralelas), Dragon flag, Plancha lastrada, Ab wheel de pie
 
 ---
 
 ## Flujo completo de usuario (nuevo)
 
 ```
-Seleccionar rutina IA / personalizada
+[Idle] Elegir modo
+  → Selector de rutina (IA / personalizada)
   → Selector de día
-  → [NUEVO] Readiness check (4 taps, ~20s)
-  → [Si score < 60] Sugerencia adaptativa → usuario acepta/ignora
-  → Pre-workout adjust (pesos con etiqueta equip. + progressive overload hint)
-  → Sesión activa (warmup correcto en todos los compuestos)
-  → Post-workout coach (ya existe)
+  → [NUEVO] Readiness check (4 taps, ~20s, skippable)
+  → [Si score < 60 y usuario acepta] → readinessAdj aplicado
+  → Pre-workout adjust (pesos con etiqueta equip + progressive overload hint)
+  → [Empezar entreno]
+  → Sesión activa (warmup correcto: compound sí, isolation no)
+  → Finalizar
+  → Post-workout coach (recibe readiness_score + sleep + pre_workout)
 ```
 
 ---
 
 ## Qué NO cambia
 
-- Backend / API — ningún cambio
-- `workoutSession.js` — lógica de draft/sesión sin tocar
-- `workoutPR.js`, `oneRepMax.js`, `workoutHistory.js` — sin tocar
-- `timer.js`, `inactivity.js`, `state.js`, `summary.js` — sin tocar
-- CSS/diseño — mínimas adiciones para readiness-check y etiquetas de equip.
-- Service Worker — bump de versión al final
+- Backend excepto payload post-workout-coach (añadir 3 campos RGPD-safe)
+- `workoutSession.js`, `workoutPR.js`, `oneRepMax.js`, `workoutHistory.js`
+- `timer.js`, `inactivity.js`, `state.js`, `summary.js`
+- CSS — solo adiciones para readiness-check y labels de equipamiento
 
 ---
 
 ## Criterios de aceptación
 
-1. Cualquier ejercicio de la rutina IA carga con sets pre-rellenados (peso o vacío, nunca ausente)
-2. Ejercicios compound con `workingKg > 0` siempre tienen warmup escalado
-3. Ejercicios isolation (`compound: false`) nunca tienen warmup
-4. La pantalla pre-entreno muestra la unidad correcta según el equipamiento
-5. El badge "SFR" ya no aparece — sustituido por "★ Eficiente" o "⚠ Exigente"
-6. El nombre de un ejercicio en la vista de rutina es editable inline
-7. El check de readiness aparece antes del pre-workout adjust
-8. Si el usuario acepta la sugerencia adaptativa, los sets se ajustan correctamente
-9. Cada nuevo módulo exporta únicamente funciones bien definidas (sin globals)
-10. `views.js` tiene < 40 líneas (solo re-exports y registros de callback)
+1. Todo ejercicio de rutina IA carga con sets pre-rellenados (peso o vacío, nunca ausente)
+2. Ejercicios compound + workingKg > 0 → siempre tienen warmup escalado
+3. Ejercicios isolation → nunca tienen warmup
+4. Pantalla pre-entreno muestra unidad correcta según equipamiento
+5. Badge "SFR" eliminado → sustituido por "★ Eficiente" o "⚠ Exigente"
+6. Los nombres de ejercicio NO son editables por el usuario
+7. Readiness check aparece antes del pre-workout adjust, con botón Skip
+8. readinessAdj accepted → sets ajustados correctamente, weightPct solo con historial
+9. Readiness data llega al post-workout coach (3 campos numéricos, sin PII)
+10. Fallback: ejercicio custom sin metadata → compound: false, dumbbell, defaultKg: 20
+11. `views.js` < 40 líneas tras la extracción
+12. `routineGenerator.js` importa de `exercises.js`, sin objeto `EX` interno
+13. Nuevos ejercicios tienen entradas en `muscleMap.js`
+14. Progressive overload definido: +step solo si TODOS los sets completados con reps ≥ targetReps
 
 ---
 
-## Estimación de implementación
+## Prioridades de implementación
 
-| Módulo | Prioridad | Complejidad |
-|--------|-----------|-------------|
-| exercise-meta.js | P0 | Baja — datos |
-| warmup.js | P0 | Baja — función pura |
-| exercises.js expansión | P0 | Media — datos + clasificación |
-| workoutSets.js (extracción) | P1 | Media — refactor |
-| session-loader.js (extracción) | P1 | Media — refactor |
-| pre-workout.js (extracción) | P1 | Baja — refactor |
-| idle.js / routine-picker.js / custom-builder.js | P1 | Baja — refactor mecánico |
-| readiness-check.js | P2 | Media — UI nueva |
-| SFR badge + exercise rename | P2 | Baja — UI tweak |
-| Progresión inteligente de peso | P2 | Media — lógica |
+| Módulo / tarea | Prioridad | Complejidad | Subagente |
+|----------------|-----------|-------------|-----------|
+| exercises.js expansión + metadatos | P0 | Alta — ~160 entradas | A |
+| exercise-meta.js | P0 | Baja — lookups | A |
+| warmup.js | P0 | Baja — función pura | A |
+| routineGenerator.js → importar exercises.js | P0 | Media | A |
+| session-loader.js extracción + nueva lógica peso | P1 | Media | B |
+| workoutSets.js extracción | P1 | Media | B |
+| pre-workout.js extracción + labels equip | P1 | Baja | B |
+| idle.js + routine-picker.js + custom-builder.js extracción | P1 | Baja | B |
+| workoutLogger.js reducción | P1 | Media | B |
+| views.js como orquestador | P1 | Baja | B |
+| readiness-check.js (UI + score + adj) | P2 | Media | C |
+| muscleMap.js entradas nuevos ejercicios | P2 | Baja | C |
+| SFR badge → Eficiente/Exigente | P2 | Baja | C |
+| post-workout coach payload (backend) | P2 | Baja | C |
+| SW bump + smoke test | P3 | Baja | C |

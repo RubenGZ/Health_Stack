@@ -631,10 +631,7 @@ const MyRecipes = (function () {
   // ── Copiar plantilla al formulario de creación ──────────────────────────────
   function _copyNutritionistRecipe(r) {
     if (recipes.length >= MAX_CUSTOM_RECIPES && editingId === null) {
-      alert(
-        `Has alcanzado el límite de ${MAX_CUSTOM_RECIPES} recetas personalizadas (Tier gratuito).\n` +
-        `Elimina una receta existente para poder copiar esta plantilla.`
-      );
+      window.showToast?.(`Límite de ${MAX_CUSTOM_RECIPES} recetas alcanzado. Elimina una para copiar esta plantilla.`, 'warning');
       return;
     }
 

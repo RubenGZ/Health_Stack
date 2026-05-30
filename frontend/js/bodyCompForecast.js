@@ -262,7 +262,7 @@ var BodyCompForecast = (function () {
         updatedAt: new Date().toISOString(),
       };
       if (!m.height || !m.neck || !m.waist) {
-        alert(_t('body_comp.alert_measures'));
+        window.showToast?.(_t('body_comp.alert_measures'), 'warning');
         return;
       }
       localStorage.setItem(LS_KEY, JSON.stringify(m));

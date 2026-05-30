@@ -252,10 +252,14 @@
 
   async function doForgotPassword() {
     const emailInput = document.getElementById('auth-login-email');
-    const email = emailInput?.value.trim() || prompt('Introduce tu email:');
-    if (!email) return;
-
+    const email = emailInput?.value.trim();
     const errEl = document.getElementById('auth-login-error');
+
+    if (!email) {
+      if (emailInput) { emailInput.focus(); }
+      showError(errEl, 'Introduce tu email primero.');
+      return;
+    }
     const btn   = document.getElementById('auth-forgot-btn');
 
     if (btn) { btn.disabled = true; btn.textContent = 'Enviando…'; }

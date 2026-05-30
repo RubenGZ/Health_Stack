@@ -157,11 +157,13 @@ function initExerciseSearch() {
 
   if (customBtn) {
     customBtn.addEventListener('click', () => {
-      const name = input.value.trim() || prompt('Nombre del ejercicio:');
+      const name = input.value.trim();
       if (name) {
         addExerciseToSession(name);
         input.value = '';
         results.innerHTML = '';
+      } else {
+        input.focus();
       }
     });
   }

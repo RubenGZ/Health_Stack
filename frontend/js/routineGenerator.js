@@ -1447,7 +1447,7 @@ const RoutineGenerator = (function () {
 
     // Buscar primera sesión con ejercicios
     var session = routine.sessions.find(function(s) { return s.exercises && s.exercises.length > 0; });
-    if (!session) { alert('Esta rutina no tiene ejercicios configurados.'); return; }
+    if (!session) { window.showToast?.('Esta rutina no tiene ejercicios configurados.', 'warning'); return; }
 
     // Construir el draft en el formato exacto que usa workoutSession.js
     var now = new Date().toISOString();

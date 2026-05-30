@@ -195,7 +195,7 @@ function openCreateGym(container) {
       closeModal();
       initRanked(container);
     } catch (e) {
-      alert(_t('ranked.error_create') + e.message);
+      window.showToast?.(_t('ranked.error_create') + e.message, 'error') ?? console.error(e);
     }
   });
 }
@@ -210,7 +210,7 @@ async function joinGym(container) {
     });
     initRanked(container);
   } catch (e) {
-    alert(_t('ranked.error_join'));
+    window.showToast?.(_t('ranked.error_join'), 'error') ?? console.error(e);
   }
 }
 

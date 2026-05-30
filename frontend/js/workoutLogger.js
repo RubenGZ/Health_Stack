@@ -183,8 +183,8 @@ function highlightAnatomy(exerciseKey) {
           ...secondary.map(m => `<span class="al-legend-group"><span class="al-legend-dot secondary"></span>${m.replace(/_/g,' ')}</span>`),
         ].join('');
       }
-    }).catch(() => {});
-  } catch (e) {}
+    }).catch(e => console.warn('[WorkoutLogger] anatomy highlight failed:', e?.message));
+  } catch (e) { console.warn('[WorkoutLogger] anatomy viewer error:', e?.message); }
 }
 
 // ─── Render exercises list ──────────────────────────────────────────────────────

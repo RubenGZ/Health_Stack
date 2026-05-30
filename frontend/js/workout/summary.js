@@ -81,7 +81,7 @@ export async function onFinish() {
         window._sendTelemetryEvent('primera_sesion_guardada', { ttfv_secs: _ttfv });
       }
     }
-  } catch (_) {}
+  } catch (e) { console.warn('[summary] telemetry ttfv error:', e?.message); }
   window.dispatchEvent(new CustomEvent('hs:workout-session-changed'));
   // Store the backend session UUID so PostWorkoutCoach can read it without extra coupling
   if (result?.session_id) sessionStorage.setItem('hs_last_session_id', result.session_id);
@@ -296,7 +296,7 @@ export function renderSummary(result) {
         }, 4500);
       }
     }
-  } catch (_) {}
+  } catch (e) { console.warn('[summary] habit/nudge check failed:', e?.message); }
 
   S.root.querySelector('#wl-done').addEventListener('click', () => {
     S.session   = null;

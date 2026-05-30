@@ -8,6 +8,12 @@ const FORMULA_INFO = {
   brzycki: { name: 'Brzycki',   desc: 'Más precisa con ≤6 reps. Fórmula: peso × 36/(37−reps). Ideal para fuerza máxima (1-5).' },
 };
 
+// Helper de localización — reutilizado en sessionCard y chart
+function _getLocale() {
+  const lang = (window.getLanguage && window.getLanguage()) || 'es';
+  return ({ es:'es-ES', en:'en-GB', fr:'fr-FR', de:'de-DE', it:'it-IT' }[lang]) || 'es-ES';
+}
+
 export async function init(container) {
   const _wht = window.t || (k => k);
   // Skeleton loader mientras carga
@@ -46,8 +52,8 @@ export async function init(container) {
           })),
         }));
       }
-    } catch {
-      // ignorar — fallback a local
+    } catch (e) {
+      console.warn('[workoutHistory] backend fetch failed, using local cache:', e?.message);
     }
   }
 
@@ -387,9 +393,7 @@ function _drawOrmChart(canvas, history, currentOrm) {
 }
 
 function sessionCard(s) {
-  const _LOCALE_MAP = { es:'es-ES', en:'en-GB', fr:'fr-FR', de:'de-DE', it:'it-IT' };
-  const _lang = window.getLanguage ? window.getLanguage() : 'es';
-  const _locale = _LOCALE_MAP[_lang] || 'es-ES';
+  const _locale = _getLocale();
   const date = new Date(s.startedAt).toLocaleDateString(_locale, {
     weekday: 'short',
     day: 'numeric',
@@ -461,9 +465,7 @@ function drawVolumeChart(container, sessions) {
     ctx.font = '10px system-ui';
     ctx.fillText(`${p.val}kg`, toX(i) - 14, toY(p.val) - 8);
 
-    const _lm2 = { es:'es-ES', en:'en-GB', fr:'fr-FR', de:'de-DE', it:'it-IT' };
-    const _l2 = _lm2[window.getLanguage ? window.getLanguage() : 'es'] || 'es-ES';
-    const label = p.date.toLocaleDateString(_l2, { day: 'numeric', month: 'short' });
+    const label = p.date.toLocaleDateString(_getLocale(), { day: 'numeric', month: 'short' });
     ctx.fillStyle = 'rgba(255,255,255,0.4)';
     ctx.fillText(label, toX(i) - 14, H - 8);
   });

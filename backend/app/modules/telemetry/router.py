@@ -52,8 +52,7 @@ async def record_page_view(
 
 
 @router.post("/event", response_model=PageViewResponse, summary="Registrar evento de producto")
-@_get_limiter().limit("30/minute")  # Anti-flood — endpoint público
-async def record_event(
+async def record_event(  # rate limit via global limiter en main.py (slowapi + Depends incompatible)
     request: Request,
     body: Annotated[EventCreate, Body()],
     credentials: HTTPAuthorizationCredentials | None = Depends(_bearer),

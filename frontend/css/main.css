@@ -4469,11 +4469,15 @@ select.form-input option { background: var(--bg-surface); color: var(--text-prim
 }
 .wl-rest-skip:hover { background: rgba(196, 165, 97,0.32); color: #fff; }
 
-/* ── Session header ─────────────────────────────────────────────────── */
+/* ── Session header — sticky para que el pause sea siempre visible ──── */
 .wl-session-header {
   display: flex; align-items: center; justify-content: space-between;
-  padding: 0 0 14px; margin-bottom: 6px;
+  padding: 10px 0 14px; margin-bottom: 6px;
   border-bottom: 1px solid rgba(255,255,255,0.07);
+  position: sticky; top: 0; z-index: 50;
+  background: rgba(7,7,15,0.96);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
 }
 .wl-session-meta { display: flex; align-items: center; gap: 20px; }
 .wl-timer {
@@ -6441,7 +6445,7 @@ select.form-input option { background: var(--bg-surface); color: var(--text-prim
   transition: color 0.3s;
 }
 .wl-ex-rest-countdown--active {
-  color: #22d3ee;
+  color: var(--hs-accent, #c4a561);
   animation: wlRestPulse 1s ease-in-out infinite alternate;
 }
 @keyframes wlRestPulse {
@@ -7571,6 +7575,42 @@ button[class*="wl-"]:not([class*="inp"]):active {
 
 
 
+
+/* ── Workout: separadores de sección CALENTAMIENTO / TRABAJO ─────── */
+.wl-sets-section-label {
+  display: flex; align-items: center; gap: 8px;
+  padding: 6px 0 2px;
+  font-size: 9px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.13em;
+  color: rgba(255,255,255,0.22);
+  user-select: none;
+}
+.wl-sets-section-label::before,
+.wl-sets-section-label::after {
+  content: ''; flex: 1; height: 1px;
+  background: rgba(255,255,255,0.07);
+}
+.wl-sets-section-label--warm {
+  color: rgba(196,165,97,0.55);
+}
+.wl-sets-section-label--warm::before,
+.wl-sets-section-label--warm::after {
+  background: rgba(196,165,97,0.12);
+}
+.wl-sets-section-label--work {
+  color: rgba(255,255,255,0.30);
+  margin-top: 2px;
+}
+
+/* ── Workout: chip de progresión vs. sesión anterior ─────────────── */
+.wl-ex-prog-hint {
+  display: inline-flex; align-items: center;
+  font-size: 10px; font-weight: 700; letter-spacing: 0.01em;
+  padding: 1px 6px; border-radius: 5px;
+  line-height: 1.5;
+}
+.wl-ex-prog-hint--up   { color: #4ade80; background: rgba(74,222,128,0.10); }
+.wl-ex-prog-hint--down { color: #f87171; background: rgba(248,113,113,0.10); }
+.wl-ex-prog-hint--same { color: rgba(255,255,255,0.35); background: rgba(255,255,255,0.06); }
 
 /* ── First-run banner ─────────────────────────────────────────── */
 .first-run-banner {

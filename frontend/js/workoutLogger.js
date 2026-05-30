@@ -238,6 +238,10 @@ function renderExercises() {
     const groupChip  = groupLabel
       ? `<span class="wl-ex-group-chip" data-group="${groupKey}">${groupLabel}</span>` : '';
 
+    const progHint = _getProgressionHint(ex);
+    const progChip = progHint
+      ? `<span class="wl-ex-prog-hint wl-ex-prog-hint--${progHint.cls}">${progHint.label}</span>` : '';
+
     card.innerHTML = `
       <div class="wl-ex-card-header">
         <div class="wl-ex-info">
@@ -245,7 +249,7 @@ function renderExercises() {
             <button class="wl-ex-name-btn" data-key="${ex.key}">${ex.name}</button>
             ${groupChip}
           </div>
-          <div class="wl-ex-meta-row">${setsRepsBadge}${restLabel}</div>
+          <div class="wl-ex-meta-row">${setsRepsBadge}${restLabel}${progChip}</div>
         </div>
         <div class="wl-ex-card-actions">
           ${totalSets ? `<span class="wl-ex-progress">${completedSets}/${totalSets}</span>` : ''}
@@ -260,7 +264,7 @@ function renderExercises() {
 
       <!-- Cabecera de columnas -->
       <div class="wl-sets-header">
-        <span>Set</span><span>Anterior</span><span>Peso kg</span><span></span><span>Reps</span><span>1RM</span><span>✓</span><span></span>
+        <span>#</span><span>Ant.</span><span>kg</span><span></span><span>Reps</span><span>1RM</span><span></span><span></span>
       </div>
 
       <div class="wl-sets-list" id="wl-sets-${CSS.escape(ex.key)}"></div>
@@ -290,6 +294,27 @@ function renderExercises() {
   });
 }
 
+// ─── Hint de progresión vs. sesión anterior ──────────────────────────────────
+function _getProgressionHint(ex) {
+  let sessions = [];
+  try { sessions = JSON.parse(localStorage.getItem('hs_workout_sessions_local') || '[]'); } catch {}
+  const prev = sessions.find(s => s.exercises?.some(e => e.key === ex.key));
+  if (!prev) return null;
+  const prevEx = prev.exercises.find(e => e.key === ex.key);
+  if (!prevEx) return null;
+  const prevWorking = (prevEx.sets || []).filter(s => !s.isWarmup && s.weightKg > 0);
+  if (!prevWorking.length) return null;
+  const prevMax = Math.max(...prevWorking.map(s => s.weightKg));
+  const curWorking = ex.sets.filter(s => !s.isWarmup);
+  if (!curWorking.length) return null;
+  const curWeight = curWorking[0]?.weightKg ?? 0;
+  if (!curWeight) return null;
+  const diff = Math.round((curWeight - prevMax) * 10) / 10;
+  if (diff > 0) return { label: `↑ +${diff} kg`, cls: 'up' };
+  if (diff < 0) return { label: `↓ ${Math.abs(diff)} kg`, cls: 'down' };
+  return { label: '= igual', cls: 'same' };
+}
+
 // ─── PREVIOUS por posición de set ─────────────────────────────────────────────
 function _getPrevSet(exerciseKey, setIndex) {
   let sessions = [];
@@ -314,7 +339,27 @@ function renderSets(ex) {
   if (!container) return;
   container.innerHTML = '';
 
+  const hasWarmups = ex.sets.some(s => s.isWarmup);
+
+  // Etiqueta sección Calentamiento
+  if (hasWarmups) {
+    const wl = document.createElement('div');
+    wl.className = 'wl-sets-section-label wl-sets-section-label--warm';
+    wl.innerHTML = '<span>Calentamiento</span>';
+    container.appendChild(wl);
+  }
+
+  let _workLabelInserted = false;
+
   ex.sets.forEach((s, idx) => {
+    // Etiqueta sección Trabajo — se inserta antes del primer set de trabajo
+    if (!s.isWarmup && !_workLabelInserted && hasWarmups) {
+      const wl = document.createElement('div');
+      wl.className = 'wl-sets-section-label wl-sets-section-label--work';
+      wl.innerHTML = '<span>Trabajo</span>';
+      container.appendChild(wl);
+      _workLabelInserted = true;
+    }
     const isDone  = !!s.completedAt;
     const isPRSet = !!s._isPR;
     const prevStr = s.isWarmup ? null : _getPrevSet(ex.key, idx);

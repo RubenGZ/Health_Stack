@@ -10,6 +10,8 @@
    Expone: window.PWAManager = { init }
    ============================================================ */
 
+import { showUpdateLoader } from './transitions.js';
+
 window.PWAManager = (function () {
   'use strict';
 
@@ -42,14 +44,13 @@ window.PWAManager = (function () {
     });
 
     document.getElementById('sw-update-apply')?.addEventListener('click', () => {
+      banner.classList.remove('sw-update-banner--visible');
+      setTimeout(() => banner.remove(), 200);
       const waiting = registration.waiting;
-      if (waiting) {
-        // Decirle al SW en espera que active — controllerchange disparará el reload
-        waiting.postMessage({ type: 'SKIP_WAITING' });
-      } else {
-        // Fallback: reload directo si por alguna razón no hay waiting
-        window.location.reload();
-      }
+      showUpdateLoader(() => {
+        if (waiting) waiting.postMessage({ type: 'SKIP_WAITING' });
+        else window.location.reload();
+      });
     });
 
     document.getElementById('sw-update-dismiss')?.addEventListener('click', () => {
@@ -63,8 +64,10 @@ window.PWAManager = (function () {
     // Esto garantiza que la página siempre arranca limpia con el nuevo SW
     let _reloading = false;
     navigator.serviceWorker.addEventListener('controllerchange', () => {
-      if (_reloading) return; // evitar bucle si hay varios controllerchange
+      if (_reloading) return;
       _reloading = true;
+      // Si el loader del gatito ya está corriendo, él se encarga del reload
+      if (document.getElementById('hs-transition-overlay')) return;
       window.location.reload();
     });
 

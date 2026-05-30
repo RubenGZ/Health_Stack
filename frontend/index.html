@@ -994,67 +994,28 @@
     <section id="section-planner" class="section">
       <header class="section-header">
         <div>
-          <h1 class="section-title" data-i18n="planner.title">Planner de Comidas</h1>
-          <p class="section-subtitle" data-i18n="planner.subtitle">Arrastra recetas al calendario semanal</p>
+          <h1 class="section-title">Planner de Comidas</h1>
         </div>
         <div class="header-actions">
-          <button class="btn btn--ghost" id="btn-clear-planner" data-i18n="planner.clear">Limpiar semana</button>
+          <button class="btn btn--ghost btn--sm" id="btn-planner-today">Hoy</button>
+          <button class="btn btn--ghost btn--sm" id="btn-planner-cfg" title="Configurar">⚙</button>
         </div>
       </header>
 
-      <!-- Tabs: Predefinidas / Mis Recetas -->
-      <div class="section-tabs" id="planner-recipe-tabs" style="margin-bottom:20px">
-        <button class="stab stab--active" data-ptab="predefined" data-i18n="planner.predefined">Recetas predefinidas</button>
-        <button class="stab" data-ptab="myrecipes" data-i18n="planner.my_recipes">Mis Recetas</button>
-      </div>
+      <!-- Strip semanal -->
+      <div class="card planner-week-strip" id="planner-week-strip"></div>
 
-      <div class="planner-layout">
-        <!-- Panel de recetas (predefinidas) -->
-        <div class="recipes-panel card" id="panel-predefined">
-          <div class="card-header">
-            <h3 data-i18n="planner.recipes_h">Recetas</h3>
-            <div class="recipe-filter-tabs" id="recipe-filter-tabs"></div>
-          </div>
-          <input type="text" id="recipe-search" class="form-input" data-i18n="planner.search" data-i18n-attr="placeholder" placeholder="Buscar receta..." style="margin-bottom:12px">
-          <div class="recipes-list" id="recipes-list"></div>
+      <!-- Vista del día (comidas) -->
+      <div class="planner-day-view" id="planner-day-view"></div>
+
+      <!-- Macros del día -->
+      <div class="card planner-macros-card" id="planner-macros-card">
+        <div class="card-header">
+          <h3 id="planner-macros-title">Macros del día</h3>
         </div>
-
-        <!-- Panel Mis Recetas (inicialmente oculto) -->
-        <div class="recipes-panel card" id="panel-myrecipes" style="display:none">
-          <div class="card-header">
-            <h3 data-i18n="planner.my_recipes">Mis Recetas</h3>
-            <div class="recipe-filter-tabs" id="my-recipes-filter-tabs"></div>
-          </div>
-          <input type="text" id="my-recipes-search" class="form-input" data-i18n="planner.search_my" data-i18n-attr="placeholder" placeholder="Buscar mis recetas..." style="margin-bottom:12px">
-          <div class="recipes-list" id="my-recipes-list-planner">
-            <!-- Las recetas de usuario se renderizan como draggable por planner.js -->
-          </div>
-          <div style="margin-top:12px;padding-top:12px;border-top:1px solid var(--glass-border)">
-            <button class="btn btn--ghost btn--sm btn--full" id="btn-crear-receta"
-               style="display:block;width:100%;text-align:center" data-i18n="planner.create">
-              Crear nueva receta →
-            </button>
-          </div>
-        </div>
-
-        <!-- Tabla semanal -->
-        <div class="planner-right">
-          <div class="planner-grid" id="planner-grid"></div>
-
-          <!-- Macros: vista diaria / semanal -->
-          <div class="card planner-macros-card" id="planner-macros-card">
-            <div class="card-header">
-              <h3 id="planner-macros-title">Macros semana</h3>
-              <div class="macro-view-tabs">
-                <button class="stab stab--active stab--sm" data-mtab="weekly">Semana</button>
-                <button class="stab stab--sm" data-mtab="daily">Hoy</button>
-              </div>
-            </div>
-            <div class="planner-macros-layout">
-              <canvas id="planner-macro-chart" style="max-width:150px;max-height:150px"></canvas>
-              <div class="planner-macro-list" id="planner-macro-list"></div>
-            </div>
-          </div>
+        <div class="planner-macros-layout">
+          <canvas id="planner-macro-chart" style="max-width:140px;max-height:140px"></canvas>
+          <div class="planner-macro-list" id="planner-macro-list"></div>
         </div>
       </div>
     </section>

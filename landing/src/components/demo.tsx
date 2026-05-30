@@ -1729,9 +1729,19 @@ export function SplineSceneBasic() {
             HEALTHSTACK PRO
           </span>
           <nav className="flex gap-6 flex-wrap">
-            {footerLinks.map(l => (
-              <a key={l} href="#" className="text-xs text-neutral-500 hover:text-teal-400 transition-colors">{l}</a>
-            ))}
+            {footerLinks.map(l => {
+              const FOOTER_HREFS: Record<string, string> = {
+                'App': APP_LOGIN, 'Aplicación': APP_LOGIN,
+                'Funciones': '#features', 'Features': '#features',
+                'Precios': '#pricing', 'Pricing': '#pricing', 'Prix': '#pricing',
+              }
+              const href = FOOTER_HREFS[l] ?? null
+              return href ? (
+                <a key={l} href={href} className="text-xs text-neutral-500 hover:text-teal-400 transition-colors">{l}</a>
+              ) : (
+                <span key={l} className="text-xs text-neutral-600 cursor-not-allowed" title="Próximamente">{l}</span>
+              )
+            })}
           </nav>
         </div>
         <div className="flex items-center justify-between flex-wrap gap-2">

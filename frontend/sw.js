@@ -4,7 +4,7 @@
                Network-first para CDN externos
    ============================================================ */
 
-const CACHE_NAME    = 'healthstack-v92';
+const CACHE_NAME    = 'healthstack-v93';
 const CDN_CACHE     = 'healthstack-cdn-v2';
 
 // Assets locales a pre-cachear en install
@@ -68,7 +68,11 @@ const STATIC_ASSETS = [
 
 // ── Install: pre-cachear assets locales ──────────────────────
 // Usamos Promise.allSettled (no addAll) para que un 404 aislado
-// no aborte el install ni bloquee skipWaiting indefinidamente.
+// no aborte el install.
+// IMPORTANTE: NO llamamos skipWaiting() aquí. El nuevo SW queda
+// en estado "waiting" hasta que el usuario confirme la actualización
+// via el banner en pwa/index.js → mensaje SKIP_WAITING.
+// Esto evita el bug de activación mid-session (SW nuevo + JS viejo).
 self.addEventListener('install', event => {
   event.waitUntil(
     caches.open(CACHE_NAME).then(cache =>
@@ -79,7 +83,8 @@ self.addEventListener('install', event => {
             .catch(() => { /* asset no disponible — ignorar */ })
         )
       )
-    ).finally(() => self.skipWaiting())  // skipWaiting SIEMPRE, con o sin error
+    )
+    // No .finally(skipWaiting) — el SW espera permiso explícito del usuario
   );
 });
 

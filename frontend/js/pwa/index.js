@@ -15,6 +15,81 @@ window.PWAManager = (function () {
 
   let _deferredInstallPrompt = null;
 
+  // ── SW Update Detection ───────────────────────────────────
+  // Muestra un banner persistente cuando hay una nueva versión del SW
+  // esperando. El usuario elige cuándo recargar — nunca mid-session.
+  function _showUpdateBanner(registration) {
+    if (document.getElementById('sw-update-banner')) return; // evitar duplicados
+
+    const banner = document.createElement('div');
+    banner.id = 'sw-update-banner';
+    banner.innerHTML = `
+      <span class="sw-update-icon">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+          <path d="M21 2v6h-6"/><path d="M3 12a9 9 0 0 1 15-6.7L21 8"/>
+          <path d="M3 22v-6h6"/><path d="M21 12a9 9 0 0 1-15 6.7L3 16"/>
+        </svg>
+      </span>
+      <span class="sw-update-text">Nueva versión disponible</span>
+      <button class="sw-update-btn" id="sw-update-apply">Actualizar</button>
+      <button class="sw-update-dismiss" id="sw-update-dismiss" title="Más tarde">✕</button>
+    `;
+    document.body.appendChild(banner);
+
+    // Animar entrada (siguiente frame para activar transición CSS)
+    requestAnimationFrame(() => {
+      requestAnimationFrame(() => banner.classList.add('sw-update-banner--visible'));
+    });
+
+    document.getElementById('sw-update-apply')?.addEventListener('click', () => {
+      const waiting = registration.waiting;
+      if (waiting) {
+        // Decirle al SW en espera que active — controllerchange disparará el reload
+        waiting.postMessage({ type: 'SKIP_WAITING' });
+      } else {
+        // Fallback: reload directo si por alguna razón no hay waiting
+        window.location.reload();
+      }
+    });
+
+    document.getElementById('sw-update-dismiss')?.addEventListener('click', () => {
+      banner.classList.remove('sw-update-banner--visible');
+      setTimeout(() => banner.remove(), 320);
+    });
+  }
+
+  function _initUpdateDetector(registration) {
+    // Cuando SKIP_WAITING activa el nuevo SW → el controller cambia → recargamos
+    // Esto garantiza que la página siempre arranca limpia con el nuevo SW
+    let _reloading = false;
+    navigator.serviceWorker.addEventListener('controllerchange', () => {
+      if (_reloading) return; // evitar bucle si hay varios controllerchange
+      _reloading = true;
+      window.location.reload();
+    });
+
+    // Caso 1: Hay un SW esperando en el momento en que cargamos la app
+    // (ej: el usuario tenía la tab abierta cuando se publicó la actualización)
+    if (registration.waiting) {
+      _showUpdateBanner(registration);
+      return;
+    }
+
+    // Caso 2: Un nuevo SW se descarga durante la sesión activa
+    registration.addEventListener('updatefound', () => {
+      const newWorker = registration.installing;
+      if (!newWorker) return;
+
+      newWorker.addEventListener('statechange', () => {
+        // 'installed' + controller existente = hay nueva versión esperando
+        // (no es el primer install de la app, sino una actualización)
+        if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
+          _showUpdateBanner(registration);
+        }
+      });
+    });
+  }
+
   // ── iOS Safari detection ──────────────────────────────────
   function _isIosSafari() {
     const ua = navigator.userAgent;
@@ -98,6 +173,13 @@ window.PWAManager = (function () {
 
   // ── API pública ───────────────────────────────────────────
   function init() {
+    // SW Update detector: se activa en cuanto el SW esté registrado
+    if ('serviceWorker' in navigator) {
+      navigator.serviceWorker.ready
+        .then(registration => _initUpdateDetector(registration))
+        .catch(() => { /* SW no disponible — ignorar silenciosamente */ });
+    }
+
     // Android/Chrome: capturar evento nativo
     window.addEventListener('beforeinstallprompt', e => {
       e.preventDefault();

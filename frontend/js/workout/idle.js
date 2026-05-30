@@ -2,6 +2,7 @@
 import { S } from './state.js';
 import * as Session from '../workoutSession.js';
 import { renderRoutinePicker } from './routine-picker.js';
+import { renderCustomRoutineBuilder } from './custom-builder.js';
 
 // ─── Helpers ───────────────────────────────────────────────────────────────────
 export function _fmtDuration(secs) {
@@ -161,7 +162,7 @@ export function renderIdle() {
     if (hasCustom) {
       renderRoutinePicker([{ label: 'Mi rutina', routine: customRoutine, ts: customRoutine.ts || 0 }]);
     } else {
-      import('./views.js').then(m => m.renderCustomRoutineBuilder());
+      renderCustomRoutineBuilder();
     }
   });
 }

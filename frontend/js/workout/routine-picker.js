@@ -94,8 +94,18 @@ export function renderRoutinePicker(routines) {
       const sidx = parseInt(btn.dataset.sidx);
       const activeDays = (routines[ridx]?.routine?.sessions || []).filter(s => s.exercises && s.exercises.length > 0);
       const daySession = activeDays[sidx];
-      // Dynamic import to avoid circular dep with views.js (renderPreWorkoutAdjust still there)
-      if (daySession) import('./views.js').then(m => m.renderPreWorkoutAdjust(daySession));
+      if (!daySession) return;
+
+      // Readiness check → pre-workout adjust
+      import('./readiness-check.js').then(({ renderReadinessCheck }) => {
+        S.root.innerHTML = '<div id="wl-readiness-mount" style="padding:16px"></div>';
+        const mount = S.root.querySelector('#wl-readiness-mount');
+        renderReadinessCheck(mount, ({ adj }) => {
+          // Pasar adj al session-loader vía daySession
+          daySession._readinessAdj = adj;
+          import('./views.js').then(m => m.renderPreWorkoutAdjust(daySession));
+        });
+      });
     });
   });
 }

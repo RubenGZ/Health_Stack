@@ -35,14 +35,32 @@ function _showRoutineToast(msg) {
 }
 
 export function loadRoutineSession(daySession) {
+  const readinessAdj = daySession._readinessAdj ?? null;
+
   const exercises = daySession.exercises.map((ex, i) => {
-    const numSets  = parseInt(ex.sets) || 3;
+    let numSets = parseInt(ex.sets) || 3;
     const targetR  = parseInt(ex.reps) || 8;
     const key      = _toKey(ex.name);
     const restSecs = _parseRestSecs(ex.rest);
 
     const suggested = Session.getSuggestedWeight(key);
-    const workingKg = (ex._adjustedKg !== undefined ? ex._adjustedKg : null) ?? suggested ?? 0;
+    const hasPreviousSession = suggested != null && suggested > 0;
+    let workingKg = (ex._adjustedKg !== undefined ? ex._adjustedKg : null) ?? suggested ?? 0;
+
+    // Aplicar readinessAdj
+    if (readinessAdj) {
+      if (readinessAdj.setsDelta) {
+        numSets = Math.max(2, numSets + readinessAdj.setsDelta);
+      }
+      if (readinessAdj.volumePct) {
+        numSets = Math.max(2, Math.round(numSets * readinessAdj.volumePct));
+      }
+      if (readinessAdj.weightPct && hasPreviousSession) {
+        const step = workingKg >= 20 ? 2.5 : 1;
+        workingKg = Math.round((workingKg * readinessAdj.weightPct) / step) * step;
+        workingKg = Math.max(step, workingKg);
+      }
+    }
 
     const meta       = getExerciseMeta(ex.name);
     const warmupSets = generateWarmupSets(workingKg, meta.equipmentType, meta.compound, meta.barWeight);

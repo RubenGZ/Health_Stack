@@ -3,6 +3,16 @@
 > Este archivo se carga automáticamente en cada sesión de Claude Code.
 > Actualízalo cuando cambien decisiones importantes o el estado del proyecto.
 
+## ⚠️ GESTIÓN DE CONTEXTO — LEER EN CADA SESIÓN
+
+**Compactar proactivamente antes de llegar al límite.**
+
+- Usa `/usage` para ver el uso actual del contexto
+- Si superas **~160k tokens** (80% de 200k), ejecuta `/compact` inmediatamente
+- NO esperes a que el sistema te lo pida — a 200k el `/compact` falla con error de créditos
+- En sesiones largas (redesigns, auditorías), compactar cada 2-3 bloques grandes de trabajo
+- Después de cada compactación, actualizar este CLAUDE.md con el estado del trabajo si hay cambios importantes
+
 ---
 
 ## HealthStack Frontend Design Agent

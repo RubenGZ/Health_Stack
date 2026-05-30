@@ -397,7 +397,15 @@ function sessionCard(s) {
   });
   const duration = s.durationSecs ? `${Math.round(s.durationSecs / 60)} min` : '';
   const volume = s.totalVolumeKg ? `${s.totalVolumeKg.toLocaleString('es-ES')} kg` : '';
-  const exNames = (s.exercises || []).map(e => e.name).join(', ');
+  // Handle snake_case keys from older sessions or backend exercise_key format
+  function _fmtEx(e) {
+    const raw = (typeof e === 'string') ? e : (e.name || e.exercise_name || '');
+    if (!raw) return '';
+    return raw.includes('_')
+      ? raw.replace(/_/g, ' ').replace(/\b\w/g, c => c.toUpperCase())
+      : raw;
+  }
+  const exNames = (s.exercises || []).map(_fmtEx).join(', ');
   return `<div class="wl-session-card">
     <span class="wl-sc-date">${date}</span>
     <span class="wl-sc-exercises">${exNames}</span>

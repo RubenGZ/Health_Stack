@@ -192,6 +192,7 @@
 
   // ── Renderizar sub-tabs ────────────────────────────────────
   function renderSubtabs(group) {
+    if (!subtabBarEl) return;  // not yet initialized — guard against early calls
     subtabBarEl.innerHTML = '';
 
     if (group.subtabs.length === 0) {

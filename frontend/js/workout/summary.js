@@ -39,15 +39,23 @@ export async function onFinish() {
       headers: { 'Content-Type': 'application/json', ...(token ? { Authorization: `Bearer ${token}` } : {}) },
       body: JSON.stringify(payload),
     });
-    if (resp.ok) result = await resp.json();
-  } catch {}
+    if (resp.ok) {
+      result = await resp.json();
+    } else {
+      // Log non-2xx for debugging (not thrown to user)
+      const errBody = await resp.text().catch(() => '');
+      console.warn(`[summary] POST /workout/sessions ${resp.status}:`, errBody.substring(0, 200));
+    }
+  } catch (fetchErr) {
+    console.warn('[summary] POST /workout/sessions network error:', fetchErr?.message);
+  }
 
   try {
     Session.saveToLocalHistory({
       id:           result?.session_id ?? Date.now(),
       startedAt:    S.session.startedAt,
       durationSecs: result?.duration_secs ?? Math.floor((Date.now() - new Date(S.session.startedAt)) / 1000),
-      totalVolumeKg: result?.total_volume_kg ?? null,
+      totalVolumeKg: result?.total_volume_kg ?? (liveVolume() || null),
       routineId:    S.session.routineId   ?? null,
       routineName:  S.session.routineName ?? null,
       exercises:    S.session.exercises,

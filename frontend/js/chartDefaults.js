@@ -49,7 +49,7 @@
     Chart.defaults.plugins.tooltip.titleFont          = { size: 12, weight: '600' };
     Chart.defaults.plugins.tooltip.bodyFont           = { size: 11 };
     Chart.defaults.plugins.tooltip.displayColors      = false;
-    Chart.defaults.plugins.tooltip.callbacks          = {};
+    // No sobreescribir callbacks — Chart.js los necesita internamente
 
     // ── Legend ───────────────────────────────────────────────
     Chart.defaults.plugins.legend.display = false;

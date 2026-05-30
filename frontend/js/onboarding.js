@@ -383,13 +383,40 @@ const Onboarding = (function () {
   }
 
   // ── Notificar al backend que el onboarding fue completado ────
+  // Mapeos frontend → backend enum
+  const _GOAL_MAP = {
+    deficit_soft:  'lose_fat',
+    maintain:      'maintain',
+    surplus_soft:  'gain_muscle',
+    surplus_hard:  'increase_strength',
+  };
+  const _ACTIVITY_MAP = {
+    1.2:   'sedentary',
+    1.375: 'lightly_active',
+    1.55:  'moderately_active',
+    1.725: 'very_active',
+  };
+
   function syncToServer() {
     const token = localStorage.getItem('hs_access_token') || sessionStorage.getItem('hs_access_token');
     if (!token) return; // usuario anónimo — solo localStorage
+
+    const age       = parseInt(answers['ob-age']) || 25;
+    const birthYear = new Date().getFullYear() - age;
+
+    const body = {
+      biological_sex:       answers.sex || 'male',
+      birth_date:           `${birthYear}-07-01`,
+      current_weight_kg:    parseFloat(answers['ob-weight']) || 70,
+      height_cm:            parseFloat(answers['ob-height']) || 170,
+      activity_level:       _ACTIVITY_MAP[answers.activity] || 'moderately_active',
+      primary_fitness_goal: _GOAL_MAP[answers.goal]         || 'maintain',
+    };
+
     fetch('/api/v1/auth/onboarding', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
-      body: JSON.stringify({ completed: true }),
+      body: JSON.stringify(body),
     }).catch(() => {}); // fire-and-forget
   }
 

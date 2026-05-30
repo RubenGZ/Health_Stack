@@ -273,7 +273,7 @@
     const group = groupForSection(section);
     if (group.id !== activeGroupId) {
       activeGroupId = group.id;
-      navEl.querySelectorAll('.mbn-tab').forEach(btn => {
+      if (navEl) navEl.querySelectorAll('.mbn-tab').forEach(btn => {
         btn.classList.toggle('mbn-tab--active', btn.dataset.group === group.id);
       });
       renderSubtabs(group);

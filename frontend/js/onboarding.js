@@ -376,10 +376,24 @@ const Onboarding = (function () {
       }
     }
 
-    // 5. XP de bienvenida
+    // 5. XP de bienvenida + Endowed Progress
+    // Regalamos XP inicial para activar la "tarjeta incompleta" (Nunes & Drèze +34%)
+    // El usuario arranca con progreso visible, no desde cero.
+    // Ver Master Strategy §B: "Regalar 3 días de streak / XP inicial"
     if (typeof Gamification !== 'undefined') {
       Gamification.addXP('login');
+      Gamification.addXP('tdee');     // TDEE calculado en el onboarding → XP real
+      Gamification.addXP('routine');  // Bienvenida atlética — el usuario ha definido su perfil
     }
+    // Inyectar streak_days=3 como punto de partida (endowed progress)
+    // Solo si no existe ya un estado de gamificación (usuario completamente nuevo)
+    try {
+      const existing = JSON.parse(localStorage.getItem('hs_gamification') || 'null');
+      if (!existing || (existing.streak_days == null || existing.streak_days === 0)) {
+        const patch = { ...(existing || {}), streak_days: 3 };
+        localStorage.setItem('hs_gamification', JSON.stringify(patch));
+      }
+    } catch (_) {}
   }
 
   // ── Notificar al backend que el onboarding fue completado ────

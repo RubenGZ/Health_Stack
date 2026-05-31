@@ -8282,6 +8282,47 @@ button[class*="wl-"]:not([class*="inp"]):active {
 .qs-step--done .qs-step-icon { color: var(--hs-accent, #c4a561); }
 .qs-step-icon { font-size: 1rem; width: 20px; text-align: center; flex-shrink: 0; }
 
+/* ── Weekly workout recap (North Star: entrenos/WAU) ──────── */
+.weekly-recap-card {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: var(--hs-surface, #0f0f1a);
+  border: 1px solid rgba(196,165,97,0.18);
+  border-left: 3px solid var(--hs-accent, #c4a561);
+  border-radius: var(--hs-r-md, 12px);
+  padding: 10px 14px;
+  gap: 12px;
+}
+.weekly-recap-label {
+  font-size: 0.7rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: var(--hs-text-2, rgba(255,255,255,0.45));
+  white-space: nowrap;
+}
+.weekly-recap-stats {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+}
+.weekly-recap-main {
+  font-size: 0.875rem;
+  color: var(--hs-text, #e2e8f0);
+}
+.weekly-recap-main strong {
+  color: var(--hs-accent, #c4a561);
+  font-weight: 700;
+}
+.weekly-recap-vol {
+  color: var(--hs-text-2, rgba(255,255,255,0.45));
+  font-size: 0.8rem;
+  margin-left: 4px;
+}
+
 /* ── Config: initials avatar ─────────────────────────────── */
 .account-avatar-initials {
   width: 56px; height: 56px;

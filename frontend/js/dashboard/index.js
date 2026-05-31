@@ -86,7 +86,14 @@ window.Dashboard = (function () {
     }
     if (streakEl) {
       const streak = JSON.parse(localStorage.getItem('hs_gamification') || 'null')?.streak_days;
-      streakEl.textContent = streak != null ? `${streak} ${_tl('dashboard.days')}` : '—';
+      // Identity framing — "Llevas N días siendo consistente" en lugar de "N días" (ver Master Strategy §C)
+      if (streak != null && streak > 0) {
+        streakEl.textContent = streak === 1
+          ? `Llevas 1 día siendo consistente`
+          : `Llevas ${streak} días siendo consistente`;
+      } else {
+        streakEl.textContent = '—';
+      }
     }
   }
 
@@ -424,6 +431,65 @@ window.Dashboard = (function () {
       </div>`;
   }
 
+  // ── Weekly workout recap (North Star: entrenos/WAU) ──────────
+  // Muestra "Esta semana: N entrenos · X kg total [vs semana pasada]"
+  // Activa Goal-Gradient + Progress Visibility (Master Strategy §C)
+  function renderWeeklyWorkoutRecap() {
+    const container = document.getElementById('weekly-workout-recap');
+    if (!container) return;
+
+    let sessions = [];
+    try { sessions = JSON.parse(localStorage.getItem('hs_workout_sessions_local') || '[]'); } catch (_) {}
+    if (!Array.isArray(sessions) || sessions.length === 0) {
+      container.style.display = 'none';
+      return;
+    }
+
+    const now       = new Date();
+    const dow       = now.getDay(); // 0=dom
+    const monday    = new Date(now); monday.setDate(now.getDate() - ((dow + 6) % 7)); monday.setHours(0,0,0,0);
+    const lastMonday= new Date(monday); lastMonday.setDate(monday.getDate() - 7);
+
+    function _statsFor(from, to) {
+      const slice = sessions.filter(s => {
+        const d = new Date(s.startedAt || s.ts || 0);
+        return d >= from && d < to;
+      });
+      const totalVol = slice.reduce((acc, s) => {
+        const vol = (s.exercises || []).reduce((ea, ex) =>
+          ea + (ex.sets || []).reduce((sa, st) => sa + ((st.weightKg || 0) * (st.reps || 0)), 0), 0);
+        return acc + vol;
+      }, 0);
+      return { count: slice.length, vol: Math.round(totalVol) };
+    }
+
+    const thisWeek = _statsFor(monday, new Date(monday.getTime() + 7 * 86400000));
+    const lastWeek = _statsFor(lastMonday, monday);
+
+    if (thisWeek.count === 0 && lastWeek.count === 0) { container.style.display = 'none'; return; }
+
+    let deltaHtml = '';
+    if (lastWeek.count > 0 && thisWeek.count > 0) {
+      const diff = thisWeek.count - lastWeek.count;
+      const sign = diff > 0 ? '+' : '';
+      const color = diff >= 0 ? 'var(--emerald)' : 'var(--amber)';
+      deltaHtml = `<span style="font-size:.72rem;color:${color};margin-left:6px">${sign}${diff} vs semana pasada</span>`;
+    }
+
+    container.style.display = '';
+    container.innerHTML = `
+      <div class="weekly-recap-card">
+        <span class="weekly-recap-label">Esta semana</span>
+        <div class="weekly-recap-stats">
+          <span class="weekly-recap-main">
+            <strong>${thisWeek.count}</strong> entreno${thisWeek.count !== 1 ? 's' : ''}
+            ${thisWeek.vol > 0 ? `<span class="weekly-recap-vol">· ${thisWeek.vol.toLocaleString('es-ES')} kg</span>` : ''}
+          </span>
+          ${deltaHtml}
+        </div>
+      </div>`;
+  }
+
   // ── Escuchar actualizaciones de peso / TDEE ────────────────
   function _listenWeightUpdates() {
     window.addEventListener('hs:weight-updated', () => {
@@ -437,7 +503,10 @@ window.Dashboard = (function () {
       updateDashboardStats();
       renderQuickStart();
     });
-    window.addEventListener('hs:workout-session-changed', () => renderQuickStart());
+    window.addEventListener('hs:workout-session-changed', () => {
+      renderQuickStart();
+      renderWeeklyWorkoutRecap();
+    });
   }
 
   // ── Quick-start checklist ─────────────────────────────────────
@@ -497,7 +566,15 @@ window.Dashboard = (function () {
 
     const done = [state.weight, state.tdee, state.workout].filter(Boolean).length;
 
+    // Workout PRIMERO — North Star Metric es entrenos/WAU (ver Master Strategy §G)
     const steps = [
+      {
+        key:     'workout',
+        icon:    state.workout ? '✓' : '🏋️',
+        label:   'Completa un entreno',
+        nav:     'entreno',
+        done:    state.workout,
+      },
       {
         key:   'weight',
         icon:  state.weight ? '✓' : '⚖️',
@@ -511,13 +588,6 @@ window.Dashboard = (function () {
         label: 'Calcula tu TDEE',
         nav:   'nutricion',
         done:  state.tdee,
-      },
-      {
-        key:     'workout',
-        icon:    state.workout ? '✓' : '🏋️',
-        label:   'Completa un entreno',
-        nav:     'entreno',
-        done:    state.workout,
       },
     ];
 
@@ -547,7 +617,7 @@ window.Dashboard = (function () {
     container.querySelectorAll('.qs-step:not(.qs-step--done)').forEach(function (el) {
       el.addEventListener('click', function () {
         const step = el.dataset.step;
-        const navMap = { weight: 'peso', tdee: 'nutricion', workout: 'entreno' };
+        const navMap = { workout: 'workout', weight: 'peso', tdee: 'nutricion' };
         const target = navMap[step];
         if (target) {
           const navItem = document.querySelector('[data-section="' + target + '"]');
@@ -630,6 +700,7 @@ window.Dashboard = (function () {
     _listenWeightUpdates();
     renderFirstRunBanner();
     renderQuickStart();
+    renderWeeklyWorkoutRecap();
   }
 
   function refresh() {
@@ -637,6 +708,7 @@ window.Dashboard = (function () {
     updateWelcomeCard();
     updateDashboardStats();
     renderProgressInsight();
+    renderWeeklyWorkoutRecap();
   }
 
   // Re-render en cambio de idioma
@@ -646,5 +718,5 @@ window.Dashboard = (function () {
     initUserChip();
   });
 
-  return { init, refresh, updateStreak, renderProgressInsight };
+  return { init, refresh, updateStreak, renderProgressInsight, renderWeeklyWorkoutRecap };
 })();

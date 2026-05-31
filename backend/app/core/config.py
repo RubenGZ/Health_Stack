@@ -85,7 +85,8 @@ class Settings(BaseSettings):
     # ── Email (Resend) ────────────────────────────────────────
     resend_api_key: str = ""          # re_... — vacío desactiva emails
     resend_from: str = "HealthStack Pro <noreply@healthstack.pro>"
-    app_frontend_url: str = "http://localhost:3000"  # URL base del frontend
+    app_frontend_url: str = "http://localhost:3000"  # URL pública del frontend (email links, redirects)
+    frontend_internal_url: str = "http://nginx"      # URL interna Docker para health checks
 
     # ── Sentry ────────────────────────────────────────────────
     sentry_dsn: str = ""  # Vacío → Sentry desactivado

@@ -334,10 +334,14 @@ class AdminRepository:
             })
 
         # 4. Frontend / Nginx
+        # Usa la URL interna Docker (http://nginx) para que el check funcione
+        # dentro del contenedor. app_frontend_url es la URL pública y no es
+        # accesible desde dentro de Docker (apunta al tunnel de Cloudflare).
         t0 = time.monotonic()
         try:
             from app.core.config import get_settings  # noqa: PLC0415
-            url = (get_settings().app_frontend_url or "http://localhost").rstrip("/")
+            _s = get_settings()
+            url = (_s.frontend_internal_url or _s.app_frontend_url or "http://nginx").rstrip("/")
             async with httpx.AsyncClient(timeout=5.0, follow_redirects=True) as hx:
                 resp = await hx.get(url + "/")
             fe_ms = round((time.monotonic() - t0) * 1000, 1)

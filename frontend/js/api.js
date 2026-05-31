@@ -117,6 +117,220 @@ const API = (function () {
     }
   }
 
+  // ── Plan upgrade celebration ──────────────────────────────
+  const _PLAN_RANK = { free: 0, pro: 1, elite: 2 };
+
+  function _isPlanUpgrade(oldPlan, newPlan) {
+    return (_PLAN_RANK[newPlan] || 0) > (_PLAN_RANK[oldPlan] || 0);
+  }
+
+  function _showPlanUpgradeModal(newPlan) {
+    if (document.getElementById('hs-plan-upgrade-modal')) return; // ya visible
+
+    const isPro   = newPlan === 'pro';
+    const isElite = newPlan === 'elite';
+    const label   = isElite ? 'ELITE' : 'PRO';
+    const color   = isElite ? '#e8c97a' : '#c4a561';
+
+    const TITLES = {
+      pro:   '¡Bienvenido a Pro!',
+      elite: '¡Bienvenido a Elite!',
+    };
+    const SUBTITLES = {
+      pro:   'Tu cuenta ha sido actualizada. Tienes acceso completo a todas las funciones.',
+      elite: 'Máximo nivel desbloqueado. Disfruta de la experiencia premium completa.',
+    };
+    const PERKS = {
+      pro: [
+        'Rutinas personalizadas con IA',
+        'Coach de entreno post-sesión',
+        'Análisis de fatiga y plateau',
+        'Historial ilimitado',
+      ],
+      elite: [
+        'Todo lo de Pro incluido',
+        'Protocolos de rehabilitación IA',
+        'Previsión de composición corporal',
+        'Session replay y análisis avanzado',
+      ],
+    };
+
+    const perksHtml = (PERKS[newPlan] || []).map(p =>
+      `<li class="hpu-perk">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" aria-hidden="true"><polyline points="20 6 9 17 4 12"/></svg>
+        ${p}
+      </li>`
+    ).join('');
+
+    // Partículas SVG (estrellas decorativas, sin emojis)
+    const starsHtml = [
+      { x: 18, y: 12, s: 1.0 }, { x: 80, y: 8, s: 0.7 },
+      { x: 50, y: 6, s: 0.6 },  { x: 92, y: 20, s: 0.5 },
+      { x: 8,  y: 28, s: 0.5 },
+    ].map(({ x, y, s }, i) =>
+      `<svg class="hpu-star hpu-star--${i}" style="left:${x}%;top:${y}%;transform:scale(${s})"
+           width="12" height="12" viewBox="0 0 24 24" fill="${color}" aria-hidden="true">
+         <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/>
+       </svg>`
+    ).join('');
+
+    const overlay = document.createElement('div');
+    overlay.id = 'hs-plan-upgrade-modal';
+    overlay.setAttribute('role', 'dialog');
+    overlay.setAttribute('aria-modal', 'true');
+    overlay.setAttribute('aria-label', TITLES[newPlan] || 'Plan actualizado');
+    overlay.innerHTML = `
+      <div class="hpu-backdrop"></div>
+      <div class="hpu-card">
+        ${starsHtml}
+        <button class="hpu-close" aria-label="Cerrar">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+        </button>
+
+        <div class="hpu-badge-wrap">
+          <span class="hpu-plan-badge">${label}</span>
+        </div>
+
+        <h2 class="hpu-title">${TITLES[newPlan] || '¡Plan actualizado!'}</h2>
+        <p class="hpu-subtitle">${SUBTITLES[newPlan] || ''}</p>
+
+        <ul class="hpu-perks">${perksHtml}</ul>
+
+        <button class="hpu-cta">Explorar ${label}</button>
+      </div>`;
+
+    // Inyectar estilos una vez
+    if (!document.getElementById('hs-plan-upgrade-styles')) {
+      const style = document.createElement('style');
+      style.id = 'hs-plan-upgrade-styles';
+      style.textContent = `
+        #hs-plan-upgrade-modal {
+          position: fixed; inset: 0; z-index: 100000;
+          display: flex; align-items: center; justify-content: center;
+          padding: 16px;
+        }
+        .hpu-backdrop {
+          position: absolute; inset: 0;
+          background: rgba(7,7,15,0.85);
+          backdrop-filter: blur(8px);
+          -webkit-backdrop-filter: blur(8px);
+        }
+        .hpu-card {
+          position: relative; z-index: 1;
+          background: #0f0f1a;
+          border: 1px solid rgba(196,165,97,0.3);
+          border-top: 2px solid #c4a561;
+          border-radius: 20px;
+          padding: 32px 28px 28px;
+          max-width: 360px; width: 100%;
+          text-align: center;
+          box-shadow: 0 0 0 1px rgba(196,165,97,0.08),
+                      0 32px 64px rgba(0,0,0,0.6),
+                      0 0 80px rgba(196,165,97,0.08);
+          overflow: hidden;
+          animation: hpu-enter 380ms cubic-bezier(0.34, 1.56, 0.64, 1) both;
+        }
+        @keyframes hpu-enter {
+          from { opacity: 0; transform: scale(0.88) translateY(16px); }
+          to   { opacity: 1; transform: scale(1) translateY(0); }
+        }
+        .hpu-close {
+          position: absolute; top: 14px; right: 14px;
+          background: rgba(255,255,255,0.06); border: none;
+          border-radius: 50%; width: 32px; height: 32px;
+          display: flex; align-items: center; justify-content: center;
+          cursor: pointer; color: rgba(255,255,255,0.45);
+          transition: background 150ms, color 150ms;
+          -webkit-tap-highlight-color: transparent;
+        }
+        .hpu-close:hover { background: rgba(255,255,255,0.12); color: #e2e8f0; }
+        .hpu-badge-wrap { margin-bottom: 16px; }
+        .hpu-plan-badge {
+          display: inline-block;
+          padding: 4px 14px;
+          background: rgba(196,165,97,0.12);
+          border: 1px solid rgba(196,165,97,0.4);
+          border-radius: 99px;
+          color: #c4a561;
+          font-size: 0.72rem; font-weight: 800;
+          letter-spacing: 0.12em;
+          background: linear-gradient(135deg, rgba(196,165,97,0.18), rgba(232,201,122,0.08));
+          animation: hpu-badge-shimmer 2.4s ease-in-out infinite;
+          background-size: 200% 100%;
+        }
+        @keyframes hpu-badge-shimmer {
+          0%   { background-position: -100% 0; }
+          100% { background-position: 300% 0; }
+        }
+        .hpu-title {
+          color: #e2e8f0; font-size: 1.35rem; font-weight: 700;
+          letter-spacing: -0.03em; margin: 0 0 8px;
+          line-height: 1.2;
+        }
+        .hpu-subtitle {
+          color: rgba(255,255,255,0.45); font-size: 0.875rem;
+          line-height: 1.5; margin: 0 0 20px;
+        }
+        .hpu-perks {
+          list-style: none; margin: 0 0 24px; padding: 0;
+          text-align: left;
+          display: flex; flex-direction: column; gap: 10px;
+        }
+        .hpu-perk {
+          display: flex; align-items: center; gap: 10px;
+          color: #e2e8f0; font-size: 0.82rem;
+        }
+        .hpu-perk svg { color: #c4a561; flex-shrink: 0; }
+        .hpu-cta {
+          width: 100%;
+          padding: 13px 20px;
+          background: linear-gradient(135deg, #c4a561, #e8c97a);
+          color: #07070f; font-weight: 700; font-size: 0.9rem;
+          border: none; border-radius: 12px; cursor: pointer;
+          box-shadow: 0 4px 20px rgba(196,165,97,0.35);
+          transition: transform 150ms, box-shadow 150ms;
+          -webkit-tap-highlight-color: transparent;
+          font-family: inherit;
+        }
+        .hpu-cta:active { transform: scale(0.97); box-shadow: 0 2px 10px rgba(196,165,97,0.2); }
+        .hpu-cta:hover  { box-shadow: 0 6px 28px rgba(196,165,97,0.45); }
+        /* Estrellas decorativas */
+        .hpu-star {
+          position: absolute; pointer-events: none;
+          animation: hpu-twinkle 2s ease-in-out infinite;
+        }
+        .hpu-star--0 { animation-delay: 0s;    }
+        .hpu-star--1 { animation-delay: 0.4s;  }
+        .hpu-star--2 { animation-delay: 0.8s;  }
+        .hpu-star--3 { animation-delay: 1.2s;  }
+        .hpu-star--4 { animation-delay: 1.6s;  }
+        @keyframes hpu-twinkle {
+          0%, 100% { opacity: 0.25; transform: scale(var(--s,1)); }
+          50%       { opacity: 0.9;  transform: scale(calc(var(--s,1) * 1.3)); }
+        }
+      `;
+      document.head.appendChild(style);
+    }
+
+    document.body.appendChild(overlay);
+
+    // Cerrar al hacer click fuera o en botones
+    const close = () => {
+      overlay.style.animation = 'none';
+      overlay.style.opacity = '0';
+      overlay.style.transition = 'opacity 200ms ease';
+      overlay.querySelector('.hpu-card').style.animation = 'none';
+      overlay.querySelector('.hpu-card').style.transition = 'transform 200ms ease, opacity 200ms ease';
+      overlay.querySelector('.hpu-card').style.transform = 'scale(0.95) translateY(8px)';
+      overlay.querySelector('.hpu-card').style.opacity = '0';
+      setTimeout(() => overlay.remove(), 200);
+    };
+
+    overlay.querySelector('.hpu-close').addEventListener('click', close);
+    overlay.querySelector('.hpu-cta').addEventListener('click', close);
+    overlay.querySelector('.hpu-backdrop').addEventListener('click', close);
+  }
+
   function clearAuth() {
     localStorage.removeItem(TOKEN_KEY);
     localStorage.removeItem(REFRESH_KEY);
@@ -235,6 +449,12 @@ const API = (function () {
           role: payload.role || current.role || 'user',
         };
         localStorage.setItem(USER_KEY, JSON.stringify(updated));
+        // Detectar upgrade de plan para mostrar popup de felicitación
+        const oldPlan = current.plan || 'free';
+        const newPlan = updated.plan;
+        if (_isPlanUpgrade(oldPlan, newPlan)) {
+          setTimeout(() => _showPlanUpgradeModal(newPlan), 600);
+        }
         _applyPlanFromUser(updated);
       } catch { /* token mal formado — no bloquear el flujo */ }
       _scheduleProactiveRefresh(data.access_token); // reprogramar para el nuevo token

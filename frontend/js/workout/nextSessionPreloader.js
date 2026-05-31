@@ -77,10 +77,12 @@
 
     // Check if summary screen is visible
     if (_isSummaryVisible()) {
-      // Load immediately into the coaching container
+      // Load immediately into the coaching container.
+      // showExpiredNotice: true → if the plan was cleaned up after inactivity,
+      // a friendly message is shown instead of silent nothing.
       const container = _findCoachingContainer();
       if (container) {
-        await window.PostWorkoutCoach.loadExistingPlan(sessionId, container);
+        await window.PostWorkoutCoach.loadExistingPlan(sessionId, container, { showExpiredNotice: true });
       }
     } else {
       // Summary not visible yet — store for later
@@ -102,7 +104,7 @@
 
     const container = _findCoachingContainer();
     if (container) {
-      await window.PostWorkoutCoach.loadExistingPlan(pendingSessionId, container);
+      await window.PostWorkoutCoach.loadExistingPlan(pendingSessionId, container, { showExpiredNotice: true });
     }
   }
 

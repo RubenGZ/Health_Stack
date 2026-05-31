@@ -263,15 +263,55 @@
     }
   }
 
-  async function loadExistingPlan(sessionId, container) {
-    // Silent background load — no toasts on failure
+  // ─── Expired-plan notice ─────────────────────────────────────────────────────
+  // Shown when the user had a coaching plan from their last session but it
+  // expired due to inactivity (backend cleans plans unused > 7 days).
+  // The notice explains why and offers a one-click refresh.
+
+  function _showExpiredPlanNotice(container) {
+    const target = container || _getContainer();
+    if (!target) return;
+    target.innerHTML = `
+      <div class="pw-expired-notice" role="status">
+        <div class="pw-expired-icon" aria-hidden="true">⏳</div>
+        <div class="pw-expired-body">
+          <p class="pw-expired-title">Tu análisis anterior ha expirado</p>
+          <p class="pw-expired-text">
+            Al haber pasado varios días sin actividad, necesitamos datos recientes
+            para darte un análisis preciso del entreno actual.
+          </p>
+          <button class="pw-expired-cta" id="pw-regen-btn">
+            🤖 Generar análisis actualizado
+          </button>
+        </div>
+      </div>`;
+
+    const regenBtn = target.querySelector('#pw-regen-btn');
+    if (regenBtn) {
+      regenBtn.addEventListener('click', () => {
+        target.innerHTML = ''; // Clear notice
+        const ctaBtn = _getBtn();
+        if (ctaBtn) ctaBtn.style.display = ''; // Show original CTA button
+        requestCoaching();                      // Trigger fresh generation
+      });
+    }
+  }
+
+  async function loadExistingPlan(sessionId, container, { showExpiredNotice = false } = {}) {
+    // Background load — only shows UI on success or expected expiry.
     try {
       const resp = await fetch(
         `${_apiBase()}/workout/post-workout-coach/${encodeURIComponent(sessionId)}`,
         { headers: _authHeaders() }
       );
-      if (resp.status === 404) return; // No plan yet — expected
-      if (!resp.ok) return;            // Other errors — fail silently
+
+      if (resp.status === 404) {
+        // Plan not found — either never generated or cleaned up after inactivity.
+        // Only show the notice if the caller expected a plan to exist (preloader).
+        if (showExpiredNotice) _showExpiredPlanNotice(container);
+        return;
+      }
+      if (!resp.ok) return; // Other errors — fail silently
 
       const plan = await resp.json();
       renderCoachingCard(plan, container);
@@ -280,7 +320,7 @@
       const btn = _getBtn();
       if (btn) btn.style.display = 'none';
     } catch {
-      // Fail silently — this is background preloading
+      // Network failure — fail silently, CTA button remains visible
     }
   }
 

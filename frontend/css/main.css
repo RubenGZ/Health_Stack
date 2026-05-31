@@ -5533,6 +5533,57 @@ select.form-input option { background: var(--bg-surface); color: var(--text-prim
   color: var(--hs-text-muted, #888);
 }
 
+/* ── Expired-plan notice ──────────────────────────────────────────────────── */
+.pw-expired-notice {
+  display: flex;
+  align-items: flex-start;
+  gap: 14px;
+  background: rgba(196, 165, 97, 0.08);
+  border: 1px solid rgba(196, 165, 97, 0.25);
+  border-radius: 12px;
+  padding: 16px;
+  margin: 12px 0;
+  animation: fadeInUp 0.3s ease;
+}
+.pw-expired-icon {
+  font-size: 1.6rem;
+  flex-shrink: 0;
+  line-height: 1;
+}
+.pw-expired-body {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.pw-expired-title {
+  margin: 0;
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: var(--hs-gold, #c4a561);
+}
+.pw-expired-text {
+  margin: 0;
+  font-size: 0.8rem;
+  color: var(--hs-text-muted, #888);
+  line-height: 1.5;
+}
+.pw-expired-cta {
+  margin-top: 4px;
+  align-self: flex-start;
+  background: rgba(196, 165, 97, 0.15);
+  border: 1px solid rgba(196, 165, 97, 0.4);
+  color: var(--hs-gold, #c4a561);
+  padding: 7px 14px;
+  border-radius: 8px;
+  font-size: 0.8rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+.pw-expired-cta:hover {
+  background: rgba(196, 165, 97, 0.25);
+}
+
 /* Spinner inside button while loading */
 .pw-btn-spinner {
   display: inline-block;

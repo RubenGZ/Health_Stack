@@ -5,6 +5,33 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Admin — HealthStack Pro</title>
   <link rel="stylesheet" href="/css/admin.css" />
+  <style>
+    /* Live indicator */
+    .live-dot {
+      width: 8px; height: 8px;
+      border-radius: 50%;
+      display: inline-block;
+      flex-shrink: 0;
+    }
+    .live-dot--ok {
+      background: #3fb950;
+      box-shadow: 0 0 6px #3fb950;
+      animation: live-pulse 2s infinite;
+    }
+    .live-dot--loading {
+      background: #f59e0b;
+      animation: live-spin 1s linear infinite;
+    }
+    @keyframes live-pulse {
+      0%, 100% { opacity: 1; }
+      50%       { opacity: 0.4; }
+    }
+    @keyframes live-spin {
+      0%   { box-shadow: 0 0 0 0 rgba(245,158,11,0.7); }
+      70%  { box-shadow: 0 0 0 6px rgba(245,158,11,0); }
+      100% { box-shadow: 0 0 0 0 rgba(245,158,11,0); }
+    }
+  </style>
 </head>
 <body>
 
@@ -191,7 +218,14 @@
 
         <!-- ── Section: DB Health ─────────────────────────────── -->
         <section id="section-health" class="admin-section" style="display:none;">
-          <h2 class="section-title">DB Health</h2>
+          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;">
+            <h2 class="section-title" style="margin:0;">DB Health</h2>
+            <div style="display:flex;align-items:center;gap:10px;">
+              <span id="health-live-dot" class="live-dot live-dot--ok"></span>
+              <span id="health-live-ts" style="font-size:0.75rem;color:#7d8590;"></span>
+              <button onclick="AdminHealth.load()" style="background:transparent;border:1px solid #30363d;color:#cdd9e5;padding:4px 10px;border-radius:6px;font-size:0.75rem;cursor:pointer;">↺ Refresh</button>
+            </div>
+          </div>
 
           <!-- Semaphore -->
           <div class="glass-card" style="padding:20px;margin-bottom:16px;">
@@ -295,7 +329,7 @@
   <script src="/js/admin/adminUsers.js?v=2"></script>
   <script src="/js/admin/adminTables.js?v=2"></script>
   <script src="/js/admin/adminMetrics.js?v=2"></script>
-  <script src="/js/admin/adminHealth.js?v=2"></script>
+  <script src="/js/admin/adminHealth.js?v=3"></script>
   <script src="/js/admin/adminSystem.js?v=2"></script>
   <script src="/js/admin/admin.js?v=5"></script>
 

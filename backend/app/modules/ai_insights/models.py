@@ -20,7 +20,7 @@ from __future__ import annotations
 from datetime import datetime, UTC
 import uuid
 
-from sqlalchemy import DateTime, String, Text, UniqueConstraint
+from sqlalchemy import DateTime, ForeignKey, String, Text, UniqueConstraint
 from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.orm import Mapped, mapped_column
 
@@ -35,7 +35,12 @@ class AIInsightsCache(Base):
         primary_key=True,
         default=uuid.uuid4,
     )
-    user_id: Mapped[str] = mapped_column(String, nullable=False, index=True)
+    user_id: Mapped[uuid.UUID] = mapped_column(
+        UUID(as_uuid=True),
+        ForeignKey("public.users.id", ondelete="CASCADE"),
+        nullable=False,
+        index=True,
+    )
     insight_type: Mapped[str] = mapped_column(
         String(50), nullable=False
     )  # 'biomarker_narrative' | 'injury_risk' | 'weekly_goals'
@@ -52,11 +57,12 @@ class AIInsightsCache(Base):
             "insight_type",
             name="uq_ai_insights_cache_user_type",
         ),
+        {"schema": "public"},
     )
 
     def __repr__(self) -> str:
         return (
-            f"<AIInsightsCache user={self.user_id[:8]} "
+            f"<AIInsightsCache user={str(self.user_id)[:8]} "
             f"type={self.insight_type} "
             f"at={self.generated_at.isoformat()[:16]}>"
         )

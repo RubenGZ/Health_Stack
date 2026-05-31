@@ -85,4 +85,5 @@ class UserChronicInjury(Base, TimestampMixin):
             "severity IN ('mild','moderate','severe')",
             name="ck_injury_severity",
         ),
+        {"schema": "public", "comment": "Lesiones crónicas registradas por el usuario. Soft-delete con is_active."},
     )

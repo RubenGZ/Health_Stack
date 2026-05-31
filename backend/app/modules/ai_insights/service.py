@@ -36,6 +36,7 @@ from __future__ import annotations
 from datetime import UTC, datetime, timedelta
 import json
 import logging
+import uuid
 
 from sqlalchemy import and_, func, select
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -122,7 +123,7 @@ def _now_utc() -> datetime:
 
 async def _cache_get(
     db: AsyncSession,
-    user_id: str,
+    user_id: uuid.UUID,
     insight_type: str,
 ) -> dict | None:
     """
@@ -152,7 +153,7 @@ async def _cache_get(
 
 async def _cache_set(
     db: AsyncSession,
-    user_id: str,
+    user_id: uuid.UUID,
     insight_type: str,
     data: dict,
 ) -> None:
@@ -184,7 +185,7 @@ async def _cache_set(
                 generated_at=_now_utc(),
             ))
         await db.commit()
-        logger.debug("ai_insights cache SET %s for user %s…", insight_type, user_id[:8])
+        logger.debug("ai_insights cache SET %s for user %s…", insight_type, str(user_id)[:8])
     except Exception as exc:
         logger.warning("ai_insights cache SET failed (non-fatal): %s", exc)
         await db.rollback()
@@ -192,7 +193,7 @@ async def _cache_set(
 
 # ── DB helpers (sin cambios respecto a versión anterior) ──────────────────────
 
-async def _resolve_health_subject(user_id: str, db: AsyncSession) -> str | None:
+async def _resolve_health_subject(user_id: uuid.UUID, db: AsyncSession) -> str | None:
     crypto = CryptoService()
     try:
         subject_id = await crypto.resolve_health_subject_id(user_id, db)
@@ -220,7 +221,7 @@ async def _get_recent_weight_records(
     return list(result.scalars().all())
 
 
-async def _get_gamification_state(db: AsyncSession, user_id: str) -> dict:
+async def _get_gamification_state(db: AsyncSession, user_id: uuid.UUID) -> dict:
     result = await db.execute(
         select(GamificationState).where(GamificationState.user_id == user_id)
     )
@@ -230,7 +231,7 @@ async def _get_gamification_state(db: AsyncSession, user_id: str) -> dict:
     return {"level": 1, "xp": 0, "streak": 0}
 
 
-async def _count_workout_events(db: AsyncSession, user_id: str, days: int = 7) -> int:
+async def _count_workout_events(db: AsyncSession, user_id: uuid.UUID, days: int = 7) -> int:
     from datetime import date
     from datetime import timedelta as td
     cutoff = date.today() - td(days=days)
@@ -246,7 +247,7 @@ async def _count_workout_events(db: AsyncSession, user_id: str, days: int = 7) -
     return result.scalar_one()
 
 
-async def _get_saved_routines(db: AsyncSession, user_id: str) -> list[SavedRoutine]:
+async def _get_saved_routines(db: AsyncSession, user_id: uuid.UUID) -> list[SavedRoutine]:
     result = await db.execute(
         select(SavedRoutine)
         .where(SavedRoutine.user_id == user_id)
@@ -262,7 +263,7 @@ _LANG_NAMES = {"es": "Spanish", "en": "English", "fr": "French", "de": "German",
 
 
 async def get_biomarker_narrative(
-    user_id: str,
+    user_id: uuid.UUID,
     db: AsyncSession,
     ai_router: AIRouter,
     lang: str = "es",
@@ -272,7 +273,7 @@ async def get_biomarker_narrative(
     # ── 1. Intentar caché ─────────────────────────────────────────────────────
     cached = await _cache_get(db, user_id, _CACHE_KEY)
     if cached:
-        logger.debug("ai_insights cache HIT %s for user %s…", _CACHE_KEY, user_id[:8])
+        logger.debug("ai_insights cache HIT %s for user %s…", _CACHE_KEY, str(user_id)[:8])
         return BiomarkerNarratorResponse(**cached)
 
     # ── 2. Obtener datos de BD ────────────────────────────────────────────────
@@ -379,7 +380,7 @@ IMPORTANT: Write all text values in {lang_name}."""
 # ── Injury Risk ───────────────────────────────────────────────────────────────
 
 async def get_injury_risk(
-    user_id: str,
+    user_id: uuid.UUID,
     db: AsyncSession,
     ai_router: AIRouter,
     lang: str = "es",
@@ -389,7 +390,7 @@ async def get_injury_risk(
     # ── 1. Intentar caché ─────────────────────────────────────────────────────
     cached = await _cache_get(db, user_id, _CACHE_KEY)
     if cached:
-        logger.debug("ai_insights cache HIT %s for user %s…", _CACHE_KEY, user_id[:8])
+        logger.debug("ai_insights cache HIT %s for user %s…", _CACHE_KEY, str(user_id)[:8])
         flags = [InjuryRiskFlag(**f) for f in cached.get("risk_flags", [])]
         return InjuryRiskResponse(
             risk_flags=flags,
@@ -505,7 +506,7 @@ IMPORTANT: Write all text values in {lang_name}."""
 # ── Weekly Goals ──────────────────────────────────────────────────────────────
 
 async def get_weekly_goals(
-    user_id: str,
+    user_id: uuid.UUID,
     db: AsyncSession,
     ai_router: AIRouter,
     lang: str = "es",
@@ -515,7 +516,7 @@ async def get_weekly_goals(
     # ── 1. Intentar caché ─────────────────────────────────────────────────────
     cached = await _cache_get(db, user_id, _CACHE_KEY)
     if cached:
-        logger.debug("ai_insights cache HIT %s for user %s…", _CACHE_KEY, user_id[:8])
+        logger.debug("ai_insights cache HIT %s for user %s…", _CACHE_KEY, str(user_id)[:8])
         goals = [MicroGoal(**g) for g in cached.get("goals", [])]
         return WeeklyGoalsResponse(
             goals=goals,

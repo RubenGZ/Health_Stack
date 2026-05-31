@@ -30,7 +30,7 @@ class GymServer(Base):
     id          = Column(Integer, primary_key=True, autoincrement=True)
     name        = Column(String(80), nullable=False)
     description = Column(Text, nullable=True)
-    created_by  = Column(UUID(as_uuid=True), ForeignKey("public.users.id"), nullable=False)
+    created_by  = Column(UUID(as_uuid=True), ForeignKey("public.users.id", ondelete="SET NULL"), nullable=True)
     city        = Column(String(80), nullable=True)
     province    = Column(String(80), nullable=True)
     country     = Column(String(5), nullable=False, default="ES")
@@ -88,7 +88,7 @@ class GymChallenge(Base):
 
     id           = Column(Integer, primary_key=True, autoincrement=True)
     gym_id       = Column(Integer, ForeignKey("public.gym_servers.id", ondelete="CASCADE"), nullable=False, index=True)
-    created_by   = Column(UUID(as_uuid=True), ForeignKey("public.users.id"), nullable=False)
+    created_by   = Column(UUID(as_uuid=True), ForeignKey("public.users.id", ondelete="SET NULL"), nullable=True)
     title        = Column(String(100), nullable=False)
     description  = Column(Text, nullable=True)
     target_type  = Column(String(20), nullable=False)

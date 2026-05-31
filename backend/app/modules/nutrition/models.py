@@ -20,8 +20,8 @@ from __future__ import annotations
 
 import uuid
 
-from sqlalchemy import JSON, Boolean, Float, ForeignKey, Integer, String, Text
-from sqlalchemy.dialects.postgresql import UUID
+from sqlalchemy import Boolean, Float, ForeignKey, Integer, String, Text
+from sqlalchemy.dialects.postgresql import JSONB, UUID
 from sqlalchemy.orm import Mapped, mapped_column
 
 from app.shared.base_model import Base, TimestampMixin
@@ -223,7 +223,7 @@ class UserRecipe(TimestampMixin, Base):
     )
     # [{ingredient_id, name, grams}]
     ingredients_json: Mapped[list] = mapped_column(
-        JSON, nullable=False, default=list,
+        JSONB, nullable=False, default=list,
         comment="Lista de ingredientes con cantidades. [{id, name, grams}]",
     )
     instructions: Mapped[str | None] = mapped_column(

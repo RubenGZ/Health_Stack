@@ -131,6 +131,11 @@ class WorkoutAIPlan(Base):
         UUID(as_uuid=True),
         unique=True,
         nullable=True,
+        comment=(
+            "UUID de sesión del localStorage del cliente (no es FK a workout_sessions.id). "
+            "workout_sessions.id es INTEGER; este UUID viene del frontend para idempotencia. "
+            "UNIQUE garantiza un plan por sesión de cliente."
+        ),
     )
     plan_json = Column(JSONB, nullable=False)
     used = Column(Boolean, nullable=False, default=False)

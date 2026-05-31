@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+import uuid
+
 from fastapi import APIRouter, Depends, Query
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -41,7 +43,7 @@ async def biomarker_narrative(
     Requiere JWT. Parámetro opcional `lang` (es/en/fr/de/it).
     """
     return await get_biomarker_narrative(
-        str(current_user["user_id"]), db, ai_router, lang=_validate_lang(lang)
+        uuid.UUID(current_user["user_id"]), db, ai_router, lang=_validate_lang(lang)
     )
 
 
@@ -61,7 +63,7 @@ async def injury_risk(
     Requiere JWT. Parámetro opcional `lang` (es/en/fr/de/it).
     """
     return await get_injury_risk(
-        str(current_user["user_id"]), db, ai_router, lang=_validate_lang(lang)
+        uuid.UUID(current_user["user_id"]), db, ai_router, lang=_validate_lang(lang)
     )
 
 
@@ -77,5 +79,5 @@ async def weekly_goals(
     Requiere JWT. Parámetro opcional `lang` (es/en/fr/de/it).
     """
     return await get_weekly_goals(
-        str(current_user["user_id"]), db, ai_router, lang=_validate_lang(lang)
+        uuid.UUID(current_user["user_id"]), db, ai_router, lang=_validate_lang(lang)
     )

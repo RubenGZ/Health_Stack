@@ -222,6 +222,21 @@ const API = (function () {
       if (data.refresh_token) {
         localStorage.setItem(REFRESH_KEY, data.refresh_token); // rotación de tokens
       }
+      // Decodificar el nuevo JWT para propagar plan y role actualizados.
+      // El admin puede cambiar el plan/rol en cualquier momento; el próximo refresh
+      // (proactivo o al retomar foco) propaga el cambio sin que el usuario salga.
+      try {
+        const raw     = data.access_token.split('.')[1];
+        const payload = JSON.parse(atob(raw.replace(/-/g, '+').replace(/_/g, '/')));
+        const current = getUser() || {};
+        const updated = {
+          ...current,
+          plan: payload.plan || current.plan || 'free',
+          role: payload.role || current.role || 'user',
+        };
+        localStorage.setItem(USER_KEY, JSON.stringify(updated));
+        _applyPlanFromUser(updated);
+      } catch { /* token mal formado — no bloquear el flujo */ }
       _scheduleProactiveRefresh(data.access_token); // reprogramar para el nuevo token
       return 'ok';
     } catch {

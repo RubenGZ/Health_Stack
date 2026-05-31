@@ -72,6 +72,7 @@ async def get_current_user(
         "user_id": payload["sub"],
         "email":   payload.get("email", ""),
         "role":    payload.get("role", "user"),
+        "plan":    payload.get("plan", "free"),   # propagado del JWT; disponible en service layer
         "jti":     payload.get("jti", ""),
     }
 

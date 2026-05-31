@@ -186,6 +186,11 @@ const API = (function () {
     }
 
     if (!res.ok) {
+      // 503 con cabecera de mantenimiento → la pantalla del gato ya está activa.
+      // Devolver null silenciosamente para que los módulos no actualicen la UI con errores.
+      if (res.status === 503 && res.headers.get('X-Maintenance') === 'true') {
+        return null;
+      }
       const err = await res.json().catch(() => ({ detail: `Error ${res.status}` }));
       let message;
       if (Array.isArray(err.detail)) {

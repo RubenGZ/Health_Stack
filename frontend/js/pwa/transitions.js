@@ -200,7 +200,10 @@ export function showMaintenanceScreen() {
     </div>`;
 
   document.body.appendChild(overlay);
-  requestAnimationFrame(() => requestAnimationFrame(() => overlay.classList.add('hs-transition-overlay--visible')));
+  // Forzar reflow ANTES del rAF para que la transición CSS arranque en el mismo frame
+  // — evita el flash de 2 frames donde la página muestra errores antes de ocultarse.
+  void overlay.offsetHeight;
+  requestAnimationFrame(() => overlay.classList.add('hs-transition-overlay--visible'));
 
   // Polling: _nativeFetch para no pasar por el interceptor y no crear bucle infinito
   _maintenancePoll = setInterval(async () => {
@@ -243,7 +246,9 @@ const _nativeFetch = window.fetch.bind(window);
         // Leer header para distinguir mantenimiento activo de 502 real
         const isMaintenance = res.headers.get('X-Maintenance') === 'true' || res.status === 503;
         if (isMaintenance) showMaintenanceScreen();
-      } else if (res.ok && _maintenanceShown) {
+      } else if (res.ok && isApi && _maintenanceShown) {
+        // Solo ocultar cuando una llamada API real vuelve OK —
+        // no cuando un asset estático (font, CSS) se sirve desde caché con 200.
         hideMaintenanceScreen();
       }
       return res;

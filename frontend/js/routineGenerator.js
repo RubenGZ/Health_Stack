@@ -911,7 +911,7 @@ const RoutineGenerator = (function () {
       } catch (err) {
         console.warn('[InjuryManager] load error:', err);
         _injuries = [];
-        if (window.showToast) window.showToast('No se pudieron cargar las lesiones.', 'error');
+        // Silent fail — no toast; el usuario no debe ver este error en arranque
       }
       const container = document.getElementById('injury-manager-list');
       if (container) InjuryManager.renderList(container);

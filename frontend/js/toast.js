@@ -188,7 +188,7 @@
         -webkit-backdrop-filter: blur(20px);
         pointer-events: all;
         cursor: pointer;
-        /* start hidden */
+        /* start hidden — desktop: slide in from right */
         opacity: 0;
         transform: translateX(16px) scale(0.97);
         transition: opacity 220ms cubic-bezier(0.4,0,0.2,1),
@@ -196,13 +196,23 @@
         will-change: transform, opacity;
         -webkit-tap-highlight-color: transparent;
       }
+      /* Mobile: slide up from bottom — evita que translateX salga de pantalla */
+      @media (max-width: 768px) {
+        .hs-toast { transform: translateY(12px) scale(0.97); }
+      }
       .hs-toast--visible {
         opacity: 1;
         transform: translateX(0) scale(1);
       }
+      @media (max-width: 768px) {
+        .hs-toast--visible { transform: translateY(0) scale(1); }
+      }
       .hs-toast--exit {
         opacity: 0;
         transform: translateX(8px) scale(0.95);
+      }
+      @media (max-width: 768px) {
+        .hs-toast--exit { transform: translateY(8px) scale(0.95); }
       }
 
       /* ── Type variants ── */

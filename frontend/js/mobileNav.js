@@ -183,25 +183,34 @@
       // Sin sub-tabs: ir directo a la sección
       if (group.section) doNavigate(group.section);
     } else {
-      // Con sub-tabs: restaurar última sub-sección o ir al primer sub-tab
-      const saved = sessionStorage.getItem(`mbn_last_${groupId}`);
-      const target = group.subtabs.find(s => s.id === saved) || group.subtabs[0];
-      doSubtab(target);
+      // Con sub-tabs: restaurar última sub-sección visible o ir al primer sub-tab visible
+      const saved  = sessionStorage.getItem(`mbn_last_${groupId}`);
+      const subs   = _visibleSubs(group);
+      const target = subs.find(s => s.id === saved) || subs[0];
+      if (target) doSubtab(target);
     }
   }
 
   // ── Renderizar sub-tabs ────────────────────────────────────
+  // Filtra los sub-tabs según Plan.canSeeSection() para respetar el
+  // sistema de fases: modo normal → solo MVP; modo beta → todo visible.
+  function _visibleSubs(group) {
+    if (typeof Plan === 'undefined') return group.subtabs;
+    return group.subtabs.filter(sub => Plan.canSeeSection(sub.id));
+  }
+
   function renderSubtabs(group) {
     if (!subtabBarEl) return;  // not yet initialized — guard against early calls
     subtabBarEl.innerHTML = '';
 
-    if (group.subtabs.length === 0) {
+    const subs = _visibleSubs(group);
+    if (subs.length === 0) {
       subtabBarEl.style.display = 'none';
       return;
     }
 
     subtabBarEl.style.display = 'flex';
-    group.subtabs.forEach(sub => {
+    subs.forEach(sub => {
       const chip = document.createElement('button');
       chip.className = 'mbn-chip';
       chip.dataset.subtab = sub.id;

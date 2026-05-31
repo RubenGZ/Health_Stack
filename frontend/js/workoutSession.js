@@ -136,7 +136,14 @@ export function saveToLocalHistory(sessionData) {
   const history = getLocalSessions();
   history.unshift(sessionData);
   if (history.length > MAX_HISTORY) history.length = MAX_HISTORY;
-  try { localStorage.setItem(HISTORY_KEY, JSON.stringify(history)); } catch {}
+  try {
+    localStorage.setItem(HISTORY_KEY, JSON.stringify(history));
+  } catch (err) {
+    if (err?.name === 'QuotaExceededError') {
+      document.dispatchEvent(new CustomEvent('hs:storage-full', { detail: { key: HISTORY_KEY } }));
+      console.warn('[workoutSession] history quota exceeded — storage full');
+    }
+  }
 }
 
 // ── Progresión ────────────────────────────────────────────────────────────────

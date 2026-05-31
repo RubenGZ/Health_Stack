@@ -21,7 +21,7 @@ IMPORTANTE — Timing attack en login:
 
 from __future__ import annotations
 
-from datetime import UTC
+from datetime import UTC, datetime
 import logging
 
 from sqlalchemy.exc import IntegrityError
@@ -139,7 +139,6 @@ class IdentityService:
         # 5b. Persistir JTI del refresh token en BD (ADR-001-B)
         try:
             _rt_payload = decode_token(refresh_token)
-            from datetime import datetime
             await RefreshTokenRepository.create(
                 db=db,
                 jti=_rt_payload["jti"],
@@ -231,7 +230,6 @@ class IdentityService:
         # 6b. Persistir JTI del refresh token en BD (ADR-001-B)
         try:
             _rt_payload = decode_token(refresh_token)
-            from datetime import datetime
             await RefreshTokenRepository.create(
                 db=db,
                 jti=_rt_payload["jti"],

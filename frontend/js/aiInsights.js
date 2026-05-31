@@ -196,7 +196,7 @@
       <div class="ai-compact-row" data-action="detail">
         <span class="ai-compact-label">${t('ai_insights.current_status')}</span>
         <span class="ai-compact-value">${trendIcon(narrative.trend)}
-          ${narrative.highlights?.[0] ? `<span class="ai-compact-hint">${narrative.highlights[0]}</span>` : ''}
+          ${narrative.highlights?.[0] ? `<span class="ai-compact-hint">${_esc(narrative.highlights[0])}</span>` : ''}
         </span>
       </div>` : '';
 

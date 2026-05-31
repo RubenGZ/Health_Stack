@@ -234,6 +234,10 @@ export function renderSummary(result) {
 
       <div class="wl-summary-actions">
         <button class="wl-done-btn btn btn--ghost" id="wl-done">Nueva sesión</button>
+        <button class="btn btn--ghost wl-insights-btn" id="wl-goto-insights" title="Ver análisis IA">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 8v4l3 3"/></svg>
+          IA Insights
+        </button>
         ${typeof navigator !== 'undefined' && navigator.share ? `
           <button class="wl-share-btn btn btn--primary" id="wl-share">
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg>
@@ -302,6 +306,17 @@ export function renderSummary(result) {
     S.session   = null;
     S.wlViewer  = null;
     _onRenderIdle?.();
+  });
+
+  // ── AI Insights shortcut — lleva directo a la sección IA ────
+  S.root.querySelector('#wl-goto-insights')?.addEventListener('click', () => {
+    S.session  = null;
+    S.wlViewer = null;
+    _onRenderIdle?.();
+    setTimeout(() => {
+      if (typeof window.navigateTo === 'function') window.navigateTo('ia');
+      else document.querySelector('[data-section="ia"]')?.click();
+    }, 80);
   });
 
   const shareBtn = S.root.querySelector('#wl-share');

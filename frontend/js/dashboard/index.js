@@ -27,18 +27,22 @@ window.Dashboard = (function () {
     return Math.ceil((((d - onejan) / 86400000) + onejan.getDay() + 1) / 7);
   }
 
-  // ── Racha (semanas con al menos un registro) ───────────────
+  // ── Racha (semanas con al menos un ENTRENO) ────────────────
+  // North Star = entrenos/WAU — la racha se basa en sesiones de entreno,
+  // no en registros de peso. (Master Strategy §G)
   function updateStreak() {
-    const entries = typeof WeightTracker !== 'undefined' ? WeightTracker.getAll() : [];
     let streak = 0;
-    if (entries.length) {
-      const weeks = new Set();
-      entries.forEach(e => {
-        const d = new Date(e.date);
-        weeks.add(`${d.getFullYear()}-${getWeekNumber(d)}`);
-      });
-      streak = weeks.size;
-    }
+    try {
+      const sessions = JSON.parse(localStorage.getItem('hs_workout_sessions_local') || '[]');
+      if (sessions.length) {
+        const weeks = new Set();
+        sessions.forEach(s => {
+          const d = new Date(s.startedAt || s.ts || 0);
+          if (!isNaN(d)) weeks.add(`${d.getFullYear()}-${getWeekNumber(d)}`);
+        });
+        streak = weeks.size;
+      }
+    } catch (_) {}
     const el = document.getElementById('streak-count');
     if (el) el.textContent = streak;
   }

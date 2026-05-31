@@ -1147,6 +1147,12 @@
           <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
           Modo beta activo — todas las secciones visibles
         </div>
+        <!-- Botón de reporte de bug visible para betatesters -->
+        <button class="perfil-update-btn" style="margin-top:8px;border-color:rgba(239,68,68,0.35);color:rgba(239,68,68,0.8)"
+          onclick="document.getElementById('fw-trigger-btn')?.click()">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22C6.48 22 2 17.52 2 12S6.48 2 12 2s10 4.48 10 10-4.48 10-10 10zm0-14v4m0 4h.01"/></svg>
+          Reportar bug o sugerencia
+        </button>
       </div>
 
       <!-- Cuenta -->
@@ -1177,6 +1183,15 @@
           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#f87171" stroke-width="2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
           <span>Cerrar sesión</span>
         </button>
+      </div>
+
+      <!-- Privacy trust badge — Master Strategy §A: moat sin marketizar -->
+      <div style="margin:16px 0 4px;padding:12px 14px;background:rgba(196,165,97,0.06);border:1px solid rgba(196,165,97,0.2);border-radius:10px;display:flex;align-items:flex-start;gap:10px">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#c4a561" stroke-width="2" style="flex-shrink:0;margin-top:1px"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+        <div>
+          <div style="font-size:.75rem;font-weight:700;color:#c4a561;letter-spacing:.04em">TUS DATOS, CIFRADOS</div>
+          <div style="font-size:.7rem;color:rgba(255,255,255,0.45);margin-top:2px;line-height:1.5">Tus registros de salud están protegidos con AES-256-GCM. Nunca se venden ni se comparten. Cumplimiento RGPD Art. 32.</div>
+        </div>
       </div>
 
       <!-- Legal -->

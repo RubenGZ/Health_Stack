@@ -166,7 +166,7 @@
       }
       @media (max-width: 768px) {
         #hs-toast-container {
-          bottom: max(80px, calc(64px + env(safe-area-inset-bottom)));
+          bottom: max(110px, calc(80px + env(safe-area-inset-bottom)));
           right: 16px;
           left: 16px;
           width: auto;

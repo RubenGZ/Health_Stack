@@ -311,6 +311,8 @@
       if (typeof Plan === 'undefined') return;
       Plan.isBeta() ? Plan.disableBeta() : Plan.enableBeta();
       _refreshBetaUI();
+      // Recarga para que todas las secciones se inicialicen correctamente
+      setTimeout(function () { location.reload(); }, 1200);
     };
 
     // ── Theme picker en Configuración ─────────────────────────

@@ -192,9 +192,9 @@ const SmartOnboarding = (function () {
           </label>
         </div>
         <div class="smart-ob-consent-details">
-          <p>🔒 <strong>Tus datos viajan cifrados</strong> — solo números (edad, peso, altura…), nunca tu nombre ni email. Los procesa <strong>Groq Inc.</strong> para generar tu análisis y luego se descartan.</p>
-          <p>🗑️ Puedes <strong>retirar este permiso cuando quieras</strong> desde Ajustes › Privacidad. Al hacerlo, borramos tu perfil IA al instante.</p>
-          <p>📋 Cumple el Reglamento Europeo de Protección de Datos (RGPD).</p>
+          <p><strong>Tus datos viajan cifrados</strong> — solo números (edad, peso, altura…), nunca tu nombre ni email. Los procesa <strong>Groq Inc.</strong> para generar tu análisis y luego se descartan.</p>
+          <p>Puedes <strong>retirar este permiso cuando quieras</strong> desde Ajustes › Privacidad. Al hacerlo, borramos tu perfil IA al instante.</p>
+          <p>Cumple el Reglamento Europeo de Protección de Datos (RGPD).</p>
         </div>
         <p class="smart-ob-consent-note">
           Si prefieres no activarlo, calculamos tu plan con una fórmula estándar, sin enviar nada fuera de tu dispositivo.
@@ -215,14 +215,13 @@ const SmartOnboarding = (function () {
         <p class="smart-ob-field-label">Tipo de trabajo principal</p>
         <div class="smart-ob-options" id="ob-work-options">
           ${[
-            ['desk',     '🖥️', 'Escritorio / Oficina', 'Sentado la mayor parte del día'],
-            ['remote',   '🏠', 'Remoto / Casa',         'Trabajo desde casa, poco movimiento'],
-            ['standing', '🏪', 'De pie',                'Tiendas, hostelería, enfermería'],
-            ['physical', '🏗️', 'Trabajo físico',        'Construcción, reparto, agricultura'],
-            ['none',     '📚', 'Sin trabajo / Estudiante', 'Activo principalmente fuera del trabajo'],
-          ].map(([v, e, l, h]) => `
+            ['desk',     'Escritorio / Oficina',     'Sentado la mayor parte del día'],
+            ['remote',   'Remoto / Casa',            'Trabajo desde casa, poco movimiento'],
+            ['standing', 'De pie',                   'Tiendas, hostelería, enfermería'],
+            ['physical', 'Trabajo físico',           'Construcción, reparto, agricultura'],
+            ['none',     'Sin trabajo / Estudiante', 'Activo principalmente fuera del trabajo'],
+          ].map(([v, l, h]) => `
             <button class="smart-ob-option ${w === v ? 'selected' : ''}" data-field="work_type" data-value="${v}">
-              <span class="smart-ob-option-emoji">${e}</span>
               <strong>${l}</strong>
               <small>${h}</small>
             </button>`).join('')}
@@ -245,11 +244,11 @@ const SmartOnboarding = (function () {
   // ── PASO 2: Deportes ──────────────────────────────────────
   function renderSports() {
     const sportsList = [
-      ['natacion', '🏊', 'Natación'], ['running', '🏃', 'Running'],
-      ['ciclismo', '🚴', 'Ciclismo'], ['futbol', '⚽', 'Fútbol'],
-      ['padel', '🎾', 'Pádel'], ['crossfit', '🏋️', 'CrossFit'],
-      ['yoga', '🧘', 'Yoga / Pilates'], ['senderismo', '🥾', 'Senderismo'],
-      ['otros', '🏅', 'Otros deportes'], ['ninguno', '❌', 'Sin deporte regular'],
+      ['natacion', 'Natación'], ['running', 'Running'],
+      ['ciclismo', 'Ciclismo'], ['futbol', 'Fútbol'],
+      ['padel', 'Pádel'], ['crossfit', 'CrossFit'],
+      ['yoga', 'Yoga / Pilates'], ['senderismo', 'Senderismo'],
+      ['otros', 'Otros deportes'], ['ninguno', 'Sin deporte regular'],
     ];
     const sportRows = sports.map((s, i) => `
       <div class="smart-ob-sport-row" data-idx="${i}">
@@ -268,7 +267,7 @@ const SmartOnboarding = (function () {
         <div class="smart-ob-sport-add-form" id="ob-sport-add-form">
           <select class="smart-ob-select" id="ob-sport-select">
             <option value="">Selecciona un deporte…</option>
-            ${sportsList.map(([v, e, l]) => `<option value="${v}">${e} ${l}</option>`).join('')}
+            ${sportsList.map(([v, l]) => `<option value="${v}">${l}</option>`).join('')}
           </select>
           <div class="smart-ob-sport-details" id="ob-sport-details" style="display:none">
             <label>Días/semana: <input type="number" id="ob-sport-days" min="1" max="7" value="3" class="smart-ob-input-sm"></label>
@@ -297,25 +296,23 @@ const SmartOnboarding = (function () {
         <p class="smart-ob-field-label">Experiencia en entrenamiento de fuerza</p>
         <div class="smart-ob-options" id="ob-exp-options">
           ${[
-            ['never', '🆕', 'Sin experiencia', 'Nunca he levantado peso'],
-            ['lt6m',  '📗', 'Menos de 6 meses', 'Principiante — estoy empezando'],
-            ['6m2y',  '📘', '6 meses – 2 años', 'Intermedio — tengo base'],
-            ['gt2y',  '📕', 'Más de 2 años', 'Avanzado — llevo tiempo en el gym'],
-          ].map(([v, em, l, h]) => `
+            ['never', 'Sin experiencia',   'Nunca he levantado peso'],
+            ['lt6m',  'Menos de 6 meses',  'Principiante — estoy empezando'],
+            ['6m2y',  '6 meses – 2 años',  'Intermedio — tengo base'],
+            ['gt2y',  'Más de 2 años',     'Avanzado — llevo tiempo en el gym'],
+          ].map(([v, l, h]) => `
             <button class="smart-ob-option ${e === v ? 'selected' : ''}" data-field="strength_experience" data-value="${v}">
-              <span class="smart-ob-option-emoji">${em}</span>
               <strong>${l}</strong><small>${h}</small>
             </button>`).join('')}
         </div>
         <p class="smart-ob-field-label" style="margin-top:16px">¿Con qué frecuencia entrenas fuerza ahora mismo?</p>
         <div class="smart-ob-options smart-ob-options-3col" id="ob-cons-options">
           ${[
-            ['regular',      '✅', 'Regular', '2-4 veces/semana de forma constante'],
-            ['inconsistent', '⚡', 'Irregular', 'Cuando puedo — no hay rutina fija'],
-            ['starting',     '🌱', 'Empezando', 'Quiero empezar o retomar ahora'],
-          ].map(([v, em, l, h]) => `
+            ['regular',      'Regular',   '2-4 veces/semana de forma constante'],
+            ['inconsistent', 'Irregular', 'Cuando puedo — no hay rutina fija'],
+            ['starting',     'Empezando', 'Quiero empezar o retomar ahora'],
+          ].map(([v, l, h]) => `
             <button class="smart-ob-option ${c === v ? 'selected' : ''}" data-field="strength_consistency" data-value="${v}">
-              <span class="smart-ob-option-emoji">${em}</span>
               <strong>${l}</strong><small>${h}</small>
             </button>`).join('')}
         </div>
@@ -345,13 +342,12 @@ const SmartOnboarding = (function () {
         <div id="ob-bc-visual" class="smart-ob-bc-panel" style="display:${bfv && !bfp ? '' : 'none'}">
           <div class="smart-ob-options smart-ob-options-2col">
             ${[
-              ['lean_soft',   '💪', 'Delgado/a con músculo',    'Venas visibles, ~18-22%'],
-              ['belly_main',  '🔘', 'Grasa principalmente abdominal', 'Algo de barriga, ~25-28%'],
-              ['uniform',     '⭕', 'Grasa uniforme',           'Distribuida por todo, ~23-26%'],
-              ['high_volume', '🔴', 'Grasa generalizada alta',  '>30%, objetivo pérdida de grasa'],
-            ].map(([v, em, l, h]) => `
+              ['lean_soft',   'Delgado/a con músculo',          'Venas visibles, ~18-22%'],
+              ['belly_main',  'Grasa principalmente abdominal', 'Algo de barriga, ~25-28%'],
+              ['uniform',     'Grasa uniforme',                 'Distribuida por todo, ~23-26%'],
+              ['high_volume', 'Grasa generalizada alta',        '>30%, objetivo pérdida de grasa'],
+            ].map(([v, l, h]) => `
               <button class="smart-ob-option ${bfv === v ? 'selected' : ''}" data-field="body_fat_visual" data-value="${v}">
-                <span class="smart-ob-option-emoji">${em}</span>
                 <strong>${l}</strong><small>${h}</small>
               </button>`).join('')}
           </div>
@@ -373,12 +369,11 @@ const SmartOnboarding = (function () {
         <p class="smart-ob-field-label">Estilo de alimentación</p>
         <div class="smart-ob-options smart-ob-options-3col" id="ob-eating-options">
           ${[
-            ['omnivore',    '🥩', 'Omnívoro',    'Como de todo'],
-            ['vegetarian',  '🥗', 'Vegetariano', 'Sin carne ni pescado'],
-            ['vegan',       '🌱', 'Vegano',      'Sin productos animales'],
-          ].map(([v, em, l, h]) => `
+            ['omnivore',    'Omnívoro',    'Como de todo'],
+            ['vegetarian',  'Vegetariano', 'Sin carne ni pescado'],
+            ['vegan',       'Vegano',      'Sin productos animales'],
+          ].map(([v, l, h]) => `
             <button class="smart-ob-option ${es === v ? 'selected' : ''}" data-field="eating_style" data-value="${v}">
-              <span class="smart-ob-option-emoji">${em}</span>
               <strong>${l}</strong><small>${h}</small>
             </button>`).join('')}
         </div>
@@ -386,11 +381,11 @@ const SmartOnboarding = (function () {
         <div class="smart-ob-checkboxes">
           <label class="smart-ob-check-label">
             <input type="checkbox" id="ob-intol-gluten" ${fi.includes('gluten') ? 'checked' : ''}>
-            🌾 Sin gluten (celiaquía / intolerancia)
+            Sin gluten (celiaquía / intolerancia)
           </label>
           <label class="smart-ob-check-label">
             <input type="checkbox" id="ob-intol-lactose" ${fi.includes('lactose') ? 'checked' : ''}>
-            🥛 Sin lactosa
+            Sin lactosa
           </label>
         </div>
       </div>`;
@@ -417,12 +412,12 @@ const SmartOnboarding = (function () {
           ${hasConsent ? 'Estimación inicial — la IA calculará el valor final' : 'Estimación Mifflin-St Jeor + NEAT'}
         </p>
         <div class="smart-ob-summary-chips">
-          ${answers.work_type ? `<span class="smart-ob-chip">🏢 ${answers.work_type}</span>` : ''}
-          ${answers.daily_steps_range ? `<span class="smart-ob-chip">👟 ${answers.daily_steps_range}</span>` : ''}
-          ${sports.length ? `<span class="smart-ob-chip">🏅 ${sports.length} deporte${sports.length > 1 ? 's' : ''}</span>` : ''}
-          ${answers.eating_style ? `<span class="smart-ob-chip">🍽️ ${answers.eating_style}</span>` : ''}
+          ${answers.work_type ? `<span class="smart-ob-chip">${answers.work_type}</span>` : ''}
+          ${answers.daily_steps_range ? `<span class="smart-ob-chip">${answers.daily_steps_range}</span>` : ''}
+          ${sports.length ? `<span class="smart-ob-chip">${sports.length} deporte${sports.length > 1 ? 's' : ''}</span>` : ''}
+          ${answers.eating_style ? `<span class="smart-ob-chip">${answers.eating_style}</span>` : ''}
         </div>
-        ${hasConsent ? '<p class="smart-ob-ai-note">🤖 Generando tu análisis metabólico...</p>' : ''}
+        ${hasConsent ? '<p class="smart-ob-ai-note">Generando tu análisis metabólico…</p>' : ''}
       </div>`;
   }
 
@@ -615,7 +610,6 @@ const SmartOnboarding = (function () {
     banner.className = 'smart-ob-dashboard-banner';
     banner.innerHTML = `
       <div class="smart-ob-banner-content">
-        <span class="smart-ob-banner-icon">🧠</span>
         <div>
           <strong>Mejora tu análisis metabólico</strong>
           <p>Completa tu perfil para recibir un diagnóstico nutricional personalizado con IA.</p>
@@ -703,7 +697,7 @@ const SmartOnboarding = (function () {
       <div class="smart-ob-result">
         <div class="smart-ob-result-header">
           <h2>Tu análisis metabólico</h2>
-          ${r.ai_used ? '<span class="smart-ob-ai-badge">⚡ IA</span>' : ''}
+          ${r.ai_used ? '<span class="smart-ob-ai-badge">IA</span>' : ''}
         </div>
 
         <div class="smart-ob-result-tdee">
@@ -741,7 +735,7 @@ const SmartOnboarding = (function () {
           </ol>
         </div>` : ''}
 
-        ${r.diet_alert ? `<div class="smart-ob-result-alert">⚠️ ${_esc(r.diet_alert)}</div>` : ''}
+        ${r.diet_alert ? `<div class="smart-ob-result-alert">${_esc(r.diet_alert)}</div>` : ''}
 
         ${isFallback ? `<p class="smart-ob-result-fallback">
           Estimación estándar. Activa el análisis IA en Ajustes › Privacidad para un diagnóstico completo.
@@ -778,9 +772,9 @@ const SmartOnboarding = (function () {
   return { init, showCompleteLaterBanner };
 })();
 
-// Auto-init cuando el DOM esté listo
-if (document.readyState === 'loading') {
-  document.addEventListener('DOMContentLoaded', SmartOnboarding.init);
-} else {
-  SmartOnboarding.init();
-}
+// NOTA: el arranque del wizard lo controla app.js (_runOnboardingGate) a
+// través del evento hs:user-loaded, que garantiza que onboarding_v2_completed
+// proviene del servidor (register/login/me). NO auto-iniciar aquí: hacerlo con
+// solo el flag de localStorage provocaba el race que ocultaba el wizard tras
+// login y permitía mostrarlo a usuarios que ya lo completaron.
+window.SmartOnboarding = SmartOnboarding;

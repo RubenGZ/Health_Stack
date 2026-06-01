@@ -97,6 +97,34 @@ const API = (function () {
     _applyPlanFromUser(data.user);
     _scheduleProactiveRefresh(data.access_token); // renovar 60 s antes de que expire
     window.dispatchEvent(new Event('hs:login'));
+    // Datos de usuario frescos del servidor (register/login) ya disponibles.
+    // hs:user-loaded es la señal autoritativa para gates como SmartOnboarding v2.
+    _dispatchUserLoaded(data.user);
+  }
+
+  // Señal: los datos del usuario provienen del servidor y están en hs_user.
+  // Lo consumen gates que dependen de campos como onboarding_v2_completed.
+  function _dispatchUserLoaded(user) {
+    window.dispatchEvent(new CustomEvent('hs:user-loaded', { detail: { user: user || getUser() } }));
+  }
+
+  // Refresca hs_user desde GET /auth/me y emite hs:user-loaded con datos
+  // autoritativos. Se usa en arranque en frío (PWA cold start) donde hs_user
+  // puede estar obsoleto (p.ej. onboarding completado en otro dispositivo).
+  async function refreshUser() {
+    try {
+      const fresh = await me();
+      if (fresh && fresh.id) {
+        const current = getUser() || {};
+        const merged  = { ...current, ...fresh };
+        localStorage.setItem(USER_KEY, JSON.stringify(merged));
+        _dispatchUserLoaded(merged);
+        return merged;
+      }
+    } catch { /* offline / 401 — no bloquear; gates usan hs_user en cache */ }
+    // Aun sin red, emitir con lo que haya en cache para que los gates corran.
+    _dispatchUserLoaded(getUser());
+    return getUser();
   }
 
   function _applyPlanFromUser(user) {
@@ -704,6 +732,10 @@ const API = (function () {
     if (isLoggedIn()) {
       _applyPlanFromUser(getUser());
       _scheduleProactiveRefresh(getToken()); // renovar si el token está próximo a expirar
+      // Arranque en frío: refrescar hs_user desde el servidor y emitir
+      // hs:user-loaded con el valor autoritativo de onboarding_v2_completed.
+      // No bloquea el render — corre en background.
+      refreshUser();
     } else if (getRefresh()) {
       // Access token ausente o expirado, pero el refresh token sigue ahí.
       // auth-gate.js ya no lo borra — intentar renovar silenciosamente
@@ -775,6 +807,7 @@ const API = (function () {
     getToken,
     saveAuth,
     clearAuth,
+    refreshUser,
     request,
     init,
 

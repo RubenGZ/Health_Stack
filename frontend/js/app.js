@@ -656,28 +656,41 @@
       if (btn) btn.click();
     });
 
-    // Onboarding solo si hay token
-    if (typeof Onboarding !== 'undefined') {
+    // ── Onboarding gate (v1 + v2) ─────────────────────────────
+    // Único punto de decisión, dirigido por hs:user-loaded (datos
+    // autoritativos del servidor: register/login/me). Evita el race en
+    // que API.getUser() devolvía null justo tras login.
+    //
+    // PRIORIDAD: el wizard v2 manda. Si v2 va a mostrarse, v1 NO se abre
+    // (ambos comparten overlay modal y se solaparían).
+    function _runOnboardingGate() {
       const _hasToken = Boolean(localStorage.getItem('hs_access_token'));
-      if (_hasToken) {
-        const _u = typeof API !== 'undefined' ? API.getUser?.() : null;
-        Onboarding.init(_u ? _u.onboarding_completed : undefined);
-        // SmartOnboarding v2: misma lógica — servidor autoritativo
-        if (typeof SmartOnboarding !== 'undefined') {
-          SmartOnboarding.init(_u ? _u.onboarding_v2_completed : undefined);
+      if (!_hasToken) return;
+      const u = typeof API !== 'undefined' ? API.getUser?.() : null;
+      if (!u) return;
+
+      // v2 tiene prioridad — onboarding_v2_completed es autoritativo del servidor
+      const v2Pending = u.onboarding_v2_completed === false;
+      if (v2Pending && typeof SmartOnboarding !== 'undefined') {
+        SmartOnboarding.init(false);
+        return; // no abrir v1 — v2 cubre el setup completo
+      }
+
+      // v1 solo si v2 ya está completado (o no existe el módulo v2)
+      if (typeof Onboarding !== 'undefined') {
+        if (u.onboarding_completed === false || !localStorage.getItem('hs_tdee')) {
+          Onboarding.init(u.onboarding_completed);
         }
       }
     }
-    window.addEventListener('hs:login', function () {
-      if (typeof Onboarding === 'undefined') return;
-      const u = typeof API !== 'undefined' ? API.getUser?.() : null;
-      if (!u) return;
-      if (u.onboarding_completed === false || !localStorage.getItem('hs_tdee')) Onboarding.init(false);
-      // SmartOnboarding v2: mostrar si el backend dice que no está completado
-      if (typeof SmartOnboarding !== 'undefined' && u.onboarding_v2_completed === false) {
-        SmartOnboarding.init(false);
-      }
-    });
+
+    // hs:user-loaded llega tras register/login (saveAuth) y en arranque en
+    // frío (API.init → refreshUser). Es la señal correcta: hs_user ya poblado.
+    window.addEventListener('hs:user-loaded', _runOnboardingGate);
+    // Fallback defensivo: si hs_user ya está en cache al cargar (token previo),
+    // intentar el gate inmediatamente. refreshUser volverá a dispararlo con el
+    // valor del servidor por si el cache estaba obsoleto.
+    if (typeof API !== 'undefined' && API.getUser?.()) _runOnboardingGate();
 
     // ── Card scroll reveal (IntersectionObserver) ─────────
     if ('IntersectionObserver' in window) {

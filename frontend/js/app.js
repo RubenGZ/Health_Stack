@@ -662,6 +662,10 @@
       if (_hasToken) {
         const _u = typeof API !== 'undefined' ? API.getUser?.() : null;
         Onboarding.init(_u ? _u.onboarding_completed : undefined);
+        // SmartOnboarding v2: misma lógica — servidor autoritativo
+        if (typeof SmartOnboarding !== 'undefined') {
+          SmartOnboarding.init(_u ? _u.onboarding_v2_completed : undefined);
+        }
       }
     }
     window.addEventListener('hs:login', function () {
@@ -669,6 +673,10 @@
       const u = typeof API !== 'undefined' ? API.getUser?.() : null;
       if (!u) return;
       if (u.onboarding_completed === false || !localStorage.getItem('hs_tdee')) Onboarding.init(false);
+      // SmartOnboarding v2: mostrar si el backend dice que no está completado
+      if (typeof SmartOnboarding !== 'undefined' && u.onboarding_v2_completed === false) {
+        SmartOnboarding.init(false);
+      }
     });
 
     // ── Card scroll reveal (IntersectionObserver) ─────────

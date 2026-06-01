@@ -32,10 +32,16 @@ const SmartOnboarding = (function () {
   let sports = []; // [{sport, days_per_week, duration_min, intensity}]
 
   // ── Init ─────────────────────────────────────────────────
-  function init() {
+  // serverCompleted: valor de onboarding_v2_completed del backend (GET /auth/me).
+  // Si es explícitamente false, el servidor manda sobre localStorage (igual que Onboarding.init).
+  function init(serverCompleted) {
     // Solo mostrar si hay token (usuario registrado) y no completó v2
     const token = localStorage.getItem('hs_access_token') || sessionStorage.getItem('hs_access_token');
     if (!token) return;
+    // El servidor es autoritativo: si dice que NO está completado, limpiar flag local.
+    if (serverCompleted === false) {
+      localStorage.removeItem(LS_FLAG);
+    }
     if (localStorage.getItem(LS_FLAG) === '1') return;
 
     // Intentar recuperar progreso guardado (incl. sports para no perder datos al reabrir)

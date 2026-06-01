@@ -175,19 +175,17 @@ const SmartOnboarding = (function () {
           <label class="smart-ob-consent-label">
             <input type="checkbox" id="ob-consent-check" ${answers.ai_consent ? 'checked' : ''}>
             <span>
-              Acepto que HealthStack envíe <strong>métricas numéricas anónimas</strong>
-              (sexo, edad, peso, altura, % de grasa corporal estimado) al procesador externo
-              <strong>Groq Inc. (Meta llama-3.3)</strong> para generar mi análisis metabólico personalizado.
+              Quiero que la IA analice mis datos para darme un plan más preciso
             </span>
           </label>
         </div>
         <div class="smart-ob-consent-details">
-          <p>🔒 <strong>Antes de salir de tu dispositivo</strong>, estos datos se cifran con AES-256-GCM y se pseudonimizan — Groq recibe solo números, nunca tu nombre, email ni ningún identificador.</p>
-          <p>🗑️ Puedes <strong>revocar este consentimiento</strong> en cualquier momento desde Ajustes › Privacidad. Al revocar, tu perfil IA se elimina de nuestra base de datos.</p>
-          <p>📋 Base legal: Art. 6(1)(a) + Art. 9(2)(a) RGPD — Consentimiento explícito para datos de salud.</p>
+          <p>🔒 <strong>Tus datos viajan cifrados</strong> — solo números (edad, peso, altura…), nunca tu nombre ni email. Los procesa <strong>Groq Inc.</strong> para generar tu análisis y luego se descartan.</p>
+          <p>🗑️ Puedes <strong>retirar este permiso cuando quieras</strong> desde Ajustes › Privacidad. Al hacerlo, borramos tu perfil IA al instante.</p>
+          <p>📋 Cumple el Reglamento Europeo de Protección de Datos (RGPD).</p>
         </div>
         <p class="smart-ob-consent-note">
-          Sin consentimiento usaremos la fórmula estándar Mifflin-St Jeor localmente. Sin IA, sin envío externo.
+          Si prefieres no activarlo, calculamos tu plan con una fórmula estándar, sin enviar nada fuera de tu dispositivo.
         </p>
         <div class="smart-ob-tdee-preview" id="ob-tdee-preview" style="display:none"></div>
       </div>`;

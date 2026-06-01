@@ -8477,3 +8477,59 @@ button[class*="wl-"]:not([class*="inp"]):active {
   0%, 100% { opacity: 0.3; transform: scale(0.8); }
   50%       { opacity: 1;   transform: scale(1.2); }
 }
+
+/* ── PORTRAIT-ONLY OVERLAY ──────────────────────────────────────────
+   Mostrado en modo landscape. Funciona en todos los browsers,
+   incluido iOS Safari que ignora el manifest orientation.
+   Solo activo en standalone PWA y en móvil (max-width: 1024px).
+   Tablets en landscape con pantalla grande quedan excluidas.
+   ────────────────────────────────────────────────────────────────── */
+@media screen and (orientation: landscape) and (max-width: 1024px) {
+  #hs-rotate-overlay {
+    display: flex !important;
+  }
+}
+
+#hs-rotate-overlay {
+  display: none;
+  position: fixed;
+  inset: 0;
+  z-index: 99999;
+  background: #07070f;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 20px;
+  padding: 32px;
+  text-align: center;
+  /* Previene que el contenido subyacente sea interactuable */
+  pointer-events: all;
+}
+
+#hs-rotate-overlay .hs-rotate-icon {
+  font-size: 56px;
+  animation: hs-rotate-hint 2s ease-in-out infinite;
+  display: block;
+}
+
+#hs-rotate-overlay .hs-rotate-title {
+  font-family: 'Inter', sans-serif;
+  font-size: 18px;
+  font-weight: 600;
+  color: #e8dcc8;
+  margin: 0;
+}
+
+#hs-rotate-overlay .hs-rotate-sub {
+  font-family: 'Inter', sans-serif;
+  font-size: 14px;
+  color: rgba(232, 220, 200, 0.5);
+  margin: 0;
+}
+
+@keyframes hs-rotate-hint {
+  0%, 100% { transform: rotate(0deg);   }
+  30%       { transform: rotate(-90deg); }
+  60%       { transform: rotate(-90deg); }
+  90%       { transform: rotate(0deg);   }
+}

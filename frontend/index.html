@@ -1904,6 +1904,37 @@
 
   <canvas id="confetti-canvas" style="position:fixed;inset:0;pointer-events:none;z-index:9990;display:none"></canvas>
 
+  <!-- ── PORTRAIT-ONLY OVERLAY ─────────────────────────────────────
+       Visible via CSS @media (orientation: landscape) + max-width.
+       El JS intenta screen.orientation.lock() como primera defensa;
+       este overlay es el fallback universal para iOS Safari.
+  ──────────────────────────────────────────────────────────────── -->
+  <div id="hs-rotate-overlay" role="alert" aria-live="assertive">
+    <span class="hs-rotate-icon" aria-hidden="true">📱</span>
+    <p class="hs-rotate-title">Gira el dispositivo</p>
+    <p class="hs-rotate-sub">HealthStack está optimizado para modo vertical</p>
+  </div>
+
+  <script>
+    // Screen Orientation Lock — primera línea de defensa (Chrome Android, Edge)
+    // iOS Safari no soporta esta API; el overlay CSS cubre ese caso.
+    (function () {
+      function lockPortrait() {
+        if (screen.orientation && typeof screen.orientation.lock === 'function') {
+          screen.orientation.lock('portrait-primary').catch(function () {
+            // Silencioso: el navegador puede rechazarlo si no está en standalone
+            // o si el usuario tiene auto-rotate desactivado. El overlay CSS lo maneja.
+          });
+        }
+      }
+      // Intentar al cargar y al volver al foco (PWA regresa a foreground)
+      document.addEventListener('DOMContentLoaded', lockPortrait);
+      document.addEventListener('visibilitychange', function () {
+        if (!document.hidden) lockPortrait();
+      });
+    })();
+  </script>
+
 </body>
 </html>
 

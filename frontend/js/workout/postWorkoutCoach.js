@@ -219,7 +219,7 @@
 
       renderCoachingCard(plan, _getContainer());
     } catch (err) {
-      console.error('[PostWorkoutCoach] requestCoaching failed:', err);
+      console.error('[PostWorkoutCoach] requestCoaching failed:', err?.message || 'Unknown error');
       if (typeof showToast === 'function') {
         showToast('No se pudo obtener el feedback del coach.', 'error');
       }
@@ -256,7 +256,7 @@
         }, 320);
       }
     } catch (err) {
-      console.error('[PostWorkoutCoach] dismissPlan failed:', err);
+      console.error('[PostWorkoutCoach] dismissPlan failed:', err?.message || 'Unknown error');
       if (typeof showToast === 'function') {
         showToast('No se pudo descartar el plan del coach.', 'error');
       }

@@ -33,7 +33,7 @@ class GamificationStateResponse(BaseModel):
     post_count: int
     tdee_calc: int
     streak_days: int
-    badge_latest: str | None
+    badge_latest: str | None = None
     xp_to_next_level: int  # Calculado en el servicio
     level_progress_pct: float  # 0.0 – 100.0
 

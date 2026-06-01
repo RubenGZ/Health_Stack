@@ -20,9 +20,6 @@ var Plan = (function () {
   // Phase 2 = visible after 2+ days since first use
   // Phase 3 = locked until consistency milestones
   var NAV_PHASES = {
-    // Phase 2 — visible después de 2 días de uso
-    'ejercicios': 2, 'rutinas': 2,
-
     // Phase 3 — beta mode only (o consistency milestones / elite)
     'planner': 3, 'rehab': 3, 'records': 3, 'suplementos': 3,
     'timing': 3, 'deload': 3, 'bodycomp': 3,

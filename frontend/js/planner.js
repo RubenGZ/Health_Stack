@@ -132,8 +132,14 @@ const MealPlanner = (function () {
 
   // ── Persistencia ─────────────────────────────────────────
   function _save() {
-    localStorage.setItem(LS_KEY, JSON.stringify(plan));
-    localStorage.setItem(LS_CFG, JSON.stringify(config));
+    try {
+      localStorage.setItem(LS_KEY, JSON.stringify(plan));
+      localStorage.setItem(LS_CFG, JSON.stringify(config));
+    } catch (e) {
+      if (e.name === 'QuotaExceededError') {
+        document.dispatchEvent(new CustomEvent('hs:storage-full', { detail: { key: LS_KEY } }));
+      }
+    }
   }
 
   function _load() {

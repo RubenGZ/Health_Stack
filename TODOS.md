@@ -2,12 +2,9 @@
 
 ## 🔴 P1 — Antes del lanzamiento comercial / público
 
-### RGPD — Cifrado de eating_style y sport_activities
-**Contexto:** Actualmente `eating_style` y `sport_activities` están en texto plano en `public.users`.
-Según RGPD Art.9, los hábitos alimentarios y el historial deportivo pueden considerarse
-datos de salud dependiendo del contexto. Para el lanzamiento comercial, evaluar cifrarlos
-en `health.user_health_profiles` o aplicar pseudonimización adicional.
-**Archivo:** `backend/app/modules/identity/models.py` + migración nueva.
+### ~~RGPD — Cifrado de eating_style y sport_activities~~ ✅ RESUELTO 2026-06-01
+Migrado a `health.user_health_profiles` como `eating_style_enc` y `sport_activities_enc`
+cifrados AES-256-GCM. Migración `0018_rgpd_encrypt_eating_sports`.
 
 ### Groq/Meta DPA — Verificación Art.28
 **Contexto:** El endpoint `/onboarding-v2` envía métricas numéricas anónimas a Groq (Meta llama-3.3).

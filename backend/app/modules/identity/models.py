@@ -25,7 +25,7 @@ from decimal import Decimal
 import uuid
 
 from sqlalchemy import Boolean, Date, DateTime, Enum, ForeignKey, Numeric, String, Text
-from sqlalchemy.dialects.postgresql import JSONB, UUID
+from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from app.shared.base_model import Base, TimestampMixin, UUIDPrimaryKeyMixin
@@ -268,12 +268,6 @@ class User(UUIDPrimaryKeyMixin, TimestampMixin, Base):
         comment="Rango de pasos diarios: lt4k|4k7k|7k10k|gt10k",
     )
 
-    sport_activities: Mapped[dict | None] = mapped_column(
-        JSONB,
-        nullable=True,
-        comment="Lista de deportes: [{sport, days_per_week, duration_min, intensity}]",
-    )
-
     strength_experience: Mapped[str | None] = mapped_column(
         String(16),
         nullable=True,
@@ -284,12 +278,6 @@ class User(UUIDPrimaryKeyMixin, TimestampMixin, Base):
         String(16),
         nullable=True,
         comment="Consistencia en fuerza: regular|inconsistent|starting",
-    )
-
-    eating_style: Mapped[str | None] = mapped_column(
-        String(32),
-        nullable=True,
-        comment="Estilo de alimentación: omnivore|vegetarian|vegan (texto plano, deuda RGPD pre-lanzamiento)",
     )
 
     ai_consent_at: Mapped[datetime | None] = mapped_column(
@@ -501,6 +489,17 @@ class UserHealthProfile(TimestampMixin, Base):
         DateTime(timezone=True),
         nullable=True,
         comment="Timestamp de la última llamada a Groq con éxito.",
+    )
+    # Art.9 — estilo alimentario y deportes: datos de salud por contexto
+    eating_style_enc: Mapped[str | None] = mapped_column(
+        Text,
+        nullable=True,
+        comment="Estilo de alimentación cifrado AES-256-GCM (Art.9 por contexto).",
+    )
+    sport_activities_enc: Mapped[str | None] = mapped_column(
+        Text,
+        nullable=True,
+        comment="JSON deportes cifrado AES-256-GCM [{sport, days_per_week, duration_min, intensity}].",
     )
 
     def __repr__(self) -> str:

@@ -354,13 +354,12 @@ class IdentityService:
 
         ai_consent_at = dt.now(UTC) if request.ai_consent else None
 
-        # ── Commit 1: campos no sensibles ──────────────────────────────────────
+        # ── Commit 1: campos no sensibles (SOLO datos sin riesgo Art.9) ──────────
+        # eating_style y sport_activities se cifran en el commit 2 (health_profiles)
         user.work_type = request.work_type
         user.daily_steps_range = request.daily_steps_range
-        user.sport_activities = [s.model_dump() for s in request.sport_activities]
         user.strength_experience = request.strength_experience
         user.strength_consistency = request.strength_consistency
-        user.eating_style = request.eating_style
         user.ai_consent_at = ai_consent_at
         # onboarding_v2_completed se marca en el commit final (tras éxito de todo el flujo)
         await db.commit()  # libera la conexión del pool antes de llamar a Groq
@@ -409,6 +408,13 @@ class IdentityService:
             )
             ai_profile_generated_at = dt.now(UTC)
 
+        # Art.9 blindado: eating_style y sport_activities cifrados, nunca en texto plano en BD
+        enc_eating_style = crypto.encrypt_text(request.eating_style, aad=_HEALTH_PROFILE_AAD)
+        enc_sport_activities = crypto.encrypt_text(
+            json.dumps([s.model_dump() for s in request.sport_activities]),
+            aad=_HEALTH_PROFILE_AAD,
+        )
+
         await UserHealthProfileRepository.upsert(
             db,
             health_subject_id=health_subject_id,
@@ -417,6 +423,8 @@ class IdentityService:
             food_intolerances=enc_intolerances,
             ai_profile=enc_ai_profile,
             ai_profile_generated_at=ai_profile_generated_at,
+            eating_style_enc=enc_eating_style,
+            sport_activities_enc=enc_sport_activities,
         )
 
         user.onboarding_v2_completed = True

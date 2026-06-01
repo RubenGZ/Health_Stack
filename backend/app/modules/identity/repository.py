@@ -394,6 +394,8 @@ class UserHealthProfileRepository:
         food_intolerances: str | None = None,
         ai_profile: str | None = None,
         ai_profile_generated_at: datetime | None = None,
+        eating_style_enc: str | None = None,
+        sport_activities_enc: str | None = None,
     ) -> UserHealthProfile:
         """
         Inserta o actualiza el perfil de salud cifrado.
@@ -422,6 +424,12 @@ class UserHealthProfileRepository:
         if ai_profile_generated_at is not None:
             values["ai_profile_generated_at"] = ai_profile_generated_at
             update_values["ai_profile_generated_at"] = ai_profile_generated_at
+        if eating_style_enc is not None:
+            values["eating_style_enc"] = eating_style_enc
+            update_values["eating_style_enc"] = eating_style_enc
+        if sport_activities_enc is not None:
+            values["sport_activities_enc"] = sport_activities_enc
+            update_values["sport_activities_enc"] = sport_activities_enc
 
         stmt = (
             pg_insert(UserHealthProfile)

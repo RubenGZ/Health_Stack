@@ -334,3 +334,92 @@ class TestOnboardingV2RGPD:
         assert profile is not None
         assert profile.ai_profile is None, "Sin consentimiento no debe haber ai_profile"
         assert profile.ai_profile_generated_at is None
+
+
+# ── Tests DELETE /ai-consent ─────────────────────────────────────────────────
+
+@pytest.mark.asyncio
+class TestRevokeAIConsent:
+    """
+    Cobertura de DELETE /api/v1/auth/ai-consent.
+
+    Regression: ISSUE-001 — falta de tests para el endpoint de revocación RGPD Art.7(3).
+    Found by /qa on 2026-06-02
+    Report: .gstack/qa-reports/qa-report-onboarding-v2-2026-06-02.md
+    """
+
+    async def test_revoke_consent_returns_200_and_clears_fields(self, client, db_session):
+        """
+        Happy path: revocación limpia ai_consent_at en public.users
+        y ai_profile en health.user_health_profiles.
+        """
+        from unittest.mock import AsyncMock, patch
+
+        headers = await _register_and_get_headers(client)
+        await _complete_v1_onboarding(client, headers)
+
+        # 1. Completar onboarding v2 con AI consent
+        payload = {**_VALID_PAYLOAD, "ai_consent": True}
+        with patch(
+            "app.modules.identity.service._call_groq_onboarding",
+            new_callable=AsyncMock,
+            return_value=_GROQ_MOCK_RESULT,
+        ):
+            resp = await client.post(_V2_URL, json=payload, headers=headers)
+        assert resp.status_code == 200, resp.text
+        assert resp.json()["ai_used"] is True
+
+        # 2. Verificar que ai_consent_at está seteado antes de revocar
+        me_resp = await client.get("/api/v1/auth/me", headers=headers)
+        assert me_resp.json()["ai_consent_at"] is not None, "ai_consent_at debe estar seteado antes de revocar"
+
+        # 3. Revocar consentimiento
+        revoke_resp = await client.delete("/api/v1/auth/ai-consent", headers=headers)
+        assert revoke_resp.status_code == 200, revoke_resp.text
+        data = revoke_resp.json()
+        assert data["ai_consent_at"] is None
+
+        # 4. Verificar que ai_consent_at quedó NULL en public.users
+        me_after = await client.get("/api/v1/auth/me", headers=headers)
+        assert me_after.json()["ai_consent_at"] is None, "ai_consent_at debe ser NULL tras revocar"
+
+        # 5. Verificar que ai_profile quedó NULL en health.user_health_profiles (Art.7(3) RGPD)
+        row = await db_session.execute(
+            text("""
+                SELECT hp.ai_profile, hp.ai_profile_generated_at
+                FROM health.user_health_profiles hp
+                JOIN public.data_links dl ON dl.health_subject_id = hp.health_subject_id
+                JOIN public.users u ON u.id = dl.user_id
+                WHERE u.email = 'v2test@healthstack.com'
+            """)
+        )
+        profile = row.fetchone()
+        assert profile is not None
+        assert profile.ai_profile is None, "RGPD Art.7(3): ai_profile debe eliminarse tras revocar"
+        assert profile.ai_profile_generated_at is None
+
+    async def test_revoke_without_auth_returns_401(self, client):
+        """Sin token → 401."""
+        resp = await client.delete("/api/v1/auth/ai-consent")
+        assert resp.status_code == 401
+
+    async def test_revoke_without_health_link_returns_200(self, client):
+        """
+        Usuario sin onboarding v1 (sin health_subject_id) no debe romper.
+        El endpoint maneja HealthLinkNotFoundError silenciosamente.
+        """
+        # Registrar usuario pero NO completar onboarding v1
+        resp = await client.post("/api/v1/auth/register", json={
+            "email": "nolink@healthstack.com",
+            "password": "SecurePass123!",
+            "display_name": "No Link User",
+            "consent_gdpr": True,
+        })
+        assert resp.status_code == 201
+        token = resp.json()["access_token"]
+        headers = {"Authorization": f"Bearer {token}"}
+
+        # Revocar sin tener health link — no debe explotar
+        revoke_resp = await client.delete("/api/v1/auth/ai-consent", headers=headers)
+        assert revoke_resp.status_code == 200, revoke_resp.text
+        assert revoke_resp.json()["ai_consent_at"] is None

@@ -27,9 +27,10 @@ import secrets
 import uuid
 
 from sqlalchemy import select, update
+from sqlalchemy.dialects.postgresql import insert as pg_insert
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.modules.identity.models import DataLink, PasswordResetToken, RefreshToken, User
+from app.modules.identity.models import DataLink, PasswordResetToken, RefreshToken, User, UserHealthProfile
 
 # ── USER REPOSITORY ───────────────────────────────────────────────────────────
 
@@ -371,3 +372,79 @@ class PasswordResetRepository:
         db_token.used_at = datetime.now(UTC)
         await db.flush()
         return db_token.user_id
+
+
+# ── USER HEALTH PROFILE REPOSITORY ───────────────────────────────────────────
+
+class UserHealthProfileRepository:
+    """
+    Operaciones sobre la tabla `health.user_health_profiles`.
+
+    PK: health_subject_id (UUID pseudónimo — sin FK directa a users).
+    Patrón UPSERT: INSERT ... ON CONFLICT DO UPDATE para idempotencia.
+    """
+
+    @staticmethod
+    async def upsert(
+        db: AsyncSession,
+        health_subject_id: uuid.UUID,
+        *,
+        body_fat_pct: str | None = None,
+        body_fat_visual: str | None = None,
+        food_intolerances: str | None = None,
+        ai_profile: str | None = None,
+        ai_profile_generated_at: datetime | None = None,
+    ) -> UserHealthProfile:
+        """
+        Inserta o actualiza el perfil de salud cifrado.
+        Si health_subject_id ya existe → actualiza todos los campos proporcionados.
+        """
+        now = datetime.now(UTC)
+        values: dict = {
+            "health_subject_id": health_subject_id,
+            "created_at": now,
+            "updated_at": now,
+        }
+        update_values: dict = {"updated_at": now}
+
+        if body_fat_pct is not None:
+            values["body_fat_pct"] = body_fat_pct
+            update_values["body_fat_pct"] = body_fat_pct
+        if body_fat_visual is not None:
+            values["body_fat_visual"] = body_fat_visual
+            update_values["body_fat_visual"] = body_fat_visual
+        if food_intolerances is not None:
+            values["food_intolerances"] = food_intolerances
+            update_values["food_intolerances"] = food_intolerances
+        if ai_profile is not None:
+            values["ai_profile"] = ai_profile
+            update_values["ai_profile"] = ai_profile
+        if ai_profile_generated_at is not None:
+            values["ai_profile_generated_at"] = ai_profile_generated_at
+            update_values["ai_profile_generated_at"] = ai_profile_generated_at
+
+        stmt = (
+            pg_insert(UserHealthProfile)
+            .values(**values)
+            .on_conflict_do_update(
+                index_elements=["health_subject_id"],
+                set_=update_values,
+            )
+            .returning(UserHealthProfile)
+        )
+        result = await db.execute(stmt)
+        await db.flush()
+        return result.scalar_one()
+
+    @staticmethod
+    async def get_by_subject_id(
+        db: AsyncSession,
+        health_subject_id: uuid.UUID,
+    ) -> UserHealthProfile | None:
+        """Recupera el perfil de salud por health_subject_id."""
+        result = await db.execute(
+            select(UserHealthProfile).where(
+                UserHealthProfile.health_subject_id == health_subject_id
+            )
+        )
+        return result.scalar_one_or_none()

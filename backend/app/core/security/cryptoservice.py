@@ -445,6 +445,60 @@ class CryptoService:
         # 4. Devolver el UUID en claro — solo en este momento del registro
         return health_subject_id
 
+    def encrypt_text(self, plaintext: str, *, aad: bytes) -> str:
+        """
+        Cifra un texto arbitrario con AES-256-GCM y un AAD personalizado.
+
+        Uso: cifrar campos de health.user_health_profiles con
+        aad=b"healthstack.health_profile.v1" (contexto separado de data_links).
+
+        Args:
+            plaintext: Texto a cifrar.
+            aad: Associated Authenticated Data — vincula el ciphertext al contexto.
+
+        Returns:
+            Payload cifrado serializado como "<nonce_hex>:<tag_hex>:<ct_hex>".
+        """
+        nonce = os.urandom(_GCM_NONCE_SIZE)
+        ciphertext_with_tag = self._aesgcm.encrypt(
+            nonce=nonce,
+            data=plaintext.encode("utf-8"),
+            associated_data=aad,
+        )
+        ciphertext = ciphertext_with_tag[:-_GCM_TAG_SIZE]
+        auth_tag   = ciphertext_with_tag[-_GCM_TAG_SIZE:]
+        payload = EncryptedPayload(nonce=nonce, auth_tag=auth_tag, ciphertext=ciphertext)
+        return payload.serialize()
+
+    def decrypt_text(self, encrypted_payload_str: str, *, aad: bytes) -> str:
+        """
+        Descifra un texto cifrado con encrypt_text.
+
+        Args:
+            encrypted_payload_str: Payload serializado.
+            aad: Debe coincidir exactamente con el AAD usado al cifrar.
+
+        Returns:
+            Texto original descifrado.
+        """
+        payload = EncryptedPayload.deserialize(encrypted_payload_str)
+        try:
+            plaintext_bytes = self._aesgcm.decrypt(
+                nonce=payload.nonce,
+                data=payload.ciphertext + payload.auth_tag,
+                associated_data=aad,
+            )
+        except InvalidTag:
+            logger.error(
+                "CryptoService.decrypt_text: InvalidTag con aad=%s. "
+                "Posible manipulación de datos.",
+                aad,
+            )
+            raise DecryptionIntegrityError(
+                "No se pudo verificar la integridad del dato cifrado."
+            )
+        return plaintext_bytes.decode("utf-8")
+
 
 # ── SINGLETON ─────────────────────────────────────────────────────────────────
 

@@ -276,3 +276,114 @@ class OnboardingResponse(BaseModel):
     health_record_seeded: bool = Field(
         description="True si se creó el registro baseline en health_records.",
     )
+
+
+# ── Smart Onboarding v2 ───────────────────────────────────────────────────────
+
+class SportActivityItem(BaseModel):
+    """Un deporte dentro de la lista de actividades del usuario."""
+    sport: str = Field(..., max_length=64)
+    days_per_week: int = Field(..., ge=1, le=7)
+    duration_min: int = Field(..., ge=5, le=300)
+    intensity: Literal["low", "moderate", "high"]
+
+
+class OnboardingV2In(BaseModel):
+    """Body del endpoint POST /auth/onboarding-v2."""
+
+    # Consentimiento RGPD Art.9
+    ai_consent: bool = Field(
+        ...,
+        description=(
+            "Consentimiento explícito Art.9 para procesar datos de composición corporal "
+            "con IA. Sin consentimiento se usa fórmula local (Mifflin)."
+        ),
+    )
+
+    # NEAT — Tipo de trabajo y pasos
+    work_type: Literal["desk", "standing", "physical", "remote", "none"] = Field(
+        ..., description="Tipo de trabajo principal."
+    )
+    daily_steps_range: Literal["lt4k", "4k7k", "7k10k", "gt10k"] = Field(
+        ..., description="Rango de pasos diarios habituales."
+    )
+
+    # Deportes
+    sport_activities: list[SportActivityItem] = Field(
+        default_factory=list,
+        max_length=6,
+        description="Lista de deportes practicados (max 6).",
+    )
+
+    # Historial de fuerza
+    strength_experience: Literal["never", "lt6m", "6m2y", "gt2y"] = Field(
+        ..., description="Años de experiencia en entrenamiento de fuerza."
+    )
+    strength_consistency: Literal["regular", "inconsistent", "starting"] = Field(
+        ..., description="Consistencia en el entrenamiento de fuerza."
+    )
+
+    # Composición corporal (opcional)
+    body_fat_pct: Decimal | None = Field(
+        default=None, ge=3, le=60,
+        description="% grasa corporal exacto (opcional). Permite Katch-McArdle.",
+    )
+    body_fat_visual: Literal["lean_soft", "belly_main", "uniform", "high_volume"] | None = Field(
+        default=None,
+        description="Estimación visual de composición corporal (si no hay % exacto).",
+    )
+
+    # Alimentación
+    eating_style: Literal["omnivore", "vegetarian", "vegan"] = Field(
+        ..., description="Estilo de alimentación principal."
+    )
+    food_intolerances: list[Literal["gluten", "lactose"]] = Field(
+        default_factory=list,
+        description="Intolerancias alimentarias.",
+    )
+
+    @field_validator("sport_activities")
+    @classmethod
+    def max_6_activities(cls, v: list) -> list:
+        if len(v) > 6:
+            raise ValueError("Máximo 6 actividades deportivas.")
+        return v
+
+
+class OnboardingV2Macros(BaseModel):
+    protein_g: int
+    carbs_g: int
+    fat_g: int
+
+
+class OnboardingV2Result(BaseModel):
+    """Resultado del análisis metabólico — devuelto al frontend tras POST /onboarding-v2."""
+
+    tdee_kcal: int
+    target_kcal: int
+    formula_used: str = Field(description="groq_katch_mcardle | groq_mifflin | mifflin_fallback")
+    confidence: Literal["high", "medium", "low"]
+    confidence_reason: str | None = None
+
+    estimated_body_fat_pct: Decimal | None = None
+    lean_mass_kg: Decimal | None = None
+
+    macros: OnboardingV2Macros
+    protein_sources: list[str] = Field(default_factory=list)
+    carb_sources: list[str] = Field(default_factory=list)
+
+    neat_assessment: str | None = None
+    recomp_potential: str | None = None
+
+    diagnosis: str = Field(description="Párrafo narrativo del análisis metabólico.")
+    action_steps: list[str] = Field(
+        default_factory=list,
+        description="Hasta 3 acciones priorizadas.",
+    )
+    diet_alert: str | None = Field(
+        default=None,
+        description="Alerta dietética específica (p.ej. déficit proteico).",
+    )
+
+    onboarding_v2_completed: bool = True
+    ai_used: bool = Field(description="True si el resultado viene de Groq, False si es fallback.")

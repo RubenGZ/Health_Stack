@@ -8533,3 +8533,201 @@ button[class*="wl-"]:not([class*="inp"]):active {
   60%       { transform: rotate(-90deg); }
   90%       { transform: rotate(0deg);   }
 }
+
+/* ============================================================
+   Smart Onboarding v2 — Wizard 7 pasos
+   ============================================================ */
+
+.smart-ob-overlay {
+  position: fixed; inset: 0; z-index: 9000;
+  background: rgba(7,7,15,0.92);
+  display: flex; align-items: center; justify-content: center;
+  padding: 16px;
+  animation: ob-fade-in 0.3s ease;
+}
+.smart-ob-overlay.smart-ob-exit { animation: ob-fade-out 0.35s ease forwards; }
+@keyframes ob-fade-in  { from { opacity:0; transform:translateY(12px); } to { opacity:1; transform:none; } }
+@keyframes ob-fade-out { from { opacity:1; } to { opacity:0; transform:translateY(12px); } }
+
+.smart-ob-modal {
+  background: #0e0e1a;
+  border: 1px solid rgba(196,165,97,0.2);
+  border-radius: 16px;
+  width: 100%; max-width: 480px;
+  max-height: 90dvh; overflow-y: auto;
+  display: flex; flex-direction: column;
+  box-shadow: 0 24px 64px rgba(0,0,0,0.6);
+}
+
+.smart-ob-header {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 16px 20px 12px;
+  border-bottom: 1px solid rgba(255,255,255,0.06);
+}
+.smart-ob-brand { display: flex; align-items: center; gap: 8px; font-weight: 600; font-size: 0.95rem; color: #e2e8f0; }
+.smart-ob-skip  { background: none; border: none; color: #64748b; font-size: 0.85rem; cursor: pointer; padding: 4px 8px; border-radius: 6px; transition: color 0.2s; }
+.smart-ob-skip:hover { color: #c4a561; }
+
+.smart-ob-progress-wrap { padding: 12px 20px 4px; }
+.smart-ob-progress-bar {
+  height: 3px; background: #c4a561; border-radius: 2px;
+  transition: width 0.35s ease;
+}
+.smart-ob-step-label { font-size: 0.78rem; color: #64748b; margin-top: 6px; }
+
+.smart-ob-body { padding: 16px 20px; flex: 1; }
+
+.smart-ob-title   { font-size: 1.3rem; font-weight: 700; color: #f1f5f9; margin: 0 0 6px; line-height: 1.3; }
+.smart-ob-subtitle { font-size: 0.88rem; color: #94a3b8; margin: 0 0 16px; }
+.smart-ob-field-label { font-size: 0.8rem; font-weight: 600; color: #94a3b8; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 8px; }
+.smart-ob-note  { font-size: 0.8rem; color: #64748b; margin-top: 8px; }
+.smart-ob-note-center { font-size: 0.85rem; color: #64748b; text-align: center; padding: 24px 0; }
+
+/* Options grid */
+.smart-ob-options {
+  display: flex; flex-direction: column; gap: 8px;
+}
+.smart-ob-options-2col  { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+.smart-ob-options-3col  { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px; }
+
+.smart-ob-option {
+  display: flex; flex-direction: column; align-items: flex-start;
+  background: rgba(255,255,255,0.04); border: 1.5px solid rgba(255,255,255,0.08);
+  border-radius: 10px; padding: 10px 12px;
+  cursor: pointer; text-align: left; transition: all 0.18s;
+  color: #e2e8f0;
+}
+.smart-ob-option:hover { border-color: rgba(196,165,97,0.4); background: rgba(196,165,97,0.06); }
+.smart-ob-option.selected { border-color: #c4a561; background: rgba(196,165,97,0.12); }
+.smart-ob-option strong  { font-size: 0.9rem; color: #f1f5f9; }
+.smart-ob-option small   { font-size: 0.75rem; color: #94a3b8; margin-top: 2px; }
+.smart-ob-option-emoji   { font-size: 1.2rem; margin-bottom: 4px; }
+
+/* TDEE Preview pill */
+.smart-ob-tdee-preview {
+  display: flex; align-items: center; justify-content: center; gap: 8px;
+  background: rgba(196,165,97,0.1); border: 1px solid rgba(196,165,97,0.25);
+  border-radius: 8px; padding: 8px 16px; margin-bottom: 14px;
+}
+.ob-preview-label { font-size: 0.78rem; color: #94a3b8; }
+.ob-preview-value { font-size: 1rem; font-weight: 700; color: #c4a561; }
+
+/* Consent box */
+.smart-ob-consent-box {
+  background: rgba(255,255,255,0.04); border: 1.5px solid rgba(196,165,97,0.25);
+  border-radius: 10px; padding: 14px; margin-bottom: 12px;
+}
+.smart-ob-consent-label { display: flex; gap: 10px; align-items: flex-start; cursor: pointer; font-size: 0.85rem; color: #cbd5e1; line-height: 1.5; }
+.smart-ob-consent-label input[type=checkbox] { margin-top: 3px; accent-color: #c4a561; flex-shrink: 0; }
+.smart-ob-consent-note { font-size: 0.78rem; color: #64748b; }
+
+/* Sports */
+.smart-ob-sport-row {
+  display: flex; align-items: center; gap: 8px;
+  background: rgba(255,255,255,0.04); border-radius: 8px; padding: 8px 12px;
+  margin-bottom: 6px; font-size: 0.85rem; color: #cbd5e1;
+}
+.smart-ob-sport-name { font-weight: 600; flex: 1; }
+.smart-ob-sport-remove { background: none; border: none; color: #ef4444; cursor: pointer; font-size: 0.9rem; padding: 2px 6px; border-radius: 4px; }
+.smart-ob-sport-add-form { margin-top: 12px; }
+.smart-ob-sport-details { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 10px; align-items: center; }
+.smart-ob-select  { background: #1a1a2e; border: 1.5px solid rgba(255,255,255,0.12); border-radius: 8px; padding: 8px 12px; color: #e2e8f0; font-size: 0.88rem; width: 100%; }
+.smart-ob-select-sm { background: #1a1a2e; border: 1.5px solid rgba(255,255,255,0.12); border-radius: 6px; padding: 4px 8px; color: #e2e8f0; font-size: 0.82rem; }
+.smart-ob-input-sm  { background: #1a1a2e; border: 1.5px solid rgba(255,255,255,0.12); border-radius: 6px; padding: 4px 8px; color: #e2e8f0; font-size: 0.82rem; width: 56px; }
+.smart-ob-btn-add { background: rgba(196,165,97,0.15); border: 1px solid #c4a561; color: #c4a561; border-radius: 6px; padding: 6px 14px; font-size: 0.82rem; cursor: pointer; }
+
+/* Body comp tabs */
+.smart-ob-bodycomp-tabs { display: flex; gap: 6px; margin-bottom: 14px; }
+.smart-ob-tab { background: rgba(255,255,255,0.04); border: 1.5px solid rgba(255,255,255,0.08); border-radius: 8px; padding: 6px 12px; color: #94a3b8; font-size: 0.82rem; cursor: pointer; transition: all 0.18s; }
+.smart-ob-tab.active { border-color: #c4a561; color: #c4a561; background: rgba(196,165,97,0.08); }
+
+.smart-ob-input-label { font-size: 0.85rem; color: #94a3b8; display: block; }
+.smart-ob-input {
+  width: 100%; background: #1a1a2e; border: 1.5px solid rgba(255,255,255,0.12);
+  border-radius: 8px; padding: 10px 14px; color: #e2e8f0; font-size: 1rem;
+  margin-top: 6px;
+}
+
+/* Checkboxes */
+.smart-ob-checkboxes { display: flex; flex-direction: column; gap: 10px; margin-top: 8px; }
+.smart-ob-check-label { display: flex; align-items: center; gap: 10px; font-size: 0.88rem; color: #cbd5e1; cursor: pointer; }
+.smart-ob-check-label input { accent-color: #c4a561; }
+
+/* Summary / Step 6 */
+.smart-ob-step-summary { text-align: center; }
+.smart-ob-tdee-big { display: flex; align-items: baseline; justify-content: center; gap: 6px; margin: 16px 0 8px; }
+.smart-ob-tdee-number { font-size: 3rem; font-weight: 800; color: #c4a561; }
+.smart-ob-tdee-unit   { font-size: 1rem; color: #94a3b8; }
+.smart-ob-tdee-caption { font-size: 0.82rem; color: #64748b; margin-bottom: 12px; }
+.smart-ob-summary-chips { display: flex; flex-wrap: wrap; gap: 6px; justify-content: center; margin-bottom: 12px; }
+.smart-ob-chip { background: rgba(255,255,255,0.06); border-radius: 20px; padding: 4px 12px; font-size: 0.8rem; color: #cbd5e1; }
+.smart-ob-ai-note { font-size: 0.82rem; color: #c4a561; }
+
+/* Footer */
+.smart-ob-footer {
+  padding: 12px 20px 20px;
+  display: flex; gap: 10px; justify-content: flex-end;
+  border-top: 1px solid rgba(255,255,255,0.06);
+}
+.smart-ob-btn-primary {
+  background: #c4a561; color: #07070f; border: none;
+  border-radius: 10px; padding: 12px 24px; font-size: 0.95rem; font-weight: 700;
+  cursor: pointer; transition: background 0.18s;
+}
+.smart-ob-btn-primary:hover { background: #d4b571; }
+.smart-ob-btn-primary:disabled { opacity: 0.6; cursor: not-allowed; }
+.smart-ob-btn-secondary {
+  background: rgba(255,255,255,0.06); color: #94a3b8; border: none;
+  border-radius: 10px; padding: 12px 20px; font-size: 0.9rem;
+  cursor: pointer; transition: background 0.18s;
+}
+.smart-ob-btn-secondary:hover { background: rgba(255,255,255,0.1); }
+
+/* Shake animation */
+@keyframes ob-shake { 0%,100%{transform:translateX(0)} 20%,60%{transform:translateX(-6px)} 40%,80%{transform:translateX(6px)} }
+.smart-ob-shake { animation: ob-shake 0.4s ease; }
+
+/* Result screen */
+.smart-ob-result { padding: 20px; }
+.smart-ob-result-header { display: flex; align-items: center; gap: 10px; margin-bottom: 16px; }
+.smart-ob-result-header h2 { font-size: 1.3rem; font-weight: 700; color: #f1f5f9; margin: 0; }
+.smart-ob-ai-badge { background: rgba(196,165,97,0.15); border: 1px solid #c4a561; color: #c4a561; border-radius: 20px; padding: 2px 10px; font-size: 0.75rem; font-weight: 600; }
+
+.smart-ob-result-tdee { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 14px; }
+.smart-ob-result-tdee-card { background: rgba(255,255,255,0.04); border-radius: 10px; padding: 12px; text-align: center; }
+.smart-ob-result-label { display: block; font-size: 0.75rem; color: #94a3b8; margin-bottom: 4px; }
+.smart-ob-result-big   { display: block; font-size: 1.8rem; font-weight: 800; color: #c4a561; }
+.smart-ob-result-unit  { display: block; font-size: 0.75rem; color: #64748b; }
+
+.smart-ob-result-macros { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px; margin-bottom: 16px; }
+.smart-ob-macro-pill { background: rgba(255,255,255,0.04); border-radius: 8px; padding: 8px; text-align: center; }
+.smart-ob-macro-pill strong { display: block; font-size: 1.1rem; font-weight: 700; }
+.smart-ob-macro-pill small  { font-size: 0.72rem; color: #94a3b8; }
+.smart-ob-macro-p strong { color: #f97316; }
+.smart-ob-macro-c strong { color: #3b82f6; }
+.smart-ob-macro-f strong { color: #a855f7; }
+
+.smart-ob-result-diagnosis { background: rgba(255,255,255,0.04); border-left: 3px solid #c4a561; border-radius: 0 8px 8px 0; padding: 12px; font-size: 0.88rem; color: #cbd5e1; line-height: 1.6; margin-bottom: 14px; }
+.smart-ob-result-actions { margin-bottom: 14px; }
+.smart-ob-result-actions h4 { font-size: 0.85rem; color: #94a3b8; margin: 0 0 8px; }
+.smart-ob-result-actions ol { padding-left: 18px; margin: 0; }
+.smart-ob-result-actions li { font-size: 0.88rem; color: #cbd5e1; margin-bottom: 4px; }
+.smart-ob-result-alert { background: rgba(239,68,68,0.08); border: 1px solid rgba(239,68,68,0.3); border-radius: 8px; padding: 10px 12px; font-size: 0.82rem; color: #fca5a5; margin-bottom: 12px; }
+.smart-ob-result-fallback { font-size: 0.8rem; color: #64748b; text-align: center; margin-bottom: 10px; }
+.smart-ob-ai-disclosure { font-size: 0.72rem; color: #475569; text-align: center; margin-bottom: 12px; }
+.smart-ob-result-close { width: 100%; margin-top: 4px; }
+
+/* Dashboard banner */
+.smart-ob-dashboard-banner {
+  background: linear-gradient(135deg, rgba(196,165,97,0.08), rgba(196,165,97,0.04));
+  border: 1px solid rgba(196,165,97,0.25);
+  border-radius: 12px; padding: 14px 16px; margin-bottom: 16px;
+}
+.smart-ob-banner-content { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
+.smart-ob-banner-icon { font-size: 1.8rem; flex-shrink: 0; }
+.smart-ob-banner-content > div { flex: 1; min-width: 180px; }
+.smart-ob-banner-content strong { color: #f1f5f9; font-size: 0.9rem; display: block; }
+.smart-ob-banner-content p { color: #94a3b8; font-size: 0.82rem; margin: 2px 0 0; }
+.smart-ob-banner-cta { background: #c4a561; color: #07070f; border: none; border-radius: 8px; padding: 8px 16px; font-size: 0.85rem; font-weight: 700; cursor: pointer; flex-shrink: 0; }
+.smart-ob-banner-dismiss { background: none; border: none; color: #64748b; cursor: pointer; font-size: 1rem; padding: 4px 8px; }
+}

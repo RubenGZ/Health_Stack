@@ -30,16 +30,24 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from app.core.security.cryptoservice import CryptoService
 from app.core.security.hashing import hash_password, needs_rehash, verify_password
 from app.core.security.jwt_handler import create_access_token, create_refresh_token, decode_token
-from app.modules.identity.repository import RefreshTokenRepository, UserRepository
+import json
+from decimal import Decimal
+
+from app.modules.identity.repository import RefreshTokenRepository, UserHealthProfileRepository, UserRepository
 from app.modules.identity.schemas import (
     LoginRequest,
     LoginResponse,
     OnboardingRequest,
     OnboardingResponse,
+    OnboardingV2In,
+    OnboardingV2Macros,
+    OnboardingV2Result,
     RegisterRequest,
     RegisterResponse,
     UserPublicResponse,
 )
+from app.services.ai_router.dependencies import get_ai_router
+from app.services.ai_router.schemas import AIMessage, AIRequest, AIUseCase
 from app.shared.exceptions import InvalidCredentialsError, UserAlreadyExistsError, UserNotFoundError
 
 logger = logging.getLogger(__name__)
@@ -316,3 +324,300 @@ class IdentityService:
             onboarding_completed=True,
             health_record_seeded=health_record_seeded,
         )
+
+    # ── ONBOARDING V2 ─────────────────────────────────────────────────────────
+
+    @staticmethod
+    async def complete_onboarding_v2(
+        db: AsyncSession,
+        user_id: str,
+        request: OnboardingV2In,
+        crypto: CryptoService,
+    ) -> OnboardingV2Result:
+        """
+        Onboarding v2 — análisis metabólico con NEAT real + IA opcional.
+
+        Flujo (patrón dos commits — D3):
+        1. Guardar campos no sensibles en public.users + commit (libera conexión)
+        2. Llamar a Groq fuera de la transacción (timeout 5s, 1 retry, fallback)
+        3. Cifrar + guardar health.user_health_profiles + commit final
+        4. Devolver OnboardingV2Result al frontend
+
+        RGPD: solo se llama a Groq si ai_consent=True.
+        AAD: b"healthstack.health_profile.v1" (contexto separado de data_links).
+        """
+        from datetime import UTC, datetime as dt
+
+        user = await UserRepository.get_by_id(db, user_id)
+        if user is None:
+            raise UserNotFoundError(f"Usuario {user_id[:8]}... no encontrado.")
+
+        ai_consent_at = dt.now(UTC) if request.ai_consent else None
+
+        # ── Commit 1: campos no sensibles ──────────────────────────────────────
+        user.work_type = request.work_type
+        user.daily_steps_range = request.daily_steps_range
+        user.sport_activities = [s.model_dump() for s in request.sport_activities]
+        user.strength_experience = request.strength_experience
+        user.strength_consistency = request.strength_consistency
+        user.eating_style = request.eating_style
+        user.ai_consent_at = ai_consent_at
+        # onboarding_v2_completed se marca en el commit final (tras éxito de todo el flujo)
+        await db.commit()  # libera la conexión del pool antes de llamar a Groq
+
+        # ── Groq call (fuera de transacción) ──────────────────────────────────
+        groq_result = None
+        if request.ai_consent:
+            try:
+                groq_result = await _call_groq_onboarding(user, request)
+            except Exception as exc:
+                logger.warning("Onboarding v2 Groq call raised: %s — using fallback", type(exc).__name__)
+
+        # ── Resultado final: Groq o fallback ──────────────────────────────────
+        if groq_result is None:
+            result_data = _fallback_estimate(user, request)
+            ai_used = False
+        else:
+            result_data = groq_result
+            ai_used = True
+
+        # ── Commit 2: datos Art.9 cifrados + flag completado ──────────────────
+        import uuid as _uuid_mod
+        health_subject_id_str = await crypto.resolve_health_subject_id(user_id, db)
+        health_subject_id = _uuid_mod.UUID(health_subject_id_str)
+        _HEALTH_PROFILE_AAD = b"healthstack.health_profile.v1"
+
+        enc_bfp: str | None = None
+        if request.body_fat_pct is not None:
+            enc_bfp = crypto.encrypt_text(str(request.body_fat_pct), aad=_HEALTH_PROFILE_AAD)
+
+        enc_visual: str | None = None
+        if request.body_fat_visual:
+            enc_visual = crypto.encrypt_text(request.body_fat_visual, aad=_HEALTH_PROFILE_AAD)
+
+        enc_intolerances: str | None = None
+        if request.food_intolerances:
+            enc_intolerances = crypto.encrypt_text(
+                json.dumps(request.food_intolerances), aad=_HEALTH_PROFILE_AAD
+            )
+
+        enc_ai_profile: str | None = None
+        ai_profile_generated_at = None
+        if ai_used and result_data:
+            enc_ai_profile = crypto.encrypt_text(
+                json.dumps(result_data), aad=_HEALTH_PROFILE_AAD
+            )
+            ai_profile_generated_at = dt.now(UTC)
+
+        await UserHealthProfileRepository.upsert(
+            db,
+            health_subject_id=health_subject_id,
+            body_fat_pct=enc_bfp,
+            body_fat_visual=enc_visual,
+            food_intolerances=enc_intolerances,
+            ai_profile=enc_ai_profile,
+            ai_profile_generated_at=ai_profile_generated_at,
+        )
+
+        user.onboarding_v2_completed = True
+        await db.commit()
+
+        logger.info("Onboarding v2 completado: user=%s ai_used=%s", user_id[:8], ai_used)
+
+        # Construir respuesta
+        macros = result_data.get("macros", {})
+        return OnboardingV2Result(
+            tdee_kcal=result_data.get("tdee_kcal", 2000),
+            target_kcal=result_data.get("target_kcal", result_data.get("tdee_kcal", 2000)),
+            formula_used=result_data.get("formula_used", "mifflin_fallback"),
+            confidence=result_data.get("confidence", "low"),
+            confidence_reason=result_data.get("confidence_reason"),
+            estimated_body_fat_pct=result_data.get("estimated_body_fat_pct"),
+            lean_mass_kg=result_data.get("lean_mass_kg"),
+            macros=OnboardingV2Macros(
+                protein_g=macros.get("protein_g", 100),
+                carbs_g=macros.get("carbs_g", 200),
+                fat_g=macros.get("fat_g", 60),
+            ),
+            protein_sources=result_data.get("protein_sources", []),
+            carb_sources=result_data.get("carb_sources", []),
+            neat_assessment=result_data.get("neat_assessment"),
+            recomp_potential=result_data.get("recomp_potential"),
+            diagnosis=result_data.get("diagnosis", "Estimación calculada con fórmula estándar."),
+            action_steps=result_data.get("action_steps", []),
+            diet_alert=result_data.get("diet_alert"),
+            ai_used=ai_used,
+        )
+
+
+# ── NEAT + Groq helpers ───────────────────────────────────────────────────────
+
+# Factores NEAT: trabajo × pasos → multiplicador TDEE
+_NEAT_FACTORS: dict[str, dict[str, float]] = {
+    "desk":     {"lt4k": 1.20, "4k7k": 1.30, "7k10k": 1.40, "gt10k": 1.45},
+    "remote":   {"lt4k": 1.20, "4k7k": 1.30, "7k10k": 1.40, "gt10k": 1.45},
+    "standing": {"lt4k": 1.35, "4k7k": 1.45, "7k10k": 1.50, "gt10k": 1.55},
+    "physical": {"lt4k": 1.55, "4k7k": 1.60, "7k10k": 1.65, "gt10k": 1.70},
+    "none":     {"lt4k": 1.20, "4k7k": 1.30, "7k10k": 1.40, "gt10k": 1.45},
+}
+
+_VISUAL_BF_MIDPOINTS: dict[str, float] = {
+    "lean_soft": 0.22,
+    "belly_main": 0.27,
+    "uniform": 0.25,
+    "high_volume": 0.32,
+}
+
+
+def _mifflin_tdee(weight_kg: float, height_cm: float, age: int, sex: str,
+                  work_type: str, steps_range: str) -> float:
+    """Mifflin-St Jeor × factor NEAT."""
+    tmb = 10 * weight_kg + 6.25 * height_cm - 5 * age + (5 if sex == "male" else -161)
+    neat = _NEAT_FACTORS.get(work_type, _NEAT_FACTORS["desk"]).get(steps_range, 1.30)
+    return tmb * neat
+
+
+def _fallback_estimate(user: object, req: OnboardingV2In) -> dict:
+    """
+    Mifflin-St Jeor + NEAT cuando Groq no está disponible o no hay consentimiento.
+    """
+    from datetime import date as date_type
+
+    weight_kg = float(getattr(user, "current_weight_kg", None) or 70)
+    height_cm = float(getattr(user, "height_cm", None) or 170)
+    sex = getattr(user, "biological_sex", None) or "male"
+    birth_date = getattr(user, "birth_date", None)
+    age = 30
+    if birth_date:
+        today = date_type.today()
+        age = today.year - birth_date.year - (
+            (today.month, today.day) < (birth_date.month, birth_date.day)
+        )
+
+    tdee = _mifflin_tdee(weight_kg, height_cm, age, sex, req.work_type, req.daily_steps_range)
+
+    # Proteína: lean mass si hay BF%, sino 1.6g/kg
+    if req.body_fat_pct is not None:
+        lean_kg = weight_kg * (1 - float(req.body_fat_pct) / 100)
+    elif req.body_fat_visual:
+        lean_kg = weight_kg * (1 - _VISUAL_BF_MIDPOINTS.get(req.body_fat_visual, 0.25))
+    else:
+        lean_kg = None
+
+    protein_g = round(lean_kg * 2.1) if lean_kg else round(weight_kg * 1.6)
+    tdee_int = round(tdee)
+
+    return {
+        "tdee_kcal": tdee_int,
+        "target_kcal": tdee_int,
+        "formula_used": "mifflin_fallback",
+        "confidence": "low",
+        "confidence_reason": "Estimación con fórmula estándar. Activa el análisis IA para mayor precisión.",
+        "estimated_body_fat_pct": float(req.body_fat_pct) if req.body_fat_pct else None,
+        "lean_mass_kg": round(lean_kg, 1) if lean_kg else None,
+        "macros": {
+            "protein_g": protein_g,
+            "carbs_g": round((tdee * 0.45) / 4),
+            "fat_g": round((tdee * 0.25) / 9),
+        },
+        "diagnosis": (
+            "Estimación calculada con fórmula estándar Mifflin-St Jeor. "
+            "Activa el análisis con IA en Ajustes > Privacidad para un diagnóstico metabólico completo."
+        ),
+        "action_steps": [
+            "Completa tu perfil para recibir recomendaciones personalizadas con IA.",
+        ],
+        "protein_sources": [],
+        "carb_sources": [],
+    }
+
+
+async def _call_groq_onboarding(user: object, req: OnboardingV2In) -> dict | None:
+    """
+    Llama a Groq para análisis metabólico onboarding v2.
+    Timeout 5s, 1 retry en timeout/429. Devuelve dict o None si falla.
+
+    RGPD: NUNCA incluye user_id, email, display_name en el prompt.
+    Solo métricas numéricas anónimas.
+    """
+    from datetime import date as date_type
+
+    weight_kg = float(getattr(user, "current_weight_kg", None) or 70)
+    height_cm = float(getattr(user, "height_cm", None) or 170)
+    sex = getattr(user, "biological_sex", None) or "male"
+    birth_date = getattr(user, "birth_date", None)
+    age = 30
+    if birth_date:
+        today = date_type.today()
+        age = today.year - birth_date.year - (
+            (today.month, today.day) < (birth_date.month, birth_date.day)
+        )
+
+    sports_lines = ""
+    for s in req.sport_activities:
+        sports_lines += (
+            f"  - {s.sport}: {s.days_per_week} días/semana, "
+            f"{s.duration_min} min/sesión, intensidad {s.intensity}\n"
+        )
+
+    intolerancias = ", ".join(req.food_intolerances) if req.food_intolerances else "ninguna"
+
+    bf_info = ""
+    if req.body_fat_pct is not None:
+        lean_kg = weight_kg * (1 - float(req.body_fat_pct) / 100)
+        bf_info = f"% grasa corporal: {req.body_fat_pct}% (lean mass: {lean_kg:.1f} kg)"
+    elif req.body_fat_visual:
+        midpoint = _VISUAL_BF_MIDPOINTS.get(req.body_fat_visual, 0.25)
+        lean_kg = weight_kg * (1 - midpoint)
+        bf_info = f"Estimación visual: {req.body_fat_visual} (~{round(midpoint*100)}% grasa estimado, lean ~{lean_kg:.1f} kg)"
+
+    system_prompt = """Eres un nutricionista deportivo de élite. Analiza el perfil metabólico y devuelve EXACTAMENTE este JSON sin texto adicional:
+{
+  "tdee_kcal": <integer>,
+  "target_kcal": <integer>,
+  "formula_used": "<groq_katch_mcardle|groq_mifflin>",
+  "confidence": "<high|medium|low>",
+  "confidence_reason": "<string>",
+  "estimated_body_fat_pct": <number|null>,
+  "lean_mass_kg": <number|null>,
+  "macros": {"protein_g": <int>, "carbs_g": <int>, "fat_g": <int>},
+  "protein_sources": ["<string>", ...],
+  "carb_sources": ["<string>", ...],
+  "neat_assessment": "<string>",
+  "recomp_potential": "<string>",
+  "diagnosis": "<párrafo narrativo 3-4 frases>",
+  "action_steps": ["<acción 1>", "<acción 2>", "<acción 3>"],
+  "diet_alert": "<string|null>"
+}"""
+
+    user_prompt = f"""Perfil metabólico para análisis:
+- Sexo: {sex} | Edad: {age} años | Peso: {weight_kg} kg | Altura: {height_cm} cm
+- {bf_info if bf_info else 'Sin datos de composición corporal'}
+- Trabajo: {req.work_type} | Pasos diarios: {req.daily_steps_range}
+- Deportes:
+{sports_lines if sports_lines else '  - Ninguno declarado'}
+- Fuerza: experiencia {req.strength_experience}, consistencia {req.strength_consistency}
+- Alimentación: {req.eating_style} | Intolerancias: {intolerancias}
+- Objetivo fitness: {getattr(user, 'primary_fitness_goal', None) or 'no declarado'}
+
+Calcula el TDEE real usando {"Katch-McArdle" if req.body_fat_pct or req.body_fat_visual else "Mifflin-St Jeor"} + NEAT real.
+Ajusta target_kcal según el objetivo. Responde SOLO en español."""
+
+    try:
+        router = get_ai_router()
+        ai_request = AIRequest(
+            messages=[
+                AIMessage(role="system", content=system_prompt),
+                AIMessage(role="user", content=user_prompt),
+            ],
+            max_tokens=1500,
+            temperature=0.2,
+            timeout_s=5.0,
+            response_format="json_object",
+        )
+        response = await router.chat(ai_request, use_case=AIUseCase.ONBOARDING_ANALYSIS)
+        result = json.loads(response.content)
+        return result
+    except Exception as exc:
+        logger.warning("Onboarding v2 Groq call failed, using fallback: %s", type(exc).__name__)
+        return None

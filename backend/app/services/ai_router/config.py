@@ -99,6 +99,14 @@ _DEFAULT_ROUTING: dict[AIUseCase, RoutingRule] = {
         fallback="gemini",
         fallback_model="gemini-2.5-flash",
     ),
+    # Análisis metabólico onboarding v2: Groq llama-3.3 (JSON estructurado, temperatura baja)
+    # Requiere consentimiento RGPD Art.9 explícito. Solo métricas numéricas anónimas.
+    AIUseCase.ONBOARDING_ANALYSIS: RoutingRule(
+        primary="groq",
+        primary_model="llama-3.3-70b-versatile",
+        fallback="gemini",
+        fallback_model="gemini-2.5-flash",
+    ),
 }
 
 

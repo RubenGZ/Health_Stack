@@ -29,6 +29,7 @@ class AIUseCase(str, Enum):
     FOOD_VISION         = "food_vision"          # Análisis de foto de comida — requiere visión (futuro)
     ROUTINE_GENERATION  = "routine_generation"   # Generación de rutinas injury-aware — envía lesiones y restricciones
     POST_WORKOUT_COACH  = "post_workout_coach"   # Coach post-entreno — envía métricas de sesión e historial reciente
+    ONBOARDING_ANALYSIS = "onboarding_analysis"  # Análisis metabólico onboarding v2 — métricas anónimas, consentimiento Art.9
 
 
 # ── Request / Response ────────────────────────────────────────────────────────

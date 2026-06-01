@@ -24,7 +24,7 @@ import app.modules.gym_servers.models  # noqa: F401
 import app.modules.health.models  # noqa: F401
 
 # Importar todos los modelos para que SQLAlchemy configure los mappers
-import app.modules.identity.models  # noqa: F401
+import app.modules.identity.models  # noqa: F401  # also registers UserHealthProfile
 import app.modules.nutrition.models  # noqa: F401
 import app.modules.ranked.models  # noqa: F401
 import app.modules.routines.models  # noqa: F401
@@ -38,6 +38,7 @@ TEST_DB_URL = "postgresql+asyncpg://postgres:P%40ssw0rd@localhost:5432/healthsta
 # Tablas a truncar entre tests (orden respeta FK — hijas antes que padres)
 TRUNCATE_TABLES = [
     "health.health_records",
+    "health.user_health_profiles",  # Onboarding v2 (Fase Smart Onboarding)
     "public.data_links",
     "public.community_likes",
     "public.community_posts",

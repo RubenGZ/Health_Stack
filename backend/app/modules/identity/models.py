@@ -25,7 +25,7 @@ from decimal import Decimal
 import uuid
 
 from sqlalchemy import Boolean, Date, DateTime, Enum, ForeignKey, Numeric, String, Text
-from sqlalchemy.dialects.postgresql import UUID
+from sqlalchemy.dialects.postgresql import JSONB, UUID
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from app.shared.base_model import Base, TimestampMixin, UUIDPrimaryKeyMixin
@@ -254,6 +254,58 @@ class User(UUIDPrimaryKeyMixin, TimestampMixin, Base):
         comment="True cuando el usuario completa el flujo de onboarding de 1 minuto.",
     )
 
+    # ── Onboarding v2 — NEAT + actividad (datos de preferencia, no Art.9) ────
+
+    work_type: Mapped[str | None] = mapped_column(
+        String(32),
+        nullable=True,
+        comment="Tipo de trabajo: desk|standing|physical|remote|none",
+    )
+
+    daily_steps_range: Mapped[str | None] = mapped_column(
+        String(16),
+        nullable=True,
+        comment="Rango de pasos diarios: lt4k|4k7k|7k10k|gt10k",
+    )
+
+    sport_activities: Mapped[dict | None] = mapped_column(
+        JSONB,
+        nullable=True,
+        comment="Lista de deportes: [{sport, days_per_week, duration_min, intensity}]",
+    )
+
+    strength_experience: Mapped[str | None] = mapped_column(
+        String(16),
+        nullable=True,
+        comment="Experiencia en fuerza: never|lt6m|6m2y|gt2y",
+    )
+
+    strength_consistency: Mapped[str | None] = mapped_column(
+        String(16),
+        nullable=True,
+        comment="Consistencia en fuerza: regular|inconsistent|starting",
+    )
+
+    eating_style: Mapped[str | None] = mapped_column(
+        String(32),
+        nullable=True,
+        comment="Estilo de alimentación: omnivore|vegetarian|vegan (texto plano, deuda RGPD pre-lanzamiento)",
+    )
+
+    ai_consent_at: Mapped[datetime | None] = mapped_column(
+        DateTime(timezone=True),
+        nullable=True,
+        comment="Timestamp de consentimiento RGPD Art.9 para procesamiento IA. Null = sin consentimiento.",
+    )
+
+    onboarding_v2_completed: Mapped[bool] = mapped_column(
+        Boolean,
+        nullable=False,
+        default=False,
+        server_default="false",
+        comment="True cuando el usuario completa el wizard extendido de onboarding v2.",
+    )
+
     # ── Relaciones ────────────────────────────────────────────────────────────
 
     # Relación 1:1 con la tabla de llave de cruce
@@ -393,3 +445,64 @@ class PasswordResetToken(UUIDPrimaryKeyMixin, TimestampMixin, Base):
     def __repr__(self) -> str:
         status = "used" if self.used_at else ("expired" if self.expires_at < datetime.now(UTC) else "valid")
         return f"<PasswordResetToken user_id={str(self.user_id)[:8]}... {status}>"
+
+
+class UserHealthProfile(TimestampMixin, Base):
+    """
+    Tabla `user_health_profiles` — Perfil de salud cifrado (schema: health).
+
+    Datos Art.9 RGPD — composición corporal e intolerancias alimentarias.
+    Todos los campos sensibles están cifrados con AES-256-GCM
+    usando AAD `b"healthstack.health_profile.v1"` (contexto separado de data_links).
+
+    PRIMARY KEY: health_subject_id (NO user_id) — seudonimización total.
+    Se accede siempre a través de data_links.health_uuid_enc → health_subject_id.
+    """
+
+    __tablename__ = "user_health_profiles"
+    __table_args__ = {
+        "schema": "health",
+        "comment": (
+            "Perfil de salud cifrado por usuario. "
+            "health_subject_id es la PK — NO hay FK a public.users. "
+            "Todos los campos sensibles están cifrados con AES-256-GCM (Art.9 RGPD)."
+        ),
+    }
+
+    health_subject_id: Mapped[uuid.UUID] = mapped_column(
+        UUID(as_uuid=True),
+        primary_key=True,
+        nullable=False,
+        comment="UUID del sujeto de salud (pseudónimo). Derivado via CryptoService.",
+    )
+
+    # Campos Art.9 — cifrados con AES-256-GCM, AAD=b"healthstack.health_profile.v1"
+    body_fat_pct: Mapped[str | None] = mapped_column(
+        Text,
+        nullable=True,
+        comment="% grasa corporal cifrado AES-256-GCM. Decrypt → Decimal.",
+    )
+    body_fat_visual: Mapped[str | None] = mapped_column(
+        Text,
+        nullable=True,
+        comment="Estimación visual cifrada: lean_soft|belly_main|uniform|high_volume",
+    )
+    food_intolerances: Mapped[str | None] = mapped_column(
+        Text,
+        nullable=True,
+        comment='JSON cifrado. Ejemplo: ["gluten", "lactose"]',
+    )
+    ai_profile: Mapped[str | None] = mapped_column(
+        Text,
+        nullable=True,
+        comment="JSON del análisis Groq cifrado (2-3KB típico). Null si se usó fallback.",
+    )
+    ai_profile_generated_at: Mapped[datetime | None] = mapped_column(
+        DateTime(timezone=True),
+        nullable=True,
+        comment="Timestamp de la última llamada a Groq con éxito.",
+    )
+
+    def __repr__(self) -> str:
+        # NUNCA mostrar datos cifrados en repr
+        return f"<UserHealthProfile subject={str(self.health_subject_id)[:8]}... [encrypted]>"

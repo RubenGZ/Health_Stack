@@ -50,6 +50,8 @@ from app.modules.identity.schemas import (
     LoginResponse,
     OnboardingRequest,
     OnboardingResponse,
+    OnboardingV2In,
+    OnboardingV2Result,
     RefreshRequest,
     RegisterRequest,
     RegisterResponse,
@@ -218,6 +220,47 @@ async def complete_onboarding(
     3. Inserta un HealthRecord baseline en health.health_records
     """
     return await IdentityService.complete_onboarding(
+        db=db,
+        user_id=str(current_user["user_id"]),
+        request=body,
+        crypto=crypto,
+    )
+
+
+# ── POST /onboarding-v2 ──────────────────────────────────────────────────────
+
+@_get_limiter().limit("5/hour")   # 5 actualizaciones de perfil por hora por IP (suficiente para beta)
+@router.post(
+    "/onboarding-v2",
+    response_model=OnboardingV2Result,
+    status_code=status.HTTP_200_OK,
+    summary="Onboarding inteligente v2 con análisis metabólico NEAT + IA",
+    description=(
+        "Wizard extendido de onboarding: guarda datos NEAT (trabajo, pasos, deportes, "
+        "historial de fuerza, composición corporal, alimentación) y, si el usuario da "
+        "consentimiento explícito Art.9, llama a Groq para un análisis metabólico "
+        "personalizado con Katch-McArdle + NEAT real. "
+        "Fallback automático a Mifflin-St Jeor si Groq no está disponible o sin consentimiento. "
+        "Idempotente: segunda llamada del mismo usuario actualiza el perfil. "
+        "Requiere Bearer token."
+    ),
+)
+async def complete_onboarding_v2(
+    request: Request,
+    body: OnboardingV2In,
+    current_user: CurrentUser,
+    db: DBSession,
+    crypto: CryptoService = Depends(get_crypto_service),
+) -> OnboardingV2Result:
+    """
+    Flujo:
+    1. Valida Bearer token (CurrentUser)
+    2. Guarda campos no sensibles en public.users (commit 1)
+    3. Si ai_consent=True → llama a Groq (fuera de transacción, timeout 5s)
+    4. Cifra datos Art.9 + guarda en health.user_health_profiles (commit 2)
+    5. Devuelve resultado con TDEE, macros, diagnóstico y acciones
+    """
+    return await IdentityService.complete_onboarding_v2(
         db=db,
         user_id=str(current_user["user_id"]),
         request=body,

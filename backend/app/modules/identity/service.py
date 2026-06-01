@@ -56,6 +56,10 @@ logger = logging.getLogger(__name__)
 # Se calcula una vez al cargar el módulo para no pagar el coste en cada request
 _DUMMY_HASH: str = hash_password("HealthStack_dummy_2024!")
 
+# AAD para campos Art.9 en health.user_health_profiles (contexto separado de data_links)
+# ⚠️ Cambiar este valor invalida TODOS los datos cifrados existentes — no modificar en producción
+HEALTH_PROFILE_AAD: bytes = b"healthstack.health_profile.v1"
+
 
 class IdentityService:
     """
@@ -384,7 +388,7 @@ class IdentityService:
         import uuid as _uuid_mod
         health_subject_id_str = await crypto.resolve_health_subject_id(user_id, db)
         health_subject_id = _uuid_mod.UUID(health_subject_id_str)
-        _HEALTH_PROFILE_AAD = b"healthstack.health_profile.v1"
+        _HEALTH_PROFILE_AAD = HEALTH_PROFILE_AAD
 
         enc_bfp: str | None = None
         if request.body_fat_pct is not None:

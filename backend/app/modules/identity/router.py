@@ -62,7 +62,7 @@ from app.modules.identity.schemas import (
 )
 from app.modules.identity.service import IdentityService
 from app.session import DBSession
-from app.shared.exceptions import TokenInvalidError, UserNotFoundError
+from app.shared.exceptions import HealthLinkNotFoundError, TokenInvalidError, UserNotFoundError
 
 logger = logging.getLogger(__name__)
 
@@ -315,8 +315,15 @@ async def revoke_ai_consent(
             """),
             {"sid": subject_id},
         )
-    except Exception:
-        pass  # Si no tiene perfil de salud, no hay nada que eliminar
+    except HealthLinkNotFoundError:
+        # El usuario nunca completó onboarding v1 — no tiene health_subject_id, es OK
+        logger.debug("Revocación IA: usuario %s no tiene health link, nada que eliminar.", user_id[:8])
+    except Exception as exc:
+        # Error técnico inesperado — el ai_profile podría no haberse eliminado.
+        # Hacer rollback del flush de ai_consent_at para mantener consistencia RGPD.
+        await db.rollback()
+        logger.error("Revocación IA: error al eliminar ai_profile de user=%s: %s", user_id[:8], exc)
+        raise HTTPException(status_code=500, detail="Error al revocar el consentimiento. Inténtalo de nuevo.")
 
     await db.commit()
     logger.info("Consentimiento IA revocado: user=%s", user_id[:8])

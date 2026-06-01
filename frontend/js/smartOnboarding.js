@@ -38,13 +38,18 @@ const SmartOnboarding = (function () {
     if (!token) return;
     if (localStorage.getItem(LS_FLAG) === '1') return;
 
-    // Intentar recuperar progreso guardado
+    // Intentar recuperar progreso guardado (incl. sports para no perder datos al reabrir)
     try {
       const saved = localStorage.getItem(LS_ANSWERS);
-      if (saved) answers = JSON.parse(saved);
+      if (saved) {
+        const parsed = JSON.parse(saved);
+        sports = Array.isArray(parsed._sports) ? parsed._sports : [];
+        answers = parsed;
+        delete answers._sports; // mantener answers limpio
+      }
       const savedStep = parseInt(localStorage.getItem(LS_STEP) || '0', 10);
       currentStep = isNaN(savedStep) ? 0 : savedStep;
-    } catch (_) { answers = {}; currentStep = 0; }
+    } catch (_) { answers = {}; sports = []; currentStep = 0; }
 
     // Iniciar en siguiente frame para no bloquear el render inicial
     requestAnimationFrame(render);
@@ -73,7 +78,8 @@ const SmartOnboarding = (function () {
   // ── Guardar respuestas en localStorage (cada paso) ───────
   function saveProgress() {
     try {
-      localStorage.setItem(LS_ANSWERS, JSON.stringify(answers));
+      // Persiste sports junto con answers para sobrevivir recargas/reaperturas
+      localStorage.setItem(LS_ANSWERS, JSON.stringify({ ...answers, _sports: sports }));
       localStorage.setItem(LS_STEP, String(currentStep));
     } catch (_) {}
   }
@@ -652,7 +658,9 @@ const SmartOnboarding = (function () {
 
       if (!resp.ok) {
         const err = await resp.json().catch(() => ({}));
-        throw new Error(err.detail || `HTTP ${resp.status}`);
+        // err.error para 429 (slowapi), err.detail para FastAPI validation
+        const msg = err.error || err.detail || `HTTP ${resp.status}`;
+        throw new Error(resp.status === 429 ? 'Demasiados intentos, espera unos minutos.' : msg);
       }
 
       const result = await resp.json();
@@ -682,6 +690,8 @@ const SmartOnboarding = (function () {
 
     const isFallback = !r.ai_used;
     const actionSteps = (r.action_steps || []).slice(0, 3);
+    // Guard: macros puede ser null si el fallback no los calcula (evita TypeError)
+    const macros = r.macros || { protein_g: '--', carbs_g: '--', fat_g: '--' };
 
     overlay.querySelector('.smart-ob-modal').innerHTML = `
       <div class="smart-ob-result">
@@ -693,25 +703,25 @@ const SmartOnboarding = (function () {
         <div class="smart-ob-result-tdee">
           <div class="smart-ob-result-tdee-card">
             <span class="smart-ob-result-label">TDEE</span>
-            <span class="smart-ob-result-big">${r.tdee_kcal}</span>
+            <span class="smart-ob-result-big">${_esc(String(r.tdee_kcal ?? '--'))}</span>
             <span class="smart-ob-result-unit">kcal/día</span>
           </div>
           <div class="smart-ob-result-tdee-card">
             <span class="smart-ob-result-label">Objetivo</span>
-            <span class="smart-ob-result-big">${r.target_kcal}</span>
+            <span class="smart-ob-result-big">${_esc(String(r.target_kcal ?? '--'))}</span>
             <span class="smart-ob-result-unit">kcal/día</span>
           </div>
         </div>
 
         <div class="smart-ob-result-macros">
           <div class="smart-ob-macro-pill smart-ob-macro-p">
-            <strong>${r.macros.protein_g}g</strong><small>Proteína</small>
+            <strong>${_esc(String(macros.protein_g))}g</strong><small>Proteína</small>
           </div>
           <div class="smart-ob-macro-pill smart-ob-macro-c">
-            <strong>${r.macros.carbs_g}g</strong><small>Carbos</small>
+            <strong>${_esc(String(macros.carbs_g))}g</strong><small>Carbos</small>
           </div>
           <div class="smart-ob-macro-pill smart-ob-macro-f">
-            <strong>${r.macros.fat_g}g</strong><small>Grasa</small>
+            <strong>${_esc(String(macros.fat_g))}g</strong><small>Grasa</small>
           </div>
         </div>
 

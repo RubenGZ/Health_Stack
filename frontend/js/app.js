@@ -492,9 +492,12 @@
 
       if (hasConsent) {
         const d = new Date(user.ai_consent_at);
+        const dateStr = isNaN(d.getTime())
+          ? 'fecha no disponible'
+          : d.toLocaleDateString('es-ES', { day:'numeric', month:'long', year:'numeric' });
         statusEl.innerHTML = `
           <span style="color:#4ade80">✓ Consentimiento IA activo</span> desde el
-          ${d.toLocaleDateString('es-ES', { day:'numeric', month:'long', year:'numeric' })}.<br>
+          ${dateStr}.<br>
           Tus métricas se envían a <strong>Groq (Meta llama-3.3)</strong> cifradas y anonimizadas.<br>
           <span style="color:rgba(255,255,255,0.35);font-size:.72rem">Base legal: Art. 6(1)(a) + Art. 9(2)(a) RGPD</span>`;
         if (revokeBtn) revokeBtn.style.display = '';

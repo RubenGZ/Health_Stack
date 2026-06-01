@@ -175,17 +175,19 @@ const SmartOnboarding = (function () {
           <label class="smart-ob-consent-label">
             <input type="checkbox" id="ob-consent-check" ${answers.ai_consent ? 'checked' : ''}>
             <span>
-              Acepto que HealthStack trate mis datos de salud,
-              <strong>incluyendo valores numéricos anónimos de composición corporal</strong>
-              (peso, altura, % grasa), usando servicios de inteligencia artificial (Groq/Meta)
-              para generar mi perfil nutricional personalizado.
-              Puedo revocar este consentimiento en Ajustes › Privacidad.
+              Acepto que HealthStack envíe <strong>métricas numéricas anónimas</strong>
+              (sexo, edad, peso, altura, % de grasa corporal estimado) al procesador externo
+              <strong>Groq Inc. (Meta llama-3.3)</strong> para generar mi análisis metabólico personalizado.
             </span>
           </label>
         </div>
+        <div class="smart-ob-consent-details">
+          <p>🔒 <strong>Antes de salir de tu dispositivo</strong>, estos datos se cifran con AES-256-GCM y se pseudonimizan — Groq recibe solo números, nunca tu nombre, email ni ningún identificador.</p>
+          <p>🗑️ Puedes <strong>revocar este consentimiento</strong> en cualquier momento desde Ajustes › Privacidad. Al revocar, tu perfil IA se elimina de nuestra base de datos.</p>
+          <p>📋 Base legal: Art. 6(1)(a) + Art. 9(2)(a) RGPD — Consentimiento explícito para datos de salud.</p>
+        </div>
         <p class="smart-ob-consent-note">
-          Sin consentimiento, usaremos la fórmula estándar Mifflin-St Jeor.
-          Tus datos NUNCA incluyen nombre, email ni identificadores personales.
+          Sin consentimiento usaremos la fórmula estándar Mifflin-St Jeor localmente. Sin IA, sin envío externo.
         </p>
         <div class="smart-ob-tdee-preview" id="ob-tdee-preview" style="display:none"></div>
       </div>`;

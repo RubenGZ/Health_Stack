@@ -478,12 +478,85 @@
     }
   }
 
+  // ── Sección Privacidad IA — consentimiento Art.9 ─────────────────────────
+  async function _loadPrivacyAI() {
+    const statusEl   = document.getElementById('privacy-ai-status');
+    const revokeBtn  = document.getElementById('btn-revoke-ai-consent');
+    const reopenBtn  = document.getElementById('btn-reopen-smart-ob');
+    if (!statusEl) return;
+
+    try {
+      const user = JSON.parse(localStorage.getItem('hs_user') || '{}');
+      const hasConsent = !!user.ai_consent_at;
+      const hasV2      = !!user.onboarding_v2_completed;
+
+      if (hasConsent) {
+        const d = new Date(user.ai_consent_at);
+        statusEl.innerHTML = `
+          <span style="color:#4ade80">✓ Consentimiento IA activo</span> desde el
+          ${d.toLocaleDateString('es-ES', { day:'numeric', month:'long', year:'numeric' })}.<br>
+          Tus métricas se envían a <strong>Groq (Meta llama-3.3)</strong> cifradas y anonimizadas.<br>
+          <span style="color:rgba(255,255,255,0.35);font-size:.72rem">Base legal: Art. 6(1)(a) + Art. 9(2)(a) RGPD</span>`;
+        if (revokeBtn) revokeBtn.style.display = '';
+      } else {
+        statusEl.innerHTML = `
+          <span style="color:#94a3b8">Sin consentimiento IA.</span>
+          Tu perfil metabólico usa la fórmula Mifflin-St Jeor local — sin envío externo.`;
+        if (revokeBtn) revokeBtn.style.display = 'none';
+      }
+
+      if (reopenBtn) reopenBtn.style.display = '';
+
+    } catch (_) {
+      statusEl.textContent = 'No se pudo cargar el estado de privacidad.';
+    }
+
+    // Botón revocar
+    if (revokeBtn && !revokeBtn._bound) {
+      revokeBtn._bound = true;
+      revokeBtn.addEventListener('click', async () => {
+        if (!confirm('¿Revocar el consentimiento IA? El análisis Groq guardado se eliminará.')) return;
+        revokeBtn.disabled = true;
+        revokeBtn.textContent = 'Revocando…';
+        try {
+          const token = localStorage.getItem('hs_access_token') || sessionStorage.getItem('hs_access_token');
+          const resp  = await fetch('/api/v1/auth/ai-consent', {
+            method: 'DELETE',
+            headers: { Authorization: `Bearer ${token}` },
+          });
+          if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
+          // Actualizar localStorage
+          const usr = JSON.parse(localStorage.getItem('hs_user') || '{}');
+          delete usr.ai_consent_at;
+          localStorage.setItem('hs_user', JSON.stringify(usr));
+          if (typeof window.showToast === 'function') window.showToast('Consentimiento IA revocado. Análisis eliminado.', 'success');
+          _loadPrivacyAI();
+        } catch (err) {
+          if (typeof window.showToast === 'function') window.showToast('Error al revocar: ' + (err?.message || ''), 'error');
+          revokeBtn.disabled = false;
+          revokeBtn.textContent = 'Revocar consentimiento IA';
+        }
+      });
+    }
+
+    // Botón actualizar perfil metabólico
+    if (reopenBtn && !reopenBtn._bound) {
+      reopenBtn._bound = true;
+      reopenBtn.addEventListener('click', () => {
+        localStorage.removeItem('hs_smart_onboarded');
+        if (typeof SmartOnboarding !== 'undefined') SmartOnboarding.init();
+        else window.location.reload();
+      });
+    }
+  }
+
   // Actualizar al navegar a config o al hacer login
   window.addEventListener('hs:section-changed', e => {
     if (e.detail?.section === 'config') {
       _updateAccountInfo();
       _syncLangPickerUI();
       _loadProfileStats();
+      _loadPrivacyAI();
     }
   });
   window.addEventListener('hs:login', _updateAccountInfo);

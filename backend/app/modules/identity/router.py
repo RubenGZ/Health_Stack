@@ -268,6 +268,61 @@ async def complete_onboarding_v2(
     )
 
 
+# ── DELETE /ai-consent ────────────────────────────────────────────────────────
+
+@router.delete(
+    "/ai-consent",
+    status_code=status.HTTP_200_OK,
+    summary="Revocar consentimiento Art.9 para procesamiento IA",
+    description=(
+        "Revoca el consentimiento RGPD Art.9 para el análisis metabólico con IA. "
+        "Efecto: ai_consent_at = NULL en public.users + ai_profile eliminado de "
+        "health.user_health_profiles. Requiere Bearer token."
+    ),
+)
+async def revoke_ai_consent(
+    current_user: CurrentUser,
+    db: DBSession,
+    crypto: CryptoService = Depends(get_crypto_service),
+) -> dict:
+    """
+    Derecho de revocación del consentimiento (Art. 7(3) RGPD).
+    Al revocar:
+    1. ai_consent_at = NULL en public.users
+    2. ai_profile = NULL en health.user_health_profiles (elimina el resultado Groq)
+    3. ai_profile_generated_at = NULL
+    Los demás campos cifrados (body_fat_pct, food_intolerances, etc.) se conservan
+    porque fueron procesados localmente — no con Groq.
+    """
+    from sqlalchemy import text as _text
+
+    user_id = str(current_user["user_id"])
+    user = await UserRepository.get_by_id(db, user_id)
+    if user is None:
+        raise HTTPException(status_code=404, detail="Usuario no encontrado")
+
+    user.ai_consent_at = None
+    await db.flush()
+
+    # Eliminar el ai_profile Groq de health.user_health_profiles
+    try:
+        subject_id = await crypto.resolve_health_subject_id(user_id, db)
+        await db.execute(
+            _text("""
+                UPDATE health.user_health_profiles
+                SET ai_profile = NULL, ai_profile_generated_at = NULL, updated_at = now()
+                WHERE health_subject_id = :sid
+            """),
+            {"sid": subject_id},
+        )
+    except Exception:
+        pass  # Si no tiene perfil de salud, no hay nada que eliminar
+
+    await db.commit()
+    logger.info("Consentimiento IA revocado: user=%s", user_id[:8])
+    return {"message": "Consentimiento IA revocado. El análisis Groq ha sido eliminado.", "ai_consent_at": None}
+
+
 # ── POST /refresh ─────────────────────────────────────────────────────────────
 
 @router.post(

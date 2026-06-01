@@ -15,6 +15,10 @@ class UserAdminRow(BaseModel):
     is_active: bool
     last_login_at: datetime | None
     created_at: datetime
+    # Campos RGPD — visibles en admin para auditoría de consentimiento
+    onboarding_completed: bool = False
+    onboarding_v2_completed: bool = False
+    ai_consent_at: datetime | None = None   # Null = sin consentimiento Art.9 IA
     model_config = {"from_attributes": True}
 
 

@@ -60,6 +60,7 @@ TRUNCATE_TABLES = [
     "public.ranked_seasons",
     "public.ai_insights_cache",
     "public.workout_ai_plans",
+    "public.user_chronic_injuries",  # Injury-Aware Routine (Fase 8A)
     "public.users",
 ]
 

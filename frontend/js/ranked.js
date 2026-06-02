@@ -167,7 +167,7 @@ async function openSparring(container, gymId) {
       return `<div class="rk-sparring-card">
         <span class="rk-sparring-name">${name}</span>
         <span class="rk-sparring-meta">${times[m.schedule] || '—'} · ${goals[m.goal] || '—'}</span>
-        ${m.contact && /^https?:\/\//i.test(m.contact) ? `<a class="rk-sparring-contact" href="${m.contact.replace(/"/g,'%22')}" target="_blank" rel="noopener noreferrer">${_t('ranked.sparring_contact')}</a>` : ''}
+        ${m.contact && /^https?:\/\//i.test(m.contact) ? `<a class="rk-sparring-contact" href="${encodeURI(m.contact).replace(/"/g,'%22')}" target="_blank" rel="noopener noreferrer">${_t('ranked.sparring_contact')}</a>` : ''}
       </div>`;
     }).join('');
     showModal(_t('ranked.sparring_title'), cards || '<p style="color:rgba(255,255,255,0.5)">' + _t('ranked.sparring_empty') + '</p>');

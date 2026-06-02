@@ -81,6 +81,7 @@ async def list_ingredients(
 async def create_recipe(
     payload: UserRecipeCreate,
     db: DBSession,
+    current_user: CurrentUser,
 ):
     return await NutritionService.create_recipe(db, payload)
 

@@ -360,6 +360,8 @@ class IdentityService:
 
         # ── Commit 1: campos no sensibles (SOLO datos sin riesgo Art.9) ──────────
         # eating_style y sport_activities se cifran en el commit 2 (health_profiles)
+        if request.primary_fitness_goal is not None:
+            user.primary_fitness_goal = request.primary_fitness_goal
         user.work_type = request.work_type
         user.daily_steps_range = request.daily_steps_range
         user.strength_experience = request.strength_experience

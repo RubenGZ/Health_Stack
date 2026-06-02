@@ -163,21 +163,47 @@ const SmartOnboarding = (function () {
 
     if (!body) return;
 
+    // Nuevo orden: objetivo primero (como v1), consentimiento al final (opcional)
+    // 0: Objetivo  1: Trabajo  2: Deportes  3: Fuerza  4: Composición  5: Alimentación  6: Consentimiento IA
     switch (currentStep) {
-      case 0: body.innerHTML = renderConsent(); break;
+      case 0: body.innerHTML = renderGoal(); break;
       case 1: body.innerHTML = renderWork(); break;
       case 2: body.innerHTML = renderSports(); break;
       case 3: body.innerHTML = renderStrength(); break;
       case 4: body.innerHTML = renderBodyComp(); break;
       case 5: body.innerHTML = renderEating(); break;
-      case 6: body.innerHTML = renderSummaryPreview(); break;
+      case 6: body.innerHTML = renderConsent(); break;
     }
 
     attachStepListeners();
     updatePreviewTDEE();
   }
 
-  // ── PASO 0: Consentimiento RGPD ──────────────────────────
+  // ── PASO 0: Objetivo fitness ─────────────────────────────
+  function renderGoal() {
+    const sel = answers.primary_fitness_goal || '';
+    const opts = [
+      { value: 'lose_fat',          label: 'Perder grasa',        hint: 'Déficit calórico moderado con alta proteína' },
+      { value: 'maintain',          label: 'Mantenerme',          hint: 'Recomposición corporal y salud general' },
+      { value: 'gain_muscle',       label: 'Ganar músculo',       hint: 'Superávit controlado y sobrecarga progresiva' },
+      { value: 'increase_strength', label: 'Aumentar fuerza',     hint: 'Fuerza máxima y rendimiento atlético' },
+    ];
+    return `
+      <div class="smart-ob-step">
+        <h2 class="smart-ob-title">¿Cuál es tu objetivo principal?</h2>
+        <p class="smart-ob-subtitle">Esto personalizará tu plan desde el primer momento.</p>
+        <div class="smart-ob-options">
+          ${opts.map(o => `
+            <button class="smart-ob-option${sel === o.value ? ' selected' : ''}"
+                    data-field="primary_fitness_goal" data-value="${o.value}">
+              <span class="smart-ob-opt-label">${o.label}</span>
+              <span class="smart-ob-opt-hint">${o.hint}</span>
+            </button>`).join('')}
+        </div>
+      </div>`;
+  }
+
+  // ── PASO 6: Consentimiento IA (opcional, al final) ────────
   function renderConsent() {
     return `
       <div class="smart-ob-step">
@@ -541,13 +567,13 @@ const SmartOnboarding = (function () {
   // ── Validar paso actual ───────────────────────────────────
   function validateStep() {
     switch (currentStep) {
-      case 0: return true; // Consentimiento es opcional
+      case 0: return !!answers.primary_fitness_goal; // Objetivo requerido (como v1)
       case 1: return !!(answers.work_type && answers.daily_steps_range);
       case 2: return true; // Deportes es opcional
       case 3: return !!(answers.strength_experience && answers.strength_consistency);
       case 4: return true; // Composición opcional
       case 5: return !!answers.eating_style;
-      case 6: return true;
+      case 6: return true; // Consentimiento IA es opcional
       default: return true;
     }
   }
@@ -559,7 +585,8 @@ const SmartOnboarding = (function () {
       const body = document.getElementById('smart-ob-body');
       if (body) { body.classList.add('smart-ob-shake'); setTimeout(() => body.classList.remove('smart-ob-shake'), 400); }
       if (typeof window.showToast === 'function') {
-        const missing = currentStep === 1 ? 'Selecciona tipo de trabajo y rango de pasos.'
+        const missing = currentStep === 0 ? 'Selecciona tu objetivo principal.'
+          : currentStep === 1 ? 'Selecciona tipo de trabajo y rango de pasos.'
           : currentStep === 3 ? 'Selecciona tu experiencia y consistencia.'
           : currentStep === 5 ? 'Selecciona tu estilo de alimentación.' : '';
         if (missing) window.showToast(missing, 'warning');
@@ -633,6 +660,7 @@ const SmartOnboarding = (function () {
 
     const body = {
       ai_consent: !!answers.ai_consent,
+      primary_fitness_goal: answers.primary_fitness_goal || null,
       work_type: answers.work_type || 'desk',
       daily_steps_range: answers.daily_steps_range || 'lt4k',
       sport_activities: sports,

@@ -293,6 +293,14 @@ class SportActivityItem(BaseModel):
 class OnboardingV2In(BaseModel):
     """Body del endpoint POST /auth/onboarding-v2."""
 
+    # Objetivo fitness (capturado en paso 0 del wizard v2)
+    primary_fitness_goal: Literal[
+        "lose_fat", "maintain", "gain_muscle", "increase_strength"
+    ] | None = Field(
+        default=None,
+        description="Objetivo principal del usuario. Si se envía, se actualiza en public.users.",
+    )
+
     # Consentimiento RGPD Art.9
     ai_consent: bool = Field(
         ...,

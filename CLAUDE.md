@@ -26,7 +26,7 @@ Skill dedicado para mejoras visuales del frontend. Cargado en `.claude/skills/he
 **Token de diseño clave**: dark premium, gold `#c4a561` como ÚNICO acento, Inter font, base 4px spacing.
 
 **Estado del sistema de diseño**:
-- CSS v7 en `frontend/css/main.css` — SW **v86** — última actualización 2026-05-30
+- CSS v7 en `frontend/css/main.css` — SW **v122** — última actualización 2026-06-03
 - **Fase 1** ✅ completada: brand consistency (161 refs cyan→gold), skeleton system, stat upgrades, card polish, safe-area iOS
 - **Fase 2** ✅ completada: toast.js (showToast/showConfirm), chartDefaults.js, 10 módulos migrados de alert/confirm nativos, empty states, skeleton loaders JS, form input error/success states (setFieldState global)
 - **Fase 3** ✅ completada: stat-change pill coloreado, XP bar gold shimmer animado, level badge glow pulsante, achievement badge hover, wl-ex-group-chip por grupo muscular, PR badge shimmer, exercise cards con chip de color y badge "última vez"
@@ -39,6 +39,9 @@ Skill dedicado para mejoras visuales del frontend. Cargado en `.claude/skills/he
 - **MVP Beta Polish** ✅ completada (2026-05-29): feedbackWidget cargado + badge "beta", JS error ring buffer → localStorage + WhatsApp attachment, manifest icons/screenshots, dashboard first-run banner, Rutinas empty state, PATCH /api/v1/auth/me endpoint, display_name editable en Perfil, stats row (días + entrenos), toast bienvenida beta, avatar iniciales en Config, gamification hint para nuevos usuarios. SW v79.
 - **Estrategia + Producto** ✅ completada (2026-05-29): TTFV tracking, auto-fire coach IA, telemetría PR + habito_formado, Pro nudge, landing loss-aversion. SW v81.
 - **MVP Final Polish** ✅ completada (2026-05-29): AI coach CTA adaptativo (primer/repeat workout), tests telemetry/event, smoke test actualizado con nuevos endpoints, ranked season dinámica + scopes diferenciados, gym_servers descubrimiento público + abandonar gym + response_models. SW v82.
+- **Pre-beta UX + PWA hardening** ✅ (2026-05-30 → 06-02, SW v82→v118): transitions.js (pantalla de carga al actualizar), modo mantenimiento admin + polling, fix canvas reuse crash, fix mobileNav crash, fix workout historial snake_case, weekly recap + endowed progress + identity streak, bug report button, popup felicitación upgrade plan, beta mode mobile fix, offline queue, portrait-only orientation lock.
+- **Smart Onboarding v2** ✅ (2026-06-01 → 06-03, SW v119→v122): wizard de 7 pasos (`frontend/js/smartOnboarding.js`, `window.SmartOnboarding`) con análisis metabólico NEAT + IA Groq. Migraciones 0017 (`smart_onboarding`) + 0018 (`rgpd_encrypt_eating_sports`). Endpoint `POST /api/v1/auth/onboarding-v2` + `DELETE /api/v1/auth/ai-consent` (revocación Art.9). Cifrado AES-256-GCM de `eating_style` y `sport_activities`. Consentimiento IA visible y revocable. 21 tests de onboarding. v1 (objetivo primero) + v2 (consentimiento IA al final). Fix: SmartOnboarding gating con `hs:user-loaded`.
+- **Audit fixes** ✅ (2026-06-03): auth guard en nutrition recipes, XSS fix en ranked URL, `TEST_DATABASE_URL` configurable por env var.
 
 ---
 
@@ -84,6 +87,7 @@ Cada módulo en `backend/app/modules/<nombre>/`:
 | Módulo            | Prefijo API                         | Auth          | Estado            | Tests |
 |-------------------|-------------------------------------|---------------|-------------------|-------|
 | identity          | `/api/v1/auth`                      | JWT RS256     | ✅ Production     | 17    |
+| identity (onboarding) | `/api/v1/auth/onboarding(-v2)`  | JWT + Groq    | ✅ Production     | 21    |
 | health            | `/api/v1/health`                    | JWT + AES-256 | ✅ Production     | 9     |
 | nutrition         | `/api/v1/nutrition`                 | UUID local    | ✅ Production     | 9     |
 | routines          | `/api/v1/routines`                  | JWT           | ✅ Production     | 6     |
@@ -153,7 +157,7 @@ Si se rota la MASTER_KEY hay que re-cifrar todos los `health_uuid_enc`. (TODO pe
 
 ## Tests — Estado actual
 
-**182 tests totales** (auditados 2026-05-29).
+**~244 tests totales** en 26 archivos (auditados 2026-06-03). Incluye 21 tests nuevos de onboarding v1/v2 (`test_onboarding*.py`) + 3 de `TestRevokeAIConsent` (DELETE /ai-consent).
 
 ```
 tests/unit/                   21 tests
@@ -224,6 +228,13 @@ asyncio_default_test_loop_scope = session   ← sin esto asyncpg explota
 | **429 silencioso en registro/login** | slowapi devuelve `{"error":...}` pero api.js solo leía `err.detail` | Leer `err.error \|\| err.detail` + mensaje user-friendly en auth.js (2026-05-30) |
 | **telemetry /event → 422** | `@_get_limiter().limit()` en endpoint con `Body()` rompe body parsing FastAPI 0.111 | Quitar decorator por-endpoint; usar rate limit global (2026-05-30) |
 | **XSS en aiInsights/aiCoach** | Contenido Groq (narrative, risk_flags, coaching) insertado en innerHTML sin escapar | `_esc()` aplicado a todos los campos AI antes de innerHTML (2026-05-30) |
+| **canvas reuse crash** | Chart.js reusaba canvas ya inicializado | Reuse del chart existente (`Chart.getChart`) en lugar de recrear (2026-05-31) |
+| **mobileNav crash + historial snake_case** | Frontend leía camelCase pero API devolvía snake_case | Normalización snake_case en workout history (2026-05-30) |
+| **SmartOnboarding no aparecía** | Flag `hs_onboarded` previo en localStorage bloqueaba el wizard v2 | Gating con señal `hs:user-loaded` + server `onboarding_completed` autoritativo (2026-06-03) |
+| **PII a Groq en onboarding v2** | `eating_style` y `sport_activities` (Art.9) sin cifrar | Cifrado AES-256-GCM en migración 0018 (2026-06-03) |
+| **Auth ausente en nutrition recipes** | Endpoints de recetas sin guard de autorización | Auth guard añadido (audit fix 2026-06-03) |
+| **XSS en ranked URL** | URL de ranked insertada sin escapar | Escape aplicado (audit fix 2026-06-03) |
+| **TEST_DATABASE_URL hardcodeada** | BD de test fija en conftest | Configurable vía env var (2026-06-03) |
 
 ---
 
@@ -238,9 +249,9 @@ asyncio_default_test_loop_scope = session   ← sin esto asyncpg explota
 | CI/CD (GitHub Actions) | ✅ `.github/workflows/ci.yml` | tests + security scan + push a GHCR |
 | Prometheus | ✅ Cableado en `main.py` | `/metrics` expuesto |
 | Sentry | ✅ Cableado | Filtro PII activo (RGPD Art. 28) |
-| Alembic migraciones | ✅ **6 migraciones** | HEAD: `c9d0e1f2a3b4` (injury_coach_tables) |
+| Alembic migraciones | ✅ **18 migraciones** | HEAD: `f2a3b4c5d6e7` (0018 rgpd_encrypt_eating_sports) |
 | Redis en Pi | ✅ **Healthy desde 2026-05-29** | `REDIS_PASSWORD` fijada en `.env.pi` |
-| Service Worker | ✅ `healthstack-v82` | v82: AI coach CTA adaptativo (2026-05-29) |
+| Service Worker | ✅ `healthstack-v122` | v122: Smart Onboarding v2 / consentimiento IA (2026-06-03) |
 | Cloudflare Tunnel | ✅ Quick Tunnel activo | URL aleatoria — necesita Named Tunnel para beta |
 
 **Contenedores Pi activos (2026-05-29):**
@@ -320,18 +331,21 @@ En `landing/src/components/demo.tsx` → `PLAN_OK[0]` = todas `true`.
 
 ## Pendientes prioritarios
 
-### 🔴 Acciones manuales (Ruben debe hacer esto — bloqueantes para beta)
-1. **Cloudflare Named Tunnel** — sustituir Quick Tunnel por Named Tunnel con URL estable. Requiere token en `.env.pi` como `CLOUDFLARE_TUNNEL_TOKEN`.
-2. **ALLOWED_ORIGINS** — añadir la URL estable de beta a `ALLOWED_ORIGINS` en `backend/.env` de la Pi. Ahora mismo permite cualquier origen (CORS abierto).
-3. **Subir GitHub Secrets** — ejecutar `scripts\upload-secrets-to-github.ps1` tras `gh auth login`
-4. ~~**AdSense**~~ — eliminado para beta (SPONSOR.active=false, scripts archivados)
+### 🔴 Acciones manuales (Ruben debe hacer esto — BLOQUEANTES para beta del viernes 6 jun)
+1. **Cloudflare Named Tunnel** — sustituir Quick Tunnel (`healthstack_tunnel_quick`) por Named Tunnel con URL estable. Requiere token en `.env.pi` como `CLOUDFLARE_TUNNEL_TOKEN` + cambiar perfil Docker `quick`→`cloudflare`. SIN ESTO la URL cambia en cada reinicio y los betatesters pierden acceso. **Blocker #1.**
+2. **ALLOWED_ORIGINS** — añadir la URL estable a `ALLOWED_ORIGINS` en `backend/.env` de la Pi. Ahora mismo CORS está ABIERTO (cualquier origen). **Blocker #2 — riesgo de seguridad.**
+3. **Smoke test con URL definitiva** — `python3 scripts/smoke_test.py https://URL-ESTABLE` desde un dispositivo externo (no la Pi). **Blocker #3.**
+4. **Subir GitHub Secrets** — `scripts\upload-secrets-to-github.ps1` tras `gh auth login` (no bloquea beta, sí CI/CD).
+5. ~~**AdSense**~~ — eliminado para beta (SPONSOR.active=false, scripts archivados).
 
 ### 🟡 Trabajo de código (post-beta, no bloquea MVP)
-5. **Tests integrations**: 0 tests para OAuth2/sync/CSV
-6. **Rotación de MASTER_KEY** — documentar procedimiento de re-cifrado
-7. **gym_servers GymChampionBadge** — tabla huérfana, sin endpoints
-8. **gym_servers GymChallenge.contribution** — progreso de retos no se registra
-9. **User.country_code/city** — columnas necesarias para scopes ranked city/national reales (requiere migración)
+6. **Landing — promesas incumplidas**: anuncia "Activo" para Google Fit / Strava / Fitbit pero `integrations` es WIP sin E2E. Riesgo de credibilidad si un betatester lo intenta. Cambiar a "Próximamente" antes de invitar. (Ver Master Strategy Gap 3.)
+7. **Gamificación dual-track sin sincronizar**: el frontend (`frontend/js/gamification.js`, localStorage `hs_gamification`, `XP_ACTIONS`) y el backend (`gamification/service.py`, `XP_TABLE`) llevan XP/niveles SEPARADOS y con tablas de puntos distintas. El dashboard muestra XP local; el backend solo recibe `award_action("workout")`. No bloquea beta pero el número de XP no es consistente entre dispositivos.
+8. **Tests integrations**: 0 tests para OAuth2/sync/CSV.
+9. **Rotación de MASTER_KEY** — documentar procedimiento de re-cifrado.
+10. **gym_servers GymChampionBadge** — tabla huérfana, sin endpoints.
+11. **gym_servers GymChallenge.contribution** — progreso de retos no se registra.
+12. **User.country_code/city** — columnas necesarias para scopes ranked city/national reales (requiere migración).
 
 ### ✅ Ya hecho (actualizado 2026-05-29)
 - Módulo A: Injury-Aware Routine Generator ✅ (2026-05-29)
@@ -384,7 +398,9 @@ python3 scripts/smoke_test.py https://TU-URL.trycloudflare.com
 
 **Objetivo**: PWA estable con URL fija, lista para 5-10 betatesters el viernes 6 de junio.
 
-### Día 1 — Lunes 2 Jun · Infraestructura estable
+> **ESTADO al 2026-06-03 (miércoles)**: Todo el trabajo de CÓDIGO y UX está hecho (Día 2 + Día 4 ✅, SW v122, onboarding v2 + consentimiento IA shipped). Lo que queda son los **3 blockers manuales de infraestructura del Día 1** (Named Tunnel, CORS, PWA install verificado) + QA end-to-end (Día 3). El camino crítico a la beta es 100% infra + QA, no código. Ver "Pendientes prioritarios → Acciones manuales".
+
+### Día 1 — Lunes 2 Jun · Infraestructura estable  ⚠️ AÚN PENDIENTE (es el camino crítico)
 
 **Bloqueante #1: URL estable**
 - [ ] Registrar Cloudflare Named Tunnel en Zero Trust dashboard

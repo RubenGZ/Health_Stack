@@ -5,6 +5,7 @@ Fixtures compartidas para toda la suite de tests.
 """
 
 import asyncio
+import os
 from pathlib import Path
 
 from dotenv import load_dotenv
@@ -33,7 +34,10 @@ import app.modules.workout_sessions.models  # noqa: F401
 from app.session import get_db
 from app.shared.base_model import Base
 
-TEST_DB_URL = "postgresql+asyncpg://postgres:P%40ssw0rd@localhost:5432/healthstack_test"
+TEST_DB_URL = os.getenv(
+    "TEST_DATABASE_URL",
+    "postgresql+asyncpg://postgres:P%40ssw0rd@localhost:5432/healthstack_test",
+)
 
 # Tablas a truncar entre tests (orden respeta FK — hijas antes que padres)
 TRUNCATE_TABLES = [

@@ -1440,6 +1440,41 @@ select.form-input option { background: var(--bg-surface); color: var(--text-prim
 .legend-item { display: flex; align-items: center; gap: 4px; font-size: 0.75rem; color: var(--text-secondary); }
 .legend-dot  { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
 
+/* ── Quiz popup modal (Generador de Rutinas) ─────────────── */
+.quiz-modal-overlay {
+  position: fixed; inset: 0; z-index: 502;
+  background: rgba(7,7,15,0.88);
+  display: none;
+  align-items: flex-start; justify-content: center;
+  padding: 16px 12px max(96px, calc(74px + env(safe-area-inset-bottom, 0px))) 12px;
+  overflow-y: auto;
+  animation: ob-fade-in 0.25s ease;
+}
+.quiz-modal-overlay.quiz-modal--open { display: flex; }
+.quiz-modal-wrap {
+  background: #0e0e1a;
+  border: 1px solid rgba(196,165,97,0.18);
+  border-radius: 16px;
+  width: 100%; max-width: 520px;
+  box-shadow: 0 16px 48px rgba(0,0,0,0.5);
+  overflow: hidden;
+}
+.quiz-modal-header {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 14px 18px 12px;
+  border-bottom: 1px solid rgba(255,255,255,0.06);
+}
+.quiz-modal-header h3 {
+  font-size: 0.9rem; font-weight: 600; color: #f1f5f9; margin: 0;
+}
+.quiz-modal-close-btn {
+  background: none; border: none; color: #64748b; font-size: 1.05rem;
+  cursor: pointer; padding: 4px 8px; border-radius: 6px; line-height: 1;
+  transition: color 0.18s; -webkit-tap-highlight-color: transparent;
+}
+.quiz-modal-close-btn:hover { color: #c4a561; }
+.quiz-modal-inner { padding: 16px 20px 20px; }
+
 /* ── Rutinas ────────────────────────────────────────────── */
 .quiz-progress { margin-bottom: 20px; }
 .quiz-bar  { height: 6px; background: var(--glass-border); border-radius: 99px; overflow: hidden; margin-bottom: 8px; }
@@ -6518,7 +6553,8 @@ select.form-input option { background: var(--bg-surface); color: var(--text-prim
   position: fixed;
   bottom: calc(56px + env(safe-area-inset-bottom, 0px)); /* encima del nav */
   left: 0; right: 0;
-  height: 44px;
+  /* height: auto — permite wrap de 2 filas cuando hay muchos tabs */
+  min-height: 44px;
   background: rgba(10, 18, 28, 0.97);
   backdrop-filter: blur(16px);
   -webkit-backdrop-filter: blur(16px);
@@ -6526,12 +6562,11 @@ select.form-input option { background: var(--bg-surface); color: var(--text-prim
   z-index: 199;
   flex-direction: row;
   align-items: center;
-  gap: 6px;
-  padding: 0 12px;
-  overflow-x: auto;
-  overflow-y: hidden;
-  scrollbar-width: none; /* Firefox */
-  -webkit-overflow-scrolling: touch;
+  flex-wrap: wrap;       /* tabs visibles en varias filas si hacen falta */
+  gap: 5px;
+  padding: 5px 12px 6px;
+  overflow-x: hidden;   /* sin scroll horizontal */
+  overflow-y: visible;
 }
 
 #mobile-subtab-bar.mbn--hidden {
@@ -8539,10 +8574,13 @@ button[class*="wl-"]:not([class*="inp"]):active {
    ============================================================ */
 
 .smart-ob-overlay {
-  position: fixed; inset: 0; z-index: 9000;
+  position: fixed; inset: 0;
+  z-index: 10100; /* above auth modal (.ob-overlay z:10000) */
   background: rgba(7,7,15,0.92);
   display: flex; align-items: center; justify-content: center;
-  padding: 16px;
+  /* bottom padding clears mobile nav (56px) + subtab bar (36px) + buffer */
+  padding: 16px 16px max(100px, calc(80px + env(safe-area-inset-bottom, 0px))) 16px;
+  overflow-y: auto;
   animation: ob-fade-in 0.3s ease;
 }
 .smart-ob-overlay.smart-ob-exit { animation: ob-fade-out 0.35s ease forwards; }
@@ -8554,7 +8592,9 @@ button[class*="wl-"]:not([class*="inp"]):active {
   border: 1px solid rgba(196,165,97,0.2);
   border-radius: 16px;
   width: 100%; max-width: 480px;
-  max-height: 90dvh; overflow-y: auto;
+  /* ensure modal never extends behind the bottom navigation bar */
+  max-height: min(90dvh, calc(100dvh - 110px - env(safe-area-inset-bottom, 0px)));
+  overflow-y: auto;
   display: flex; flex-direction: column;
   box-shadow: 0 24px 64px rgba(0,0,0,0.6);
 }

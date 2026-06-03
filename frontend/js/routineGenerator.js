@@ -357,6 +357,66 @@ const RoutineGenerator = (function () {
   let currentStep = 0;
   let answers     = {};
 
+  // ── Quiz popup ────────────────────────────────────────────────────────────
+  // Muestra el cuestionario en un overlay modal en lugar de inline.
+  let _quizOriginalParent   = null;
+  let _quizOriginalNextSib  = null;
+
+  function _openQuizModal() {
+    const overlay = document.getElementById('quiz-modal-overlay');
+    const inner   = document.getElementById('quiz-modal-inner');
+    const questionnaire = document.getElementById('routine-questionnaire');
+    if (!overlay || !inner || !questionnaire) return;
+
+    // Mover el cuestionario al interior del modal si no está ya ahí
+    if (questionnaire.parentNode !== inner) {
+      _quizOriginalParent  = questionnaire.parentNode;
+      _quizOriginalNextSib = questionnaire.nextSibling;
+      questionnaire.style.display = '';
+      inner.appendChild(questionnaire);
+    } else {
+      questionnaire.style.display = '';
+    }
+    overlay.classList.add('quiz-modal--open');
+
+    // Cerrar con botón
+    const closeBtn = document.getElementById('quiz-modal-close');
+    if (closeBtn && !closeBtn._bound) {
+      closeBtn._bound = true;
+      closeBtn.addEventListener('click', _closeQuizModal);
+    }
+    // Cerrar con click en backdrop
+    if (!overlay._bound) {
+      overlay._bound = true;
+      overlay.addEventListener('click', e => { if (e.target === overlay) _closeQuizModal(); });
+    }
+    // Cerrar con Escape
+    overlay._onKeydown = (e) => { if (e.key === 'Escape') _closeQuizModal(); };
+    document.addEventListener('keydown', overlay._onKeydown);
+  }
+
+  function _closeQuizModal() {
+    const overlay = document.getElementById('quiz-modal-overlay');
+    const questionnaire = document.getElementById('routine-questionnaire');
+    if (!overlay) return;
+    overlay.classList.remove('quiz-modal--open');
+    if (overlay._onKeydown) {
+      document.removeEventListener('keydown', overlay._onKeydown);
+      overlay._onKeydown = null;
+    }
+    // Devolver cuestionario a su ubicación original
+    if (questionnaire && _quizOriginalParent && questionnaire.parentNode !== _quizOriginalParent) {
+      if (_quizOriginalNextSib && _quizOriginalNextSib.parentNode === _quizOriginalParent) {
+        _quizOriginalParent.insertBefore(questionnaire, _quizOriginalNextSib);
+      } else {
+        _quizOriginalParent.appendChild(questionnaire);
+      }
+      _quizOriginalParent  = null;
+      _quizOriginalNextSib = null;
+    }
+    if (questionnaire) questionnaire.style.display = 'none';
+  }
+
   // ── Renderizar paso ───────────────────────────────────────────────────────
   function renderStep() {
     const step    = STEPS[currentStep];
@@ -457,6 +517,7 @@ const RoutineGenerator = (function () {
 
   // ── Mostrar resultado ─────────────────────────────────────────────────────
   function showResult(routine, fromHistory = false) {
+    _closeQuizModal(); // cerrar popup del cuestionario si está abierto
     const questionnaire = document.getElementById('routine-questionnaire');
     const resultEl      = document.getElementById('routine-result');
     const resetBtn      = document.getElementById('btn-reset-routine');
@@ -691,17 +752,16 @@ const RoutineGenerator = (function () {
   function reset() {
     currentStep = 0;
     answers     = {};
-    const questionnaire = document.getElementById('routine-questionnaire');
-    const resultEl      = document.getElementById('routine-result');
-    const resetBtn      = document.getElementById('btn-reset-routine');
-    const shareBtn      = document.getElementById('btn-share-routine');
-    const coachEl       = document.getElementById('routine-coaching-notes');
-    if (questionnaire) questionnaire.style.display = '';
-    if (resultEl)      resultEl.style.display = 'none';
-    if (resetBtn)      resetBtn.style.display = 'none';
-    if (shareBtn)      shareBtn.style.display = 'none';
-    if (coachEl)       coachEl.style.display = 'none';
+    const resultEl = document.getElementById('routine-result');
+    const resetBtn = document.getElementById('btn-reset-routine');
+    const shareBtn = document.getElementById('btn-share-routine');
+    const coachEl  = document.getElementById('routine-coaching-notes');
+    if (resultEl)  resultEl.style.display = 'none';
+    if (resetBtn)  resetBtn.style.display = 'none';
+    if (shareBtn)  shareBtn.style.display = 'none';
+    if (coachEl)   coachEl.style.display = 'none';
     renderStep();
+    _openQuizModal(); // mostrar cuestionario en popup
   }
 
   // ── Empty State para nuevos usuarios ──────────────────────────────────────
@@ -725,12 +785,15 @@ const RoutineGenerator = (function () {
     const el = window.createEmptyState({
       icon: '📋',
       title: 'Aún no tienes rutina',
-      message: 'Configura tus preferencias arriba y genera tu primera rutina personalizada con IA.',
+      message: 'Responde unas preguntas y obtén tu plan semanal personalizado con IA.',
       ctaText: 'Generar mi rutina →',
       ctaAction: () => {
         el.remove();
-        const btn = document.getElementById('btn-generate') || document.querySelector('[data-action="generate"]');
-        if (btn) btn.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        // Abrir el cuestionario en popup
+        currentStep = 0;
+        answers = {};
+        renderStep();
+        _openQuizModal();
       },
     });
     el.id = EMPTY_ID;
@@ -754,6 +817,9 @@ const RoutineGenerator = (function () {
   // Usamos onclick para que sea idempotente — múltiples llamadas a init() no duplican listeners
   function init() {
     _injectInjuryUI();
+    // Ocultar el cuestionario inline inicialmente — se muestra en popup al hacer click
+    const questEl = document.getElementById('routine-questionnaire');
+    if (questEl) questEl.style.display = 'none';
     renderStep();
 
     const nextBtn   = document.getElementById('quiz-next');

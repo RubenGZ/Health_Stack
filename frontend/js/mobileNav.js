@@ -220,6 +220,8 @@
     });
 
     updateSubtabActive(group);
+    // Recalcular padding tras render (altura puede variar con wrap de 2 filas)
+    requestAnimationFrame(syncContentPadding);
   }
 
   // ── Activar sub-tab concreto ───────────────────────────────
@@ -297,7 +299,13 @@
     const mainContent = document.querySelector('.main-content');
     if (!mainContent) return;
     const subtabVisible = subtabBarEl && subtabBarEl.style.display !== 'none';
-    mainContent.style.paddingBottom = subtabVisible ? '106px' : '62px';
+    if (!subtabVisible) {
+      mainContent.style.paddingBottom = '62px';
+      return;
+    }
+    // Usar altura real del subtab bar (puede ser 1 o 2 filas) + nav (56px) + margen
+    const barH = subtabBarEl ? (subtabBarEl.offsetHeight || 44) : 44;
+    mainContent.style.paddingBottom = (56 + barH + 8) + 'px';
   }
 
   // Observar cambios en display del sub-tab bar

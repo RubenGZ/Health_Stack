@@ -262,6 +262,14 @@
         if (typeof window._sendTelemetryEvent === 'function') {
           window._sendTelemetryEvent('registro_completado', { method: 'email' });
         }
+        // SmartOnboarding v2: lanzar wizard tras cerrar el modal de auth (380ms de animación de salida + buffer)
+        // Doble-seguro: el gate hs:user-loaded ya disparó init(false), pero z-index podía dejarlo
+        // oculto detrás del modal de auth. Con este delay el auth modal ya está eliminado del DOM.
+        setTimeout(() => {
+          if (typeof SmartOnboarding !== 'undefined') {
+            SmartOnboarding.init(false);
+          }
+        }, 480);
       } else {
         showError(errEl, 'No se pudo crear la cuenta.');
       }

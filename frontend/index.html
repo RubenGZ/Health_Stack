@@ -13,7 +13,7 @@
   <meta name="robots" content="index, follow, max-snippet:-1, max-image-preview:large" />
   <link rel="canonical" href="https://healthstack.pro/app/" />
 
-  <link rel="stylesheet" href="css/main.css?v=17">
+  <link rel="stylesheet" href="css/main.css?v=18">
   <link rel="stylesheet" href="css/themes.css?v=2">
   <link rel="stylesheet" href="css/anatomy-lens.css">
   <link rel="manifest" href="manifest.json">
@@ -927,6 +927,19 @@
     </section>
 
     <!-- ── RUTINAS ─────────────────────────────────────── -->
+    <!-- Quiz popup overlay (renderizado aquí para que escape correctamente el stacking context) -->
+    <div id="quiz-modal-overlay" class="quiz-modal-overlay" role="dialog" aria-modal="true" aria-label="Generar rutina">
+      <div class="quiz-modal-wrap">
+        <div class="quiz-modal-header">
+          <h3 data-i18n="routines.title">Generar rutina personalizada</h3>
+          <button class="quiz-modal-close-btn" id="quiz-modal-close" aria-label="Cerrar">✕</button>
+        </div>
+        <div class="quiz-modal-inner" id="quiz-modal-inner">
+          <!-- routine-questionnaire se mueve aquí via JS al abrir el popup -->
+        </div>
+      </div>
+    </div>
+
     <section id="section-rutinas" class="section">
       <header class="section-header">
         <div>

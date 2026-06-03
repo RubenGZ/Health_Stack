@@ -518,7 +518,17 @@
     if (revokeBtn && !revokeBtn._bound) {
       revokeBtn._bound = true;
       revokeBtn.addEventListener('click', async () => {
-        if (!confirm('¿Revocar el consentimiento IA? El análisis Groq guardado se eliminará.')) return;
+        // Usar showConfirm (async) — window.confirm() está reemplazado por toast.js
+        // y siempre devuelve false (no puede devolver resultado de promise síncronamente).
+        const confirmed = await (window.showConfirm
+          ? window.showConfirm('¿Revocar el consentimiento IA? El análisis Groq guardado se eliminará.', {
+              type: 'danger',
+              confirmText: 'Revocar',
+              cancelText: 'Cancelar',
+            })
+          : window._nativeConfirm?.('¿Revocar el consentimiento IA? El análisis Groq guardado se eliminará.')
+        );
+        if (!confirmed) return;
         revokeBtn.disabled = true;
         revokeBtn.textContent = 'Revocando…';
         try {

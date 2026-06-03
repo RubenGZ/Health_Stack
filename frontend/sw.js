@@ -4,7 +4,7 @@
                Network-first para CDN externos
    ============================================================ */
 
-const CACHE_NAME    = 'healthstack-v126';
+const CACHE_NAME    = 'healthstack-v127';
 const CDN_CACHE     = 'healthstack-cdn-v2';
 
 // Assets locales a pre-cachear en install

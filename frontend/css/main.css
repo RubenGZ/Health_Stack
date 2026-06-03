@@ -8546,36 +8546,65 @@ button[class*="wl-"]:not([class*="inp"]):active {
   position: fixed;
   inset: 0;
   z-index: 99999;
-  background: #07070f;
+  background:
+    radial-gradient(120% 90% at 50% 0%, rgba(196,165,97,0.10) 0%, transparent 55%),
+    #07070f;
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  gap: 20px;
-  padding: 32px;
+  padding: 24px;
   text-align: center;
   /* Previene que el contenido subyacente sea interactuable */
   pointer-events: all;
 }
 
+#hs-rotate-overlay .hs-rotate-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 14px;
+  max-width: 420px;
+  padding: 28px 32px;
+  background: rgba(22, 22, 38, 0.7);
+  border: 1px solid rgba(196, 165, 97, 0.25);
+  border-radius: 20px;
+  box-shadow: 0 16px 48px rgba(0, 0, 0, 0.45);
+}
+
+#hs-rotate-overlay .hs-rotate-cat {
+  font-size: 64px;
+  line-height: 1;
+  display: block;
+  animation: hs-rotate-bob 2.4s ease-in-out infinite;
+}
+
 #hs-rotate-overlay .hs-rotate-icon {
-  font-size: 56px;
+  font-size: 40px;
   animation: hs-rotate-hint 2s ease-in-out infinite;
   display: block;
+  opacity: 0.85;
 }
 
 #hs-rotate-overlay .hs-rotate-title {
   font-family: 'Inter', sans-serif;
-  font-size: 18px;
-  font-weight: 600;
-  color: #e8dcc8;
+  font-size: 20px;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+  color: #c4a561;
   margin: 0;
 }
 
 #hs-rotate-overlay .hs-rotate-sub {
   font-family: 'Inter', sans-serif;
   font-size: 14px;
-  color: rgba(232, 220, 200, 0.5);
+  line-height: 1.5;
+  color: rgba(232, 220, 200, 0.7);
   margin: 0;
+}
+
+@keyframes hs-rotate-bob {
+  0%, 100% { transform: translateY(0); }
+  50%      { transform: translateY(-8px); }
 }
 
 @keyframes hs-rotate-hint {

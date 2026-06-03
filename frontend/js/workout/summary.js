@@ -211,7 +211,9 @@ export function renderSummary(result) {
           ${prs.map(pr => `<div class="wl-pr-item">🏆 PR — ${_escPr(pr.exercise_key.replace(/_/g,' '))}: ${parseFloat(pr.value)} kg 1RM</div>`).join('')}
         </div>` : ''}
 
-      ${buildMuscleBreakdown()}
+      <div id="wl-summary-anatomy" class="wl-summary-anatomy"></div>
+
+      <div id="wl-feeling-mount" class="wl-feeling-mount"></div>
 
       <div class="wl-summary-notes-section">
         <label class="wl-notes-label" for="workout-session-notes">Notas del entrenamiento (opcional)</label>
@@ -248,6 +250,26 @@ export function renderSummary(result) {
 
   // ── Count-up animation ──────────────────────────────────────
   _animateCounters(S.root);
+
+  // ── Auto-percepción del entreno (módulo aislado) ──────────────
+  try { sessionStorage.removeItem('hs_last_feeling'); } catch (_) {}
+  const _feelEl = S.root.querySelector('#wl-feeling-mount');
+  if (_feelEl) {
+    import('./workout-feeling.js')
+      .then(m => m.renderFeelingSelector(_feelEl))
+      .catch(err => console.warn('[summary] feeling module failed:', err?.message));
+  }
+
+  // ── Visor anatómico (módulo aislado, carga diferida con fallback) ──
+  const _anatEl = S.root.querySelector('#wl-summary-anatomy');
+  if (_anatEl) {
+    import('./summary-anatomy.js')
+      .then(m => m.renderSummaryAnatomy(_anatEl, S.session))
+      .catch(err => {
+        console.warn('[summary] anatomy module failed, fallback a barras:', err?.message);
+        _anatEl.innerHTML = buildMuscleBreakdown();
+      });
+  }
 
   // ── Buttons ─────────────────────────────────────────────────
   // ── Notes textarea — character counter ─────────────────────

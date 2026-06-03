@@ -7113,6 +7113,77 @@ select.form-input option { background: var(--bg-surface); color: var(--text-prim
   text-align: right; font-variant-numeric: tabular-nums;
 }
 
+/* ── Visor anatómico en resumen (summary-anatomy.js) ──────────────────── */
+.wl-anat-block {
+  margin-top: 16px; padding: 14px;
+  background: rgba(255,255,255,0.03);
+  border: 1px solid rgba(255,255,255,0.07);
+  border-radius: 12px;
+}
+.wl-anat-viewer {
+  max-width: 340px; margin: 4px auto 0;
+}
+.wl-anat-legend {
+  list-style: none; margin: 12px 0 0; padding: 0;
+  display: grid; grid-template-columns: repeat(2, 1fr);
+  gap: 6px 14px;
+}
+.wl-anat-leg-item {
+  display: grid; grid-template-columns: 12px 1fr auto;
+  gap: 8px; align-items: center;
+}
+.wl-anat-leg-dot {
+  width: 9px; height: 9px; border-radius: 50%;
+  background: linear-gradient(135deg, #c4a561, #a8843e);
+  box-shadow: 0 0 6px rgba(196,165,97,0.4);
+}
+.wl-anat-leg-name {
+  font-size: 11px; font-weight: 600; color: rgba(255,255,255,0.62);
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+.wl-anat-leg-pct {
+  font-size: 11px; font-weight: 700; color: #c4a561;
+  font-variant-numeric: tabular-nums; text-align: right;
+}
+
+/* ── Auto-percepción del entreno (workout-feeling.js) ─────────────────── */
+.wl-feeling-mount { margin-top: 16px; }
+.wl-feeling {
+  padding: 14px;
+  background: rgba(255,255,255,0.03);
+  border: 1px solid rgba(255,255,255,0.07);
+  border-radius: 12px;
+}
+.wl-feeling-q {
+  display: block; font-size: 13px; font-weight: 600;
+  color: rgba(255,255,255,0.72); margin-bottom: 10px; text-align: center;
+}
+.wl-feeling-opts {
+  display: grid; grid-template-columns: repeat(5, 1fr); gap: 6px;
+}
+.wl-feeling-opt {
+  display: flex; flex-direction: column; align-items: center; gap: 4px;
+  padding: 8px 4px; border-radius: 10px;
+  background: rgba(255,255,255,0.02);
+  border: 1px solid rgba(255,255,255,0.06);
+  color: rgba(255,255,255,0.55);
+  cursor: pointer; font: inherit;
+  transition: transform 140ms ease, border-color 140ms ease, background 140ms ease;
+  -webkit-tap-highlight-color: transparent;
+}
+.wl-feeling-opt:active { transform: scale(0.94); }
+.wl-feeling-opt--active {
+  background: rgba(196,165,97,0.12);
+  border-color: rgba(196,165,97,0.55);
+  color: #e8dcc8;
+  box-shadow: 0 0 14px rgba(196,165,97,0.18);
+}
+.wl-feeling-emoji { font-size: 22px; line-height: 1; }
+.wl-feeling-lbl {
+  font-size: 9.5px; font-weight: 600; letter-spacing: 0.01em;
+  white-space: nowrap;
+}
+
 /* ── History tabs (Historial | Calculadora 1RM) ───────────────────────── */
 .wl-history-tabs {
   display: flex; gap: 4px; margin-bottom: 16px;

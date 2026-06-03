@@ -201,7 +201,15 @@
     btn.innerHTML = `<span class="pw-btn-spinner" aria-hidden="true"></span> Generando feedback…`;
 
     try {
-      const notes     = (document.getElementById('workout-session-notes')?.value || '').trim();
+      const userNotes = (document.getElementById('workout-session-notes')?.value || '').trim();
+      // Antepone la auto-percepción del usuario (si la marcó) para que el coach
+      // IA module su análisis con cómo se ha sentido la persona.
+      let feelingPrefix = '';
+      try {
+        const f = JSON.parse(sessionStorage.getItem('hs_last_feeling') || 'null');
+        if (f && f.label) feelingPrefix = `Percepción del usuario: ${f.label} (${f.v}/5). `;
+      } catch (_) {}
+      const notes     = (feelingPrefix + userNotes).trim();
       const sessionId = _resolveSessionId();
 
       const resp = await fetch(`${_apiBase()}/workout/post-workout-coach`, {

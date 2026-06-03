@@ -26,7 +26,7 @@ Skill dedicado para mejoras visuales del frontend. Cargado en `.claude/skills/he
 **Token de diseño clave**: dark premium, gold `#c4a561` como ÚNICO acento, Inter font, base 4px spacing.
 
 **Estado del sistema de diseño**:
-- CSS v7 en `frontend/css/main.css` — SW **v122** — última actualización 2026-06-03
+- CSS v7 en `frontend/css/main.css` — SW **v128** — última actualización 2026-06-04
 - **Fase 1** ✅ completada: brand consistency (161 refs cyan→gold), skeleton system, stat upgrades, card polish, safe-area iOS
 - **Fase 2** ✅ completada: toast.js (showToast/showConfirm), chartDefaults.js, 10 módulos migrados de alert/confirm nativos, empty states, skeleton loaders JS, form input error/success states (setFieldState global)
 - **Fase 3** ✅ completada: stat-change pill coloreado, XP bar gold shimmer animado, level badge glow pulsante, achievement badge hover, wl-ex-group-chip por grupo muscular, PR badge shimmer, exercise cards con chip de color y badge "última vez"
@@ -42,6 +42,8 @@ Skill dedicado para mejoras visuales del frontend. Cargado en `.claude/skills/he
 - **Pre-beta UX + PWA hardening** ✅ (2026-05-30 → 06-02, SW v82→v118): transitions.js (pantalla de carga al actualizar), modo mantenimiento admin + polling, fix canvas reuse crash, fix mobileNav crash, fix workout historial snake_case, weekly recap + endowed progress + identity streak, bug report button, popup felicitación upgrade plan, beta mode mobile fix, offline queue, portrait-only orientation lock.
 - **Smart Onboarding v2** ✅ (2026-06-01 → 06-03, SW v119→v122): wizard de 7 pasos (`frontend/js/smartOnboarding.js`, `window.SmartOnboarding`) con análisis metabólico NEAT + IA Groq. Migraciones 0017 (`smart_onboarding`) + 0018 (`rgpd_encrypt_eating_sports`). Endpoint `POST /api/v1/auth/onboarding-v2` + `DELETE /api/v1/auth/ai-consent` (revocación Art.9). Cifrado AES-256-GCM de `eating_style` y `sport_activities`. Consentimiento IA visible y revocable. 21 tests de onboarding. v1 (objetivo primero) + v2 (consentimiento IA al final). Fix: SmartOnboarding gating con `hs:user-loaded`.
 - **Audit fixes** ✅ (2026-06-03): auth guard en nutrition recipes, XSS fix en ranked URL, `TEST_DATABASE_URL` configurable por env var.
+- **Entreno QA iPhone — Tandas 1-4** ✅ (2026-06-03→04, SW v122→v128): T1 fix sets no renderizaban (`CSS.escape` en id) + label Peso vs mancuerna + 1RM legible + tríceps. T2 añadir ejercicio en sesión + coach IA + persistencia (`routineId` UUID). T3 pantalla de rotación con gatito. T4 (nuevos módulos aislados) `summary-anatomy.js` (visor anatómico reutilizado en resumen con % de carga por grupo, fallback a barras offline) + `workout-feeling.js` (auto-percepción 1-5, se antepone a notas del coach IA).
+  - **Pendiente Entreno (cada uno aislado, recomendado contexto fresco)**: protocolo progressive-overload que auto-suba el peso + nota explícita; rutina IA que carga vacía (todos los días "Descanso activo"); reps vs rango (desplegable); historial reestructurado (año/mes/semana/día); pre-workout y readiness como popup estilo chat; expandir/renombrar días en sección Rutinas.
 
 ---
 
@@ -251,7 +253,7 @@ asyncio_default_test_loop_scope = session   ← sin esto asyncpg explota
 | Sentry | ✅ Cableado | Filtro PII activo (RGPD Art. 28) |
 | Alembic migraciones | ✅ **18 migraciones** | HEAD: `f2a3b4c5d6e7` (0018 rgpd_encrypt_eating_sports) |
 | Redis en Pi | ✅ **Healthy desde 2026-05-29** | `REDIS_PASSWORD` fijada en `.env.pi` |
-| Service Worker | ✅ `healthstack-v122` | v122: Smart Onboarding v2 / consentimiento IA (2026-06-03) |
+| Service Worker | ✅ `healthstack-v128` | v128: visor anatómico + auto-percepción en resumen entreno (2026-06-04) |
 | Cloudflare Tunnel | ✅ Quick Tunnel activo | URL aleatoria — necesita Named Tunnel para beta |
 
 **Contenedores Pi activos (2026-05-29):**

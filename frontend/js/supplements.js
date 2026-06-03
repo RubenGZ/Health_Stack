@@ -15,19 +15,79 @@ const Supplements = (function () {
       : '<span class="suppl-badge suppl-badge--optional">OPCIONAL</span>';
   }
 
+  const EVIDENCE_MAP = { high: 3, medium: 2, low: 1 };
+  function evidenceCount(level) { return EVIDENCE_MAP[level] || 1; }
+
   function evidenceDots(level) {
-    const map = { high: 3, medium: 2, low: 1 };
-    const n = map[level] || 1;
+    const n = evidenceCount(level);
     const dots = Array.from({ length: 3 }, (_, i) =>
       `<span class="ev-dot${i < n ? ' ev-dot--on' : ''}"></span>`
     ).join('');
     return `<div class="evidence-dots" title="Evidencia: ${level}">${dots}</div>`;
   }
 
+  // ── Estado de filtro ──────────────────────────────────────────────────────
+  // _activeFilter: 0 = todos, 3/2/1 = nº exacto de evidencias.
+  let _allSupplements = [];
+  let _activeFilter   = 0;
+
+  function _filterLabel(n) {
+    if (n === 0) return 'Todos';
+    if (n === 3) return '●●● Alta';
+    if (n === 2) return '●●○ Media';
+    return '●○○ Baja';
+  }
+
+  function renderFilterBar() {
+    const bar = document.getElementById('suppl-filter-bar');
+    if (!bar) return;
+
+    // Contar suplementos por nivel para mostrar el número en cada chip
+    const counts = { 3: 0, 2: 0, 1: 0 };
+    _allSupplements.forEach(s => { counts[evidenceCount(s.evidence_level)]++; });
+
+    const chips = [0, 3, 2, 1].map(n => {
+      const active = n === _activeFilter ? ' suppl-filter-chip--active' : '';
+      const count  = n === 0 ? _allSupplements.length : counts[n];
+      // Ocultar chips sin resultados (excepto "Todos")
+      if (n !== 0 && count === 0) return '';
+      return `<button type="button" class="suppl-filter-chip${active}" data-filter="${n}" aria-pressed="${n === _activeFilter}">
+        <span class="suppl-filter-chip-label">${_filterLabel(n)}</span>
+        <span class="suppl-filter-chip-count">${count}</span>
+      </button>`;
+    }).join('');
+
+    bar.innerHTML = chips;
+    bar.querySelectorAll('[data-filter]').forEach(btn => {
+      btn.addEventListener('click', () => {
+        _activeFilter = parseInt(btn.dataset.filter, 10) || 0;
+        renderFilterBar();
+        _renderGrid();
+      });
+    });
+  }
+
   // ── Render tarjetas de suplementos ────────────────────────────────────────
   function renderSupplements(supplements) {
+    _allSupplements = Array.isArray(supplements) ? supplements : [];
+    _activeFilter = 0;
+    renderFilterBar();
+    _renderGrid();
+  }
+
+  function _renderGrid() {
     const grid = document.getElementById('suppl-grid');
     if (!grid) return;
+
+    let supplements = _allSupplements;
+    if (_activeFilter !== 0) {
+      supplements = supplements.filter(s => evidenceCount(s.evidence_level) === _activeFilter);
+    }
+
+    if (!supplements.length) {
+      grid.innerHTML = `<div class="suppl-empty">No hay suplementos con ese nivel de evidencia.</div>`;
+      return;
+    }
 
     const essential = supplements.filter(s => s.level === 'essential');
     const optional  = supplements.filter(s => s.level !== 'essential');

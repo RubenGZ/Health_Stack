@@ -100,8 +100,11 @@ export function loadRoutineSession(daySession) {
   });
 
   const draft = {
-    routineId:   daySession.day  || null,
-    routineName: daySession.name || null,
+    // routine_id debe ser un UUID válido o null en el backend; NUNCA el nombre
+    // del día ("Lunes"), que provocaba un 422 en POST /workout/sessions y dejaba
+    // la sesión sin persistir (y el coach IA sin session_id real).
+    routineId:   null,
+    routineName: daySession.name || daySession.day || null,
     startedAt:   new Date().toISOString(),
     exercises,
   };

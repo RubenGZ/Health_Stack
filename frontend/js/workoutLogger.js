@@ -113,13 +113,16 @@ function initExerciseSearch() {
           <span class="wl-res-group">${_esc(ex.group || '')}</span>
         </button>`).join('');
     }
-    results.querySelectorAll('.wl-ex-result-item').forEach(btn => {
-      btn.addEventListener('click', () => {
-        addExerciseToSession(btn.dataset.name, btn.dataset.group);
-        input.value = '';
-        results.innerHTML = '';
-      });
-    });
+  });
+
+  // Delegación: un único listener en el contenedor para que el re-render del
+  // teclado predictivo de iOS no "robe" el botón justo al tocarlo (bug de los 4 toques).
+  results.addEventListener('click', e => {
+    const btn = e.target.closest('.wl-ex-result-item');
+    if (!btn) return;
+    addExerciseToSession(btn.dataset.name, btn.dataset.group);
+    input.value = '';
+    results.innerHTML = '';
   });
 
   input.addEventListener('keydown', e => {
@@ -151,6 +154,11 @@ function initExerciseSearch() {
 function addExerciseToSession(name, group) {
   const ex = Session.addExercise(S.session, name);
   if (ex && group) ex.group = group;
+  // Sembrar 3 sets de trabajo por defecto para que el ejercicio quede listo
+  // (antes entraba con sets:[] y parecía que "Añadir set" no funcionaba).
+  if (ex && ex.sets.length === 0) {
+    for (let i = 0; i < 3; i++) Session.addSet(S.session, ex.key);
+  }
   Session.saveDraft(S.session);
   renderExercises();
   Timer.updateVolLabel();

@@ -1481,12 +1481,27 @@ select.form-input option { background: var(--bg-surface); color: var(--text-prim
 .quiz-fill { height: 100%; background: linear-gradient(90deg, var(--primary), var(--secondary)); border-radius: 99px; transition: width 0.4s ease; }
 .quiz-step-label { font-size: 0.8rem; color: var(--text-secondary); }
 
-.quiz-card { padding: 28px; min-height: 220px; }
-.quiz-question { font-size: 1.2rem; font-weight: 700; margin-bottom: 8px; }
-.quiz-hint { font-size: 0.82rem; color: var(--text-secondary); margin-bottom: 20px; }
+.quiz-card { padding: 22px; min-height: 180px; }
+.quiz-question { font-size: 1.12rem; font-weight: 700; margin-bottom: 6px; letter-spacing: -0.01em; line-height: 1.25; }
+.quiz-hint { font-size: 0.82rem; color: var(--text-secondary); margin-bottom: 18px; }
 
-.quiz-number-wrap { display: flex; align-items: center; gap: 12px; margin-top: 12px; }
+.quiz-number-wrap { display: flex; align-items: center; gap: 12px; margin-top: 10px; }
 .quiz-number-input { max-width: 160px; font-size: 1.4rem; text-align: center; padding: 12px; }
+
+/* Campo manual de minutos (paso duración) */
+.quiz-custom-wrap { margin-top: 16px; padding-top: 14px; border-top: 1px dashed var(--glass-border); }
+.quiz-custom-label { display: block; font-size: 0.8rem; color: var(--text-secondary); margin-bottom: 8px; }
+.quiz-number-input.selected { border-color: var(--primary); box-shadow: 0 0 0 2px var(--primary-light); }
+
+/* Campo de texto (nombre de la rutina) */
+.quiz-text-wrap { margin-top: 14px; }
+.quiz-text-input { width: 100%; font-size: 1rem; padding: 14px 16px; }
+
+/* Nombre de la rutina — destacado en la cabecera del resultado */
+.routine-name-title {
+  font-size: 1.5rem; font-weight: 800; letter-spacing: -0.02em;
+  color: var(--hs-accent, #c4a561); margin: 0 0 14px; line-height: 1.15;
+}
 
 .quiz-options {
   display: grid;

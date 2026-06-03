@@ -53,14 +53,31 @@ const RoutineGenerator = (function () {
     },
     {
       id: 'duration',
-      title: '¿Cuánto tiempo tienes disponible por sesión?',
-      coaching_why: 'Cada minuto cuenta — diseñamos la sesión para que no sobre ni falte nada.',
+      title: '¿Cuánto tiempo tienes por sesión?',
+      coaching_why: 'Ajustamos el número de ejercicios y los descansos a tu tiempo real.',
+      type: 'options',
+      allowCustom: true,
+      customLabel: '¿Otro tiempo? Escribe tus minutos exactos:',
+      customUnit: 'min',
+      customMin: 20,
+      customMax: 180,
+      options: [
+        { value: 30,  label: '30 min',  desc: 'Exprés. 4 compuestos, descansos cortos.' },
+        { value: 45,  label: '45 min',  desc: '5 ejercicios. Mínimo para progreso sólido.' },
+        { value: 60,  label: '60 min',  desc: '6-7 ejercicios. El punto óptimo.' },
+        { value: 90,  label: '90 min',  desc: '8-9 ejercicios. Alto volumen.' },
+        { value: 120, label: '120 min', desc: 'Sesión larga. Máximo volumen para avanzados.' },
+      ],
+    },
+    {
+      id: 'rest_preference',
+      title: '¿Cuánto quieres descansar entre series?',
+      coaching_why: 'El descanso decide si priorizas densidad (quemar más) o fuerza (levantar más).',
       type: 'options',
       options: [
-        { value: 30, label: '30 min', desc: 'Sesión exprés. 4 compuestos en superserie — sin descansos largos. Ideal si el tiempo escasea.' },
-        { value: 45, label: '45 min', desc: '5 ejercicios con descanso real. El mínimo para ver progreso sólido en hipertrofia.' },
-        { value: 60, label: '60 min', desc: '6-7 ejercicios. El punto óptimo entre volumen, intensidad y recuperación real.' },
-        { value: 90, label: '90 min', desc: '8-9 ejercicios. Alto volumen de entrenamiento para atletas que priorizan el gym.' },
+        { value: 'short',    label: 'Cortos · 45-60 s', desc: 'Más densidad y quema calórica. Ideal para definición y resistencia muscular.' },
+        { value: 'standard', label: 'Estándar · 90 s',  desc: 'El equilibrio recomendado para hipertrofia. Recuperas sin perder intensidad.' },
+        { value: 'long',     label: 'Largos · 2-3 min', desc: 'Máxima recuperación entre series. Para fuerza y levantamientos pesados.' },
       ],
     },
     {
@@ -116,6 +133,14 @@ const RoutineGenerator = (function () {
         { value: 'elbow',      label: 'Codo' },
         { value: 'hip',        label: 'Cadera' },
       ],
+    },
+    {
+      id: 'routine_name',
+      title: 'Ponle un nombre a tu rutina',
+      coaching_why: 'Así la reconocerás de un vistazo. Puedes cambiarlo cuando quieras.',
+      type: 'text',
+      placeholder: 'Ej: Mi rutina de fuerza',
+      maxlength: 60,
     },
   ];
 
@@ -194,7 +219,12 @@ const RoutineGenerator = (function () {
     const injuries    = (injRaw || ['none']).filter(v => v !== 'none');
     const priorityList= (priority || ['none']).filter(p => p !== 'none');
     const eq          = equipment || 'full_gym';
-    const scheme      = getScheme(goal, level);
+    const scheme      = { ...getScheme(goal, level) };
+    // Preferencia de descanso entre series elegida por el usuario
+    const restMap = { short: '45-60 s', standard: scheme.rest, long: '2-3 min' };
+    if (answers.rest_preference && restMap[answers.rest_preference]) {
+      scheme.rest = restMap[answers.rest_preference];
+    }
     const periodModel = PERIODIZATION_MODEL[level] || PERIODIZATION_MODEL.intermediate;
 
     // Grupos a saltar por lesión severa
@@ -203,8 +233,9 @@ const RoutineGenerator = (function () {
     if (injuries.includes('knee'))     skip.add('quads');
     if (injuries.includes('hip'))      skip.add('glutes');
 
-    // Ejercicios por sesión según duración
-    const exPerSession = duration <= 30 ? 4 : duration <= 45 ? 5 : duration <= 60 ? 6 : 8;
+    // Ejercicios por sesión según duración (incl. sesiones largas 120-180 min)
+    const dur = parseInt(duration, 10) || 60;
+    const exPerSession = dur <= 30 ? 4 : dur <= 45 ? 5 : dur <= 60 ? 6 : dur <= 90 ? 8 : dur <= 120 ? 9 : 10;
 
     // Construir una sesión: ordena grupos prioritarios primero
     function makeSession(dayName, sessionName, groups) {
@@ -420,6 +451,10 @@ const RoutineGenerator = (function () {
   // ── Renderizar paso ───────────────────────────────────────────────────────
   function renderStep() {
     const step    = STEPS[currentStep];
+    // Preselección sensata: descanso "Estándar" marcado por defecto
+    if (step.id === 'rest_preference' && answers.rest_preference === undefined) {
+      answers.rest_preference = 'standard';
+    }
     const total   = STEPS.length;
     const pct     = Math.round(((currentStep + 1) / total) * 100);
     const fillEl  = document.getElementById('quiz-fill');
@@ -447,6 +482,12 @@ const RoutineGenerator = (function () {
                value="${val}" min="${step.min}" max="${step.max}" placeholder="${step.placeholder}">
         <span class="input-unit">${step.unit}</span>
       </div>`;
+    } else if (step.type === 'text') {
+      const tv = answers[step.id] != null ? String(answers[step.id]).replace(/"/g, '&quot;') : '';
+      html += `<div class="quiz-text-wrap">
+        <input type="text" id="quiz-text-input" class="form-input quiz-text-input"
+               value="${tv}" maxlength="${step.maxlength || 60}" placeholder="${step.placeholder || ''}">
+      </div>`;
     } else if (step.type === 'options') {
       html += `<div class="quiz-options">` +
         step.options.map(o => `
@@ -455,6 +496,19 @@ const RoutineGenerator = (function () {
             <span class="quiz-opt-label">${o.label}</span>
             <span class="quiz-opt-desc">${o.desc}</span>
           </label>`).join('') + `</div>`;
+      if (step.allowCustom) {
+        const isCustom = answers[step.id] !== undefined && !step.options.some(o => o.value === answers[step.id]);
+        const cv = isCustom ? answers[step.id] : '';
+        html += `<div class="quiz-custom-wrap">
+          <label class="quiz-custom-label">${step.customLabel || 'Otro'}</label>
+          <div class="quiz-number-wrap">
+            <input type="number" id="quiz-custom-input" class="form-input quiz-number-input${isCustom ? ' selected' : ''}"
+                   value="${cv}" min="${step.customMin || 1}" max="${step.customMax || 999}"
+                   placeholder="${step.customMin || ''}-${step.customMax || ''}">
+            <span class="input-unit">${step.customUnit || ''}</span>
+          </div>
+        </div>`;
+      }
     } else if (step.type === 'multicheck') {
       const selected = answers[step.id] || [];
       html += `<div class="quiz-options quiz-options--multi">` +
@@ -474,6 +528,9 @@ const RoutineGenerator = (function () {
         if (step.type === 'options') {
           answers[step.id] = val;
           card.querySelectorAll('.quiz-option').forEach(o => o.classList.toggle('selected', o.dataset.val == rawVal));
+          // Al elegir un botón predefinido, limpiar el campo manual (si existe)
+          const ci = card.querySelector('#quiz-custom-input');
+          if (ci) { ci.value = ''; ci.classList.remove('selected'); }
         } else {
           let sel = answers[step.id] || [];
           const strVal = String(rawVal);
@@ -488,6 +545,25 @@ const RoutineGenerator = (function () {
         }
       });
     });
+
+    // Campo manual de minutos (paso duración con allowCustom)
+    const customInput = card.querySelector('#quiz-custom-input');
+    if (customInput) {
+      customInput.addEventListener('input', () => {
+        const v = parseInt(customInput.value, 10);
+        if (!isNaN(v)) {
+          answers[step.id] = v;
+          customInput.classList.add('selected');
+          card.querySelectorAll('.quiz-option').forEach(o => o.classList.remove('selected'));
+        }
+      });
+    }
+
+    // Campo de texto (nombre de la rutina)
+    const textInput = card.querySelector('#quiz-text-input');
+    if (textInput) {
+      textInput.addEventListener('input', () => { answers[step.id] = textInput.value; });
+    }
   }
 
   // ── Validar paso ──────────────────────────────────────────────────────────
@@ -502,12 +578,23 @@ const RoutineGenerator = (function () {
         return false;
       }
       answers[step.id] = val;
+    } else if (step.type === 'text') {
+      const input = document.getElementById('quiz-text-input');
+      let v = (input?.value || '').trim();
+      if (!v) v = 'Mi rutina';
+      answers[step.id] = v.slice(0, step.maxlength || 60);
     } else if (step.type === 'options') {
       if (answers[step.id] === undefined) {
         const card = document.getElementById('quiz-card');
         card?.classList.add('shake');
         setTimeout(() => card?.classList.remove('shake'), 500);
         return false;
+      }
+      // Clamp del valor manual a su rango permitido
+      if (step.allowCustom && typeof answers[step.id] === 'number') {
+        const v = answers[step.id];
+        if (step.customMin && v < step.customMin) answers[step.id] = step.customMin;
+        if (step.customMax && v > step.customMax) answers[step.id] = step.customMax;
       }
     } else if (step.type === 'multicheck') {
       if (!answers[step.id] || !answers[step.id].length) answers[step.id] = ['none'];
@@ -557,9 +644,11 @@ const RoutineGenerator = (function () {
     const eqMap   = { full_gym:'Gimnasio completo', free_weights:'Peso libre', dumbbells:'Mancuernas', machines:'Máquinas + poleas', bodyweight:'Peso corporal' };
     const recMap  = { high:'Alta', medium:'Media', low:'Baja' };
 
+    const routineName = (ans && ans.routine_name && String(ans.routine_name).trim()) || routine.name || '';
     const summary = document.getElementById('routine-summary');
     if (summary) {
       summary.innerHTML = `
+        ${routineName ? `<h2 class="routine-name-title">${_escHtml(routineName)}</h2>` : ''}
         <div class="routine-meta">
           <span class="rmeta-item"><strong>Objetivo:</strong> ${goalMap[ans.goal] || ans.goal}</span>
           <span class="rmeta-item"><strong>Nivel:</strong> ${lvlMap[ans.level] || ans.level}</span>
@@ -613,14 +702,13 @@ const RoutineGenerator = (function () {
     document.dispatchEvent(new CustomEvent('hs:routine-generated', { detail: { routine } }));
     localStorage.setItem(LS_KEY, JSON.stringify({ routine, ts: Date.now() }));
 
-    // Solo pedir guardar si es una rutina nueva (no cargada desde historial)
+    // Guardado automático con el nombre que el usuario eligió en el cuestionario
+    // (el nombre ahora se pide como último paso del quiz, sin popup extra).
     if (!fromHistory) {
-      const existingHistory = JSON.parse(localStorage.getItem(LS_HISTORY) || '[]');
-      if (existingHistory.length >= HISTORY_MAX) {
-        _promptSaveRoutine(routine, true); // true = ya hay una existente
-      } else {
-        _promptSaveRoutine(routine, false);
-      }
+      const nm = routineName || 'Mi rutina';
+      saveToHistory(routine, nm);
+      renderHistory();
+      if (window.showToast) window.showToast(`Rutina "${nm}" guardada.`, 'success');
     }
   }
 
@@ -848,6 +936,11 @@ const RoutineGenerator = (function () {
         if (!routine) {
           routine = generateRoutine(answers);
         }
+        // Garantizar que el nombre elegido viaja con la rutina (incl. respuesta IA)
+        if (routine) {
+          routine.answers = routine.answers || {};
+          if (!routine.answers.routine_name) routine.answers.routine_name = answers.routine_name;
+        }
         showResult(routine);
       }
     };
@@ -1025,10 +1118,11 @@ const RoutineGenerator = (function () {
       }
       const sevColor = { mild: '#4ade80', moderate: '#f59e0b', severe: '#f87171' };
       const sevLabel = { mild: 'Leve', moderate: 'Moderada', severe: 'Severa' };
+      const areaLabel = { shoulder: 'Hombro', elbow: 'Codo', wrist: 'Muñeca', lower_back: 'Lumbar', hip: 'Cadera', knee: 'Rodilla', ankle: 'Tobillo', neck: 'Cuello', thoracic: 'Dorsal' };
       container.innerHTML = _injuries.map(function (inj) {
         const color = sevColor[inj.severity] || '#e2e8f0';
         return '<div class="injury-item">' +
-          '<span class="injury-badge injury-badge--area">' + _escHtml(inj.body_area) + '</span>' +
+          '<span class="injury-badge injury-badge--area">' + _escHtml(areaLabel[inj.body_area] || inj.body_area) + '</span>' +
           '<span class="injury-label">' + _escHtml(inj.injury_label) + '</span>' +
           '<span class="injury-badge injury-badge--sev" style="color:' + color + ';border-color:' + color + '40">' +
             (sevLabel[inj.severity] || _escHtml(String(inj.severity))) +
@@ -1074,7 +1168,18 @@ const RoutineGenerator = (function () {
         '<div id="injury-manager-list" class="injury-list"></div>',
         '<form id="injury-add-form" class="injury-add-form" autocomplete="off">',
           '<div class="injury-form-row">',
-            '<input id="inj-area"     class="form-input injury-input" type="text"   placeholder="Zona (p.ej. hombro)" maxlength="60" required>',
+            '<select id="inj-area" class="form-input injury-input" required>',
+              '<option value="">Zona afectada…</option>',
+              '<option value="shoulder">Hombro</option>',
+              '<option value="elbow">Codo</option>',
+              '<option value="wrist">Muñeca</option>',
+              '<option value="lower_back">Lumbar</option>',
+              '<option value="hip">Cadera</option>',
+              '<option value="knee">Rodilla</option>',
+              '<option value="ankle">Tobillo</option>',
+              '<option value="neck">Cuello</option>',
+              '<option value="thoracic">Dorsal</option>',
+            '</select>',
             '<input id="inj-label"    class="form-input injury-input" type="text"   placeholder="Descripción (p.ej. tendinitis)" maxlength="120" required>',
             '<select id="inj-sev" class="form-input injury-input">',
               '<option value="mild">Leve</option>',

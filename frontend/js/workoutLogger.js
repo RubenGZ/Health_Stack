@@ -246,7 +246,7 @@ function renderExercises() {
         <span>#</span><span>Ant.</span><span>kg</span><span></span><span>Reps</span><span>1RM</span><span></span><span></span>
       </div>
 
-      <div class="wl-sets-list" id="wl-sets-${CSS.escape(ex.key)}"></div>
+      <div class="wl-sets-list" id="wl-sets-${ex.key}"></div>
 
       <button class="wl-add-set-btn" data-key="${ex.key}">
         <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>

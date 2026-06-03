@@ -345,6 +345,12 @@ const Exercises = (function () {
     { id: 85, name: 'Skull crusher mancuernas', group: 'triceps', level: 'Intermedio', equipment: 'Mancuernas',
       equipmentType: 'dumbbell', compound: false, barWeight: 0, defaultKg: 12, sfr: 'high', primary: false,
       muscles: ['triceps'], desc: 'Mancuernas bajan junto a la cabeza. Excelente aislamiento con rango de movimiento completo.', video_url: '' },
+    { id: 86, name: 'Extensión de tríceps unilateral (polea)', group: 'triceps', level: 'Principiante', equipment: 'Polea',
+      equipmentType: 'cable', compound: false, barWeight: 0, defaultKg: 10, sfr: 'high', primary: false,
+      muscles: ['triceps'], desc: 'Polea alta a una mano. Corrige descompensaciones entre brazos y maximiza el rango y la contracción de cada tríceps por separado.', video_url: '' },
+    { id: 87, name: 'Extensión de tríceps (mancuerna)', group: 'triceps', level: 'Principiante', equipment: 'Mancuernas',
+      equipmentType: 'dumbbell', compound: false, barWeight: 0, defaultKg: 14, sfr: 'high', primary: false,
+      muscles: ['triceps'], desc: 'Extensión por encima de la cabeza con mancuerna a dos manos. Gran estiramiento de la cabeza larga del tríceps.', video_url: '' },
 
     // ── BÍCEPS (nuevo grupo) ──
     { id: 90, name: 'Curl mancuernas alterno', group: 'biceps', level: 'Principiante', equipment: 'Mancuernas',

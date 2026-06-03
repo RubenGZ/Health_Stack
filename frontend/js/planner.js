@@ -590,17 +590,13 @@ const MealPlanner = (function () {
   }
 
   // ── Swipe entre días ──────────────────────────────────────
+  // DESACTIVADO (2026-06-04): el swipe lateral cambiaba de día sin querer al
+  // hacer scroll vertical → parecía un bug. Por decisión de producto el día solo
+  // cambia al TOCAR el día en el strip semanal (_selectDate vía click).
+  // Si se reactiva en el futuro, exigir gesto claramente horizontal:
+  // |dx| > 70 && |dx| > 2*|dy| para evitar disparos accidentales.
   function _initSwipe() {
-    const root = document.getElementById('section-planner');
-    if (!root) return;
-    let x0 = 0;
-    root.addEventListener('touchstart', e => { x0 = e.touches[0].clientX; }, { passive: true });
-    root.addEventListener('touchend',   e => {
-      if (_sheetState) return; // no cambiar de día cuando el sheet está abierto
-      const dx = e.changedTouches[0].clientX - x0;
-      if (Math.abs(dx) < 55) return;
-      _selectDate(_addDays(selectedDate, dx < 0 ? 1 : -1));
-    }, { passive: true });
+    /* no-op intencional — cambio de día solo por tap */
   }
 
   // ── Crear DOM del sheet ──────────────────────────────────

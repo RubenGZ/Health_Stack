@@ -5335,15 +5335,22 @@ select.form-input option { background: var(--bg-surface); color: var(--text-prim
 }
 /* summary actions row */
 .wl-summary-actions {
-  display: flex; gap: 10px; margin-top: 8px;
+  display: flex; flex-wrap: wrap; gap: 10px; margin-top: 8px;
 }
+/* "Nueva sesión" ocupa toda la fila → nunca se recorta el texto.
+   IA Insights + Compartir se reparten la segunda fila. */
 .wl-done-btn {
-  flex: 1; font-size: 15px;
+  flex: 1 1 100%; font-size: 15px;
   padding: 13px; font-weight: 700;
   background: transparent;
   border: 1px solid rgba(255,255,255,0.13);
   border-radius: 14px; color: var(--hs-text-2);
-  cursor: pointer;
+  cursor: pointer; white-space: nowrap;
+  text-align: center;
+}
+.wl-summary-actions .wl-insights-btn,
+.wl-summary-actions .wl-share-btn {
+  flex: 1 1 0; min-width: 0; justify-content: center;
 }
 .wl-done-btn:hover { background: rgba(255,255,255,0.05); color: var(--hs-text); }
 .wl-share-btn {

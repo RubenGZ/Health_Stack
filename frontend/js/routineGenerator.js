@@ -637,8 +637,8 @@ const RoutineGenerator = (function () {
       existingBtn.parentNode.replaceChild(newBtn, existingBtn);
     }
 
-    const cfg = routine.cfg;
-    const ans = routine.answers;
+    const cfg = routine.cfg || {};
+    const ans = routine.answers || {};
     const goalMap = { hypertrophy:'Hipertrofia', strength:'Fuerza', fat_loss:'Pérdida de grasa', athletic:'Atlético', recomposition:'Recomposición' };
     const lvlMap  = { beginner:'Principiante', intermediate:'Intermedio', advanced:'Avanzado' };
     const eqMap   = { full_gym:'Gimnasio completo', free_weights:'Peso libre', dumbbells:'Mancuernas', machines:'Máquinas + poleas', bodyweight:'Peso corporal' };
@@ -655,21 +655,22 @@ const RoutineGenerator = (function () {
           <span class="rmeta-item"><strong>Split:</strong> ${routine.splitName || `${ans.days} días`}</span>
           <span class="rmeta-item"><strong>Equipamiento:</strong> ${eqMap[ans.equipment] || ans.equipment || '—'}</span>
           <span class="rmeta-item"><strong>Recuperación:</strong> ${recMap[ans.recovery] || '—'}</span>
-          <span class="rmeta-item"><strong>Intensidad:</strong> ${cfg.intensity}</span>
+          <span class="rmeta-item"><strong>Intensidad:</strong> ${cfg.intensity || '—'}</span>
         </div>
         ${routine.splitRationale ? `<div class="routine-rationale"><span class="rationale-icon"></span><p>${routine.splitRationale}</p></div>` : ''}`;
     }
 
     const week = document.getElementById('routine-week');
     if (week) {
-      week.innerHTML = routine.sessions.map(s => `
+      const _sessions = Array.isArray(routine.sessions) ? routine.sessions : [];
+      week.innerHTML = _sessions.map(s => `
         <div class="routine-day card">
           <div class="routine-day-header">
             <span class="routine-day-name">${s.day}</span>
             <span class="routine-day-session">${s.name}</span>
           </div>
           <div class="routine-exercises">
-            ${s.exercises.length === 0
+            ${(!Array.isArray(s.exercises) || s.exercises.length === 0)
               ? `<p class="no-exercises">Descanso activo — movilidad y stretching</p>`
               : s.exercises.map(ex => `
                 <div class="routine-ex" data-exercise="${ex.name}" data-planned-reps="${ex.reps}">
@@ -1249,11 +1250,50 @@ const RoutineGenerator = (function () {
         body: JSON.stringify(answers),
       });
       if (!res.ok) throw new Error('HTTP ' + res.status);
-      return await res.json();
+      const data = await res.json();
+      // El backend devuelve AIRoutineResponse (days/day_label/muscle_group/rest_sec).
+      // El render del frontend espera sessions/day/name/rest/sfr → normalizar aquí.
+      const mapped = _normalizeAiRoutine(data, answers);
+      if (!mapped) throw new Error('Respuesta IA con formato inesperado');
+      return mapped;
     } catch (err) {
       console.warn('[RoutineGenerator] AI generate error, falling back to local:', err.message);
       return null;
     }
+  }
+
+  // ── Normaliza la respuesta IA del backend al formato que renderiza showResult ──
+  // Backend AIRoutineResponse: { label, description, days_per_week, focus_area,
+  //   days:[ { day_label, focus, exercises:[{name, muscle_group, sets, reps, rest_sec, notes}] } ] }
+  // Frontend espera: { name, splitName, splitRationale, cfg:{intensity}, answers,
+  //   sessions:[ { day, name, exercises:[{name, sets, reps, rest, group, sfr}] } ] }
+  function _normalizeAiRoutine(ai, answers) {
+    if (!ai || typeof ai !== 'object') return null;
+    // Ya viene en formato frontend (rutina local o respuesta ya mapeada)
+    if (Array.isArray(ai.sessions)) return ai;
+    if (!Array.isArray(ai.days)) return null;
+    const sessions = ai.days.map(d => ({
+      day:  d.day_label || d.day || '',
+      name: d.focus || d.name || '',
+      exercises: (Array.isArray(d.exercises) ? d.exercises : []).map(e => ({
+        name:  e.name || '',
+        sets:  e.sets  != null ? String(e.sets) : '3',
+        reps:  e.reps  != null ? String(e.reps) : '8-12',
+        rest:  e.rest_sec != null ? `${e.rest_sec} s` : (e.rest || '60-90 s'),
+        group: e.muscle_group || e.group || '',
+        sfr:   e.sfr || 'medium',
+        notes: e.notes || '',
+      })),
+    }));
+    return {
+      name:           ai.label || (answers && answers.routine_name) || 'Rutina IA',
+      splitName:      ai.focus_area || ai.label || '',
+      splitRationale: ai.description || '',
+      cfg:            { intensity: ai.intensity || '—' },
+      answers:        answers || {},
+      sessions,
+      coachingNotes:  Array.isArray(ai.coachingNotes) ? ai.coachingNotes : [],
+    };
   }
 
   // ── Mapa de nombres canónicos (igual que workoutSession.js) ──────────────

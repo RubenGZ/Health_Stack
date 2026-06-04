@@ -22,12 +22,6 @@
 
 ## 🔴 ABIERTOS
 
-### BUG-01 · Rutina IA carga vacía (todos los días "Descanso activo")  · P0
-- **Reportado**: QA iPhone (tanda pendiente).
-- **Síntoma**: al generar una rutina con IA, todos los días salen como "Descanso activo"; la rutina no trae ejercicios.
-- **Sospecha**: `frontend/js/routineGenerator.js` y/o `frontend/js/workout/routine-picker.js` — parsing de la respuesta IA o mapeo de días.
-- **Verificar**: generar rutina IA nueva → cada día de entreno trae ejercicios reales, no "Descanso activo".
-
 ### BUG-02 · Botón "Nueva sesión" feo + sin opción "cerrar y guardar entreno" · P1
 - **Reportado**: [12:51].
 - **Síntoma**: el botón de nueva sesión es de baja calidad visual; en una sesión activa no hay forma de "cerrar y guardar" el entreno en curso.
@@ -109,6 +103,12 @@
 ---
 
 ## 🟢 FIX-SIN-VERIFICAR (esperando confirmación de Ruben en iPhone)
+
+### BUG-01 · Rutina IA carga vacía (todos los días "Descanso activo") · P0
+- **Reportado**: QA iPhone. **Arreglado**: Tanda 7 (pendiente commit/deploy).
+- **Causa raíz**: desajuste de contrato. El backend devuelve `AIRoutineResponse` (`days`/`day_label`/`muscle_group`/`rest_sec`) pero el render del frontend espera `sessions`/`day`/`name`/`rest`/`sfr`. No había mapeador → `routine.sessions` undefined → todos los días vacíos.
+- **Fix**: añadido `_normalizeAiRoutine()` en `routineGenerator.js` que convierte la respuesta IA al formato del render; aplicado en `_aiGenerateWithInjuries`. Guardas defensivas en `showResult` (cfg/sessions/exercises) para que un desajuste nunca deje la pantalla en blanco. SW v130→v131.
+- **Verificar**: generar rutina IA nueva (con cuenta logueada) → cada día de entreno trae ejercicios reales, no "Descanso activo".
 
 ### BUG-V01 · Planner cambiaba de día al deslizar lateralmente · P1
 - **Reportado**: [13:00]. **Arreglado**: Tanda 5 (commit `75304ac`).

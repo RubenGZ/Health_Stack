@@ -15,6 +15,17 @@
 
 ---
 
+## 🐞 MEMORIA DE BUGS — LEER AL EMPEZAR CADA SESIÓN
+
+**Fuente de verdad de bugs reportados: `BUGS.md` en la raíz del proyecto.**
+
+- ANTES de tocar nada nuevo, leer `BUGS.md` y trabajar los `🔴 ABIERTO` por prioridad (P0→P3).
+- Un bug solo se borra cuando Ruben lo verifica en su iPhone (`✅ VERIFICADO`). Arreglar el código NO basta.
+- Al desplegar un fix → mover el bug a `🟢 FIX-SIN-VERIFICAR`. Al confirmar Ruben → borrar la entrada.
+- Los hallazgos de auditoría de código NO van a `BUGS.md`, van a "Pendientes prioritarios" de este archivo.
+
+---
+
 ## HealthStack Frontend Design Agent
 
 Skill dedicado para mejoras visuales del frontend. Cargado en `.claude/skills/healthstack-frontend/SKILL.md`.
